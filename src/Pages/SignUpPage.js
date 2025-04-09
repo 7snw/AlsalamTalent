@@ -13,7 +13,7 @@ const SignUpPage = () => {
     contactNumber: '',
     cpr: ''
   });
-
+//wwe
   const navigate = useNavigate();
 
   const handleChange = (e) => {
