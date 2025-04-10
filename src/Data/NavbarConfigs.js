@@ -6,7 +6,7 @@ export const NavConfig1 = [
 ];
 
 export const NavConfig2 = Object.assign([
-  { label: 'Home', path: '/' },
+  { label: 'Home', path: '/freelancer-home' },
   {
     label: 'Projects',
     path: '/projects',
@@ -26,10 +26,9 @@ export const NavConfig2 = Object.assign([
 });
 
 export const NavConfig3 = Object.assign([
-  { label: 'Home', path: '/' },
+  { label: 'Home', path: '/client-home' },
   {
     label: 'Projects',
-    path: '/projects',
     dropdown: [
       { label: 'Browse Projects', path: '/browse-projects' },
       { label: 'Post Project Brief', path: '/post-projects' },
@@ -40,7 +39,10 @@ export const NavConfig3 = Object.assign([
   },
   { label: 'Freelancers', path: '/freelancers' },
   { label: 'Analytics', path: '/analytics' }
-], { showIcons: true });
+], { 
+  showIcons: true,
+  hideSignIn: true 
+});
 
 export const NavConfig4 = [
   { label: 'Home', path: '/' },

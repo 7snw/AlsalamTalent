@@ -7,6 +7,7 @@ import GraduateSignUp from './Pages/GraduateSignUp';
 import LoginPage from './Pages/LoginPage';
 import AboutUs from './Pages/AboutUs';
 import FreelancerHome from './Pages/FreelancerHome';
+import ClientHome from './Pages/Clients/ClientHome';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/graduatesignup" element={<GraduateSignUp />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/freelancer-home" element={<FreelancerHome />} /> {/* 👈 New route */}
+        <Route path="/client-home" element={<ClientHome />} /> {/* 👈 New route */}
       </Routes>
     </Router>
   );
