@@ -8,6 +8,7 @@ import LoginPage from './Pages/LoginPage';
 import AboutUs from './Pages/AboutUs';
 import FreelancerHome from './Pages/FreelancerHome';
 import ClientHome from './Pages/Clients/ClientHome';
+import PostProject from './Pages/Clients/PostProject';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/freelancer-home" element={<FreelancerHome />} /> {/* 👈 New route */}
         <Route path="/client-home" element={<ClientHome />} /> {/* 👈 New route */}
+        <Route path="/postproject" element={<PostProject />} />  
       </Routes>
     </Router>
   );

@@ -1,0 +1,132 @@
+/* src/Style/Clients/PostProject.css */
+
+.post-project-page {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #E6E7E8;
+    min-height: 100vh;
+    padding: 0 6%;
+  }
+  .post-project-container {
+    max-width: 750px;
+    margin: 0 auto 50px;       
+    padding: 1px 40px 30px 40px; 
+    background-color: transparent;
+  }
+  
+  
+  
+  .post-project-container h2 {
+    font-size: 30px;
+    color: #1B223C;
+    margin-bottom: 25px;
+  }
+  
+  .post-project-form label {
+    display: block;
+    margin-top: 15px;
+    color: #1B223C;
+    font-weight: bold;
+  }
+  
+  .post-project-form input,
+  .post-project-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f3f3f3;
+    font-size: 15px;
+    resize: none;
+    box-sizing: border-box;
+    color: #1B223C;
+  }
+  
+  .post-project-form textarea {
+    height: 120px;
+  }
+  
+  .date-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .to-separator {
+    font-size: 18px;
+    color: #999;
+  }
+  
+  .upload-group {
+    margin-top: 25px;
+  }
+  
+  .upload-group label {
+    display: block;
+    color: #1B223C;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  
+  .upload-btn {
+    display: flex;
+    align-items: center;
+    background-color: #1B223C;
+    color: #fafafa !important;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 500;
+    gap: 10px;
+    width: fit-content;
+  }
+  
+  .upload-icon {
+    font-size: 16px;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+  }
+  
+  .submit-btn {
+    width: 160px; 
+    padding: 12px 25px;
+    font-size: 16px;
+    border: none;
+    background-color: #1B223C;
+    color: #fafafa !important;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .submit-btn:hover {
+    opacity: 0.85;
+  }
+  
+  .cancel-btn {
+    width: 160px; 
+    padding: 12px 25px;
+    font-size: 16px;
+    border: 2px solid #EE582B;
+    background-color: #f3f3f3;
+    color: #1B223C;
+    border-radius: 999px;
+    cursor: pointer;
+    text-align: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .cancel-btn:hover {
+    background-color: #EE582B;
+    color: white !important;
+    border-color: #EE582B;
+  }
+  
