@@ -1,0 +1,29 @@
+/* src/Style/Navbar.css */
+
+.nav-links li {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .nav-links li:hover .dropdown {
+    display: block;
+  }
+  
+  .dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown li {
+    list-style: none;
+    padding: 5px 10px;
+    color: #1B223C;
+    white-space: nowrap;
+  }
+  

@@ -39,7 +39,6 @@ body {
   align-items: flex-start;
 }
 
-
 .left-fields,
 .right-fields {
   flex: 1;
@@ -58,8 +57,6 @@ body {
   background-color: #f7fafd;
   font-size: 14px;
   box-sizing: border-box;
-  margin-top: 5px;
-  
 }
 
 .custom-major-dropdown {
@@ -81,9 +78,8 @@ body {
   color: #1B223C;
 }
 
-
 .create-btn {
-  margin-top: 30px;
+  margin-top: 22px; /* Optional spacing */
   padding: 12px;
   border: none;
   border-radius: 25px;
@@ -93,13 +89,11 @@ body {
   cursor: pointer;
 }
 
-.divider {
+.student-divider {
   width: 2px;
   background-color: #F2643A;
-  height: 400px;
-  margin: 0 20px;
+  height: 310px;
 }
-
 .signin-link {
   text-align: center;
   margin-top: 25px;
@@ -119,7 +113,5 @@ body {
     flex-direction: column;
   }
 
-  .divider {
-    display: none;
-  }
+  
 }

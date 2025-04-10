@@ -89,9 +89,8 @@
   
   .divider {
     width: 2px;
-    background-color: #F2643A;
-    height: 260px;
-    margin: 0 20px;
+  background-color: #F2643A;
+  height: 340px;
   }
   
   .login-right {
