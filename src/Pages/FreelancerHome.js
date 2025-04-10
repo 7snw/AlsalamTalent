@@ -1,43 +1,88 @@
-// src/Pages/FreelancerPages/FreelancerHome.js
 import React from 'react';
 import '../Style/FreelancerHome.css';
 import '../Style/Navbar.css';
 import Navbar from '../Components/Navbar';
 import { NavConfig2 } from '../Data/NavbarConfigs';
+import SearchIcon from '../Assets/search.png';     
 
+const projects = [
+  {
+    name: 'Logo Redesign',
+    image: require('../Assets/Projects/Design.png'),
+    price: '35 BHD',
+  },
+  {
+    name: 'Website Banner',
+    image: require('../Assets/Projects/banner.png'),
+    price: '45 BHD',
+  },
+  {
+    name: 'Illustration for a Book',
+    image: require('../Assets/Projects/illustration.png'),
+    price: '60 BHD',
+  },
+  {
+    name: 'Social Media Templates',
+    image: require('../Assets/Projects/socialmedia.png'),
+    price: '40 BHD',
+  },
+  {
+    name: 'Packaging Design',
+    image: require('../Assets/Projects/packaging.png'),
+    price: '55 BHD',
+  },
+  {
+    name: 'Illustration for a Book',
+    image: require('../Assets/Projects/illustration.png'),
+    price: '60 BHD',
+  },
+  {
+    name: 'Social Media Templates',
+    image: require('../Assets/Projects/socialmedia.png'),
+    price: '40 BHD',
+  },
+  {
+    name: 'Packaging Design',
+    image: require('../Assets/Projects/packaging.png'),
+    price: '55 BHD',
+  },
+];
 
 const FreelancerHome = () => {
   return (
     <div className="freelancer-home">
       <div className="freelancer-container">
-      <Navbar links={NavConfig2} /> {}
-      <header className="hero">
-        <h1><span className="highlight">Explore</span> Real-World Projects</h1>
-        <p>Take on your next project, Build your portfolio, and develop your skills.</p>
-        <div className="search-bar">
-          <input type="text" placeholder="What are you looking for?" />
-          <button>🔍</button>
-        </div>
-        <br/>
-        <div className="categories">
-          <button>Marketing</button>
-          <button className="active">Graphic Design</button>
-          <button>Illustration</button>
-          <button>Product Design</button>
-          <button>Web Design</button>
-        </div>
-      </header>
+        <Navbar links={NavConfig2} />
 
-      <section className="project-grid">
-        {Array.from({ length: 20 }, (_, i) => (
-          <div className="project-card" key={i}>
-            <img src="https://via.placeholder.com/300x200" alt="Project" />
-            <h4>Branding for potential merch</h4>
-            <p>50 BHD</p>
-            <span className="bookmark">🔖</span>
+        <header className="hero">
+          <h1><span className="highlight">Explore</span> Real-World Projects</h1>
+          <p>Take on your next project, Build your portfolio, and develop your skills.</p>
+          <div className="search-bar">
+            <input type="text" placeholder="What are you looking for?" />
+          
+              <img src={SearchIcon} alt="Search" className="search-icon" />
+            
           </div>
-        ))}
-      </section>
+          <br />
+          <div className="categories">
+            <button>Marketing</button>
+            <button className="active">Graphic Design</button>
+            <button>Illustration</button>
+            <button>Product Design</button>
+            <button>Web Design</button>
+          </div>
+        </header>
+
+        <section className="project-grid">
+          {projects.map((project, index) => (
+            <div className="project-card" key={index}>
+              <img src={project.image} alt={project.name} />
+              <h4>{project.name}</h4>
+              <p>{project.price}</p>
+              <span className="bookmark">🔖</span>
+            </div>
+          ))}
+        </section>
       </div>
     </div>
   );

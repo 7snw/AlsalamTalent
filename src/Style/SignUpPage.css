@@ -91,7 +91,7 @@ body {
 
 .student-divider {
   width: 2px;
-  background-color: #F2643A;
+  background-color: #EE582B;
   height: 310px;
 }
 .signin-link {
@@ -102,7 +102,7 @@ body {
 }
 
 .signin-link span {
-  color: #F2643A;
+  color: #EE582B;
   font-weight: 600;
   cursor: pointer;
 }

@@ -1,29 +1,68 @@
-/* src/Style/Navbar.css */
+/* Ensure dropdown stays visible when hovered */
+  
+.nav-links li:hover {
+    color: #EE582B;
+  }
+
 
 .nav-links li {
     position: relative;
     cursor: pointer;
   }
-  
-  .nav-links li:hover .dropdown {
-    display: block;
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
   }
   
-  .dropdown {
+  .nav-icons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .nav-icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .nav-icon:hover {
+    transform: scale(1.1);
+  }
+  
+  .nav-links li .dropdown {
     display: none;
     position: absolute;
     top: 100%;
     left: 0;
-    background: #fff;
+    background: #1d2543;
     padding: 10px;
-    border-radius: 8px;
+    margin-top: 1px;
+    width: 170px;
+    border-radius: 6px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+  
+  .nav-links li:hover .dropdown,
+  .nav-links li .dropdown:hover {
+    display: block;
   }
   
   .dropdown li {
     list-style: none;
-    padding: 5px 10px;
-    color: #1B223C;
-    white-space: nowrap;
+    padding: 8px 14px;
+    color: #fafafa;
+    transition: background-color 0.3s;
+  }
+  
+  /* Change color on hover */
+  .dropdown li:hover {
+   
+    color: #EE582B;
+    cursor: pointer;
   }
   

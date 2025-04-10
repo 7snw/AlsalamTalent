@@ -1,28 +1,18 @@
 // src/Pages/AboutUs.js 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../Style/AboutUs.css';
-import Logo from '../Assets/Logo.jpg';
+import Navbar from '../Components/Navbar';
+import { NavConfig1 } from '../Data/NavbarConfigs';
+import '../Style/Navbar.css';
+
 
 const AboutUs = () => {
-  const navigate = useNavigate(); 
+
 
   return (
     <div className="about-body">
       <div className="about-container">
-      <nav className="navbar">
-          <div className="nav-left">
-            <div className="logo-title">
-              <img src={Logo} alt="Logo" className="logo-image" />
-              <span className="site-name">Al Salam Talents</span>
-            </div>
-            <ul className="nav-links">
-              <li onClick={() => navigate('/')}>Home</li>
-              <li onClick={() => navigate('/AboutUs')}>About us</li>
-            </ul>
-          </div>
-          <button className="sign-in-btn" onClick={() => navigate('/signin')}>Sign In</button>
-        </nav>
+      <Navbar links={NavConfig1} /> {}
         <h1>
           Students <span className="highlight">destination</span> for real-world practical project
         </h1>
