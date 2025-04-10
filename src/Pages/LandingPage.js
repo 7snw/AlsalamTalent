@@ -3,10 +3,12 @@ import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/LandingPage.css';
 import LandingPhoto from '../Assets/LandingPhoto.jpg'; 
-import Logo from '../Assets/Logo.jpg';
 import Briefcase from '../Assets/Briefcase.png';
 import GraduationCap from '../Assets/GradCap.png';
 import ChatApp from '../Assets/ChatApp.png';
+
+import Navbar from '../Components/Navbar';
+import { NavConfig1 } from '../Data/NavbarConfigs';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -16,22 +18,15 @@ const LandingPage = () => {
     cardsRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleSignIn = () => {
+    navigate('/freelancer-home');
+  };
+
   return (
     <div className="landing-body">
       <div className="landing-container">
-        <nav className="navbar">
-          <div className="nav-left">
-            <div className="logo-title">
-              <img src={Logo} alt="Logo" className="logo-image" />
-              <span className="site-name">Al Salam Talents</span>
-            </div>
-            <ul className="nav-links">
-              <li onClick={() => navigate('/')}>Home</li>
-              <li onClick={() => navigate('/AboutUs')}>About us</li>
-            </ul>
-          </div>
-          <button className="sign-in-btn" onClick={() => navigate('/signin')}>Sign In</button>
-        </nav>
+        
+        <Navbar links={NavConfig1} onSignIn={handleSignIn} /> {/* ← pass the handler */}
 
         <div className="landing-content">
           <div className="text-section">

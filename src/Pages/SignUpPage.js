@@ -13,7 +13,7 @@ const SignUpPage = () => {
     contactNumber: '',
     cpr: ''
   });
-//wwe
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -53,7 +53,7 @@ const SignUpPage = () => {
             </div>
           </div>
 
-          <div className="divider"></div>
+          <div className="student-divider"></div>
 
           <div className="right-fields">
           <div>
