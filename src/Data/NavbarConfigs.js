@@ -33,7 +33,7 @@ export const NavConfig3 = Object.assign([
     dropdown: [
       { label: 'Browse Projects', path: '/browse-projects' },
       { label: 'Post Project Brief', path: '/Clients/PostProject' },
-      { label: 'Assigned Projects', path: '/assigned-projects' },
+      { label: 'Assigned Projects', path: '/Client/AssignedProject' },
       { label: 'Submitted Projects', path: '/submitted-projects' },
       { label: 'Project Applications', path: '/project-applications' }
     ]
