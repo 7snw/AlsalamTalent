@@ -29,17 +29,16 @@ export const NavConfig3 = Object.assign([
   { label: 'Home', path: '/client-home' },
   {
     label: 'Projects',
-    //path: '/',
     dropdown: [
-      { label: 'Browse Projects', path: '/browse-projects' },
-      { label: 'Post Project Brief', path: '/Clients/PostProject' },
-      { label: 'Assigned Projects', path: '/Client/AssignedProject' },
-      { label: 'Submitted Projects', path: '/submitted-projects' },
+      { label: 'Browse Projects', path: '/browseprojects' },
+      { label: 'Post Project Brief', path: '/PostProject' },
+      { label: 'Assigned Projects', path: '/AssignedProject' },
+      { label: 'Submitted Projects', path: '/submittedprojects' },
       { label: 'Project Applications', path: '/project-applications' }
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'Analytics', path: '/analytics' }
+  { label: 'Analytics', path: '/AnalyticsClient' }
 ], { 
   showIcons: true,
   hideSignIn: true 

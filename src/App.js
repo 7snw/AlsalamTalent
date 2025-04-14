@@ -13,6 +13,9 @@ import AssignedProject from './Pages/Clients/AssignedProject';
 import SubmittedProjects from './Pages/Clients/SubmittedProjects';
 import ProjectDetailsPage from './Pages/Clients/ProjectDetailsPage';
 import SubmittedProjectDetailsPage from './Pages/Clients/SubmittedProjectDetailsPage';
+import ProjectApplications from './Pages/Clients/ProjectApplications';
+import AnalyticsClient from './Pages/Clients/AnalyticsClients';
+import BrowseProjects from './Pages/Clients/BrowseProjects';
 
 const App = () => {
   return (
@@ -26,11 +29,14 @@ const App = () => {
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/freelancer-home" element={<FreelancerHome />} /> {/* 👈 New route */}
         <Route path="/client-home" element={<ClientHome />} /> {/* 👈 New route */}
+        <Route path="/browseprojects" element={<BrowseProjects />} />
         <Route path="/postproject" element={<PostProject />} />  
         <Route path="/assignedProject" element={<AssignedProject />} />  
         <Route path="/submittedprojects" element={<SubmittedProjects />} />  
         <Route path="/assigned-project/:id" element={<ProjectDetailsPage />} />
         <Route path="/submitted-project/:id" element={<SubmittedProjectDetailsPage />} />
+        <Route path="/project-applications" element={<ProjectApplications />} />
+        <Route path="/analyticsclient" element={<AnalyticsClient />} />
       </Routes>
     </Router>
   );

@@ -9,11 +9,9 @@ import UserIcon from '../Assets/User.png';
 
 const Navbar = ({ links = [] }) => {
   const navigate = useNavigate();
-
   const showIcons = links.showIcons === true;
-const hideSignIn = links.hideSignIn === true;
-const showSignIn = !hideSignIn;
-
+  const hideSignIn = links.hideSignIn === true;
+  const showSignIn = !hideSignIn;
 
   return (
     <nav className="navbar">
@@ -22,14 +20,26 @@ const showSignIn = !hideSignIn;
           <img src={Logo} alt="Logo" className="logo-image" />
           <span className="site-name">Al Salam Talents</span>
         </div>
+
         <ul className="nav-links">
           {links.map((link, index) => (
-            <li key={index} onClick={() => navigate(link.path)}>
-              {link.label}
+            <li key={index} className={`nav-item ${link.dropdown ? 'has-dropdown' : ''}`}>
+              {link.path ? (
+                <span onClick={() => navigate(link.path)} className="nav-link">
+                  {link.label}
+                </span>
+              ) : (
+                <span className="nav-link">{link.label}</span> // non-clickable parent
+              )}
+
               {link.dropdown && (
                 <ul className="dropdown">
                   {link.dropdown.map((sub, subIndex) => (
-                    <li key={subIndex} onClick={() => navigate(sub.path)}>
+                    <li
+                      key={subIndex}
+                      className="dropdown-item"
+                      onClick={() => navigate(sub.path)}
+                    >
                       {sub.label}
                     </li>
                   ))}
@@ -39,20 +49,20 @@ const showSignIn = !hideSignIn;
           ))}
         </ul>
       </div>
+
       {showIcons && (
-  <div className="nav-icons">
-    <img src={ChatIcon} alt="Chat" className="nav-icon" />
-    <img src={BellIcon} alt="Bell" className="nav-icon" />
-    <img src={UserIcon} alt="User" className="nav-icon" />
-  </div>
-)}
+        <div className="nav-icons">
+          <img src={ChatIcon} alt="Chat" className="nav-icon" />
+          <img src={BellIcon} alt="Bell" className="nav-icon" />
+          <img src={UserIcon} alt="User" className="nav-icon" />
+        </div>
+      )}
 
-{showSignIn && (
-  <button className="sign-in-btn" onClick={() => navigate('/signin')}>
-    Sign In
-  </button>
-)}
-
+      {showSignIn && (
+        <button className="sign-in-btn" onClick={() => navigate('/signin')}>
+          Sign In
+        </button>
+      )}
     </nav>
   );
 };
