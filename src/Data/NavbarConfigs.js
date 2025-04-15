@@ -28,7 +28,7 @@ export const NavConfig2 = Object.assign([
 
 
 export const NavConfig3 = Object.assign([
-  { label: 'Home', path: '/client-home' },
+  { label: 'Home', path: '/clienthome' },
   {
     label: 'Projects',
     dropdown: [
