@@ -53,7 +53,7 @@ export const NavConfig4 = Object.assign([
     label: 'Projects', path: '/adminallprojects' 
    
   },
-  { label: 'Freelancers', path: '/adminfreelancers' },
+  { label: 'Freelancers', path: '/freelancers' },
   { label: 'Users', path: '/userslist' }
 ], {
   showIcons: true,

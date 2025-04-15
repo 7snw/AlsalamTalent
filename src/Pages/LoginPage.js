@@ -11,13 +11,25 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     // Simulate login logic
     console.log('User logged in:', { email, password });
-
-    // Redirect to FreelancerHome page
-    navigate('/freelancer-home');
+  
+    // Mock login based on email
+    if (email === 'admin@gmail.com' && password === '123') {
+      localStorage.setItem('role', 'admin');
+      navigate('/analyticsadmin'); // or '/admin-dashboard' if you have one
+    } else if (email === 'client@gmail.com' && password === '123') {
+      localStorage.setItem('role', 'client');
+      navigate('/clienthome');
+    } else if (email === 'freelancer@gmail.com' && password === '123') {
+      localStorage.setItem('role', 'freelancer');
+      navigate('/freelancer-home');
+    } else {
+      alert('Invalid credentials');
+    }
   };
+  
 
   return (
     <div className="login-body">
