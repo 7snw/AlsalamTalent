@@ -1,17 +1,17 @@
 // src/Data/NavbarConfigs.js
 
 export const NavConfig1 = [
-  { label: 'Home', path: '/' },
+  { label: 'Home', path: '/landingpage' },
   { label: 'About us', path: '/aboutUs' }
 ];
 
 export const NavConfig2 = Object.assign([
   { label: 'Home', path: '/freelancer-home' },
   {
-    label: 'Projects',
-    path: '/projects',
+    label: 'Projects', 
+    //path: '/all-projects',
     dropdown: [
-      { label: 'Browse Projects', path: '/browse-projects' },
+      { label: 'Browse Projects', path: '/all-projects' },
       { label: 'My Projects', path: '/my-projects' },
       { label: 'Saved Projects', path: '/saved-projects' },
       { label: 'My Applications', path: '/my-applications' },
@@ -19,11 +19,13 @@ export const NavConfig2 = Object.assign([
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'About us', path: '/aboutUs' }
+  { label: 'About us', path: '/freelanceraboutus' }
 ], {
   showIcons: true,
-  hideSignIn: true   // 👈 NEW FLAG
+  hideSignIn: true
 });
+
+
 
 export const NavConfig3 = Object.assign([
   { label: 'Home', path: '/client-home' },
@@ -44,9 +46,17 @@ export const NavConfig3 = Object.assign([
   hideSignIn: true 
 });
 
-export const NavConfig4 = [
-  { label: 'Home', path: '/' },
-  { label: 'Projects', path: '/projects' },
-  { label: 'Freelancers', path: '/freelancers' },
-  { label: 'Users', path: '/users' }
-];
+
+export const NavConfig4 = Object.assign([
+  { label: 'Home', path: '/analyticsadmin' },
+  {
+    label: 'Projects', path: '/adminallprojects' 
+   
+  },
+  { label: 'Freelancers', path: '/adminfreelancers' },
+  { label: 'Users', path: '/userslist' }
+], {
+  showIcons: true,
+  hideSignIn: true
+});
+

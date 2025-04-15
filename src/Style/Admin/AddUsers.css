@@ -1,0 +1,125 @@
+.add-user-page {
+    background-color: #E6E7E8;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 0 91px;
+  }
+  
+  .add-user-container {
+    display: flex;
+    gap: 50px;
+    margin-left: 330px;
+   max-width: 1000px;
+ 
+  }
+ 
+  
+
+  
+  .add-user-tabs {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    
+  }
+  
+  .add-user-tabs li {
+    padding: 10px 0;
+    cursor: pointer;
+    font-size: 14px;
+    color: #1b223c;
+  }
+  
+  .add-user-tabs li.active {
+    font-weight: bold;
+    color: #1b223c;
+    border-left: 3px solid #1b223c;
+    padding-left: 10px;
+    background-color: #f0f0f0;
+  }
+  
+  .add-user-content {
+    flex: 1;
+    padding-top: 0px;
+    
+  }
+  
+  .add-user-content h2 {
+    color: #1b223c;
+    font-size: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .add-user-form {
+    background-color: #f7f7f7;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
+    max-width: 600px;
+    height: 550px;
+    
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+   
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #1b223c;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 95%;
+    padding: 8px 12px;      /* smaller padding inside inputs */
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #efefef;
+    font-size: 13px;
+    margin-bottom: 8px;
+    background-color: #efefef;
+  }
+  
+  .add-btn {
+    background-color: #1b223c;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    float: left;
+    margin-top: 10px;
+  }
+
+  .option-form-group input,
+  .option-form-group select
+  {
+    width: 99.5%;
+    padding: 8px 12px;      /* smaller padding inside inputs */
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #efefef;
+    font-size: 13px;
+    margin-bottom: 8px;
+    background-color: #efefef;
+
+  }
+  
+  .option-form-group {
+    margin-bottom: 16px;
+   
+  }
+  
+  .option-form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #1b223c;
+  }

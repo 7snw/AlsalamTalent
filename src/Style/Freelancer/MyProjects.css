@@ -1,0 +1,71 @@
+/* src/Style/AllProjects.css */
+
+.my-projects-page {
+    margin-left: 91px;
+    margin-right: 91px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #E6E7E8;
+  }
+  
+  .my-projects-container {
+    display: flex;
+    gap: 40px;
+    padding: 0 6%;
+  }
+  
+  .my-left-panel {
+    width: 260px;
+  }
+  
+  .my-right-panel {
+    flex: 1;
+  }
+  
+  .my-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 25px;
+  }
+  
+  .my-project-card {
+    background: #ddd;
+    border-radius: 20px;
+    padding: 0 0 15px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .my-project-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+  
+  .my-project-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px 15px 5px;
+    color: #1B223C;
+  }
+  
+  .my-project-card p {
+    font-size: 13px;
+    margin: 0 15px;
+    color: #444;
+  }
+  
+  .progress-text {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #1B223C;
+    background-color: #fff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  }
+  

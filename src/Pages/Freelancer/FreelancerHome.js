@@ -1,49 +1,49 @@
 import React from 'react';
-import '../Style/FreelancerHome.css';
-import '../Style/Navbar.css';
-import Navbar from '../Components/Navbar';
-import { NavConfig2 } from '../Data/NavbarConfigs';
-import SearchIcon from '../Assets/search.png';     
+import '../../Style/Freelancer/FreelancerHome.css';
+import '../../Style/Navbar.css';
+import Navbar from '../../Components/Navbar';
+import { NavConfig2 } from '../../Data/NavbarConfigs';
+import SearchIcon from '../../Assets/search.png';     
 
 const projects = [
   {
     name: 'Logo Redesign',
-    image: require('../Assets/Projects/Design.png'),
+    image: require('../../Assets/Projects/Design.png'),
     price: '35 BHD',
   },
   {
     name: 'Website Banner',
-    image: require('../Assets/Projects/banner.png'),
+    image: require('../../Assets/Projects/banner.png'),
     price: '45 BHD',
   },
   {
     name: 'Illustration for a Book',
-    image: require('../Assets/Projects/illustration.png'),
+    image: require('../../Assets/Projects/illustration.png'),
     price: '60 BHD',
   },
   {
     name: 'Social Media Templates',
-    image: require('../Assets/Projects/socialmedia.png'),
+    image: require('../../Assets/Projects/socialmedia.png'),
     price: '40 BHD',
   },
   {
     name: 'Packaging Design',
-    image: require('../Assets/Projects/packaging.png'),
+    image: require('../../Assets/Projects/packaging.png'),
     price: '55 BHD',
   },
   {
     name: 'Illustration for a Book',
-    image: require('../Assets/Projects/illustration.png'),
+    image: require('../../Assets/Projects/illustration.png'),
     price: '60 BHD',
   },
   {
     name: 'Social Media Templates',
-    image: require('../Assets/Projects/socialmedia.png'),
+    image: require('../../Assets/Projects/socialmedia.png'),
     price: '40 BHD',
   },
   {
     name: 'Packaging Design',
-    image: require('../Assets/Projects/packaging.png'),
+    image: require('../../Assets/Projects/packaging.png'),
     price: '55 BHD',
   },
 ];

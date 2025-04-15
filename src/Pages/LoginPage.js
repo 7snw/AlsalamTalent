@@ -12,16 +12,11 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    
-    if (email === 'client@gmail.com' && password === '123') {
-      console.log('Client logged in:', { email });
-      navigate('/client-home');
-    } else if (email === 'test@gmail.com' && password === '123') {
-      console.log('Freelancer logged in:', { email });
-      navigate('/freelancer-home');
-    } else {
-      alert('Invalid credentials. Try client@gmail.com or test@gmail.com with password 123.');
-    }
+    // Simulate login logic
+    console.log('User logged in:', { email, password });
+
+    // Redirect to FreelancerHome page
+    navigate('/freelancer-home');
   };
 
   return (

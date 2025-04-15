@@ -1,0 +1,47 @@
+.notifications-page {
+    background-color: #e6e7e8;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    margin-left: 91px;
+    margin-right: 91px;
+  }
+  
+  .notifications-container {
+    width: 80%;
+    margin: auto;
+    
+  }
+  
+  .notifications-container h2 {
+    font-size: 26px;
+    color: #1b223c;
+    margin-bottom: 20px;
+  }
+  
+  .notification-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .notification-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background-color: #f0f0f0;
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .bell-icon {
+    font-size: 20px;
+    color: #1b223c;
+    margin-top: 2px;
+  }
+  
+  .notification-list p {
+    margin: 0;
+    font-size: 14px;
+    color: #1b223c;
+  }
+  

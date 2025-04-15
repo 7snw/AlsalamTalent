@@ -1,0 +1,23 @@
+/* src/Style/SavedProjects.css */
+
+.saved-projects-page {
+    margin-left: 91px;
+    margin-right: 91px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #E6E7E8;
+  }
+  
+  .saved-projects-container {
+    display: flex;
+    gap: 40px;
+    padding: 0 6%;
+  }
+  
+  .saved-left-panel {
+    width: 260px;
+  }
+  
+  .saved-right-panel {
+    flex: 1;
+  }
+  
