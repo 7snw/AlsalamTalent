@@ -38,12 +38,12 @@ import BrowseProjects from './Pages/Clients/BrowseProjects';
 
 
 //Admin
-import AdminFreelancersList from './Pages/Admin/AdminFreelancersList';
+
 import AdminAllProjects from './Pages/Admin/AdminAllProjects';
 import UsersList from './Pages/Admin/UsersList';
 import AddUsers from './Pages/Admin/AddUsers';
 import AnalyticsAdmin from './Pages/Admin/AnalyticsAdmin';
-import AdminFreelancerProfile from './Pages/Admin/AdminFreelancerProfile';
+
 import AdminProfile from './Pages/Admin/AdminProfile';
 import AdminProfileSettings from './Pages/Admin/AdminProfileSettings';
 import AdminNotifications from './Pages/Admin/AdminNotifications';
@@ -56,7 +56,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-
+        <Route path="/" element={<LandingPage />} />
         <Route path="/landingpage" element={<LandingPage />} />
         <Route path="/studentgraduate" element={<StudentGraduate />} />
         <Route path="/signin" element={<LoginPage />} />
@@ -98,12 +98,10 @@ const App = () => {
         <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
         <Route path="/adminallprojects" element={<AdminAllProjects />} />
         <Route path="/details" element={<AdminProjectDetails />} /> 
-        <Route path="/adminfreelancerprofile" element={<AdminFreelancerProfile />} />
         <Route path="/adminprofile" element={<AdminProfile />} />
         <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
         <Route path="/adminnotifications" element={<AdminNotifications />} />
         <Route path="/adminmessages" element={<AdminMessages />} />
-        <Route path="/adminfreelancers" element={<AdminFreelancersList />} />
         <Route path="/edituser" element={<EditUserProfile />} />
 
       </Routes>
