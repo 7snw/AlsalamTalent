@@ -58,6 +58,24 @@ const projectsData = {
       image: require('../Assets/Projects/Design.png'),
     },
   ],
+
+  applied: [
+    {
+      title: 'Website UX Redesign',
+      client: 'Noura Salman',
+      image: require('../Assets/Projects/illustration.png'),
+      status: 'pending',
+      appliedDate: '2024-06-01'
+    },
+    {
+      title: 'Summer Ads Social Posts',
+      client: 'Ali Rashed',
+      image: require('../Assets/Projects/socialmedia.png'),
+      status: 'pending',
+      appliedDate: '2024-06-03'
+    }
+  ],
 };
+
 
 export default projectsData;

@@ -86,6 +86,7 @@ const App = () => {
         <Route path="/assignedProject" element={<AssignedProject />} />  
         <Route path="/submittedprojects" element={<SubmittedProjects />} />  
         <Route path="/assigned-project/:id" element={<ProjectDetailsPage />} />
+        <Route path="/project-info/:id" element={<ProjectDetailsPage />} />
         <Route path="/submitted-project/:id" element={<SubmittedProjectDetailsPage />} />
         <Route path="/project-applications" element={<ProjectApplications />} />
         <Route path="/analyticsclient" element={<AnalyticsClient />} />
