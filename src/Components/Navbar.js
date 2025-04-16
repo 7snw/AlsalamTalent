@@ -52,9 +52,9 @@ const Navbar = ({ links = [] }) => {
 
       {showIcons && (
         <div className="nav-icons">
-          <img src={ChatIcon} alt="Chat" className="nav-icon" />
+          <img src={ChatIcon} alt="Chat" className="nav-icon"  />
           <img src={BellIcon} alt="Bell" className="nav-icon" />
-          <img src={UserIcon} alt="User" className="nav-icon" />
+          <img src={UserIcon} alt="User" className="nav-icon" onClick={() => navigate('/myprofile')}/>
         </div>
       )}
 

@@ -19,7 +19,7 @@ import SubmitProject from './Pages/Freelancer/SubmitProject';
 import SubmitProgress from './Pages/Freelancer/SubmitProgress';
 import FreelancerAboutUs from './Pages/Freelancer/FreelancerAboutUs';
 import FreelancerProfile from './Pages/Freelancer/FreelancerProfile';
-import MyProfile from './Pages/Freelancer/MyProfile';
+import MyProfile from './Pages/MyProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
 import FreelanceNotifications from './Pages/Freelancer/FreelancerNotifications';
 import FreelancerMessages from './Pages/Freelancer/FreelancerMessages';
