@@ -24,7 +24,7 @@ const AssignedProject = () => {
     });
   };
 
-  const filteredProjects = projectsData.assigned.filter((project) => {
+  const filteredProjects = projectsData.deitailes.filter((project) => {
     const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
     const matchesStatus =
       filters.status.length === 0 || filters.status.includes(project.status);

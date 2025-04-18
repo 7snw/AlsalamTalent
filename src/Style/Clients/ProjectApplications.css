@@ -22,7 +22,7 @@
 }
 
 .applications-left-panel {
-  width: 260px;
+  width: 265px;
 }
 
 .applications-right-panel {
@@ -68,13 +68,12 @@
 }
 
 .freelancer-name {
-  font-size: 14px;
   display: flex;
   align-items: center;
+  font-size: 14px;
   color: #1B223C;
-  gap: 5px;
+  gap: 6px;
 }
-
 .application-actions {
   margin-left: auto;
   display: flex;

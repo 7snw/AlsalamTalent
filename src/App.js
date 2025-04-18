@@ -35,6 +35,7 @@ import SubmittedProjectDetailsPage from './Pages/Clients/SubmittedProjectDetails
 import ProjectApplications from './Pages/Clients/ProjectApplications';
 import AnalyticsClient from './Pages/Clients/AnalyticsClients';
 import BrowseProjects from './Pages/Clients/BrowseProjects';
+import ProjectProgress from './Pages/Clients/ProjectProgress';
 
 
 //Admin
@@ -85,7 +86,7 @@ const App = () => {
         <Route path="/postproject" element={<PostProject />} />  
         <Route path="/assignedProject" element={<AssignedProject />} />  
         <Route path="/submittedprojects" element={<SubmittedProjects />} />  
-        <Route path="/assigned-project/:id" element={<ProjectDetailsPage />} />
+        <Route path="/assigned-project/:id" element={<ProjectProgress />} />
         <Route path="/project-info/:id" element={<ProjectDetailsPage />} />
         <Route path="/submitted-project/:id" element={<SubmittedProjectDetailsPage />} />
         <Route path="/project-applications" element={<ProjectApplications />} />

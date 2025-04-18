@@ -29,7 +29,7 @@ const BrowseProjects = () => {
     });
   };
 
-  const filteredProjects = ProjectsData.assigned.filter((proj) => {
+  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType =
       filters.type.length === 0 || filters.type.includes(proj.type);

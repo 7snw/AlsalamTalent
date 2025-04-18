@@ -7,6 +7,7 @@ import { NavConfig3 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import FakeProjects from '../../Data/ProjectsData';
 
+
 const ProjectApplications = () => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
@@ -101,7 +102,7 @@ const ProjectApplications = () => {
                     <h4>{proj.title}</h4>
                     <p>Marketing consultant</p>
                     <div className="freelancer-name">
-                      <span></span> {proj.name}
+                      <span>👤</span> {proj.name}
                     </div>
                   </div>
                   <div className="application-actions">

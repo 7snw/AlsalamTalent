@@ -1,3 +1,4 @@
+// src/Pages/Clients/SubmittedProjects.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "../../Style/Clients/SubmittedProjects.css";
@@ -18,10 +19,10 @@ const SubmittedProjects = () => {
     <div className="submitted-projects-page">
       <Navbar links={NavConfig3} />
       <div className="submitted-container">
-      <div className="submitted-left-panel">
+        <div className="submitted-left-panel">
           <h1 className="page-title">Submitted Projects</h1>
-          </div>
-          <div className="submitted-right-panel">
+        </div>
+        <div className="submitted-right-panel">
           <div className="search-wrapper">
             <input
               type="text"
@@ -31,23 +32,23 @@ const SubmittedProjects = () => {
             />
             <img src={SearchIcon} alt="search" className="search-icon" />
           </div>
+
+          <div className="submitted-project-grid">
+            {filteredProjects.map((proj, index) => (
+              <Link
+                to={`/submitted-project/${index}`}
+                className="submitted-project-card"
+                key={index}
+              >
+                <img src={proj.image} alt={proj.title} />
+                <div className="submitted-project-info">
+                  <h5>{proj.title}</h5>
+                  <p>{proj.name}</p>
+                </div>
+              </Link>
+            ))}
           </div>
-        <div className="project-grid">
-          {filteredProjects.map((proj, index) => (
-            <Link
-              to={`/submitted-project/${index}`}
-              className="project-card"
-              key={index}
-            >
-              <img src={proj.image} alt={proj.title} />
-              <div className="project-info">
-                <h5>{proj.title}</h5>
-                <p>{proj.name}</p>
-              </div>
-            </Link>
-          ))}
         </div>
-        
       </div>
     </div>
   );
