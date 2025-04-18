@@ -27,6 +27,7 @@ import FreelancerMessages from './Pages/Freelancer/FreelancerMessages';
 
 //Client
 import ClientHome from './Pages/Clients/ClientHome';
+<<<<<<< Updated upstream
 import PostProject from './Pages/Clients/PostProject';
 import AssignedProject from './Pages/Clients/AssignedProject';
 import SubmittedProjects from './Pages/Clients/SubmittedProjects';
@@ -51,6 +52,9 @@ import AdminMessages from './Pages/Admin/AdminMessages';
 import AdminProjectDetails from './Pages/Admin/AdminProjectDetails';
 import EditUserProfile from './Pages/Admin/EditUserProfile';
 
+=======
+import FreelancersList from './Pages/FreelancersList'; // ✅ Import new page
+>>>>>>> Stashed changes
 
 const App = () => {
   return (
@@ -63,6 +67,7 @@ const App = () => {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/graduatesignup" element={<GraduateSignUp />} />
         <Route path="/aboutus" element={<AboutUs />} />
+<<<<<<< Updated upstream
 
 
         <Route path="/freelancer-home" element={<FreelancerHome />} />
@@ -106,6 +111,11 @@ const App = () => {
         <Route path="/adminfreelancers" element={<AdminFreelancersList />} />
         <Route path="/edituser" element={<EditUserProfile />} />
 
+=======
+        <Route path="/freelancer-home" element={<FreelancerHome />} />
+        <Route path="/client-home" element={<ClientHome />} />
+        <Route path="/freelancers" element={<FreelancersList />} /> {/* ✅ Route added */}
+>>>>>>> Stashed changes
       </Routes>
     </Router>
   );
