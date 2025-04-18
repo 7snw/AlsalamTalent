@@ -1,28 +1,28 @@
-// src/Components/Profile/ClientProfileSection.js
+// src/Components/Profile/FreelancerProfileSection.js
 import React, { useState } from 'react';
 import userIcon from '../Assets/ProfileIcon.png';
 import '../Style/ProfilePage.css';
 
-const ClientProfileSection = ({ user }) => {
+const FreelancerProfileSection = ({ user }) => {
   const [activeTab, setActiveTab] = useState('profile');
-  const [clientData, setClientData] = useState({
+  const [freelancerData, setFreelancerData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    company: user?.company || 'Bahrain FinTech Bay',
-    phone: user?.phone || '+973 33221100',
-    dob: user?.dob || '15 January 1999',
+    major: user?.major || 'UI/UX Designer',
+    phone: user?.phone || '+973 33445566',
+    dob: user?.dob || '20 December 1998',
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setClientData({ ...clientData, [name]: value });
+    setFreelancerData({ ...freelancerData, [name]: value });
   };
 
   return (
     <div className="unified-profile-section">
       <div className="profile-top">
         <img src={userIcon} alt="User" className="profile-photo" />
-        <h2>{clientData.name}</h2>
+        <h2>{freelancerData.name}</h2>
       </div>
 
       <div className="tab-buttons">
@@ -45,19 +45,19 @@ const ClientProfileSection = ({ user }) => {
       {activeTab === 'profile' && (
         <form className="profile-form">
           <label>Name</label>
-          <input name="name" value={clientData.name} onChange={handleChange} />
+          <input name="name" value={freelancerData.name} onChange={handleChange} />
 
           <label>Email</label>
-          <input name="email" value={clientData.email} onChange={handleChange} />
+          <input name="email" value={freelancerData.email} onChange={handleChange} />
 
-          <label>Company</label>
-          <input name="company" value={clientData.company} onChange={handleChange} />
+          <label>Major</label>
+          <input name="major" value={freelancerData.major} onChange={handleChange} />
 
           <label>Phone Number</label>
-          <input name="phone" value={clientData.phone} onChange={handleChange} />
+          <input name="phone" value={freelancerData.phone} onChange={handleChange} />
 
           <label>Date of Birth</label>
-          <input name="dob" value={clientData.dob} onChange={handleChange} />
+          <input name="dob" value={freelancerData.dob} onChange={handleChange} />
 
           <button type="submit" className="save-btn">Save</button>
         </form>
@@ -81,4 +81,4 @@ const ClientProfileSection = ({ user }) => {
   );
 };
 
-export default ClientProfileSection;
+export default FreelancerProfileSection;

@@ -5,6 +5,7 @@
   margin-right: 91px;
   font-family: 'Segoe UI', sans-serif;
   background-color: #E6E7E8;
+  
 }
 
 .assigned-projects-container {
@@ -21,3 +22,12 @@
   flex: 1;
 }
 
+.project-card {
+  text-decoration: none;
+  color: inherit;
+}
+
+.project-card:hover {
+  text-decoration: none;
+  color: inherit;
+}

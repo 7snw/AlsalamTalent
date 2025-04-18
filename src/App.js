@@ -8,6 +8,9 @@ import GraduateSignUp from './Pages/GraduateSignUp';
 import LoginPage from './Pages/LoginPage';
 import AboutUs from './Pages/AboutUs';
 
+import MyProfile from './Pages/MyProfile';
+
+
 //Freelancer
 import FreelancerHome from './Pages/Freelancer/FreelancerHome';
 import FreelancersList from './Pages/Freelancer/FreelancersList';
@@ -19,7 +22,6 @@ import SubmitProject from './Pages/Freelancer/SubmitProject';
 import SubmitProgress from './Pages/Freelancer/SubmitProgress';
 import FreelancerAboutUs from './Pages/Freelancer/FreelancerAboutUs';
 import FreelancerProfile from './Pages/Freelancer/FreelancerProfile';
-import MyProfile from './Pages/Freelancer/FreelancerProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
 import FreelanceNotifications from './Pages/Freelancer/FreelancerNotifications';
 import FreelancerMessages from './Pages/Freelancer/FreelancerMessages';

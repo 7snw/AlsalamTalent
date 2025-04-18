@@ -25,7 +25,7 @@ const ProjectApplications = () => {
     }));
   };
 
-  const filteredProjects = FakeProjects.assigned.filter((project) =>
+  const filteredProjects = FakeProjects.deitailes.filter((project) =>
     project.title.toLowerCase().includes(search.toLowerCase())
   );
 

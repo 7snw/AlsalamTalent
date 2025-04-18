@@ -1,42 +1,54 @@
 // src/Pages/MyProfile.js
 import React from 'react';
-import Navbar from '../Components/Navbar';
-//import FreelancerProfileSection from '../../Components/Profile/FreelancerProfileSection';
-import ClientProfileSection from '../Components/ClientProfileSection';
-import AdminProfileSection from '../Components/AdminProfileSection';
-import {  NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
-import '../Style/Navbar.css';
 import '../Style/ProfilePage.css';
+import Navbar from '../Components/Navbar';
+import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
+import AdminProfileSection from '../Components/AdminProfileSection';
+import ClientProfileSection from '../Components/ClientProfileSection';
+import FreelancerProfileSection from '../Components/FreelancerProfileSection';
 
-const getNavConfig = (role) => {
-  switch (role) {
-    case 'freelancer':
-      return NavConfig2;
-    case 'client':
-      return NavConfig3;
-    case 'admin':
-      return NavConfig4;
-    default:
-      return NavConfig2;
-  }
-};
+const MyProfile = () => {
+  const role = localStorage.getItem('role');
+  const user = {
+    role,
+    name: 'Maryam Yusuf',
+    email: 'maryam.yusuf@alsalambank.com',
+  };
 
-const MyProfile = ({ role }) => {
-  const userRole = role || localStorage.getItem('role') ;
+  const renderProfileForm = () => {
+    switch (user.role) {
+      case 'freelancer':
+        return <FreelancerProfileSection user={user} />;
+      case 'admin':
+        return <AdminProfileSection user={user} />;
+      case 'client':
+        return <ClientProfileSection user={user} />;
+      default:
+        return null;
+    }
+  };
+
+  const getNavbarConfig = () => {
+    switch (user.role) {
+      case 'freelancer':
+        return NavConfig2;
+      case 'admin':
+        return NavConfig4;
+      case 'client':
+        return NavConfig3;
+      default:
+        return [];
+    }
+  };
 
   return (
     <div className="profile-page">
-      <Navbar links={getNavConfig(userRole)} />
-
+      <Navbar links={getNavbarConfig()} />
       <div className="profile-container">
-        {userRole === 'freelancer'/* && <FreelancerProfileSection />*/}
-        {userRole === 'client' && <ClientProfileSection />}
-        {userRole === 'admin' && <AdminProfileSection />}
+        {renderProfileForm()}
       </div>
     </div>
   );
-
 };
-
 
 export default MyProfile;

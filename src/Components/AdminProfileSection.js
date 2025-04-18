@@ -44,7 +44,7 @@ const AdminProfileSection = () => {
       <hr />
 
       {activeTab === 'profile' && (
-        <div className="profile-form">
+        <form className="profile-form">
           <label>Name</label>
           <input name="name" value={adminData.name} onChange={handleChange} />
 
@@ -60,23 +60,23 @@ const AdminProfileSection = () => {
           <label>Date of Birth</label>
           <input name="dob" value={adminData.dob} onChange={handleChange} />
 
-          <button className="save-btn">Save</button>
-        </div>
+          <button type="submit" className="save-btn">Save</button>
+        </form>
       )}
 
       {activeTab === 'password' && (
-        <div className="password-form">
+        <form className="password-form">
           <label>Current Password</label>
-          <input type="password" />
+          <input type="password" name="currentPassword" />
 
           <label>New Password</label>
-          <input type="password" />
+          <input type="password" name="newPassword" />
 
           <label>Confirm Password</label>
-          <input type="password" />
+          <input type="password" name="confirmPassword" />
 
-          <button className="save-btn">Reset Password</button>
-        </div>
+          <button type="submit" className="save-btn">Reset Password</button>
+        </form>
       )}
     </div>
   );
