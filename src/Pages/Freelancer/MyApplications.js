@@ -1,13 +1,11 @@
 // src/Pages/MyApplications.js
 import React, { useState } from 'react';
 import '../../Style/Freelancer/MyApplications.css';
-import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import FakeProjects from '../../Data/ProjectsData';
-  
 
 const MyApplications = () => {
   const [search, setSearch] = useState('');
@@ -26,23 +24,29 @@ const MyApplications = () => {
     }));
   };
 
-  const filtered = FakeProjects.assigned.filter((project) =>
-    project.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProjects = FakeProjects.applied.filter((project) => {
+    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
+
+    const matchesType = filters.type.length === 0 || filters.type.includes(project.type);
+    const matchesLevel = filters.level.length === 0 || filters.level.includes(project.level);
+    const matchesPrice = filters.price.length === 0 || filters.price.includes(project.priceRange);
+
+    return matchesSearch && matchesType && matchesLevel && matchesPrice;
+  });
 
   return (
     <div className="project-applications-page">
       <Navbar links={NavConfig2} />
       <div className="project-applications-container">
-        <h2>Project Applications</h2>
+        <aside className="applications-left-panel">
+          <h1 className="page-title">My Applications</h1>
 
-        <div className="applications-layout">
-          <aside className="filter-section">
-            <h4>Filter</h4>
-            <p>Filter your projects according to their type, level and price range.</p>
+          <div className="filter-section">
+            <h3>Filter</h3>
+            <p className="hint">Filter your applications by type, level, and price.</p>
 
             <div className="filter-group">
-              <strong>Type</strong>
+              <h4>Type</h4>
               {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'].map((type) => (
                 <label key={type}>
                   <input
@@ -56,7 +60,7 @@ const MyApplications = () => {
             </div>
 
             <div className="filter-group">
-              <strong>Level</strong>
+              <h4>Level</h4>
               {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
                 <label key={level}>
                   <input
@@ -70,7 +74,7 @@ const MyApplications = () => {
             </div>
 
             <div className="filter-group">
-              <strong>Price</strong>
+              <h4>Price</h4>
               {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
                 <label key={price}>
                   <input
@@ -82,41 +86,39 @@ const MyApplications = () => {
                 </label>
               ))}
             </div>
-          </aside>
+          </div>
+        </aside>
 
-          <main className="applications-section">
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder="What are you looking for?"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <img src={SearchIcon} alt="Search" />
-            </div>
+        <main className="applications-right-panel">
+          <div className="search-wrapper">
+            <input
+              type="text"
+              placeholder="What are you looking for?"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <img src={SearchIcon} alt="search" className="search-icon" />
+          </div>
 
-            {filtered.map((proj, index) => (
+          <div className="applications-list">
+            {filteredProjects.map((proj, index) => (
               <div className="application-card" key={index}>
                 <img src={proj.image} alt={proj.title} />
                 <div className="application-info">
                   <h4>{proj.title}</h4>
-                  <p>Marketing consultant</p>
-                  <div className="freelancer-name">
-                    <span>👤</span> {proj.name}
-                  </div>
+                  <p>{proj.client}</p>
+                  <div className="freelancer-name">👤 {proj.name}</div>
                 </div>
-                <div className="actions">
-                  <button className="approve">Approve</button>
-                  <button className="reject">Reject</button>
+                <div className="application-actions">
+                  <button className="pending">Pending</button>
                 </div>
               </div>
             ))}
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </div>
   );
 };
-
 
 export default MyApplications;

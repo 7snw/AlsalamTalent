@@ -1,5 +1,4 @@
-// src/Components/Navbar.js
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/Navbar.css';
 import Logo from '../Assets/Logo.jpg';
@@ -8,10 +7,17 @@ import BellIcon from '../Assets/Bell.png';
 import UserIcon from '../Assets/User.png';
 
 const Navbar = ({ links = [] }) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const showIcons = links.showIcons === true;
   const hideSignIn = links.hideSignIn === true;
   const showSignIn = !hideSignIn;
+
+  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  const handleSignOut = () => {
+    // Replace with actual sign-out logic
+    alert('Signed out');
+  };
 
   return (
     <nav className="navbar">
@@ -29,7 +35,7 @@ const Navbar = ({ links = [] }) => {
                   {link.label}
                 </span>
               ) : (
-                <span className="nav-link">{link.label}</span> // non-clickable parent
+                <span className="nav-link">{link.label}</span>
               )}
 
               {link.dropdown && (
@@ -52,9 +58,16 @@ const Navbar = ({ links = [] }) => {
 
       {showIcons && (
         <div className="nav-icons">
-          <img src={ChatIcon} alt="Chat" className="nav-icon" />
-          <img src={BellIcon} alt="Bell" className="nav-icon" />
-          <img src={UserIcon} alt="User" className="nav-icon" />
+          <img src={ChatIcon} alt="Chat" className="nav-icon" onClick={() => navigate('/freelancermessages')} />
+          <img src={BellIcon} alt="Bell" className="nav-icon" onClick={() => navigate('/freelancernotifications')} />
+
+          <div className="user-dropdown-wrapper">
+            <img src={UserIcon} alt="User" className="nav-icon" />
+              <div className="user-dropdown">
+                <div className="dropdown-item" onClick={() => navigate('/myprofile')}>Profile</div>
+                <div className="dropdown-item" onClick={() => alert('Signed out')}>Sign Out</div>
+          </div>
+         </div>
         </div>
       )}
 

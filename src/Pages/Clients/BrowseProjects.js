@@ -1,10 +1,12 @@
 // src/Pages/Clients/BrowseProjects.js
 import React, { useState } from 'react';
 import '../../Style/Clients/BrowseProjects.css';
+import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import { useNavigate } from 'react-router-dom';
 import ProjectsData from '../../Data/ProjectsData';
+import SearchIcon from '../../Assets/search.png';
 
 const BrowseProjects = () => {
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ const BrowseProjects = () => {
     });
   };
 
-  const filteredProjects = ProjectsData.assigned.filter((proj) => {
+  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType =
       filters.type.length === 0 || filters.type.includes(proj.type);
@@ -43,59 +45,66 @@ const BrowseProjects = () => {
     <div className="browse-projects-page">
       <Navbar links={NavConfig3} />
       <div className="browse-container">
-        <h2>All Projects</h2>
-        <div className="browse-layout">
-          <aside className="filter-section">
-            <h4>Filter</h4>
-            <p>Filter your projects according to their type, level and price range.</p>
+        <aside className="browse-left-panel">
+          <h1 className="page-title">All Projects</h1>
+          <div className="filter-section">
+            <h3>Filter</h3>
+            <p className="hint">Filter the projects according to their type, level and price range.</p>
 
-            <strong>Type</strong>
-            {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
-              <label key={type}>
-                <input type="checkbox" onChange={() => handleCheckbox('type', type)} /> {type}
-              </label>
-            ))}
-
-            <strong>Level</strong>
-            {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
-              <label key={level}>
-                <input type="checkbox" onChange={() => handleCheckbox('level', level)} /> {level}
-              </label>
-            ))}
-
-            <strong>Price</strong>
-            {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
-              <label key={price}>
-                <input type="checkbox" onChange={() => handleCheckbox('price', price)} /> {price}
-              </label>
-            ))}
-          </aside>
-
-          <main className="project-section">
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder="Which project are you looking for?"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            <div className="project-grid">
-              {filteredProjects.map((proj, index) => (
-                <div
-                  key={index}
-                  className="project-card"
-                  onClick={() => navigate(`/project-info/${index}`)}
-                >
-                  <img src={proj.image} alt={proj.title} />
-                  <h5>{proj.title}</h5>
-                  <p>{proj.budget}</p>
-                </div>
+            <div className="filter-group">
+              <h4>Type</h4>
+              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
+                <label key={type}>
+                  <input type="checkbox" onChange={() => handleCheckbox('type', type)} /> {type}
+                </label>
               ))}
             </div>
-          </main>
-        </div>
+
+            <div className="filter-group">
+              <h4>Level</h4>
+              {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
+                <label key={level}>
+                  <input type="checkbox" onChange={() => handleCheckbox('level', level)} /> {level}
+                </label>
+              ))}
+            </div>
+
+            <div className="filter-group">
+              <h4>Price</h4>
+              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
+                <label key={price}>
+                  <input type="checkbox" onChange={() => handleCheckbox('price', price)} /> {price}
+                </label>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <main className="browse-right-panel">
+          <div className="search-wrapper">
+            <input
+              type="text"
+              placeholder="What are you looking for?"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <img src={SearchIcon} alt="search" className="search-icon" />
+          </div>
+
+          <div className="projects-grid">
+            {filteredProjects.map((proj, index) => (
+              <div
+                key={index}
+                className="project-card"
+                onClick={() => navigate(`/project-info/${index}`)}
+              >
+                <img src={proj.image} alt={proj.title} />
+                <h4>{proj.title}</h4>
+                <p>{proj.budget}</p>
+              </div>
+            ))}
+          </div>
+        </main>
       </div>
     </div>
   );
