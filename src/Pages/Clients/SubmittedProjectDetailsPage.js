@@ -49,7 +49,6 @@ const SubmittedProjectDetailsPage = () => {
             <div className="actions">
               <button disabled={!rating || !feedback}>Approve</button>
               <button className="outline">Request Revision</button>
-              <button className="decline">Decline</button>
             </div>
           </div>
 

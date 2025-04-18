@@ -11,11 +11,11 @@ export const NavConfig2 = Object.assign([
     label: 'Projects', 
     //path: '/all-projects',
     dropdown: [
-      { label: 'Browse Projects', path: '/allprojects' },
-      { label: 'My Projects', path: '/myprojects' },
-      { label: 'Saved Projects', path: '/savedprojects' },
-      { label: 'My Applications', path: '/myapplications' },
-      { label: 'Submit a Project', path: '/submitproject' }
+      { label: 'Browse Projects', path: '/all-projects' },
+      { label: 'My Projects', path: '/my-projects' },
+      { label: 'Saved Projects', path: '/saved-projects' },
+      { label: 'My Applications', path: '/my-applications' },
+      { label: 'Submit a Project', path: '/submit-project' }
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
@@ -28,7 +28,7 @@ export const NavConfig2 = Object.assign([
 
 
 export const NavConfig3 = Object.assign([
-  { label: 'Home', path: '/clienthome' },
+  { label: 'Home', path: '/client-home' },
   {
     label: 'Projects',
     dropdown: [
@@ -53,7 +53,7 @@ export const NavConfig4 = Object.assign([
     label: 'Projects', path: '/adminallprojects' 
    
   },
-  { label: 'Freelancers', path: '/freelancers' },
+  { label: 'Freelancers', path: '/adminfreelancers' },
   { label: 'Users', path: '/userslist' }
 ], {
   showIcons: true,

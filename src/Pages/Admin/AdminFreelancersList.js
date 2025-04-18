@@ -1,10 +1,10 @@
 // src/Pages/FreelancersList.js
 import React from 'react';
-import '../../Style/Freelancer/FreelancersList.css';
+import '../../Style/Admin/FreelancersList.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
-import { NavConfig2 } from '../../Data/NavbarConfigs';
+import { NavConfig4 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import UserIcon from '../../Assets/ProfileImage.png';
 
@@ -55,10 +55,10 @@ const renderStars = (count) => {
   return Array.from({ length: count }, (_, i) => <span key={i}>★</span>);
 };
 
-const FreelancersList = () => {
+const AdminFreelancersList = () => {
   return (
     <div className="freelancer-page">
-      <Navbar links={NavConfig2} />
+      <Navbar links={NavConfig4} />
       <div className="freelancer-container">
         <div className="freelancer-content">
           {/* LEFT - Filter */}
@@ -127,4 +127,4 @@ const FreelancersList = () => {
   );
 };
 
-export default FreelancersList;
+export default AdminFreelancersList;

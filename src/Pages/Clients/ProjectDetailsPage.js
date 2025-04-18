@@ -8,7 +8,7 @@ import ProjectsData from '../../Data/ProjectsData';
 
 const ProjectDetailsPage = () => {
   const { id } = useParams();
-  const project = ProjectsData.deitailes[parseInt(id)];
+  const project = ProjectsData.assigned[parseInt(id)];
 
   if (!project) return <p>Project not found</p>;
 
