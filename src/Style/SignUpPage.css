@@ -57,6 +57,7 @@ body {
   background-color: #f7fafd;
   font-size: 14px;
   box-sizing: border-box;
+  margin-top: 5px; /* add this line */
 }
 
 .custom-major-dropdown {
@@ -116,43 +117,3 @@ body {
   
 }
 
-
-
-/* Change color on hover */
-.dropdown li:hover {
- 
-  color: #EE582B;
-  cursor: pointer;
-}
-.signup-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 6%;
-  background-color: #686d7b;
-  width: 100%;
-}
-
-.signup-logo-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.signup-nav-links {
-  list-style: none;
-  display: flex;
-  gap: 30px;
-  margin: 0;
-  padding: 0;
-}
-
-.signup-nav-links li {
-  cursor: pointer;
-  font-weight: 500;
-  color: #1B223C;
-}
-
-.signup-nav-links li:hover {
-  color: #EE582B;
-}

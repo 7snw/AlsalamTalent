@@ -16,7 +16,7 @@ const FreelancerNotifications = () => {
   return (
     <div className="notifications-page">
       <Navbar links={NavConfig2} />
-      <div className="notifications-container">
+      <div className="notifications-container2">
         <h2>Notifications</h2>
         <ul className="notification-list">
           {notifications.map((note, idx) => (

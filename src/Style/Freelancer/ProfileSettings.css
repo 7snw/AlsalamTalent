@@ -1,152 +1,213 @@
 .settings-page {
-    background-color: #E6E7E8;
-    font-family: 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    margin-left: 91px;
-    margin-right: 91px;
-    
-  }
-  
-  .settings-container {
-    display: flex;
-    gap: 40px;
-    margin-left: 50px;
-  }
-  
-  .settings-sidebar {
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .settings-user-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-  }
-  
-  .settings-username {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1b223c;
-    margin-bottom: 20px;
-  }
-  
-  .settings-tabs {
-    list-style: none;
-    padding: 0;
-    width: 100%;
-  }
-  
-  .settings-tabs li {
-    padding: 8px 0;
-    cursor: pointer;
-    color: #1b223c;
-    font-size: 14px;
-  }
-  
-  .settings-tabs li.active {
-    font-weight: bold;
-    color: #1b223c;
-    border-left: 3px solid #1b223c;
-    padding-left: 10px;
-  }
-  
-  .delete-account {
-    color: red;
-    margin-top: 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .settings-content {
-    flex: 1;
-    padding-top: 40px;
-  }
-  
-  .section {
-    background: #f7f7f7;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
-  }
-  
-  .section h4 {
-    margin-top: 20px;
-    margin-bottom: 8px;
-    color: #1b223c;
-  }
-  
-  .section input,
-  .section textarea {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    background-color: #efefef;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-  
-  .edit-profile-picture {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .edit-profile-picture img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-  }
-  
-  .upload-pic-btn,
-  .delete-btn,
-  .save-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: none;
-    font-size: 14px;
-    margin-right: 10px;
-    cursor: pointer;
-  }
-  
-  .upload-pic-btn {
-    background-color: #1b223c;
-    color: white;
-  }
-  
-  .delete-btn {
-    background-color: #ccc;
-    color: #1b223c;
-  }
-  
-  .save-btn {
-    background-color: #1b223c;
-    color: white;
-    margin-top: 20px;
-  }
-  
-  .checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 10px;
-  }
-  
-  .checkboxes label {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-  }
-  .upload-delete-container {
-    display: flex;
-    align-items: center;
-    gap: 0px;
-    margin-top: 10px;
-  }
-  
+  background-color: #E6E7E8;
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  margin-left: 91px;
+  margin-right: 91px;
+}
+.settings-container {
+  display: flex;
+  gap: 40px;
+  margin-left: 91px; /* changed from 200px */
+  margin-right: 91px;
+}
+
+.settings-sidebar {
+  width: 150px; /* reduced from 200px */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sidebar-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: nowrap; /* prevents wrapping */
+  white-space: nowrap; /* ensures the name doesn't wrap */
+  overflow: hidden;
+}
+
+.settings-user-icon {
+  width: 48px; /* slightly smaller if space is tight */
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.settings-username {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1b223c;
+  margin: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.settings-tabs {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.settings-tabs li {
+  padding: 8px 0;
+  cursor: pointer;
+  color: #1b223c;
+  font-size: 14px;
+}
+
+.settings-tabs li.active {
+  font-weight: bold;
+  color: #1b223c;
+  border-left: 3px solid #1b223c;
+  padding-left: 10px;
+}
+
+.delete-account {
+  color: red;
+  margin-top: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.settings-content {
+  flex: 1;
+  padding-top: 40px;
+  padding-left: 40px;
+}
+
+.section {
+  background: #f7f7f7;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
+  margin-left: 40px;
+}
+
+.section h4 {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  color: #1b223c;
+}
+
+.section input,
+.section textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #efefef;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.edit-profile-picture {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.edit-profile-picture img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.upload-pic-btn,
+.delete-btn,
+.save-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  font-size: 14px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.upload-pic-btn {
+  background-color: #1b223c;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #ccc;
+  color: #1b223c;
+}
+
+.save-btn {
+  background-color: #1b223c;
+  color: white;
+  margin-top: 20px;
+}
+
+.checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.checkboxes label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.upload-delete-container {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  margin-top: 10px;
+}
+
+.checkboxes-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.full-width {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f3f3f3;
+  color: #1b223c;
+}
+
+.checkboxes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 40px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background-color: #f3f3f3;
+  border-radius: 8px;
+  padding: 1px 2px;
+  font-size: 14px;
+  color: #1b223c;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.checkbox-item input[type="checkbox"] {
+  accent-color: #EE582B;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.checkbox-item:hover {
+  background-color: #e4e4e4;
+}

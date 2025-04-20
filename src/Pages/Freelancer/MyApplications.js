@@ -106,8 +106,7 @@ const MyApplications = () => {
                 <img src={proj.image} alt={proj.title} />
                 <div className="application-info">
                   <h4>{proj.title}</h4>
-                  <p>{proj.client}</p>
-                  <div className="freelancer-name">👤 {proj.name}</div>
+                  <h4>{proj.price}</h4>
                 </div>
                 <div className="application-actions">
                   <button className="pending">Pending</button>

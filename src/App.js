@@ -8,7 +8,6 @@ import GraduateSignUp from './Pages/GraduateSignUp';
 import LoginPage from './Pages/LoginPage';
 import AboutUs from './Pages/AboutUs';
 
-import MyProfile from './Pages/MyProfile';
 
 
 //Freelancer
@@ -19,9 +18,9 @@ import MyProjects from './Pages/Freelancer/MyProjects';
 import SavedProjects from './Pages/Freelancer/SavedProjects';
 import MyApplications from './Pages/Freelancer/MyApplications';
 import SubmitProject from './Pages/Freelancer/SubmitProject';
-import SubmitProgress from './Pages/Freelancer/SubmitProgress';
 import FreelancerAboutUs from './Pages/Freelancer/FreelancerAboutUs';
 import FreelancerProfile from './Pages/Freelancer/FreelancerProfile';
+import MyProfile from './Pages//Freelancer/MyProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
 import FreelanceNotifications from './Pages/Freelancer/FreelancerNotifications';
 import FreelancerMessages from './Pages/Freelancer/FreelancerMessages';
@@ -41,18 +40,16 @@ import ProjectProgress from './Pages/Clients/ProjectProgress';
 
 
 //Admin
-
 import AdminAllProjects from './Pages/Admin/AdminAllProjects';
 import UsersList from './Pages/Admin/UsersList';
 import AddUsers from './Pages/Admin/AddUsers';
 import AnalyticsAdmin from './Pages/Admin/AnalyticsAdmin';
-import AdminProfile from './Pages/Admin/AdminProfile';
 import AdminProfileSettings from './Pages/Admin/AdminProfileSettings';
 import AdminNotifications from './Pages/Admin/AdminNotifications';
 import AdminMessages from './Pages/Admin/AdminMessages';
 import AdminProjectDetails from './Pages/Admin/AdminProjectDetails';
 import EditUserProfile from './Pages/Admin/EditUserProfile';
-
+import AuditLogs from './Pages/Admin/AuditLogs';
 
 const App = () => {
   return (
@@ -74,14 +71,12 @@ const App = () => {
         <Route path="/savedprojects" element={<SavedProjects />} /> 
         <Route path="/myapplications" element={<MyApplications />} /> 
         <Route path="/submitproject" element={<SubmitProject />} /> 
-        <Route path="/submitprogress" element={<SubmitProgress />} /> 
         <Route path="/freelanceraboutus" element={<FreelancerAboutUs />} /> 
         <Route path="/freelancerprofile" element={<FreelancerProfile />} />
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/profilesettings" element={<ProfileSettings />} />
         <Route path="/freelancernotifications" element={<FreelanceNotifications />} />
         <Route path="/freelancermessages" element={<FreelancerMessages />} />
-
 
         <Route path="/clienthome" element={<ClientHome />} /> 
         <Route path="/browseprojects" element={<BrowseProjects />} />
@@ -101,12 +96,11 @@ const App = () => {
         <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
         <Route path="/adminallprojects" element={<AdminAllProjects />} />
         <Route path="/details" element={<AdminProjectDetails />} /> 
-        <Route path="/adminprofile" element={<AdminProfile />} />
         <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
         <Route path="/adminnotifications" element={<AdminNotifications />} />
         <Route path="/adminmessages" element={<AdminMessages />} />
         <Route path="/edituser" element={<EditUserProfile />} />
-
+        <Route path="/auditlogs" element={<AuditLogs />} />
       </Routes>
     </Router>
   );

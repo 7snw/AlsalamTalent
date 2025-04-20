@@ -1,22 +1,18 @@
 /* src/Style/SubmitProject.css */
 
 .submit-page {
-    margin-left: 91px;
-    margin-right: 91px;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #E6E7E8;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+  min-height: 100vh;
+  padding: 0 6%;
+  box-sizing: border-box;
   }
   
   .submit-container {
-    background-color: #cecece;
-    border-radius: 25px;
-    padding: 40px 50px;
-    width: 100%;
-    max-width: 1000px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 6%;
     display: flex;
-    flex-direction: row; /* changed from column */
-    justify-content: space-between;
     gap: 40px;
   }
   
@@ -51,9 +47,9 @@
   }
   
   
-  .submit-btn {
+  .submit-project-btn {
     background-color: #EE582B;
-    color: #1B223C;
+    color: #ffffff;
     border: none;
     padding: 12px 24px;
     border-radius: 25px;
@@ -63,23 +59,12 @@
     width: fit-content;
   }
   
-  .percentage-box {
-    background-color: white;
-    color: #1B223C;
-    font-size: 32px;
-    font-weight: bold;
-    border-radius: 50px;
-    padding: 20px 35px;
-    width: fit-content;
-    margin: auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  }
 
 
   .file-upload {
     background-color: #e0e0e0;
     padding: 15px 20px;
-    border-radius: 20px;
+    border-radius: 30px;
     display: flex;
     flex-direction: column;
     max-width: 400px;
@@ -171,19 +156,7 @@
     color: #1B223C;
     margin-top: 6px;
   }
-  
-  .overlay-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
-    z-index: 999; /* make sure it's above everything else */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+
   
   .submit-header {
   display: flex;
@@ -196,4 +169,43 @@
   font-size: 28px;
   color: #1B223C;
   margin-bottom: 20px;
+}
+
+.circular-chart2 {
+  width: 160px;
+  height: 160px;
+}
+
+.circular2 {
+  width: 100%;
+  height: 100%;
+}
+
+.circle-bg2 {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 3.8;
+}
+
+.circle2 {
+  fill: none;
+  stroke: #EE582B;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  animation: progress 1s ease-out forwards;
+}
+
+.percentage2 {
+  fill: #1B223C;
+  font-size: 0.5em;
+  text-anchor: middle;
+}
+
+@keyframes progress {
+  0% {
+    stroke-dasharray: 0 100;
+  }
+  100% {
+    stroke-dasharray: 66 100;
+  }
 }

@@ -1,23 +1,25 @@
 // src/pages/FreelancerProfile2.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../Style/Freelancer/MyProfile.css';
 import Navbar from '../../Components/Navbar';
 import '../../Style/Navbar.css';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import userIcon from '../../Assets/ProfileIcon.png';
+import PortfolioPopup from './PortfolioPopup'; 
+import '../../Style/PortfolioPopup.css';
 
 const MyProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [showPopup, setShowPopup] = useState(false); 
+  const navigate = useNavigate();
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setUploadedFiles([...uploadedFiles, imageUrl]);
-    }
+  const handlePopupSave = (projectData) => {
+    // Optional: Save the new portfolio item here
+    setUploadedFiles([...uploadedFiles, projectData.imageUrl]);
+    setShowPopup(false);
   };
-  
 
   return (
     <div className="freelancer-profile2">
@@ -30,10 +32,12 @@ const MyProfile = () => {
               <h2>Fatema Almutawa</h2>
             </div>
           </div>
-          <button className="edit-profile" >Edit Profile</button>
+          <button className="edit-profile" onClick={() => navigate('/profilesettings')}>
+            Edit Profile
+          </button>
         </div>
 
-        <div className="tab-buttons2">
+        <div className="tab-buttons22">
           <button
             className={activeTab === 'about' ? 'active' : ''}
             onClick={() => setActiveTab('about')}
@@ -82,25 +86,27 @@ const MyProfile = () => {
               <div className="portfolio-card2 card21"></div>
               <div className="portfolio-card2 card22"></div>
 
-              
               {uploadedFiles.map((url, index) => (
-  <div key={index} className="portfolio-card2 uploaded-image-card">
-    <img src={url} alt={`upload-${index}`} className="uploaded-image" />
-  </div>
-))}
+                <div key={index} className="portfolio-card2 uploaded-image-card">
+                  <img src={url} alt={`upload-${index}`} className="uploaded-image" />
+                </div>
+              ))}
 
-              <label className="add-portfolio-card">
+              <div className="add-portfolio-card" onClick={() => setShowPopup(true)}>
                 +
-                <input
-                  type="file"
-                  onChange={handleFileUpload}
-                  style={{ display: 'none' }}
-                />
-              </label>
+              </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* ✅ Portfolio Popup */}
+      {showPopup && (
+        <PortfolioPopup
+          onClose={() => setShowPopup(false)}
+          onSave={handlePopupSave}
+        />
+      )}
     </div>
   );
 };

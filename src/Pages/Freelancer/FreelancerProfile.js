@@ -1,5 +1,6 @@
 // src/pages/FreelancerProfile.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../Style/Freelancer/FreelancerProfile.css';
 import Navbar from '../../Components/Navbar';
 import '../../Style/Navbar.css';
@@ -9,6 +10,7 @@ import userIcon from '../../Assets/ProfileIcon.png';
 
 const FreelancerProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
+  const navigate = useNavigate(); 
 
   return (
     <div className="freelancer-profile">
@@ -21,7 +23,15 @@ const FreelancerProfile = () => {
       <h2>Fatema Almutawa</h2>
     </div>
   </div>
-  <button className="get-in-touch">Get in touch</button>
+  <button 
+        className="contact-btn" 
+        onClick={(e) => {
+          e.stopPropagation(); // Prevents card click from firing
+          navigate('/freelancermessages');
+        }}
+      >
+        Get in touch
+      </button>
 </div>
 
         <div className="tab-buttons">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/Navbar.css';
 import Logo from '../Assets/Logo.jpg';
@@ -7,16 +7,35 @@ import BellIcon from '../Assets/Bell.png';
 import UserIcon from '../Assets/User.png';
 
 const Navbar = ({ links = [] }) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const showIcons = links.showIcons === true;
   const hideSignIn = links.hideSignIn === true;
   const showSignIn = !hideSignIn;
 
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  // Determine role and profile paths
+  const role = localStorage.getItem('role');
+  let profilePath = '/myprofile'; // fallback default
+  let editProfilePath = null;
+  let addProfilePath = null;
+  let auditProfilePath = null;
+
+
+
+  if (role === 'freelancer') {
+    profilePath = '/myprofile';
+    editProfilePath = '/profilesettings'; // only for freelancers
+  } else if (role === 'client') {
+    profilePath = '/adminprofile';
+  } else if (role === 'admin') {
+    profilePath = '/adminprofilesettings';
+    addProfilePath = '/AddUsers'; // only for admin
+    auditProfilePath = '/AuditLogs'; // only for admin
+  }
+
   const handleSignOut = () => {
-    // Replace with actual sign-out logic
+    localStorage.clear();
     alert('Signed out');
+    navigate('/signin');
   };
 
   return (
@@ -58,16 +77,35 @@ const Navbar = ({ links = [] }) => {
 
       {showIcons && (
         <div className="nav-icons">
-          <img src={ChatIcon} alt="Chat" className="nav-icon" onClick={() => navigate('/freelancermessages')} />
-          <img src={BellIcon} alt="Bell" className="nav-icon" onClick={() => navigate('/freelancernotifications')} />
+          <img
+            src={ChatIcon}
+            alt="Chat"
+            className="nav-icon"
+            onClick={() => navigate('/freelancermessages')}
+          />
+          <img
+            src={BellIcon}
+            alt="Bell"
+            className="nav-icon"
+            onClick={() => navigate('/freelancernotifications')}
+          />
 
           <div className="user-dropdown-wrapper">
             <img src={UserIcon} alt="User" className="nav-icon" />
-              <div className="user-dropdown">
-                <div className="dropdown-item" onClick={() => navigate('/myprofile')}>Profile</div>
-                <div className="dropdown-item" onClick={() => alert('Signed out')}>Sign Out</div>
+            <div className="user-dropdown">
+              <div className="dropdown-item" onClick={() => navigate(profilePath)}>Profile</div>
+              {editProfilePath && (
+                <div className="dropdown-item" onClick={() => navigate(editProfilePath)}>Edit Profile</div>
+              )}
+               {addProfilePath && (
+                <div className="dropdown-item" onClick={() => navigate(addProfilePath)}>Add a new account</div>
+              )}
+              {auditProfilePath && (
+                <div className="dropdown-item" onClick={() => navigate(auditProfilePath)}>Audit Logs</div>
+              )}
+              <div className="dropdown-item" onClick={handleSignOut}>Sign Out</div>
+            </div>
           </div>
-         </div>
         </div>
       )}
 

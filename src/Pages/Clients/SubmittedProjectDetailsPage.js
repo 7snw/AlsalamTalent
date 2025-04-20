@@ -53,13 +53,22 @@ const SubmittedProjectDetailsPage = () => {
             </div>
           </div>
 
-          <div className="right">
-            <div className="progress-circle">
-              <svg>
-                <circle cx="60" cy="60" r="50" />
-                <circle cx="60" cy="60" r="50" className="progress" />
+          <div className="right-section4">
+            <div className="circular-chart4">
+              <svg viewBox="0 0 36 36" className="circular4">
+                <path
+                  className="circle-bg4"
+                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
+                />
+                <path
+                  className="circle4"
+                  strokeDasharray="100, 0"
+                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
+                />
+                <text x="18" y="20.35" className="percentage4">
+                  100%
+                </text>
               </svg>
-              <div className="percent">100%</div>
             </div>
           </div>
         </div>

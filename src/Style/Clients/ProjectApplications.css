@@ -94,9 +94,8 @@
 }
 
 .application-actions .reject {
-  background-color: transparent;
-  color: #1B223C;
-  border: 2px solid #EE582B;
+  background-color: #EE582B;
+  color: #ffffff;
 }
 
 .application-actions .reject:hover {

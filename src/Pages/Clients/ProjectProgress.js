@@ -49,9 +49,10 @@ const ProjectProgress = () => {
         <hr />
 
         <div className="details-section">
-          <div className="details-left">
+          <div className="details-leftt">
             <h2>Project Details</h2>
             <h3>{project.title}</h3>
+            <h4>Project Brief:</h4>
             <p>{project.description}</p>
             <h4>Budget/Price:</h4>
             <p>{project.budget}</p>

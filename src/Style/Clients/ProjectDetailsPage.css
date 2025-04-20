@@ -6,14 +6,14 @@
   }
   
   .details-container {
-    padding-top: 20px;
+    padding-top: 0px;
     margin-bottom: 60px;
   }
   
   .details-container h2 {
     font-size: 28px;
     color: #1B223C;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
   
   .details-layout {
@@ -30,22 +30,32 @@
   .left h4 {
     color: #1B223C;
     font-weight: bold;
-    margin: 25px 0 5px;
+    margin: 0px 0 0px;
   }
   
   .left p {
     color: #444;
     font-size: 15px;
+    margin-top: 0px;
   }
   
   .left button {
-    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
     background-color: #1B223C;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    border: none;
+    color: #e0e0e0;
+    padding: 10px 24px;
+    border-radius: 30px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+    border: none;
+    width: fit-content;
+    min-width: 160px;
+    
   }
   
   .right {

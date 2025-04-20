@@ -6,9 +6,7 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 const mockChats = [
   { name: 'Husain Alnahash', lastMessage: 'Likewise Husain thank you...' },
   { name: 'Sarah Ahmed Isa', lastMessage: 'The project needs some...' },
-  { name: 'Maryam Jassim Ali', lastMessage: 'I received your work th...' },
-  { name: 'Faisal Isa Fahad', lastMessage: 'Please send me your...' },
-  { name: 'Ahmed Mohamed', lastMessage: 'The project will need...' }
+  { name: 'Maryam Jassim Ali', lastMessage: 'I received your work th...' }
 ];
 
 const FreelancerMessages = () => {
@@ -16,10 +14,14 @@ const FreelancerMessages = () => {
 
   return (
     <div className="messages-page">
+   
+    
       <Navbar links={NavConfig2} />
-      <div className="messages-container">
+ <h2 className="page-title3">Messages</h2> 
+      <div className="messages-container2">
+
         <div className="chat-sidebar">
-          <h2>Messages</h2>
+         
           <ul>
             {mockChats.map((chat, idx) => (
               <li key={idx} className={selectedChat === chat.name ? 'active' : ''} onClick={() => setSelectedChat(chat.name)}>

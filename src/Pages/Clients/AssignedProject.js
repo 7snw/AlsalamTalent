@@ -73,6 +73,7 @@ const AssignedProject = () => {
                   <img src={proj.image} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.name}</p>
+                  <span className="progress-text2">{proj.progress}</span>
                 </Link>
               ))}
             </div>

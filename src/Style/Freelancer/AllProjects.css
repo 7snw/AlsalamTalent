@@ -58,9 +58,10 @@
   color: #444;
 }
 
-.bookmark-icon {
+.bookmark-iconn {
   position: absolute;
   bottom: 15px;
   right: 15px;
-  width: 16px;
+  width: 20px;
+  cursor: pointer;
 }

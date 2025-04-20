@@ -1,5 +1,6 @@
 // src/Pages/FreelancersList.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../Style/Freelancer/FreelancersList.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
@@ -63,6 +64,7 @@ const renderStars = (count) => {
 
 const FreelancersList = () => {
   const role = localStorage.getItem('role');
+  const navigate = useNavigate(); 
 
   let navLinks;
   switch (role) {
@@ -125,21 +127,35 @@ const FreelancersList = () => {
               <img src={SearchIcon} alt="search" className="search-icon" />
             </div>
 
-            {freelancers.map((freelancer, i) => (
-              <div className="freelancer-card" key={i}>
-                <div className="freelancer-info">
-                  <img src={UserIcon} alt="user" className="profile-icon" />
-                  <div>
-                    <h3>{freelancer.name}</h3>
-                    <p>{freelancer.title}</p>
-                  </div>
-                </div>
+           
+{freelancers.map((freelancer, i) => (
+  <div 
+    className="freelancer-card" 
+    key={i} 
+    onClick={() => navigate('/freelancerprofile')}
+    style={{ cursor: 'pointer' }}
+  >
+    <div className="freelancer-info">
+      <img src={UserIcon} alt="user" className="profile-icon" />
+      <div>
+        <h3>{freelancer.name}</h3>
+        <p>{freelancer.title}</p>
+      </div>
+    </div>
 
-                <div className="freelancer-meta">
-                  <div className="rating">{renderStars(freelancer.rating)}</div>
-                  <button className="contact-btn">Get in touch</button>
-                </div>
-              </div>
+    <div className="freelancer-meta">
+      <div className="rating">{renderStars(freelancer.rating)}</div>
+      <button 
+        className="contact-btn" 
+        onClick={(e) => {
+          e.stopPropagation(); // Prevents card click from firing
+          navigate('/freelancermessages');
+        }}
+      >
+        Get in touch
+      </button>
+    </div>
+  </div>
             ))}
           </div>
         </div>

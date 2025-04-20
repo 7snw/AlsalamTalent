@@ -19,11 +19,14 @@ const ProjectDetailsPage = () => {
         <h2>{project.title}</h2>
         <div className="details-layout">
           <div className="left">
+          <h4>Project Brief:</h4>
             <p>{project.description}</p>
             <h4>Budget/Price:</h4>
             <p>{project.budget}</p>
             <h4>Duration:</h4>
             <p>{project.duration}</p>
+            <h4>Status:</h4>
+            <p>{project.statuss}</p>
             <h4>Project Files:</h4>
             <button>Download Files</button>
             <h4>Contract Documents:</h4>

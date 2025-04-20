@@ -46,7 +46,7 @@
   .my-project-card h4 {
     font-size: 14px;
     font-weight: 600;
-    margin: 10px 15px 5px;
+    margin: 10px 15px 10px;
     color: #1B223C;
   }
   
@@ -58,13 +58,13 @@
   
   .progress-text {
     position: absolute;
-    bottom: 15px;
+    bottom: 14.5px;
     right: 15px;
     font-size: 13px;
     font-weight: bold;
     color: #1B223C;
     background-color: #fff;
-    padding: 2px 8px;
+    padding: 1px 10px;
     border-radius: 12px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   }

@@ -9,7 +9,7 @@
 
 .post-project-container {
   max-width: 750px;
-  margin: 0 auto 50px;
+  margin: 5px auto 50px; /* ⬅️ reduce top space */
   padding: 1px 40px 30px;
   background-color: transparent;
 }
@@ -17,7 +17,7 @@
 .post-project-container h2 {
   font-size: 30px;
   color: #1B223C;
-  margin-bottom: 25px;
+  margin: 10px 0 25px; /* ⬅️ reduce top spacing */
 }
 
 .post-project-form label {
@@ -64,22 +64,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 20px;  
   background-color: #1B223C;
   color: #e0e0e0;
   padding: 10px 24px;
-  border-radius: 30px;
+  border-radius: 5px;
+  margin-top: 10px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   border: none;
   width: fit-content;
   min-width: 160px;
+  
 }
 
-.post-project-submit-btn:hover {
-  background-color: #0f172a;
-}
 
 .post-project-upload-icon {
   width: 18px;
@@ -124,18 +123,9 @@
   color: #e0e0e0;
 }
 
-.post-project-button.post:hover {
-  background-color: #0f172a;
-}
 
 .post-project-button.cancel {
-  background-color: #f3f3f3;
-  color: #1B223C;
-  border: 2px solid #EE582B;
-}
-
-.post-project-button.cancel:hover {
   background-color: #EE582B;
-  color: white;
-  border-color: #EE582B;
+  color: #ffffff;
+
 }

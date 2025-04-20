@@ -40,7 +40,7 @@
     left: 0;
     background: #1d2543;
     padding: 10px;
-    margin-top: 1px;
+    margin-top: 2px;
     width: 170px;
     border-radius: 6px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -56,12 +56,11 @@
     list-style: none;
     padding: 8px 14px;
     color: #fafafa;
-    transition: background-color 0.3s;
+  
   }
   
-  /* Change color on hover */
   .dropdown li:hover {
-   
+    background-color: #2a3152;
     color: #EE582B;
     cursor: pointer;
   }
@@ -72,6 +71,7 @@
 
 .user-dropdown {
   position: absolute;
+  margin-top: 1px;
   top: 120%;
   right: 0;
   background: #1d2543;
@@ -83,6 +83,7 @@
 }
 
 .user-dropdown .dropdown-item {
+  margin-top: 1px;
   padding: 10px 16px;
   font-size: 14px;
   color: #fafafa;
@@ -100,16 +101,20 @@
 }
 
 .user-dropdown {
+  margin-top: 1px;
   display: none;
   position: absolute;
-  top: 120%;
+  top: 96%;
   right: 0;
   background: #1d2543;
   border-radius: 6px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 8px 0;
   z-index: 20;
-  min-width: 150px;
+  min-width: 130px;
+  list-style: none;
+    padding: 8px 14px;
+    color: #fafafa;
+
 }
 
 .user-dropdown-wrapper:hover .user-dropdown {
@@ -127,5 +132,5 @@
 .user-dropdown .dropdown-item:hover {
   background-color: #2a3152;
   color: #EE582B;
-  cursor: pointer;
+  
 }
