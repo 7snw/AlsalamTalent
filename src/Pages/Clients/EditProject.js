@@ -1,18 +1,23 @@
-// src/Pages/Clients/PostProject.js
-import React, { useState, useRef } from 'react';
+// src/Pages/Clients/EditProject.js
+import React, { useState, useRef, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import '../../Style/Clients/PostProject.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import uploadIcon from '../../Assets/Upload.png';
+import ProjectsData from '../../Data/ProjectsData';
 
-const PostProject = () => {
+const EditProject = () => {
+  const { id } = useParams();
+  const project = ProjectsData.deitailes[parseInt(id)];
+
   const [projectTitle, setProjectTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
   const [budget, setBudget] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [category, setCategory] = useState('');
   const [projectFiles, setProjectFiles] = useState(null);
   const [contractDocs, setContractDocs] = useState(null);
   const [projectImage, setProjectImage] = useState(null);
@@ -21,45 +26,48 @@ const PostProject = () => {
   const contractDocInput = useRef();
   const projectImageInput = useRef();
 
-  const handleProjectFilesChange = (e) => {
-    setProjectFiles(e.target.files[0]?.name);
-  };
-
-  const handleContractDocsChange = (e) => {
-    setContractDocs(e.target.files[0]?.name);
-  };
-
-  const handleProjectImageChange = (e) => {
-    setProjectImage(e.target.files[0]?.name);
-  };
+  useEffect(() => {
+    if (project) {
+      setProjectTitle(project.projectTitle || project.title || '');
+      setDescription(project.description || '');
+      setCategory(project.category || '');
+      setBudget(project.budget || '');
+      setStartDate(project.startDate || '');
+      setEndDate(project.endDate || '');
+      setProjectFiles(project.projectFiles || null);
+      setContractDocs(project.contractDocs || null);
+      setProjectImage(project.coverImage || null);
+    }
+  }, [project]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const projectData = {
+    const updatedProject = {
       projectTitle,
       description,
+      category,
       budget,
       startDate,
       endDate,
-      category,
       projectFiles,
       contractDocs,
       projectImage,
     };
-    console.log('Project Posted:', projectData);
-    alert('Project successfully posted!');
+    console.log('Updated Project:', updatedProject);
+    alert('Project updated successfully!');
   };
+
+  if (!project) return <p>Project not found</p>;
 
   return (
     <div className="post-project-page">
       <Navbar links={NavConfig3} />
       <div className="post-project-container">
-        <h2>Post Project</h2>
+        <h2>Edit Project</h2>
         <form className="post-project-form" onSubmit={handleSubmit}>
           <label>Project Title*</label>
           <input
             type="text"
-            placeholder="Write a title..."
             value={projectTitle}
             onChange={(e) => setProjectTitle(e.target.value)}
             required
@@ -67,20 +75,10 @@ const PostProject = () => {
 
           <label>About this project/Description*</label>
           <textarea
-            placeholder="Write a description..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           ></textarea>
-
-          <label>Budget/Price*</label>
-          <input
-            type="number"
-            placeholder="0 BD"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            required
-          />
 
           <label>Project Category*</label>
           <select
@@ -95,6 +93,14 @@ const PostProject = () => {
             <option value="Product Design">Product Design</option>
             <option value="Web Design">Web Design</option>
           </select>
+
+          <label>Budget/Price*</label>
+          <input
+            type="number"
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+            required
+          />
 
           <label>Timeframe/Duration*</label>
           <div className="post-project-date-range">
@@ -126,8 +132,7 @@ const PostProject = () => {
             <input
               type="file"
               ref={projectFileInput}
-              onChange={handleProjectFilesChange}
-              className="post-project-file-input"
+              onChange={(e) => setProjectFiles(e.target.files[0]?.name)}
               hidden
             />
             {projectFiles && <p className="post-project-filename">{projectFiles}</p>}
@@ -146,8 +151,7 @@ const PostProject = () => {
             <input
               type="file"
               ref={contractDocInput}
-              onChange={handleContractDocsChange}
-              className="post-project-file-input"
+              onChange={(e) => setContractDocs(e.target.files[0]?.name)}
               hidden
             />
             {contractDocs && <p className="post-project-filename">{contractDocs}</p>}
@@ -167,15 +171,14 @@ const PostProject = () => {
               type="file"
               accept="image/*"
               ref={projectImageInput}
-              onChange={handleProjectImageChange}
-              className="post-project-file-input"
+              onChange={(e) => setProjectImage(e.target.files[0]?.name)}
               hidden
             />
             {projectImage && <p className="post-project-filename">{projectImage}</p>}
           </div>
 
           <div className="post-project-actions">
-            <button type="submit" className="post-project-button post">Post</button>
+            <button type="submit" className="post-project-button post">Update</button>
             <button type="button" className="post-project-button cancel">Cancel</button>
           </div>
         </form>
@@ -184,4 +187,4 @@ const PostProject = () => {
   );
 };
 
-export default PostProject;
+export default EditProject;

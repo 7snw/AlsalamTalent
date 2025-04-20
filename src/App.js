@@ -37,6 +37,9 @@ import ProjectApplications from './Pages/Clients/ProjectApplications';
 import AnalyticsClient from './Pages/Clients/AnalyticsClients';
 import BrowseProjects from './Pages/Clients/BrowseProjects';
 import ProjectProgress from './Pages/Clients/ProjectProgress';
+import EditProject from './Pages/Clients/EditProject';
+import ProjectDetails from './Pages/Clients/ProjectDetails';
+
 
 
 //Admin
@@ -88,6 +91,10 @@ const App = () => {
         <Route path="/submitted-project/:id" element={<SubmittedProjectDetailsPage />} />
         <Route path="/project-applications" element={<ProjectApplications />} />
         <Route path="/analyticsclient" element={<AnalyticsClient />} />
+        <Route path="/edit-project/:id" element={<EditProject />} />
+        <Route path="/project-details/:id" element={<ProjectDetails />} />
+
+
         
 
 

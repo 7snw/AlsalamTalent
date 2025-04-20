@@ -1,56 +1,26 @@
 // src/Pages/ClientHome.js
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../Style/Clients/ClientHome.css';
 import '../../Style/Navbar.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';     
-
-const projects = [
-  {
-    name: 'Logo Redesign',
-    image: require('../../Assets/Projects/Design.png'),
-    price: '35 BHD',
-  },
-  {
-    name: 'Website Banner',
-    image: require('../../Assets/Projects/banner.png'),
-    price: '45 BHD',
-  },
-  {
-    name: 'Illustration for a Book',
-    image: require('../../Assets/Projects/illustration.png'),
-    price: '60 BHD',
-  },
-  {
-    name: 'Social Media Templates',
-    image: require('../../Assets/Projects/socialmedia.png'),
-    price: '40 BHD',
-  },
-  {
-    name: 'Packaging Design',
-    image: require('../../Assets/Projects/packaging.png'),
-    price: '55 BHD',
-  },
-  {
-    name: 'Illustration for a Book',
-    image: require('../../Assets/Projects/illustration.png'),
-    price: '60 BHD',
-  },
-  {
-    name: 'Social Media Templates',
-    image: require('../../Assets/Projects/socialmedia.png'),
-    price: '40 BHD',
-  },
-  {
-    name: 'Packaging Design',
-    image: require('../../Assets/Projects/packaging.png'),
-    price: '55 BHD',
-  },
-];
+import ProjectsData from '../../Data/ProjectsData';
 
 const ClientHome = () => {
+  const navigate = useNavigate();
+  const allProjects = ProjectsData.deitailes;
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  const categories = ['All', 'Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'];
+
+  const filteredProjects =
+    activeCategory === 'All'
+      ? allProjects
+      : allProjects.filter((proj) => proj.category === activeCategory);
+
   return (
     <div className="client-home">
       <div className="client-container">
@@ -65,20 +35,29 @@ const ClientHome = () => {
           </div>
           <br />
           <div className="categories">
-            <button>Marketing</button>
-            <button className="active">Graphic Design</button>
-            <button>Illustration</button>
-            <button>Product Design</button>
-            <button>Web Design</button>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                className={activeCategory === cat ? 'active' : ''}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </header>
 
         <section className="project-grid">
-          {projects.map((project, index) => (
-            <div className="project-card" key={index}>
-              <img src={project.image} alt={project.name} />
-              <h4>{project.name}</h4>
-              <p>{project.price}</p>
+          {filteredProjects.map((project, index) => (
+            <div
+              className="project-card"
+              key={index}
+              onClick={() => navigate(`/project-details/${index}`)}
+              style={{ cursor: 'pointer' }}
+            >
+              <img src={project.image || project.coverImage} alt={project.title} />
+              <h4>{project.title}</h4>
+              <p>{project.budget}</p>
             </div>
           ))}
         </section>

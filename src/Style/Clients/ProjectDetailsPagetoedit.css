@@ -52,31 +52,10 @@
   margin-top: 6px;
   font-size: 14px;
   font-weight: 500;
-  border: none;
-  width: fit-content;
-  min-width: 160px;
-}
-
-.left button:disabled {
   cursor: not-allowed;
-}
-
-.edit-btn {
-  margin-top: 25px;
-  background-color: #1B223C;
-  color: white;
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
   border: none;
   width: fit-content;
   min-width: 160px;
-}
-
-.edit-btn:hover {
-  opacity: 0.85;
 }
 
 .right {

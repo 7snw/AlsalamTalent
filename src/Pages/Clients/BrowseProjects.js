@@ -20,19 +20,20 @@ const BrowseProjects = () => {
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
-      if (updated[category].includes(value)) {
-        updated[category] = updated[category].filter((v) => v !== value);
-      } else {
-        updated[category].push(value);
-      }
-      return updated;
+      const alreadySelected = updated[category].includes(value);
+
+      updated[category] = alreadySelected
+        ? updated[category].filter((v) => v !== value)
+        : [...updated[category], value];
+
+      return { ...updated };
     });
   };
 
   const filteredProjects = ProjectsData.deitailes.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType =
-      filters.type.length === 0 || filters.type.includes(proj.type);
+      filters.type.length === 0 || filters.type.includes(proj.category);
     const matchesLevel =
       filters.level.length === 0 || filters.level.includes(proj.level);
     const matchesPrice =
@@ -55,7 +56,12 @@ const BrowseProjects = () => {
               <h4>Type</h4>
               {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
                 <label key={type}>
-                  <input type="checkbox" onChange={() => handleCheckbox('type', type)} /> {type}
+                  <input
+                    type="checkbox"
+                    checked={filters.type.includes(type)}
+                    onChange={() => handleCheckbox('type', type)}
+                  />{' '}
+                  {type}
                 </label>
               ))}
             </div>
@@ -64,7 +70,12 @@ const BrowseProjects = () => {
               <h4>Level</h4>
               {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
                 <label key={level}>
-                  <input type="checkbox" onChange={() => handleCheckbox('level', level)} /> {level}
+                  <input
+                    type="checkbox"
+                    checked={filters.level.includes(level)}
+                    onChange={() => handleCheckbox('level', level)}
+                  />{' '}
+                  {level}
                 </label>
               ))}
             </div>
@@ -73,7 +84,12 @@ const BrowseProjects = () => {
               <h4>Price</h4>
               {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
                 <label key={price}>
-                  <input type="checkbox" onChange={() => handleCheckbox('price', price)} /> {price}
+                  <input
+                    type="checkbox"
+                    checked={filters.price.includes(price)}
+                    onChange={() => handleCheckbox('price', price)}
+                  />{' '}
+                  {price}
                 </label>
               ))}
             </div>

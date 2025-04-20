@@ -22,9 +22,13 @@
   flex: 1;
 }
 
+
+
 .project-card {
   text-decoration: none;
-  color: inherit;
+  position: relative;
+  overflow: hidden;
+  
 }
 
 .project-card:hover {

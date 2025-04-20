@@ -28,7 +28,8 @@
 }
 
 .post-project-form input,
-.post-project-form textarea {
+.post-project-form textarea,
+.post-project-form select {
   width: 100%;
   padding: 12px 15px;
   margin-top: 8px;
@@ -129,3 +130,5 @@
   color: #ffffff;
 
 }
+
+

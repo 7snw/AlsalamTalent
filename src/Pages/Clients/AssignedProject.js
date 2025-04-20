@@ -67,7 +67,7 @@ const AssignedProject = () => {
               <img src={SearchIcon} alt="search" className="search-icon" />
             </div>
 
-            <div className="project-grid">
+            <div className="projects-grid">
               {filteredProjects.map((proj, index) => (
                 <Link to={`/assigned-project/${index}`} className="project-card" key={index}>
                   <img src={proj.image} alt={proj.title} />
