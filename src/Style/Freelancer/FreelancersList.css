@@ -45,12 +45,14 @@
   justify-content: space-between;
   gap: 30px;
   margin-top: 0;
+  
 }
 
 .freelancer-meta {
   display: flex;
   align-items: center;
   gap: 20px;
+  
 }
 
 .freelancer-info {

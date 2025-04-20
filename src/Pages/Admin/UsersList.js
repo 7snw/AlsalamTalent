@@ -6,9 +6,13 @@ import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
+import { useNavigate } from 'react-router-dom';
+import AddUser from '../../Assets/AddUser.png'; // Make sure this icon is added to your assets
 
 
 const users = [
+
+
     {
       name: 'Sarah Ahmed Isa',
       title: 'Marketing Executive',
@@ -51,7 +55,10 @@ const users = [
   ];
   
   
+
   const UsersList = () => {
+    
+const navigate = useNavigate();
     return (
       <div className="users-page">
         <Navbar links={NavConfig4} />
@@ -77,10 +84,17 @@ const users = [
   
             {/* RIGHT - Search & Results */}
             <div className="users-results">
-              <div className="search-wrapper">
-                <input type="text" placeholder="Who are you looking for?" />
-                <img src={SearchIcon} alt="search" className="search-icon" />
-              </div>
+              
+<div className="search-add-wrapper">
+  <div className="search-wrapper">
+    <input type="text" placeholder="Who are you looking for?" />
+    <img src={SearchIcon} alt="search" className="search-icon" />
+  </div>
+
+  <button className="add-user-btn" onClick={() => navigate('/addusers')}>
+    <img src={AddUser} alt="Add User" className="add-user-icon" />
+  </button>
+</div>
   
               {users.map((users, i) => (
                <div className="users-card" key={i}>
@@ -92,7 +106,7 @@ const users = [
                </div>
              
                <div className="users-meta">
-               <button className="edit-btn">Edit Profile</button>
+               <button className="edit-btn"  onClick={(e) => {  e.stopPropagation(); navigate('/edituser'); }}>Edit Profile</button>
              </div>
             
              </div>

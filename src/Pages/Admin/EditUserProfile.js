@@ -4,7 +4,7 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 
 const EditUserProfile = () => {
-  const [activeSection, setActiveSection] = useState('view');
+  const [activeSection, setActiveSection] = useState('edit');
 
   return (
     <div className="settings-page">
@@ -14,12 +14,7 @@ const EditUserProfile = () => {
           <h3 className="settings-username">Maryam Yusuf Haji</h3>
 
           <ul className="settings-tabs">
-            <li
-              className={activeSection === 'view' ? 'active' : ''}
-              onClick={() => setActiveSection('view')}
-            >
-              View Profile
-            </li>
+            
             <li
               className={activeSection === 'edit' ? 'active' : ''}
               onClick={() => setActiveSection('edit')}
@@ -38,22 +33,7 @@ const EditUserProfile = () => {
         </div>
 
         <div className="settings-content">
-          {activeSection === 'view' && (
-            <div className="section">
-              <h4>Name</h4>
-              <input type="text" value="Maryam Yusuf Haji" readOnly />
-              <h4>Email</h4>
-              <input type="text" value="maryam.yusuf@alsalambank.com" readOnly />
-              <h4>Occupation</h4>
-              <input type="text" value="IT Administrator - Alsalam Bank" readOnly />
-              <h4>Phone Number</h4>
-              <input type="text" value="+973 33339991" readOnly />
-              <h4>Date of Birth</h4>
-              <input type="text" value="24/10/2002" readOnly />
-              <h4>Type</h4>
-              <input type="text" value="Admin" readOnly />
-            </div>
-          )}
+        
 
           {activeSection === 'edit' && (
             <div className="section">
