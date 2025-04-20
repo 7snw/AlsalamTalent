@@ -1,10 +1,13 @@
-// src/Pages/Clients/Analyticslient.js
+// src/Pages/Clients/AnalyticsClient.js
 import React from 'react';
 import '../../Style/Clients/AnalyticsClient.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 
 const AnalyticsClient = () => {
+  const yLines = [0, 50, 100, 150];
+  const chartPoints = '0,140 100,100 200,60 300,80 400,60 500,40'; // Example data
+
   return (
     <div className="analytics-page">
       <Navbar links={NavConfig3} />
@@ -29,11 +32,33 @@ const AnalyticsClient = () => {
         <div className="details-section">
           <div className="card progress">
             <h4>Projects Progress</h4>
-            <p className="title">Promotional Video - Eid Offers.</p>
-            <div className="stars">★★★★☆</div>
-            <p className="freelancer">Hasan Mohamed</p>
-            <div className="progress-bar">
-              <div className="fill" style={{ width: '75%' }}>75%</div>
+            <div className="custom-chart">
+              <div className="y-labels">
+                <span>100%</span>
+                <span>75%</span>
+                <span>50%</span>
+                <span>25%</span>
+                <span>0%</span>
+              </div>
+              <svg width="100%" height="180" viewBox="0 0 500 180" preserveAspectRatio="none">
+                {yLines.map((y, i) => (
+                  <line key={i} x1="0" y1={y + 25} x2="500" y2={y + 25} stroke="#ccc" strokeWidth="1" />
+                ))}
+                <polyline
+                  fill="none"
+                  stroke="#1B223C"
+                  strokeWidth="3"
+                  points={chartPoints}
+                />
+              </svg>
+              <div className="x-labels">
+                <span>Jan</span>
+                <span>Feb</span>
+                <span>Mar</span>
+                <span>Apr</span>
+                <span>May</span>
+                <span>Jun</span>
+              </div>
             </div>
           </div>
 

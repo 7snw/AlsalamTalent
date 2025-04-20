@@ -39,6 +39,8 @@ import BrowseProjects from './Pages/Clients/BrowseProjects';
 import ProjectProgress from './Pages/Clients/ProjectProgress';
 import EditProject from './Pages/Clients/EditProject';
 import ProjectDetails from './Pages/Clients/ProjectDetails';
+import ProfileSettingsClient from './Pages/Clients/ProfileSettingsClient';
+
 
 
 
@@ -93,6 +95,8 @@ const App = () => {
         <Route path="/analyticsclient" element={<AnalyticsClient />} />
         <Route path="/edit-project/:id" element={<EditProject />} />
         <Route path="/project-details/:id" element={<ProjectDetails />} />
+        <Route path="/profilesettingsclint" element={<ProfileSettingsClient />} />
+
 
 
         
