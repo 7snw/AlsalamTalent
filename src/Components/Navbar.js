@@ -25,7 +25,7 @@ const Navbar = ({ links = [] }) => {
     profilePath = '/myprofile';
     editProfilePath = '/profilesettings'; // only for freelancers
   } else if (role === 'client') {
-    profilePath = '/adminprofile';
+    profilePath = '/profilesettingsclint';
   } else if (role === 'admin') {
     profilePath = '/adminprofilesettings';
     addProfilePath = '/AddUsers'; // only for admin

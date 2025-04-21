@@ -1,70 +1,37 @@
-// src/Pages/FreelancersList.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../Style/Freelancer/FreelancersList.css';
-import '../../Style/Navbar.css';
-import '../../Style/PageContents.css';
-import Navbar from '../../Components/Navbar';
+import '../Style/FreelancersList.css';
+import '../Style/Navbar.css';
+import '../Style/PageContents.css'; // ✅ Shared utility styles
+import Navbar from '../Components/Navbar';
 import {
-  NavConfig2, // freelancer
-  NavConfig3, // client
-  NavConfig4  // admin
-} from '../../Data/NavbarConfigs';
-import SearchIcon from '../../Assets/search.png';
-import UserIcon from '../../Assets/ProfileImage.png';
+  NavConfig2,
+  NavConfig3,
+  NavConfig4
+} from '../Data/NavbarConfigs';
+import SearchIcon from '../Assets/search.png';
+import UserIcon from '../Assets/ProfileImage.png';
 
-// Dummy data for now
+// Dummy freelancer data
 const freelancers = [
-  {
-    name: 'Sarah Ahmed Isa',
-    title: 'Senior Graphic Designer and illustrator',
-    rating: 5
-  },
-  {
-    name: 'Muneera Mohamed',
-    title: 'Senior illustrator and UX/ UI designer',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Lulwa Khalid',
-    title: 'Advanced illustrator and editor',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  }
+  { name: 'Sarah Ahmed Isa', title: 'Senior Graphic Designer and illustrator', rating: 5 },
+  { name: 'Muneera Mohamed', title: 'Senior illustrator and UX/ UI designer', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Lulwa Khalid', title: 'Advanced illustrator and editor', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 }
 ];
 
-// Function to render stars
+// Render star rating
 const renderStars = (count) => {
   return Array.from({ length: count }, (_, i) => <span key={i}>★</span>);
 };
 
 const FreelancersList = () => {
   const role = localStorage.getItem('role');
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   let navLinks;
   switch (role) {
@@ -83,9 +50,10 @@ const FreelancersList = () => {
   return (
     <div className="freelancer-page">
       <Navbar links={navLinks} />
-      <div className="freelancer-container">
+
+      <div className="freelancer-container9">
         <div className="freelancer-content">
-          {/* LEFT - Filter */}
+          {/* LEFT SIDE - FILTER */}
           <div className="freelancer-left-panel">
             <h1 className="page-title">Freelancers</h1>
             <div className="filter-section">
@@ -120,42 +88,42 @@ const FreelancersList = () => {
             </div>
           </div>
 
-          {/* RIGHT - Search & Results */}
+          {/* RIGHT SIDE - SEARCH & RESULTS */}
           <div className="freelancer-results">
-            <div className="search-wrapper">
+            {/* ✅ Shared search bar class from PageContents.css */}
+            <div className="search-wrapper9">
               <input type="text" placeholder="Who are you looking for?" />
-              <img src={SearchIcon} alt="search" className="search-icon" />
+              <img src={SearchIcon} alt="Search" className="search-icon9" />
             </div>
 
-           
-{freelancers.map((freelancer, i) => (
-  <div 
-    className="freelancer-card" 
-    key={i} 
-    onClick={() => navigate('/freelancerprofile')}
-    style={{ cursor: 'pointer' }}
-  >
-    <div className="freelancer-info">
-      <img src={UserIcon} alt="user" className="profile-icon" />
-      <div>
-        <h3>{freelancer.name}</h3>
-        <p>{freelancer.title}</p>
-      </div>
-    </div>
+            {freelancers.map((freelancer, i) => (
+              <div
+                className="freelancer-card"
+                key={i}
+                onClick={() => navigate('/freelancerprofile')}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="freelancer-info">
+                  <img src={UserIcon} alt="user" className="profile-icon" />
+                  <div>
+                    <h3>{freelancer.name}</h3>
+                    <p>{freelancer.title}</p>
+                  </div>
+                </div>
 
-    <div className="freelancer-meta">
-      <div className="rating">{renderStars(freelancer.rating)}</div>
-      <button 
-        className="contact-btn" 
-        onClick={(e) => {
-          e.stopPropagation(); // Prevents card click from firing
-          navigate('/freelancermessages');
-        }}
-      >
-        Get in touch
-      </button>
-    </div>
-  </div>
+                <div className="freelancer-meta">
+                  <div className="rating">{renderStars(freelancer.rating)}</div>
+                  <button
+                    className="contact-btn"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Avoid triggering parent click
+                      navigate('/freelancermessages');
+                    }}
+                  >
+                    Get in touch
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         </div>

@@ -37,7 +37,7 @@
   }
   
   .users-card {
-    background: #dcdcdc;
+    background: #ffffff;
     border-radius: 20px;
     padding: 20px ;
     display: flex;
@@ -45,8 +45,18 @@
     justify-content: space-between;
     gap: 30px;
     margin-top: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   }
   
+
+  .users-card:hover{
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+
+  }
+
+
   .users-meta {
     display: flex;
     align-items: center;

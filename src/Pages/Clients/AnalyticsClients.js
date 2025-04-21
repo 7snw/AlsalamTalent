@@ -12,7 +12,7 @@ const AnalyticsClient = () => {
     <div className="analytics-page">
       <Navbar links={NavConfig3} />
       <div className="analytics-container">
-        <h2>Analytics</h2>
+        <h2>Client Analytics</h2>
 
         <div className="summary-cards">
           <div className="card">
@@ -64,13 +64,21 @@ const AnalyticsClient = () => {
 
           <div className="card performance">
             <h4>Performance Graph</h4>
-            <div className="circle">
-              <svg width="120" height="120">
-                <circle cx="60" cy="60" r="50" stroke="#f0f0f0" strokeWidth="10" fill="none" />
-                <circle cx="60" cy="60" r="50" stroke="#EE582B" strokeWidth="10" fill="none"
-                        strokeDasharray="314" strokeDashoffset="94" />
+            <div className="circular-chart8">
+              <svg viewBox="0 0 36 36" className="circular8">
+                <path
+                  className="circle-bg8"
+                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
+                />
+                <path
+                  className="circle8"
+                  strokeDasharray="66, 100"
+                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
+                />
+                <text x="18" y="20.35" className="percentage8">
+                  70%
+                </text>
               </svg>
-              <div className="percent">70%</div>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../Style/Admin/FreelancerMessages.css';
+import '../../Style/Admin/AdminMessages.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 

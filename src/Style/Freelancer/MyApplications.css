@@ -1,6 +1,6 @@
 /* src/Style/Freelancer/MyApplications.css */
 
-.project-applications-page {
+.my-applications-page {
   font-family: 'Segoe UI', sans-serif;
   background-color: #E6E7E8;
   min-height: 100vh;
@@ -8,7 +8,7 @@
   box-sizing: border-box;
 }
 
-.project-applications-container {
+.my-applications-container {
   max-width: 100%;
   margin: 0 auto;
   padding: 0 6%;
@@ -16,29 +16,29 @@
   gap: 40px;
 }
 
-.project-applications-layout {
+.my-applications-layout {
   display: flex;
   gap: 40px;
   flex-wrap: wrap;
 }
 
-.applications-left-panel {
+.my-applications-left-panel {
   width: 265px;
 }
 
-.applications-right-panel {
+.my-applications-right-panel {
   flex: 1;
 }
 
-.applications-list {
+.my-applications-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
   width: 100%;
 }
 
-.application-card {
-  background-color: #dcdcdc;
+.my-application-card {
+  background-color: #ffffff;
   border-radius: 20px;
   padding: 16px 20px;
   display: flex;
@@ -47,22 +47,27 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.application-card img {
+.my-application-card:hover{
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+.my-application-card img {
   width: 80px;
   height: 80px;
   border-radius: 15px;
   object-fit: cover;
 }
 
-.application-info h4 {
+.my-application-info h4 {
   font-size: 16px;
   margin: 0;
   color: #1B223C;
 }
 
-.application-info p {
+.my-application-info p {
   font-size: 13px;
-  color: #555;
+  color: #000000;
   margin: 4px 0;
 }
 
@@ -74,13 +79,13 @@
   gap: 6px;
 }
 
-.application-actions {
+.my-application-actions {
   margin-left: auto;
   display: flex;
   gap: 12px;
 }
 
-.application-actions .pending {
+.my-application-actions .pending {
   padding: 8px 18px;
   font-size: 14px;
   border-radius: 20px;
@@ -101,7 +106,7 @@
     max-width: 100%;
   }
 
-  .applications-list {
+  .my-applications-list {
     align-items: center;
   }
 }

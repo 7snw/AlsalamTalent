@@ -1,5 +1,4 @@
 // src/Pages/ClientHome.js
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../Style/Clients/ClientHome.css';
@@ -26,9 +25,9 @@ const ClientHome = () => {
       <div className="client-container">
         <Navbar links={NavConfig3} />
 
-        <header className="hero">
+        <header className="hero2">
           <h1><span className="highlight">Explore</span> Real-World Projects</h1>
-          <p>Find top freelancers to get your project done with quality and efficiency.</p>
+          <p>Take on your next project, build your portfolio, and develop your skills.</p>
           <div className="search-bar">
             <input type="text" placeholder="What are you looking for?" />
             <img src={SearchIcon} alt="Search" className="search-icon" />

@@ -4,11 +4,13 @@
   background-color: #E6E7E8;
   min-height: 100vh;
   padding: 0 6%;
+margin-bottom: 40px;
 }
 
 .details-container {
-  padding-top: 0px;
-  margin-bottom: 60px;
+  padding-top: -40px;
+  margin-bottom: 20px;
+
 }
 
 .details-container h2 {
@@ -52,11 +54,30 @@
   margin-top: 6px;
   font-size: 14px;
   font-weight: 500;
-  cursor: not-allowed;
   border: none;
   width: fit-content;
   min-width: 160px;
 }
+
+.left button:disabled {
+  cursor: not-allowed;
+}
+
+.edit-btn9 {
+  margin-top: 25px;
+  background-color: #EE582B;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  width: fit-content;
+  min-width: 160px;
+}
+
+
 
 .right {
   flex: 1;
@@ -70,4 +91,5 @@
   max-width: 400px;
   border-radius: 20px;
   object-fit: cover;
+  margin-top:  -90px;
 }

@@ -1,180 +1,136 @@
-.settings-page {
-    background-color: #E6E7E8;
-    font-family: 'Segoe UI', sans-serif;
-    min-height: 100vh;
- padding-bottom: 20px;
-    
-  }
-  
-  .settings-container {
-    display: flex;
-    gap: 50px;
-    margin: 0 auto;
-   max-width: 900px;
-  }
-  
-  .settings-sidebar {
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    margin-left: 0px;
-    align-items: flex-start;
-    margin-top: 40px;
-  }
-  
-  .settings-user-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-  }
-  
-  .settings-username {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1b223c;
-    margin-bottom: 20px;
-  }
-  
-  .settings-tabs {
-    list-style: none;
-    padding: 0;
-    width: 100%;
-  }
-  
-  .settings-tabs li {
-    padding: 8px 0;
-    cursor: pointer;
-    color: #1b223c;
-    font-size: 14px;
-  }
 
+.admin-settings-page {
+  background-color: #E6E7E8;
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 20px;
+  margin-left: 91px;
+  margin-right: 91px;
+}
 
-  .settings-tabs li.active {
-    font-weight: bold;
-    color: #1b223c;
-    border-left: 3px solid #1b223c;
-    padding-left: 10px;
-    background-color: #f0f0f0;
-  }
-  
-  
-  .delete-account {
-    color: red;
-    margin-top: 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .settings-content {
-    flex: 1;
-    padding-top: 40px;
-  }
-  
- 
-  
-  .section {
-    background: #f7f7f7;
-    padding: 24px;         /* reduced padding */
-    border-radius: 12px;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
-      
-  }
-  
-  .section h4 {
-    margin-top: 16px;
-    margin-bottom: 6px;
-    color: #1b223c;
-    font-size: 15px;
-  }
-  
-  .section input,
-  .section textarea {
-    width: 95%;
-    padding: 8px 12px;      /* smaller padding inside inputs */
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: #efefef;
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
-  
-  
-  
-  
-  .upload-pic-btn,
-  .delete-btn,
-  .save-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: none;
-    font-size: 14px;
-    margin-right: 10px;
-    cursor: pointer;
-  }
-  
-  .upload-pic-btn {
-    background-color: #1b223c;
-    color: white;
-  }
-  
-  .delete-btn {
-    background-color: #ccc;
-    color: #1b223c;
-  }
-  
-  .save-btn {
-    background-color: #1b223c;
-    color: white;
-    margin-top: 20px;
-  }
-  
-  .checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 10px;
-  }
-  
-  .checkboxes label {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-  }
-  
-  .upload-delete-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .type-form-group {
-    margin-bottom: 16px;
-   
-  }
-  
-  .type-form-group label {
-    margin-top: 10px;
-    display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
-    font-size: 14px;
-    color: #1b223c;
-  }
+.admin-settings-container {
+  display: flex;
+  gap: 50px;
+  margin: 0 auto;
+  max-width: 900px;
+}
 
-  .type-form-group input,
-  .type-form-group select
-  {
-    width: 99.5%;
-    padding: 8px 12px;      /* smaller padding inside inputs */
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: #efefef;
-    font-size: 13px;
-    margin-bottom: 8px;
-    background-color: #efefef;
+.admin-settings-sidebar {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 40px;
+  align-items: flex-start;
+}
 
-  }
-  
+.admin-settings-user-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.admin-settings-username {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1b223c;
+  margin-bottom: 20px;
+}
+
+.admin-settings-tabs {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.admin-settings-tabs li {
+  padding: 8px 0;
+  cursor: pointer;
+  color: #1b223c;
+  font-size: 14px;
+}
+
+.admin-settings-tabs li.active {
+  font-weight: bold;
+  color: #1b223c;
+  border-left: 3px solid #1b223c;
+  padding-left: 10px;
+  background-color: #f0f0f0;
+}
+
+.admin-settings-content {
+  flex: 1;
+  padding-top: 40px;
+}
+
+.admin-section {
+  background: #f7f7f7;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
+}
+
+.admin-section h4 {
+  margin-top: 16px;
+  margin-bottom: 6px;
+  color: #1b223c;
+  font-size: 15px;
+}
+
+.admin-section input,
+.admin-section textarea {
+  width: 95%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #efefef;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.admin-upload-pic-btn,
+.admin-delete-btn,
+.admin-save-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  font-size: 14px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.admin-upload-pic-btn {
+  background-color: #1b223c;
+  color: white;
+}
+
+.admin-delete-btn {
+  background-color: #ccc;
+  color: #1b223c;
+}
+
+.admin-save-btn {
+  background-color: #1b223c;
+  color: white;
+  margin-top: 20px;
+}
+
+.admin-upload-delete-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-edit-profile-picture {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-profile-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}

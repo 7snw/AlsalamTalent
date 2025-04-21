@@ -1,4 +1,7 @@
+// src/Pages/SubmitProject.js
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import ProjectsData from '../../Data/ProjectsData';
 import '../../Style/Freelancer/SubmitProject.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
@@ -6,10 +9,17 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import uploadIcon from '../../Assets/Upload.png';
 
+
 const SubmitProject = () => {
+  const { id } = useParams();
+  const project = id !== undefined ? ProjectsData.submitted[id] : null;
   const [projectFile, setProjectFile] = useState(null);
   const [contractFile, setContractFile] = useState(null);
-  const [progress, setProgress] = useState(66.6);
+  const defaultProgress = project && project.progress ? parseFloat(project.progress) : 0;
+  const [progress, setProgress] = useState(defaultProgress);
+  
+
+  
 
   const handleProjectFileChange = (e) => {
     setProjectFile(e.target.files[0]?.name);
@@ -26,6 +36,7 @@ const SubmitProject = () => {
         <div className="submit-container">
           <div className="left-panel">
             <h1 className="page-title">Submit Project / Progress</h1>
+            <h4>{project ? project.title : "New Project Submission"}</h4>
 
             <form className="submit-form">
               <div className="submit-form-group">

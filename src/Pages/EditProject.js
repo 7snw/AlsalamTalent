@@ -1,16 +1,39 @@
 // src/Pages/Clients/EditProject.js
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import '../../Style/Clients/PostProject.css';
-import '../../Style/PageContents.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig3 } from '../../Data/NavbarConfigs';
-import uploadIcon from '../../Assets/Upload.png';
-import ProjectsData from '../../Data/ProjectsData';
+import '../Style/Clients/PostProject.css';
+import '../Style/PageContents.css';
+import Navbar from '../Components/Navbar';
+import {
+  NavConfig1,
+  NavConfig2,
+  NavConfig3,
+  NavConfig4
+} from '../Data/NavbarConfigs';
+import uploadIcon from '../Assets/Upload.png';
+import ProjectsData from '../Data/ProjectsData';
 
 const EditProject = () => {
   const { id } = useParams();
   const project = ProjectsData.deitailes[parseInt(id)];
+
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    switch (role) {
+      case 'freelancer':
+        setNavbarConfig(NavConfig2);
+        break;
+      case 'client':
+        setNavbarConfig(NavConfig3);
+        break;
+      case 'admin':
+        setNavbarConfig(NavConfig4);
+        break;
+      default:
+        setNavbarConfig(NavConfig1);
+    }
+  }, []);
 
   const [projectTitle, setProjectTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -18,6 +41,7 @@ const EditProject = () => {
   const [budget, setBudget] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [status, setStatus] = useState('');
   const [projectFiles, setProjectFiles] = useState(null);
   const [contractDocs, setContractDocs] = useState(null);
   const [projectImage, setProjectImage] = useState(null);
@@ -61,7 +85,7 @@ const EditProject = () => {
 
   return (
     <div className="post-project-page">
-      <Navbar links={NavConfig3} />
+      <Navbar links={navbarConfig} />
       <div className="post-project-container">
         <h2>Edit Project</h2>
         <form className="post-project-form" onSubmit={handleSubmit}>
@@ -118,6 +142,14 @@ const EditProject = () => {
               required
             />
           </div>
+
+          <label>Status*</label>
+          <input
+            type="text"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            required
+          />
 
           <div className="post-project-upload-group">
             <label>Project Files*</label>

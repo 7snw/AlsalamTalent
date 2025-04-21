@@ -7,13 +7,13 @@ const AdminProfileSettings = () => {
   const [activeSection, setActiveSection] = useState('edit');
 
   return (
-    <div className="settings-page">
+    <div className="admin-settings-page">
       <Navbar links={NavConfig4} />
-      <div className="settings-container">
-        <div className="settings-sidebar">
-          <h3 className="settings-username">Maryam Yusuf Haji</h3>
+      <div className="admin-settings-container">
+        <div className="admin-settings-sidebar">
+          <h3 className="admin-settings-username">Maryam Yusuf</h3>
 
-          <ul className="settings-tabs">
+          <ul className="admin-settings-tabs">
             <li
               className={activeSection === 'edit' ? 'active' : ''}
               onClick={() => setActiveSection('edit')}
@@ -27,37 +27,40 @@ const AdminProfileSettings = () => {
               Password
             </li>
           </ul>
-
-          <button className="delete-account">Delete account</button>
         </div>
 
-        <div className="settings-content">
-
-
+        <div className="admin-settings-content">
           {activeSection === 'edit' && (
-            <div className="section">
-            
+            <div className="admin-section">
               <h4>Name</h4>
-              <input type="text" defaultValue="Maryam Yusuf Haji" />
+              <input type="text" defaultValue="Maryam Yusuf" />
+
               <h4>Email</h4>
               <input type="text" defaultValue="maryam.yusuf@alsalambank.com" />
+
               <h4>Occupation</h4>
-              <input type="text" defaultValue="IT Administrator - Alsalam Bank" />
+              <input type="text" defaultValue="Marketing" />
+
               <h4>Phone Number</h4>
-              <input type="text" defaultValue="+973 33339991" />
+              <input type="text" defaultValue="+973 33333333" />
+
+              <h4>Company Name</h4>
+              <input type="text" defaultValue="AlSalam Bank" />
+
               <h4>Date of Birth</h4>
               <input type="date" defaultValue="2002-10-24" />
-              <button className="save-btn">Save</button>
+              
+              <button className="admin-save-btn">Save</button>
             </div>
           )}
 
           {activeSection === 'password' && (
-            <div className="section">
+            <div className="admin-section">
               <h4>Old Password</h4>
               <input type="password" placeholder="Enter old password" />
               <h4>New Password</h4>
               <input type="password" placeholder="Enter new password" />
-              <button className="save-btn">Save</button>
+              <button className="admin-save-btn">Save</button>
             </div>
           )}
         </div>

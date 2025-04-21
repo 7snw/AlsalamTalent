@@ -2,19 +2,17 @@
 import React, { useState } from 'react';
 import '../../Style/Clients/ProfileSettingsClient.css';
 import Navbar from '../../Components/Navbar';
-import userIcon from '../../Assets/ProfileIcon.png';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 
 const ProfileSettingsClient = () => {
   const [activeSection, setActiveSection] = useState('edit');
-  const [preview, setPreview] = useState(null);
 
   return (
     <div className="client-settings-page">
       <Navbar links={NavConfig3} />
       <div className="client-settings-container">
         <div className="client-settings-sidebar">
-          <h3 className="client-settings-username">Ali Salman</h3>
+          <h3 className="client-settings-username">Ahmed Isa</h3>
 
           <ul className="client-settings-tabs">
             <li
@@ -35,60 +33,24 @@ const ProfileSettingsClient = () => {
         <div className="client-settings-content">
           {activeSection === 'edit' && (
             <div className="client-section">
-              <div className="client-edit-profile-picture">
-                <img
-                  src={preview || userIcon}
-                  alt="Profile"
-                  className="client-profile-preview"
-                />
-                <div className="client-upload-delete-container">
-                  <button
-                    className="client-upload-pic-btn"
-                    onClick={() => document.getElementById('clientHiddenFileInput').click()}
-                  >
-                    Upload a picture
-                  </button>
-                  <button
-                    className="client-delete-btn"
-                    onClick={() => {
-                      if (window.confirm('Delete current picture?')) {
-                        setPreview(null);
-                      }
-                    }}
-                  >
-                    Delete
-                  </button>
-                  <input
-                    type="file"
-                    id="clientHiddenFileInput"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => setPreview(reader.result);
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
               <h4>Name</h4>
-              <input type="text" placeholder="Enter your name" />
+              <input type="text" defaultValue="Ahmed Isa" />
 
               <h4>Email</h4>
-              <input type="text" placeholder="Enter your email" />
+              <input type="text" defaultValue="ahmed.isa@alsalambank.com" />
 
               <h4>Occupation</h4>
-              <input type="text" placeholder="Enter your occupation" />
+              <input type="text" defaultValue="HR" />
 
               <h4>Phone Number</h4>
-              <input type="text" placeholder="Enter your phone number" />
+              <input type="text" defaultValue="+973 33333333" />
 
               <h4>Company Name</h4>
-              <input type="text" placeholder="Enter your company name" />
+              <input type="text" defaultValue="AlSalam Bank" />
 
+              <h4>Date of Birth</h4>
+              <input type="date" defaultValue="13-01-1996" />
+              
               <button className="client-save-btn">Save</button>
             </div>
           )}

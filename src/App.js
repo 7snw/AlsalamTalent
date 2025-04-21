@@ -7,19 +7,20 @@ import SignUpPage from './Pages/SignUpPage';
 import GraduateSignUp from './Pages/GraduateSignUp';
 import LoginPage from './Pages/LoginPage';
 import AboutUs from './Pages/AboutUs';
-
+import EditProject from './Pages/EditProject';
+import ProjectDetailsPage from './Pages/ProjectDetailsPage';
+import ProjectDetails from './Pages/ProjectDetails';
+import FreelancerProfile from './Pages/FreelancerProfile';
+import FreelancersList from './Pages/FreelancersList';
 
 
 //Freelancer
 import FreelancerHome from './Pages/Freelancer/FreelancerHome';
-import FreelancersList from './Pages/Freelancer/FreelancersList';
 import AllProjects from './Pages/Freelancer/AllProjects';
 import MyProjects from './Pages/Freelancer/MyProjects';
 import SavedProjects from './Pages/Freelancer/SavedProjects';
 import MyApplications from './Pages/Freelancer/MyApplications';
 import SubmitProject from './Pages/Freelancer/SubmitProject';
-import FreelancerAboutUs from './Pages/Freelancer/FreelancerAboutUs';
-import FreelancerProfile from './Pages/Freelancer/FreelancerProfile';
 import MyProfile from './Pages//Freelancer/MyProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
 import FreelanceNotifications from './Pages/Freelancer/FreelancerNotifications';
@@ -31,14 +32,11 @@ import ClientHome from './Pages/Clients/ClientHome';
 import PostProject from './Pages/Clients/PostProject';
 import AssignedProject from './Pages/Clients/AssignedProject';
 import SubmittedProjects from './Pages/Clients/SubmittedProjects';
-import ProjectDetailsPage from './Pages/Clients/ProjectDetailsPage';
 import SubmittedProjectDetailsPage from './Pages/Clients/SubmittedProjectDetailsPage';
 import ProjectApplications from './Pages/Clients/ProjectApplications';
 import AnalyticsClient from './Pages/Clients/AnalyticsClients';
 import BrowseProjects from './Pages/Clients/BrowseProjects';
 import ProjectProgress from './Pages/Clients/ProjectProgress';
-import EditProject from './Pages/Clients/EditProject';
-import ProjectDetails from './Pages/Clients/ProjectDetails';
 import ProfileSettingsClient from './Pages/Clients/ProfileSettingsClient';
 
 
@@ -66,22 +64,25 @@ const App = () => {
         <Route path="/signin" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/graduatesignup" element={<GraduateSignUp />} />
-        <Route path="/aboutus" element={<AboutUs />} />
-
-
-        <Route path="/freelancer-home" element={<FreelancerHome />} />
+        <Route path="/aboutus" element={<AboutUs />} /> 
+        <Route path="/freelancerprofile" element={<FreelancerProfile />} />
         <Route path="/freelancers" element={<FreelancersList />} /> 
+        <Route path="/freelancer-home" element={<FreelancerHome />} />
+      
+
+
         <Route path="/allprojects" element={<AllProjects />} /> 
         <Route path="/myprojects" element={<MyProjects />} /> 
         <Route path="/savedprojects" element={<SavedProjects />} /> 
         <Route path="/myapplications" element={<MyApplications />} /> 
         <Route path="/submitproject" element={<SubmitProject />} /> 
-        <Route path="/freelanceraboutus" element={<FreelancerAboutUs />} /> 
-        <Route path="/freelancerprofile" element={<FreelancerProfile />} />
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/profilesettings" element={<ProfileSettings />} />
         <Route path="/freelancernotifications" element={<FreelanceNotifications />} />
         <Route path="/freelancermessages" element={<FreelancerMessages />} />
+        <Route path="/submit-project/:id" element={<SubmitProject />} />
+
+
 
         <Route path="/clienthome" element={<ClientHome />} /> 
         <Route path="/browseprojects" element={<BrowseProjects />} />

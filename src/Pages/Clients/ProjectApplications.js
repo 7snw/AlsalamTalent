@@ -1,6 +1,7 @@
 // src/Pages/Clients/ProjectApplications.js
 import React, { useState } from 'react';
 import '../../Style/Clients/ProjectApplications.css';
+import { Link } from 'react-router-dom';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
@@ -100,10 +101,13 @@ const ProjectApplications = () => {
                   <img src={proj.image} alt={proj.title} />
                   <div className="application-info">
                     <h4>{proj.title}</h4>
-                    <p>Marketing consultant</p>
+               
                     <div className="freelancer-name">
-                      <span>👤</span> {proj.name}
-                    </div>
+  <span>👤</span>
+  <Link to="/freelancerprofile" className="freelancer-link">
+    {proj.name}
+  </Link>
+</div>
                   </div>
                   <div className="application-actions">
                     <button className="approve">Approve</button>

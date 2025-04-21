@@ -29,7 +29,7 @@ const MyProfile = () => {
           <div className="left-profile2">
             <img src={userIcon} alt="User Icon" className="profile-image2" />
             <div className="profile-info2">
-              <h2>Fatema Almutawa</h2>
+              <h2>Maryam Yusuf</h2>
             </div>
           </div>
           <button className="edit-profile" onClick={() => navigate('/profilesettings')}>

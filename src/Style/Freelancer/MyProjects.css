@@ -27,12 +27,18 @@
     gap: 25px;
   }
   
-  .my-project-card {
+  .my-project-card{
     background: #ddd;
     border-radius: 20px;
     padding: 0 0 15px;
     overflow: hidden;
     position: relative;
+
+  }
+  .my-project-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
   }
   
   .my-project-card img {

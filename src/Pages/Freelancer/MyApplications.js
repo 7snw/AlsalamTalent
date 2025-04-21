@@ -35,10 +35,10 @@ const MyApplications = () => {
   });
 
   return (
-    <div className="project-applications-page">
+    <div className="my-applications-page">
       <Navbar links={NavConfig2} />
-      <div className="project-applications-container">
-        <aside className="applications-left-panel">
+      <div className="my-applications-container">
+        <aside className="my-applications-left-panel">
           <h1 className="page-title">My Applications</h1>
 
           <div className="filter-section">
@@ -89,7 +89,7 @@ const MyApplications = () => {
           </div>
         </aside>
 
-        <main className="applications-right-panel">
+        <main className="my-applications-right-panel">
           <div className="search-wrapper">
             <input
               type="text"
@@ -100,15 +100,15 @@ const MyApplications = () => {
             <img src={SearchIcon} alt="search" className="search-icon" />
           </div>
 
-          <div className="applications-list">
+          <div className="my-applications-list">
             {filteredProjects.map((proj, index) => (
-              <div className="application-card" key={index}>
+              <div className="my-application-card" key={index}>
                 <img src={proj.image} alt={proj.title} />
-                <div className="application-info">
+                <div className="my-application-info">
                   <h4>{proj.title}</h4>
-                  <h4>{proj.price}</h4>
+                  <p>{proj.price}</p>
                 </div>
-                <div className="application-actions">
+                <div className="my-application-actions">
                   <button className="pending">Pending</button>
                 </div>
               </div>

@@ -1,23 +1,48 @@
 // src/Pages/Clients/ProjectDetails.js
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import '../../Style/Clients/ProjectDetailsPage.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig3 } from '../../Data/NavbarConfigs';
-import ProjectsData from '../../Data/ProjectsData';
+import '../Style/ProjectDetailsPage.css';
+import Navbar from '../Components/Navbar';
+import {
+  NavConfig1,
+  NavConfig2,
+  NavConfig3,
+  NavConfig4
+} from '../Data/NavbarConfigs';
+import ProjectsData from '../Data/ProjectsData';
 
 const ProjectDetails = () => {
   const { id } = useParams();
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default fallback
   const project = ProjectsData.deitailes[parseInt(id)];
+
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    switch (role) {
+      case 'freelancer':
+        setNavbarConfig(NavConfig2);
+        break;
+      case 'client':
+        setNavbarConfig(NavConfig3);
+        break;
+      case 'admin':
+        setNavbarConfig(NavConfig4);
+        break;
+      default:
+        setNavbarConfig(NavConfig1);
+    }
+  }, []);
 
   if (!project) return <p>Project not found</p>;
 
   return (
     <div className="project-details-page">
-      <Navbar links={NavConfig3} />
+      <Navbar links={navbarConfig} />
+
       <div className="details-container">
         <h2>{project.title}</h2>
+
         <div className="details-layout">
           <div className="left">
             <h4>Author / Organization:</h4>

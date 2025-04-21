@@ -9,20 +9,20 @@ const ProfileSettings = () => {
   const [preview, setPreview] = useState(null);
 
   return (
-    <div className="settings-page">
+    <div className="settings-page9">
       <Navbar links={NavConfig2} />
-      <div className="settings-container">
-        <div className="settings-sidebar">
-        <div className="sidebar-profile-header">
+      <div className="settings-container9">
+        <div className="settings-sidebar9">
+        <div className="sidebar-profile-header9">
   <img
     src={preview || userIcon}
     alt="Profile"
-    className="settings-user-icon"
+    className="settings-user-icon9"
   />
-  <h3 className="settings-username">Maryam Yusuf</h3>
+  <h3 className="settings-username9">Maryam Yusuf</h3>
 </div>
 
-          <ul className="settings-tabs">
+          <ul className="settings-tabs9">
             <li
               className={activeSection === 'general' ? 'active' : ''}
               onClick={() => setActiveSection('general')}
@@ -43,12 +43,12 @@ const ProfileSettings = () => {
             </li>
           </ul>
 
-          <button className="delete-account">Delete account</button>
+          <button className="delete-account9">Delete account</button>
         </div>
 
-        <div className="settings-content">
+        <div className="settings-content9">
           {activeSection === 'general' && (
-            <div className="section">
+            <div className="section9">
               <h4>Name</h4>
               <input type="text" value="Maryam Yusuf" readOnly />
               <h4>Email</h4>
@@ -61,22 +61,22 @@ const ProfileSettings = () => {
           )}
 
           {activeSection === 'edit' && (
-            <div className="section">
-            <div className="edit-profile-picture">
+            <div className="section9">
+            <div className="edit-profile-picture9">
   <img
     src={preview || userIcon}
     alt="Profile"
-    className="profile-preview"
+    className="profile-preview9"
   />
-  <div className="upload-delete-container">
+  <div className="upload-delete-container9">
     <button
-      className="upload-pic-btn"
+      className="upload-pic-btn9"
       onClick={() => document.getElementById('hiddenFileInput').click()}
     >
       Upload a picture
     </button>
     <button
-      className="delete-btn"
+      className="delete-btn9"
       onClick={() => {
         if (window.confirm('Delete current picture?')) {
           setPreview(null);
@@ -102,13 +102,13 @@ const ProfileSettings = () => {
   </div>
 </div>
               <h4>Name</h4>
-              <input type="text"  placeholder="Enter you name" />
+              <input type="text"  defaultValue="Maryam Yusuf" />
 
               <h4>Email</h4>
-              <input type="text"  placeholder="Enter you email" />
+              <input type="text"  defaultValue="202100516@student.polytechnic.bh" />
 
               <h4>Major</h4>
-              <select className="full-width" defaultValue="">
+              <select className="full-width9" defaultValue="Web Media">
                 <option value="Web Media">Web Media</option>
                 <option value="UI/UX Designer">UI/UX Designer</option>
                 <option value="Visual Design">Visual Design</option>
@@ -119,7 +119,10 @@ const ProfileSettings = () => {
               </select>
 
               <h4>Phone Number</h4>
-              <input type="text"  placeholder="Enter your phone number" />
+              <input type="text"  defaultValue="+973 33333333" />
+
+              <h4>CPR Number</h4>
+              <input type="text"  defaultValue="030000000" />
 
               <h4>Date of Birth</h4>
               <input type="date" defaultValue="dd-mm-yyyy" />
@@ -134,7 +137,7 @@ const ProfileSettings = () => {
               />
 
               <h4>Select your specialties</h4>
-              <div className="checkboxes-grid">
+              <div className="checkboxes-grid9">
                 {[
                   'Animation',
                   'Brand / Graphic Design',
@@ -145,7 +148,7 @@ const ProfileSettings = () => {
                   'Product Design',
                   'UX Design / Research'
                 ].map((specialty, index) => (
-                  <label key={index} className="checkbox-item">
+                  <label key={index} className="checkbox-item9">
                     <input
                       type="checkbox"
                       defaultChecked={
@@ -164,17 +167,17 @@ const ProfileSettings = () => {
                  placeholder="Add other specialties"
               />
 
-              <button className="save-btn">Save</button>
+              <button className="save-btn9">Save</button>
             </div>
           )}
 
           {activeSection === 'password' && (
-            <div className="section">
+            <div className="section9">
               <h4>Old Password</h4>
               <input type="password" placeholder="Enter old password" />
               <h4>New Password</h4>
               <input type="password" placeholder="Enter new password" />
-              <button className="save-btn">Save</button>
+              <button className="save-btn9">Save</button>
             </div>
           )}
         </div>

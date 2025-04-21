@@ -1,10 +1,13 @@
 // src/Data/NavbarConfigs.js
 
+//General
 export const NavConfig1 = [
   { label: 'Home', path: '/landingpage' },
   { label: 'About us', path: '/aboutUs' }
 ];
 
+
+//Freelancer
 export const NavConfig2 = Object.assign([
   { label: 'Home', path: '/freelancer-home' },
   {
@@ -19,14 +22,14 @@ export const NavConfig2 = Object.assign([
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'About us', path: '/freelanceraboutus' }
+  { label: 'About us', path: '/aboutus' }
 ], {
   showIcons: true,
   hideSignIn: true
 });
 
 
-
+//Client
 export const NavConfig3 = Object.assign([
   { label: 'Home', path: '/clienthome' },
   {
@@ -46,7 +49,7 @@ export const NavConfig3 = Object.assign([
   hideSignIn: true 
 });
 
-
+//Admin
 export const NavConfig4 = Object.assign([
   { label: 'Home', path: '/analyticsadmin' },
   {
