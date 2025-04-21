@@ -23,12 +23,13 @@ const  AllProjects = () => {
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
-      if (updated[category].includes(value)) {
-        updated[category] = updated[category].filter((v) => v !== value);
-      } else {
-        updated[category].push(value);
-      }
-      return updated;
+      const alreadySelected = updated[category].includes(value);
+
+      updated[category] = alreadySelected
+        ? updated[category].filter((v) => v !== value)
+        : [...updated[category], value];
+
+      return { ...updated };
     });
   };
 

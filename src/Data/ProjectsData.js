@@ -83,6 +83,7 @@ const projectsData = {
       client: 'Noura Salman',
       image: require('../Assets/Projects/illustration.png'),
       status: 'pending',
+      category: 'Web Design',
       appliedDate: '2024-06-01'
     },
     {
@@ -90,6 +91,15 @@ const projectsData = {
       client: 'Ali Rashed',
       image: require('../Assets/Projects/socialmedia.png'),
       status: 'pending',
+      category: 'Illustration',
+      appliedDate: '2024-06-03'
+    },
+    {
+      title: 'Summer Ads Social Posts',
+      client: 'Ali Rashed',
+      image: require('../Assets/Projects/socialmedia.png'),
+      status: 'pending',    
+      category: 'Marketing',
       appliedDate: '2024-06-03'
     },
     {
@@ -97,6 +107,7 @@ const projectsData = {
       client: 'Ali Rashed',
       image: require('../Assets/Projects/socialmedia.png'),
       status: 'pending',
+      category: 'Product Design',
       appliedDate: '2024-06-03'
     },
     {
@@ -104,18 +115,12 @@ const projectsData = {
       client: 'Ali Rashed',
       image: require('../Assets/Projects/socialmedia.png'),
       status: 'pending',
+      category: 'Graphic Design',
       appliedDate: '2024-06-03'
-    },
-    {
-      title: 'Summer Ads Social Posts',
-      client: 'Ali Rashed',
-      image: require('../Assets/Projects/socialmedia.png'),
-      status: 'pending',
-      appliedDate: '2024-06-03'
+      
     }
   ],
 };
 
 
 export default projectsData;
-//hhh

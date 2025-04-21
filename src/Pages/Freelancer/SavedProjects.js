@@ -27,15 +27,40 @@ const initialProjects = [
 ];
 
 const SavedProjects = () => {
-  const [projects, setProjects] = useState(initialProjects);
-  const [search, setSearch] = useState('');
+   const navigate = useNavigate();
+   const [search, setSearch] = useState('');
+   const [filters, setFilters] = useState({
+     type: [],
+     level: [],
+     price: []
+   });
 
-  const toggleUnsave = (name) => {
-    const updated = projects.filter(p => p.name !== name);
-    setProjects(updated);
+   const handleCheckbox = (category, value) => {
+    setFilters((prev) => {
+      const updated = { ...prev };
+      const alreadySelected = updated[category].includes(value);
+
+      updated[category] = alreadySelected
+        ? updated[category].filter((v) => v !== value)
+        : [...updated[category], value];
+
+      return { ...updated };
+    });
   };
 
-  const filtered = projects.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+
+  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
+    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+    const matchesType =
+      filters.type.length === 0 || filters.type.includes(proj.category);
+    const matchesLevel =
+      filters.level.length === 0 || filters.level.includes(proj.level);
+    const matchesPrice =
+      filters.price.length === 0 || filters.price.includes(proj.priceRange);
+
+    return matchesSearch && matchesType && matchesLevel && matchesPrice;
+  });
+
 
   return (
     <div className="saved-projects-page">

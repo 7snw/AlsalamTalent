@@ -20,20 +20,23 @@ const   AdminAllProjects = () => {
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
-      const updated = { ...prev };
-      if (updated[category].includes(value)) {
-        updated[category] = updated[category].filter((v) => v !== value);
-      } else {
-        updated[category].push(value);
-      }
-      return updated;
+      const alreadySelected = prev[category].includes(value);
+      const updatedCategory = alreadySelected
+        ? prev[category].filter((v) => v !== value)
+        : [...prev[category], value];
+  
+      return {
+        ...prev,
+        [category]: updatedCategory
+      };
     });
   };
+  
 
   const filteredProjects = ProjectsData.deitailes.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType =
-      filters.type.length === 0 || filters.type.includes(proj.type);
+      filters.type.length === 0 || filters.type.includes(proj.category);
     const matchesLevel =
       filters.level.length === 0 || filters.level.includes(proj.level);
     const matchesPrice =

@@ -23,6 +23,8 @@
   font-weight: bold;
   margin-bottom: 40px;
   color: #1B223C;
+  padding-left: 90px;
+  padding-right: 90px;
 }
 
 .about-container .highlight {
@@ -34,6 +36,8 @@
   line-height: 1.8;
   margin-bottom: 25px;
   color: #4B4B4B;
+  padding-left: 90px;
+  padding-right: 90px;
 }
 
 .navbar {

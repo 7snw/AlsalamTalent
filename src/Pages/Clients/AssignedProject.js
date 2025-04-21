@@ -15,12 +15,14 @@ const AssignedProject = () => {
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
-      if (updated[category].includes(value)) {
-        updated[category] = updated[category].filter((v) => v !== value);
-      } else {
-        updated[category].push(value);
-      }
-      return updated;
+      const isSelected = updated[category].includes(value);
+
+      return {
+        ...updated,
+        [category]: isSelected
+          ? updated[category].filter((v) => v !== value)
+          : [...updated[category], value],
+      };
     });
   };
 
@@ -35,51 +37,52 @@ const AssignedProject = () => {
     <div className="assigned-projects-page">
       <Navbar links={NavConfig3} />
       <div className="assigned-projects-container">
-          <aside className="assigned-left-panel">
-            <h1 className="page-title">Assigned Projects</h1>
-            <div className="filter-section">
-              <h3>Filter</h3>
-              <p className="hint">Filter your assigned projects by their status.</p>
+        <aside className="assigned-left-panel">
+          <h1 className="page-title">Assigned Projects</h1>
+          <div className="filter-section">
+            <h3>Filter</h3>
+            <p className="hint">Filter your assigned projects by their status.</p>
 
-              <div className="filter-group">
-                <h4>Status</h4>
-                {['ongoing', 'completed'].map((status) => (
-                  <label key={status}>
-                    <input
-                      type="checkbox"
-                      onChange={() => handleCheckbox('status', status)}
-                    />
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          <div className="assigned-right-panel">
-            <div className="search-wrapper">
-              <input
-                type="text"
-                placeholder="What are you looking for?"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <img src={SearchIcon} alt="search" className="search-icon" />
-            </div>
-
-            <div className="project-grid">
-              {filteredProjects.map((proj, index) => (
-                <Link to={`/assigned-project/${index}`} className="project-card" key={index}>
-                  <img src={proj.image} alt={proj.title} />
-                  <h4>{proj.title}</h4>
-                  <p>{proj.name}</p>
-                  <span className="progress-text2">{proj.progress}</span>
-                </Link>
+            <div className="filter-group">
+              <h4>Status</h4>
+              {['ongoing', 'completed'].map((status) => (
+                <label key={status}>
+                  <input
+                    type="checkbox"
+                    checked={filters.status.includes(status)}
+                    onChange={() => handleCheckbox('status', status)}
+                  />
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </label>
               ))}
             </div>
           </div>
+        </aside>
+
+        <div className="assigned-right-panel">
+          <div className="search-wrapper">
+            <input
+              type="text"
+              placeholder="What are you looking for?"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <img src={SearchIcon} alt="search" className="search-icon" />
+          </div>
+
+          <div className="project-grid">
+            {filteredProjects.map((proj, index) => (
+              <Link to={`/assigned-project/${index}`} className="project-card" key={index}>
+                <img src={proj.image} alt={proj.title} />
+                <h4>{proj.title}</h4>
+                <p>{proj.name}</p>
+                <span className="progress-text2">{proj.progress}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
+    </div>
   );
 };
 

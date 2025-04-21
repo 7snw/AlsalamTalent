@@ -10,9 +10,10 @@
   width: 100%;
   min-height: 85vh;
   display: flex;
-  flex-direction: column;
-  padding: 0 6%;
-  box-sizing: border-box;
+    gap: 40px;
+    margin-left: 80px; 
+    padding-bottom: 20px;
+  
 }
 
 .freelancer-content {

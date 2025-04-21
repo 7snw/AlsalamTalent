@@ -51,6 +51,21 @@ const projects = [
 ];
 
 const ClientHome = () => {
+  const navigate = useNavigate();
+  const allProjects = ProjectsData.deitailes;
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  
+
+  const categories = ['All', 'Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'];
+
+  const filteredProjects = allProjects.filter((proj) => {
+    const matchesCategory = activeCategory === 'All' || proj.category === activeCategory;
+    const matchesSearch = proj.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+  
+
   return (
     <div className="client-home">
       <div className="client-container">
@@ -60,7 +75,7 @@ const ClientHome = () => {
           <h1><span className="highlight">Explore</span> Real-World Projects</h1>
           <p>Find top freelancers to get your project done with quality and efficiency.</p>
           <div className="search-bar">
-            <input type="text" placeholder="What are you looking for?" />
+            <input type="text" placeholder="What are you looking for?" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
             <img src={SearchIcon} alt="Search" className="search-icon" />
           </div>
           <br />

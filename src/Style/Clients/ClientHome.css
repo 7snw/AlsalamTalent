@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
+  
 }
 
 .client-container {
@@ -97,6 +98,8 @@
   gap: 25px;
   justify-content: center;
   margin-top: 10px;
+  margin-bottom: 20px;
+
 }
 
 .project-card {

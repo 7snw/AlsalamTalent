@@ -27,7 +27,7 @@ const MyApplications = () => {
   const filteredProjects = FakeProjects.applied.filter((project) => {
     const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
 
-    const matchesType = filters.type.length === 0 || filters.type.includes(project.type);
+    const matchesType = filters.type.length === 0 || filters.type.includes(project.category);
     const matchesLevel = filters.level.length === 0 || filters.level.includes(project.level);
     const matchesPrice = filters.price.length === 0 || filters.price.includes(project.priceRange);
 
