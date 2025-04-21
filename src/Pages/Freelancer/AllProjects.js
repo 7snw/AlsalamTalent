@@ -9,10 +9,9 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
 
-
-
-const  AllProjects = () => {
+const AllProjects = () => {
   const navigate = useNavigate();
+  const allProjects = ProjectsData.deitailes; // ✅ Use from external data
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     type: [],
@@ -33,18 +32,14 @@ const  AllProjects = () => {
     });
   };
 
-  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
+  const filteredProjects = allProjects.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType =
-      filters.type.length === 0 || filters.type.includes(proj.type);
-    const matchesLevel =
-      filters.level.length === 0 || filters.level.includes(proj.level);
-    const matchesPrice =
-      filters.price.length === 0 || filters.price.includes(proj.priceRange);
+    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+    const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
+    const matchesPrice = filters.price.length === 0 || filters.price.includes(proj.priceRange);
 
     return matchesSearch && matchesType && matchesLevel && matchesPrice;
   });
-
 
   return (
     <div className="browse-projects-page">
@@ -60,7 +55,12 @@ const  AllProjects = () => {
               <h4>Type</h4>
               {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
                 <label key={type}>
-                  <input type="checkbox" onChange={() => handleCheckbox('type', type)} /> {type}
+                  <input
+                    type="checkbox"
+                    checked={filters.type.includes(type)}
+                    onChange={() => handleCheckbox('type', type)}
+                  />{' '}
+                  {type}
                 </label>
               ))}
             </div>
@@ -69,7 +69,12 @@ const  AllProjects = () => {
               <h4>Level</h4>
               {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
                 <label key={level}>
-                  <input type="checkbox" onChange={() => handleCheckbox('level', level)} /> {level}
+                  <input
+                    type="checkbox"
+                    checked={filters.level.includes(level)}
+                    onChange={() => handleCheckbox('level', level)}
+                  />{' '}
+                  {level}
                 </label>
               ))}
             </div>
@@ -78,7 +83,12 @@ const  AllProjects = () => {
               <h4>Price</h4>
               {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
                 <label key={price}>
-                  <input type="checkbox" onChange={() => handleCheckbox('price', price)} /> {price}
+                  <input
+                    type="checkbox"
+                    checked={filters.price.includes(price)}
+                    onChange={() => handleCheckbox('price', price)}
+                  />{' '}
+                  {price}
                 </label>
               ))}
             </div>
@@ -99,15 +109,15 @@ const  AllProjects = () => {
           <div className="projects-grid">
             {filteredProjects.map((proj, index) => (
               <div
-                key={index}
                 className="project-card"
-                onClick={() => navigate(`/project-info/${index}`)}
+                key={index}
+                onClick={() => navigate(`/project-details/${index}`)}
+                style={{ cursor: 'pointer' }}
               >
-                <img src={proj.image} alt={proj.title} />
+                <img src={proj.image || proj.coverImage} alt={proj.title} />
                 <h4>{proj.title}</h4>
                 <p>{proj.budget}</p>
                 <span className="bookmark">🔖</span>
-
               </div>
             ))}
           </div>
@@ -116,6 +126,5 @@ const  AllProjects = () => {
     </div>
   );
 };
-
 
 export default AllProjects;

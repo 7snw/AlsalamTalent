@@ -8,51 +8,19 @@ import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
 import SearchIcon from '../Assets/search.png';
 import UserIcon from '../Assets/ProfileImage.png';
 
-// Dummy data for now
+// Dummy freelancer data
 const freelancers = [
-  {
-    name: 'Sarah Ahmed Isa',
-    title: 'Senior Graphic Designer and illustrator',
-    rating: 5
-  },
-  {
-    name: 'Muneera Mohamed',
-    title: 'Senior illustrator and UX/ UI designer',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Lulwa Khalid',
-    title: 'Advanced illustrator and editor',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  },
-  {
-    name: 'Ahmed Rashed',
-    title: 'illustrator',
-    rating: 4
-  }
+  { name: 'Sarah Ahmed Isa', title: 'Senior Graphic Designer and illustrator', rating: 5 },
+  { name: 'Muneera Mohamed', title: 'Senior illustrator and UX/ UI designer', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Lulwa Khalid', title: 'Advanced illustrator and editor', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 }
 ];
 
-// Function to render stars
+// Render star rating
 const renderStars = (count) => {
   return Array.from({ length: count }, (_, i) => <span key={i}>★</span>);
 };

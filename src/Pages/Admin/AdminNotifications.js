@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../Style/Admin/FreelancerNotifications.css';
+import '../../Style/Admin/AdminNotifications.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4} from '../../Data/NavbarConfigs';
 

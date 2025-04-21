@@ -40,7 +40,7 @@
 
 
 .application-card {
-  background-color: #dcdcdc;
+  background-color: #ffffff;
   border-radius: 20px;
   padding: 16px 20px;
   display: flex;
@@ -49,6 +49,12 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+.application-card:hover{
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+
+}
 .application-card img {
   width: 80px;
   height: 80px;
@@ -58,8 +64,10 @@
 
 .application-info h4 {
   font-size: 16px;
-  margin: 0;
+  margin-top: -5px;
+  margin-bottom: 10px;
   color: #1B223C;
+  
 }
 
 .application-info p {
@@ -117,4 +125,15 @@
   .applications-list {
     align-items: center;
   }
+}
+
+.freelancer-link {
+  text-decoration: underline;
+  color: #1B223C;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.freelancer-link:hover {
+  color: #EE582B;
 }

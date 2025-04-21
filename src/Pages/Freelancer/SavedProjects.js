@@ -6,25 +6,9 @@ import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
+import ProjectsData from '../../Data/ProjectsData';
+import { useNavigate } from 'react-router-dom';
 
-
-const initialProjects = [
-  {
-    name: "Re-branding social media presence",
-    image: require('../../Assets/Projects/banner.png'),
-    price: "50 BHD"
-  },
-  {
-    name: "One month campaign",
-    image: require('../../Assets/Projects/Design.png'),
-    price: "50 BHD"
-  },
-  {
-    name: "One month campaign",
-    image: require('../../Assets/Projects/socialmedia.png'),
-    price: "50 BHD"
-  }
-];
 
 const SavedProjects = () => {
    const navigate = useNavigate();
@@ -70,30 +54,33 @@ const SavedProjects = () => {
           <h1 className="page-title">Saved Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter your projects according to their type, level and price range.</p>
+            <p className="hint">Filter the projects according to their type, level and price range.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
-              <label><input type="checkbox" defaultChecked /> Marketing</label>
-              <label><input type="checkbox" defaultChecked /> Graphic Design</label>
-              <label><input type="checkbox" /> Illustration</label>
-              <label><input type="checkbox" /> Product Design</label>
-              <label><input type="checkbox" /> Web Design</label>
+              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
+                <label key={type}>
+                  <input type="checkbox" onChange={() => handleCheckbox('type', type)} /> {type}
+                </label>
+              ))}
             </div>
 
             <div className="filter-group">
               <h4>Level</h4>
-              <label><input type="checkbox" /> Beginner</label>
-              <label><input type="checkbox" /> Intermediate</label>
-              <label><input type="checkbox" defaultChecked /> Advanced</label>
-              <label><input type="checkbox" /> Expert</label>
+              {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
+                <label key={level}>
+                  <input type="checkbox" onChange={() => handleCheckbox('level', level)} /> {level}
+                </label>
+              ))}
             </div>
 
             <div className="filter-group">
               <h4>Price</h4>
-              <label><input type="checkbox" /> 20 - 50 BHD</label>
-              <label><input type="checkbox" defaultChecked /> 50 - 70 BHD</label>
-              <label><input type="checkbox" /> 80 - 100 BHD</label>
+              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
+                <label key={price}>
+                  <input type="checkbox" onChange={() => handleCheckbox('price', price)} /> {price}
+                </label>
+              ))}
             </div>
           </div>
         </div>
@@ -110,15 +97,21 @@ const SavedProjects = () => {
           </div>
 
           <div className="my-projects-grid">
-            {filtered.map((project, i) => (
-              <div className="my-project-card" key={i}>
-                <img src={project.image} alt={project.name} />
-                <h4>{project.name}</h4>
-                <p>{project.price}</p>
+          {filteredProjects.map((proj, index) => (
+               <div
+               className="my-project-card"
+               key={index}
+               onClick={() => navigate(`/project-details/${index}`)}
+               style={{ cursor: 'pointer' }}
+             >
+                <img src={proj.image} alt={proj.title} />
+                <h4>{proj.title}</h4>
+                <p>{proj.budget}</p>
                 <span className="bookmark">🔖</span>
+
               </div>
             ))}
-            {filtered.length === 0 && <p style={{ padding: '10px' }}>No saved projects found.</p>}
+            
           </div>
         </div>
       </div>

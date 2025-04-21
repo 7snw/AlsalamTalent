@@ -1,25 +1,27 @@
-.settings-page {
+.settings-page9 {
   background-color: #E6E7E8;
   font-family: 'Segoe UI', sans-serif;
   min-height: 100vh;
   margin-left: 91px;
   margin-right: 91px;
 }
-.settings-container {
+.settings-container9 {
   display: flex;
   gap: 40px;
-  margin-left: 91px; /* changed from 200px */
-  margin-right: 91px;
+  margin-top: -30px;
+  margin-left: 200px; /* changed from 200px */
+  margin-right: 200px;
 }
 
-.settings-sidebar {
+.settings-sidebar9 {
   width: 150px; /* reduced from 200px */
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin-top: 40px;
 }
 
-.sidebar-profile-header {
+.sidebar-profile-header9 {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -29,15 +31,16 @@
   overflow: hidden;
 }
 
-.settings-user-icon {
-  width: 48px; /* slightly smaller if space is tight */
-  height: 48px;
+.settings-user-icon9 {
+  width: 73px;
+  height: 70px;
   border-radius: 50%;
   flex-shrink: 0;
+
 }
 
-.settings-username {
-  font-size: 16px;
+.settings-username9 {
+  font-size: 18px;
   font-weight: 600;
   color: #1b223c;
   margin: 0;
@@ -45,27 +48,27 @@
   overflow: hidden;
 }
 
-.settings-tabs {
+.settings-tabs9 {
   list-style: none;
   padding: 0;
   width: 100%;
 }
 
-.settings-tabs li {
+.settings-tabs9 li {
   padding: 8px 0;
   cursor: pointer;
   color: #1b223c;
   font-size: 14px;
 }
 
-.settings-tabs li.active {
+.settings-tabs9 li.active {
   font-weight: bold;
   color: #1b223c;
   border-left: 3px solid #1b223c;
   padding-left: 10px;
 }
 
-.delete-account {
+.delete-account9 {
   color: red;
   margin-top: 20px;
   background: none;
@@ -74,28 +77,30 @@
   font-size: 14px;
 }
 
-.settings-content {
+.settings-content9 {
   flex: 1;
   padding-top: 40px;
   padding-left: 40px;
+  
 }
 
-.section {
+.section9 {
   background: #f7f7f7;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
   margin-left: 40px;
+  color: #1b223c;
 }
 
-.section h4 {
+.section9 h4 {
   margin-top: 20px;
   margin-bottom: 8px;
   color: #1b223c;
 }
 
-.section input,
-.section textarea {
+.section9 input,
+.section9 textarea {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
@@ -103,23 +108,26 @@
   background-color: #efefef;
   font-size: 14px;
   margin-bottom: 10px;
+  color: #1b223c;
 }
 
-.edit-profile-picture {
+.edit-profile-picture9 {
   display: flex;
   align-items: center;
   gap: 20px;
+  
 }
 
-.edit-profile-picture img {
-  width: 60px;
-  height: 60px;
+.edit-profile-picture9 img {
+  width: 83px;
+  height: 80px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.upload-pic-btn,
-.delete-btn,
-.save-btn {
+.upload-pic-btn9,
+.delete-btn9,
+.save-btn9 {
   padding: 8px 16px;
   border-radius: 20px;
   border: none;
@@ -128,49 +136,49 @@
   cursor: pointer;
 }
 
-.upload-pic-btn {
+.upload-pic-btn9 {
   background-color: #1b223c;
   color: white;
 }
 
-.delete-btn {
+.delete-btn9 {
   background-color: #ccc;
   color: #1b223c;
 }
 
-.save-btn {
+.save-btn9 {
   background-color: #1b223c;
   color: white;
   margin-top: 20px;
 }
 
-.checkboxes {
+.checkboxes9 {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 10px;
 }
 
-.checkboxes label {
+.checkboxes9 label {
   display: flex;
   align-items: center;
   font-size: 14px;
 }
 
-.upload-delete-container {
+.upload-delete-container9 {
   display: flex;
   align-items: center;
   gap: 0px;
   margin-top: 10px;
 }
 
-.checkboxes-vertical {
+.checkboxes-vertical9 {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.full-width {
+.full-width9 {
   width: 100%;
   padding: 8px;
   font-size: 14px;
@@ -180,7 +188,7 @@
   color: #1b223c;
 }
 
-.checkboxes-grid {
+.checkboxes-grid9 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px 40px;
@@ -188,7 +196,7 @@
   margin-bottom: 20px;
 }
 
-.checkbox-item {
+.checkbox-item9 {
   display: flex;
   align-items: center;
   gap: 2px;
@@ -201,13 +209,13 @@
   transition: background-color 0.2s ease;
 }
 
-.checkbox-item input[type="checkbox"] {
+.checkbox-item9 input[type="checkbox"] {
   accent-color: #EE582B;
   width: 16px;
   height: 16px;
   cursor: pointer;
 }
 
-.checkbox-item:hover {
+.checkbox-item9 :hover {
   background-color: #e4e4e4;
 }

@@ -6,17 +6,20 @@
     font-family: 'Segoe UI', sans-serif;
     height: 100%;
     background-color: #E6E7E8;
+    padding: 0 6%;
     }
     
     
-  .freelancer-container {
-    width: 100%;
-    min-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    padding: 0 6%;
-    box-sizing: border-box;
-  }
+    .freelancer-container {
+      width: 100%;
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      /* Remove horizontal padding */
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     .hero {
       text-align: center;
       margin-bottom: 40px;
@@ -69,15 +72,15 @@
       cursor: pointer;
     }
     
-    .categories {
+    .categories9 {
       display: flex;
       justify-content: center;
       gap: 25px;
-      margin-top: 0px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
     
-    .categories button {
+    .categories9 button {
       background: none;
       border: none;
       padding: 8px 18px;
@@ -87,18 +90,22 @@
       color: #1B223C;
     }
     
-    .categories .active {
+    .categories9 .active {
       background-color: #1B223C;
       color: white;
     }
     
-    .project-grid {
+    .project-gridd {
       display: flex;
       flex-wrap: wrap;
       gap: 25px;
+      padding: 0 40px; 
+      margin-top: -30px;
       justify-content: center;
       margin-bottom: 20px;
     }
+    
+    
     
     .project-card {
       width: 270px;

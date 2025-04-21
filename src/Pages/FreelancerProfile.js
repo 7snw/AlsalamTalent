@@ -1,11 +1,11 @@
 // src/pages/FreelancerProfile.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../Style/Freelancer/FreelancerProfile.css';
-import Navbar from '../../Components/Navbar';
-import '../../Style/Navbar.css';
-import { NavConfig2 } from '../../Data/NavbarConfigs';
-import userIcon from '../../Assets/ProfileIcon.png';
+import '../Style/FreelancerProfile.css';
+import Navbar from '../Components/Navbar';
+import '../Style/Navbar.css';
+import { NavConfig2 } from '../Data/NavbarConfigs';
+import userIcon from '../Assets/ProfileIcon.png';
 
 
 const FreelancerProfile = () => {
@@ -81,7 +81,7 @@ const FreelancerProfile = () => {
           <div className="portfolio-section">
             <div className="portfolio-grid">
               <div className="portfolio-card card1"></div>
-              <div className="portfolio-card card2"></div>
+           
               <div className="portfolio-card card3"></div>
               <div className="portfolio-card card4"></div>
               <div className="portfolio-card card5"></div>

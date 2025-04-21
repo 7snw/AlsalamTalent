@@ -15,21 +15,22 @@
   flex-direction: column;
   padding: 0 6%;
   box-sizing: border-box;
-  padding-bottom: 30px;
-  padding-top: 0;
+ 
 }
-
 .details-container h2 {
   font-size: 28px;
   color: #1B223C;
-  margin: 0 0 20px;
+  margin-top: -18px; /* try adjusting this value */
 }
+
 
 .submitted-layout {
   display: flex;
   flex-direction: row;
   gap: 30px;
   align-items: flex-start;
+  margin-top: -30px;
+ 
 }
 
 .review-section {
@@ -39,8 +40,9 @@
 .review-section h4 {
   color: #1B223C;
   font-weight: bold;
-  margin: 20px 0 8px;
+
 }
+
 
 .review-section button {
   background-color: #1B223C;
@@ -78,7 +80,7 @@ textarea {
 }
 
 .actions {
-  margin-top: 25px;
+  margin-top: 5px;
   display: flex;
   gap: 15px;
 }

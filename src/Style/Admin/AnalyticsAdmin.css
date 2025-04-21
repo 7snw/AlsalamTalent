@@ -1,0 +1,144 @@
+.analytics-page2 {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+  min-height: 100vh;
+  padding: 0 6%;
+}
+
+.analytics-container2 {
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto 60px;
+  min-height: 74vh;
+  box-sizing: border-box;
+  padding: 0 6%;
+}
+
+.analytics-container2 h2 {
+  font-size: 28px;
+  color: #1B223C;
+  margin: 30px 0 20px;
+}
+
+.summary-cards2 {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.card22 {
+  flex: 1;
+  background-color: #dcdcdc;
+  padding: 25px;
+  border-radius: 25px;
+  text-align: center;
+  min-width: 200px;
+}
+
+.card22 h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  margin-top: 10px;
+  color: #1B223C;
+}
+
+
+.big-number2 {
+  font-size: 38px;
+  font-weight: bold;
+  color: #000;
+}
+
+.details-section2 {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card.progress2,
+.card.performance2 {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* === Line Chart Styling === */
+.custom-chart2 {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding-left: 40px;
+  box-sizing: border-box;
+}
+
+.custom-chart2 svg {
+  display: block;
+  width: calc(100% - 30px);
+  height: 100%;
+  overflow: visible;
+}
+
+.custom-chart2 .y-labels2 {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 150px;
+  font-size: 12px;
+  color: #333;
+}
+
+.custom-chart2 .x-labels2 {
+  display: flex;
+  justify-content:space-between;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #333;
+  padding-left: -10px;
+}
+
+
+  
+.circular-chart9 {
+  width: 160px;
+  height: 160px;
+  padding-left:180px;
+  padding-top:20px;
+}
+
+.circular9 {
+  width: 100%;
+  height: 100%;
+}
+
+.circle-bg9 {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 3.8;
+}
+
+.circle9 {
+  fill: none;
+  stroke: #EE582B;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  animation: progress 1s ease-out forwards;
+}
+
+.percentage9 {
+  fill: #1B223C;
+  font-size: 0.5em;
+  text-anchor: middle;
+}
+
+@media (max-width: 768px) {
+  .summary-cards2,
+  .details-section2 {
+    flex-direction: column;
+  }
+}

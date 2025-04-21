@@ -5,14 +5,9 @@ import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
+import { useNavigate } from 'react-router-dom';
+import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
-
-const projects = [
-    { name: "Re-branding social media presence", image: require('../../Assets/Projects/banner.png'), price: "50 BHD", progress: "70%" },
-    { name: "One month campaign", image: require('../../Assets/Projects/Design.png'), price: "50 BHD", progress: "90%" },
-    { name: "One month campaign", image: require('../../Assets/Projects/socialmedia.png'), price: "50 BHD", progress: "45%" },
-  ];
-  
 
 const MyProjects = () => {
   const navigate = useNavigate();

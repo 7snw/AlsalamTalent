@@ -1,19 +1,20 @@
+// src/Pages/Clients/ProfileSettingsClient.js
 import React, { useState } from 'react';
-import '../../Style/Admin/ProfileSettings.css';
+import '../../Style/Clients/ProfileSettingsClient.css';
 import Navbar from '../../Components/Navbar';
-import { NavConfig4 } from '../../Data/NavbarConfigs';
+import { NavConfig3 } from '../../Data/NavbarConfigs';
 
-const AdminProfileSettings = () => {
+const ProfileSettingsClient = () => {
   const [activeSection, setActiveSection] = useState('edit');
 
   return (
-    <div className="admin-settings-page">
-      <Navbar links={NavConfig4} />
-      <div className="admin-settings-container">
-        <div className="admin-settings-sidebar">
-          <h3 className="admin-settings-username">Maryam Yusuf</h3>
+    <div className="client-settings-page">
+      <Navbar links={NavConfig3} />
+      <div className="client-settings-container">
+        <div className="client-settings-sidebar">
+          <h3 className="client-settings-username">Ahmed Isa</h3>
 
-          <ul className="admin-settings-tabs">
+          <ul className="client-settings-tabs">
             <li
               className={activeSection === 'edit' ? 'active' : ''}
               onClick={() => setActiveSection('edit')}
@@ -29,17 +30,17 @@ const AdminProfileSettings = () => {
           </ul>
         </div>
 
-        <div className="admin-settings-content">
+        <div className="client-settings-content">
           {activeSection === 'edit' && (
-            <div className="admin-section">
+            <div className="client-section">
               <h4>Name</h4>
-              <input type="text" defaultValue="Maryam Yusuf" />
+              <input type="text" defaultValue="Ahmed Isa" />
 
               <h4>Email</h4>
-              <input type="text" defaultValue="maryam.yusuf@alsalambank.com" />
+              <input type="text" defaultValue="ahmed.isa@alsalambank.com" />
 
               <h4>Occupation</h4>
-              <input type="text" defaultValue="Marketing" />
+              <input type="text" defaultValue="HR" />
 
               <h4>Phone Number</h4>
               <input type="text" defaultValue="+973 33333333" />
@@ -48,19 +49,19 @@ const AdminProfileSettings = () => {
               <input type="text" defaultValue="AlSalam Bank" />
 
               <h4>Date of Birth</h4>
-              <input type="date" defaultValue="2002-10-24" />
+              <input type="date" defaultValue="13-01-1996" />
               
-              <button className="admin-save-btn">Save</button>
+              <button className="client-save-btn">Save</button>
             </div>
           )}
 
           {activeSection === 'password' && (
-            <div className="admin-section">
+            <div className="client-section">
               <h4>Old Password</h4>
               <input type="password" placeholder="Enter old password" />
               <h4>New Password</h4>
               <input type="password" placeholder="Enter new password" />
-              <button className="admin-save-btn">Save</button>
+              <button className="client-save-btn">Save</button>
             </div>
           )}
         </div>
@@ -69,4 +70,4 @@ const AdminProfileSettings = () => {
   );
 };
 
-export default AdminProfileSettings;
+export default ProfileSettingsClient;

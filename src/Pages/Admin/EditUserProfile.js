@@ -1,79 +1,59 @@
 import React, { useState } from 'react';
-import '../../Style/Admin/ProfileSettings.css';
+import '../../Style/Admin/EditUserProfile.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 
 const EditUserProfile = () => {
-  const [activeSection, setActiveSection] = useState('edit');
+  const [activeSection] = useState('edit');
 
   return (
     <div className="settings-page">
-      <Navbar links={NavConfig4} />
-      <div className="settings-container">
-        <div className="settings-sidebar">
-          <h3 className="settings-username">Maryam Yusuf Haji</h3>
+    <Navbar links={NavConfig4} />
+  
+    <div className="settings-container">
+   
+     
 
-          <ul className="settings-tabs">
-            
-            <li
-              className={activeSection === 'edit' ? 'active' : ''}
-              onClick={() => setActiveSection('edit')}
-            >
-              Edit Profile
-            </li>
-            <li
-              className={activeSection === 'password' ? 'active' : ''}
-              onClick={() => setActiveSection('password')}
-            >
-              Password
-            </li>
-          </ul>
+      <div className="settings-content">
+      <h2>      
+           Edit user profile
+          </h2>
+        {activeSection === 'edit' && (
+          <div className="settings-section">
+            <h4>Name</h4>
+            <input type="text" defaultValue="Fatema Almutawa" />
 
-          <button className="delete-account">Delete account</button>
-        </div>
+            <h4>Email</h4>
+            <input type="text" defaultValue="fatema.almutawa@alsalambank.com" />
 
-        <div className="settings-content">
-        
+            <h4>Occupation</h4>
+            <input type="text" defaultValue="IT Specialist" />
 
-          {activeSection === 'edit' && (
-            <div className="section">
-            
-              <h4>Name</h4>
-              <input type="text" defaultValue="Maryam Yusuf Haji" />
-              <h4>Email</h4>
-              <input type="text" defaultValue="maryam.yusuf@alsalambank.com" />
-              <h4>Occupation</h4>
-              <input type="text" defaultValue="IT Administrator - Alsalam Bank" />
-              <h4>Phone Number</h4>
-              <input type="text" defaultValue="+973 33339991" />
-              <h4>Date of Birth</h4>
-              <input type="date" defaultValue="2002-10-24" />
+            <h4>Phone Number</h4>
+            <input type="text" defaultValue="+973 33333333" />
 
-              <div className="type-form-group">
+            <h4>Company Name</h4>
+            <input type="text" defaultValue="Alsalam Bank" />
+
+            <h4>Date of Birth</h4>
+            <input type="date" placeholder="25-11-1990" />
+
+            <div className="option-form-group3">
               <label>Type</label>
               <select>
                 <option value="client">Client</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
-              <button className="save-btn">Save</button>
+            
+            <button className="settings-save-btn">Save</button>
+          </div>
+        )}
 
-
-            </div>
-          )}
-
-          {activeSection === 'password' && (
-            <div className="section">
-              <h4>Old Password</h4>
-              <input type="password" placeholder="Enter old password" />
-              <h4>New Password</h4>
-              <input type="password" placeholder="Enter new password" />
-              <button className="save-btn">Save</button>
-            </div>
-          )}
-        </div>
+       
       </div>
     </div>
+  </div>
   );
 };
 

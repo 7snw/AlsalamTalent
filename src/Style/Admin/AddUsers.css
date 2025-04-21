@@ -3,6 +3,7 @@
     font-family: 'Segoe UI', sans-serif;
     min-height: 100vh;
     padding: 0 91px;
+    padding-bottom: 20px;
   }
   
   .add-user-container {
@@ -12,7 +13,10 @@
    max-width: 1000px;
  
   }
- 
+  
+  .Adduser h2{
+    margin-left: 212px;
+  }
   
 
   
@@ -56,7 +60,7 @@
     border-radius: 12px;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
     max-width: 600px;
-    height: 550px;
+    height: 620px;
     
   }
   
