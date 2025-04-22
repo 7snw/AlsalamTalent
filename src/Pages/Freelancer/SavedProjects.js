@@ -44,7 +44,7 @@ const SavedProjects = () => {
 
   const filteredProjects = savedProjects.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType = filters.type.length === 0 || filters.type.includes(proj.type);
+    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
     const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
     const matchesPrice = filters.price.length === 0 || filters.price.includes(proj.priceRange);
     return matchesSearch && matchesType && matchesLevel && matchesPrice;
@@ -62,20 +62,6 @@ const SavedProjects = () => {
       return { ...updated };
     });
   };
-
-
-  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
-    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType =
-      filters.type.length === 0 || filters.type.includes(proj.category);
-    const matchesLevel =
-      filters.level.length === 0 || filters.level.includes(proj.level);
-    const matchesPrice =
-      filters.price.length === 0 || filters.price.includes(proj.priceRange);
-
-    return matchesSearch && matchesType && matchesLevel && matchesPrice;
-  });
-
 
   return (
     <div className="saved-projects-page">
