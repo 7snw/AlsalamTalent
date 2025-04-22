@@ -13,6 +13,7 @@ import Footer from '../../Components/Footer';
 
 const MyProjects = () => {
   const navigate = useNavigate();
+  const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: ['Completed'] });
 
   const handleCheckbox = (value) => {
