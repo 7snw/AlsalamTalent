@@ -8,6 +8,7 @@ import { NavConfig3 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';     
 import ProjectsData from '../../Data/ProjectsData';
 import { motion, AnimatePresence } from 'framer-motion';
+import Footer from '../../Components/Footer';
 
 const ClientHome = () => {
   const navigate = useNavigate();
@@ -81,7 +82,9 @@ const ClientHome = () => {
           </AnimatePresence>
         </section>
       </div>
+      <Footer />
     </div>
+    
   );
 };
 
