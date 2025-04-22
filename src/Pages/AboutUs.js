@@ -3,6 +3,8 @@ import '../Style/AboutUs.css';
 import Navbar from '../Components/Navbar';
 import { NavConfig1, NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
 import '../Style/Navbar.css';
+import Footer from '../Components/Footer';
+
 
 const AboutUs = () => {
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default
@@ -35,13 +37,31 @@ const AboutUs = () => {
           Al Salam Talents is a digital platform designed to connect Bahrain Polytechnic students with real-world opportunities from Al Salam Bank. <br />
           Created to bridge the gap between education and industry, our platform allows students to work on real-world projects, <br />
           build their portfolios, and gain valuable experience in a professional environment.
-        </p>
-        <p>
+       <br/>
+       <br/>
+      
           Driven by a mission to empower young talent, we provide a space where innovation meets collaboration. <br />
           Whether it’s digital content, branding, or strategy development, students can apply their skills <br />
           to meaningful projects that contribute directly to business goals.
         </p>
+        <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+       <br/>
+
+
       </div>
+      <Footer/>
     </div>
   );
 };

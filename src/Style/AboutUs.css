@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
+  margin-bottom: 100px;
 }
 
 .about-container {
@@ -22,7 +23,9 @@
   font-size: 40px;
   font-weight: bold;
   margin-bottom: 40px;
+  margin-left: 60px;
   color: #1B223C;
+
 }
 
 .about-container .highlight {
@@ -34,6 +37,8 @@
   line-height: 1.8;
   margin-bottom: 25px;
   color: #4B4B4B;
+  margin-left: 60px;
+ 
 }
 
 .navbar {

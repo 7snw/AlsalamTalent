@@ -13,6 +13,7 @@
   margin-right: 91px;
   padding-top: 0px;
   margin-top: 0;
+  margin-bottom: 190px;
 }
 
 .profile-header {
@@ -112,31 +113,23 @@
   margin: 10;
 }
 
-.portfolio-section {
+.portfolio-section9 {
   margin-top: 20px;
 }
 
 
 
-.portfolio-card {
+.portfolio-card9 {
   height: 150px;
   border-radius: 15px;
 }
 
-  
-  .card1 { background-color: #848484; }
-  .card2 { background-color: #5d7f77; }
-  .card3 { background-color: #5b617f; }
-  .card4 { background-color: #75556a; }
-  .card5 { background-color: #bea96b; }
-  .card6 { background-color: #a45555; }
-  
 
   
-  .portfolio-grid {
+  .portfolio-grid99 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    gap: 50px;
   }
   
 

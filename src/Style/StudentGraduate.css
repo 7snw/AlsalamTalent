@@ -2,7 +2,7 @@ body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #E6E7E8;
-  color: #121933;
+  color: #1B223C;
 }
 
 .container {
@@ -12,6 +12,7 @@ body {
   flex-direction: column;
   padding: 0 6%;
   box-sizing: border-box;
+  
 }
 
 
@@ -29,6 +30,7 @@ body {
   justify-content: center;
   gap: 3rem;
   flex-wrap: wrap;
+  margin-bottom: 200px;
 }
 
 .student-card,

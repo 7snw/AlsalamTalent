@@ -29,7 +29,7 @@ const AnalyticsClient = () => {
           </div>
         </div>
 
-        <div className="details-section">
+        <div className="details-section9">
           <div className="card progress">
             <h4>Projects Progress</h4>
             <div className="custom-chart">

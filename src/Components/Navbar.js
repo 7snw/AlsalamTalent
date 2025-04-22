@@ -35,7 +35,7 @@ const Navbar = ({ links = [] }) => {
   const handleSignOut = () => {
     localStorage.clear();
     alert('Signed out');
-    navigate('/signin');
+    navigate('/landingpage');
   };
 
   return (

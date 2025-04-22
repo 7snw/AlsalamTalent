@@ -1,5 +1,6 @@
 /* Ensure dropdown stays visible when hovered */
-  
+
+ 
 .nav-links li:hover {
     color: #EE582B;
   }

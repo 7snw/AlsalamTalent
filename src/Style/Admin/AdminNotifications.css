@@ -27,8 +27,8 @@
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    background-color: #f0f0f0;
-    padding: 14px 20px;
+    background-color: #ffffff;
+    padding: 25px 20px;
     border-radius: 10px;
     margin-bottom: 15px;
   }
@@ -36,11 +36,11 @@
   .bell-icon {
     font-size: 20px;
     color: #1b223c;
-    margin-top: 2px;
+    margin-top: 0px;
   }
   
   .notification-list p {
-    margin: 0;
+    margin-top: 5px;
     font-size: 14px;
     color: #1b223c;
   }

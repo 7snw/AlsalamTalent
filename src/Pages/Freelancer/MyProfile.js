@@ -1,23 +1,26 @@
-// src/pages/FreelancerProfile2.js
+// src/pages/Freelancer/MyProfile.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../Style/Freelancer/MyProfile.css';
 import Navbar from '../../Components/Navbar';
-import '../../Style/Navbar.css';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import userIcon from '../../Assets/ProfileIcon.png';
-import PortfolioPopup from './PortfolioPopup'; 
-import '../../Style/PortfolioPopup.css';
+import PortfolioPopup from './PortfolioPopup';
+import ViewPortfolioPopup from './ViewPortfolioPopup';
+import ProjectsData from '../../Data/ProjectsData';
+import '../../Style/Freelancer/MyProfile.css';
+import '../../Style/Navbar.css';
+import '../../Style/Freelancer/PortfolioPopup.css';
 
 const MyProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [showPopup, setShowPopup] = useState(false); 
+  const [showPopup, setShowPopup] = useState(false);
+  const [viewPopup, setViewPopup] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
   const navigate = useNavigate();
 
   const handlePopupSave = (projectData) => {
-    // Optional: Save the new portfolio item here
-    setUploadedFiles([...uploadedFiles, projectData.imageUrl]);
+    setUploadedFiles([...uploadedFiles, projectData]);
     setShowPopup(false);
   };
 
@@ -60,21 +63,20 @@ const MyProfile = () => {
               <p><strong>ID:</strong> 202100888</p>
               <p><strong>Major:</strong> Web Media</p>
             </div>
-
             <div className="bio-info2">
               <h4>Biography</h4>
               <p>
-                I'm a passionate Web Media student with a focus on creating visually compelling and user-friendly websites.
-                Skilled in HTML, CSS, and JavaScript, I specialize in designing responsive websites that enhance user experience.
-                Currently freelancing, I help clients bring their digital visions to life with custom, innovative web solutions.
+                I'm a passionate Web Media student with a focus on creating visually compelling and
+                user-friendly websites. Skilled in HTML, CSS, and JavaScript, I specialize in
+                designing responsive websites that enhance user experience. Currently freelancing, I
+                help clients bring their digital visions to life with custom, innovative web
+                solutions.
               </p>
             </div>
-
             <div className="skills-info2">
               <h4>Skills</h4>
               <p>Branding, Marketing, Web Design, Photography</p>
             </div>
-
             <div className="specialties-info2">
               <h4>Specialties</h4>
               <p>Marketing, Web Design</p>
@@ -83,12 +85,33 @@ const MyProfile = () => {
         ) : (
           <div className="portfolio-section2">
             <div className="portfolio-grid2">
-              <div className="portfolio-card2 card21"></div>
-              <div className="portfolio-card2 card22"></div>
+              {ProjectsData.deitailes.slice(0, 3).map((proj, i) => (
+                <div
+                  key={i}
+                  className="project-card"
+                  onClick={() => {
+                    setSelectedProject(proj);
+                    setViewPopup(true);
+                  }}
+                >
+                  <img src={proj.image} alt={proj.title} />
+                  <h4>{proj.title}</h4>
+                  <p>{proj.category}</p>
+                </div>
+              ))}
 
-              {uploadedFiles.map((url, index) => (
-                <div key={index} className="portfolio-card2 uploaded-image-card">
-                  <img src={url} alt={`upload-${index}`} className="uploaded-image" />
+              {uploadedFiles.map((proj, i) => (
+                <div
+                  key={`uploaded-${i}`}
+                  className="project-card"
+                  onClick={() => {
+                    setSelectedProject(proj);
+                    setViewPopup(true);
+                  }}
+                >
+                  <img src={proj.imageUrl} alt={`portfolio-${i}`} />
+                  <h4>{proj.title}</h4>
+                  <p>{proj.category}</p>
                 </div>
               ))}
 
@@ -100,13 +123,20 @@ const MyProfile = () => {
         )}
       </div>
 
-      {/* ✅ Portfolio Popup */}
+      {/* Upload Popup */}
       {showPopup && (
-        <PortfolioPopup
-          onClose={() => setShowPopup(false)}
-          onSave={handlePopupSave}
+        <PortfolioPopup onClose={() => setShowPopup(false)} onSave={handlePopupSave} />
+      )}
+
+      {/* View Popup */}
+      {viewPopup && (
+        <ViewPortfolioPopup
+          project={selectedProject}
+          onClose={() => setViewPopup(false)}
         />
       )}
+
+  
     </div>
   );
 };

@@ -5,12 +5,17 @@ import '../Style/FreelancerProfile.css';
 import Navbar from '../Components/Navbar';
 import '../Style/Navbar.css';
 import { NavConfig2 } from '../Data/NavbarConfigs';
+import ViewPortfolioPopup from '../Pages/Freelancer/ViewPortfolioPopup';
 import userIcon from '../Assets/ProfileIcon.png';
+import ProjectsData from '../Data/ProjectsData';
+import Footer from '../Components/Footer';
 
 
 const FreelancerProfile = () => {
+  const [viewPopup, setViewPopup] = useState(false);
   const [activeTab, setActiveTab] = useState('about');
   const navigate = useNavigate(); 
+  const [selectedProject, setSelectedProject] = useState(null);
 
   return (
     <div className="freelancer-profile">
@@ -78,19 +83,40 @@ const FreelancerProfile = () => {
          </div>
        </div>
      ) : (
-          <div className="portfolio-section">
-            <div className="portfolio-grid">
-              <div className="portfolio-card card1"></div>
-           
-              <div className="portfolio-card card3"></div>
-              <div className="portfolio-card card4"></div>
-              <div className="portfolio-card card5"></div>
-              <div className="portfolio-card card6"></div>
-            </div>
+      <div className="portfolio-section9">
+      <div className="portfolio-grid99">
+        {ProjectsData.deitailes.slice(0, 3).map((proj, i) => (
+          <div
+          
+          key={i}
+          className="project-card"
+          onClick={() => {
+            setSelectedProject(proj);
+            setViewPopup(true);
+          }}
+          >
+            <img src={proj.image} alt={proj.title} />
+            <h4>{proj.title}</h4>
+            <p>{proj.category}</p>
           </div>
-        )}
+        ))}
+
+
+      
       </div>
     </div>
+        )}
+      </div>
+       {/* View Popup */}
+       {viewPopup && (
+        <ViewPortfolioPopup
+          project={selectedProject}
+          onClose={() => setViewPopup(false)}
+        />
+      )}
+      <Footer/>
+    </div>
+    
   );
 };
 

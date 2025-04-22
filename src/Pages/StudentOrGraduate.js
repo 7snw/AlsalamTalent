@@ -5,6 +5,8 @@ import '../Style/StudentGraduate.css';
 import Graduate from '../Assets/Graduate.png'; 
 import Student from '../Assets/Student.png';
 import Logo from '../Assets/Logo.jpg';
+import Footer from '../Components/Footer';
+
 
 const StudentGraduate = () => {
   const navigate = useNavigate();
@@ -41,6 +43,7 @@ const StudentGraduate = () => {
           </div>
         </div>
       </main>
+      <Footer/>
     </div>
   );
 };

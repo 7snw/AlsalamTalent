@@ -2,6 +2,7 @@ import React from 'react';
 import '../../Style/Freelancer/FreelancerNotifications.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
 
 const notifications = [
   'Updates and revision are needed for the progress of recent completed projects.',
@@ -27,6 +28,7 @@ const FreelancerNotifications = () => {
           ))}
         </ul>
       </div>
+      <Footer/>
     </div>
   );
 };

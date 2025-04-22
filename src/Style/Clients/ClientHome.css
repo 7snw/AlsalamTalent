@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
+  padding: 0 6%;
 }
 
 .client-container {
@@ -13,20 +14,19 @@
   min-height: 85vh;
   display: flex;
   flex-direction: column;
-  padding: 0 6%;
+  padding: 0;
   box-sizing: border-box;
 }
 
 .hero2 {
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 40px;
 }
 
 .hero2 h1 {
   font-size: 40px;
   font-weight: bold;
   color: #1B223C;
-  margin-top: 0px;
 }
 
 .highlight {
@@ -35,7 +35,7 @@
 
 .hero2 p {
   font-size: 16px;
-  margin-top: 5px;
+  margin-top: 10px;
   color: #444;
 }
 
@@ -73,7 +73,7 @@
   display: flex;
   justify-content: center;
   gap: 25px;
-  margin-bottom: -20px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
@@ -91,13 +91,13 @@
   background-color: #1B223C;
   color: white;
 }
-
 .project-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 25px;
-  justify-content: center;
-  margin-top: 10px;
+  padding: 0 90px;
+  margin-top: -30px;
+  justify-content: flex-start;
 }
 
 .project-card {
@@ -108,6 +108,15 @@
   text-align: left;
   padding: 0 0 15px;
   position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.project-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
 }
 
 .project-card img {

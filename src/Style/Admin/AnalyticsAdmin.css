@@ -25,15 +25,17 @@
   gap: 20px;
   flex-wrap: wrap;
   margin-bottom: 20px;
+
 }
 
 .card22 {
   flex: 1;
-  background-color: #dcdcdc;
+  background-color: #ffffff;
   padding: 25px;
   border-radius: 25px;
   text-align: center;
   min-width: 200px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .card22 h4 {

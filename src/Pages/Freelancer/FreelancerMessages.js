@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../../Style/Freelancer/FreelancerMessages.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
 
 const mockChats = [
   { name: 'Husain Alnahash', lastMessage: 'Likewise Husain thank you...' },
@@ -51,6 +52,7 @@ const FreelancerMessages = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

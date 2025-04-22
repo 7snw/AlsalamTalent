@@ -1,16 +1,18 @@
 /* src/Style/FreelancerHome.css */
 
 .freelancer-home {
-    margin: 0;
+
     padding: 0;
     font-family: 'Segoe UI', sans-serif;
     height: 100%;
     background-color: #E6E7E8;
     padding: 0 6%;
+    
     }
     
     
     .freelancer-container {
+ 
       width: 100%;
       min-height: 85vh;
       display: flex;
@@ -18,6 +20,7 @@
       /* Remove horizontal padding */
       padding: 0;
       box-sizing: border-box;
+      margin-bottom: 100px;
     }
     
     .hero {
@@ -96,16 +99,16 @@
     }
     
     .project-gridd {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 25px;
-      padding: 0 40px; 
+      padding: 0 90px;
       margin-top: -30px;
-      justify-content: center;
+      justify-content: flex-start; /* 🔁 was center */
+ 
     }
     
-    
-    
+   
     .project-card {
       width: 270px;
       background: white;
@@ -114,35 +117,57 @@
       text-align: left;
       padding: 0 0 15px;
       position: relative;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+      cursor: pointer;
     }
     
+    
+
+    .project-card:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+      transition: all 0.2s ease;
+    }
+    
+    
+  
     .project-card img {
       width: 100%;
       height: 160px;
       object-fit: cover;
     }
     
+  
     .project-card h4 {
       margin: 10px 15px 5px;
       font-size: 16px;
       color: #1B223C;
     }
     
+  
     .project-card p {
       margin: 0 15px;
       font-size: 14px;
       color: #333;
     }
     
+
     .bookmark {
       position: absolute;
-      bottom: 15px;
+      bottom: 9px;
       right: 15px;
       font-size: 18px;
-      
+      margin-top: 20px;
+      right: 15px;
+      font-size: 18px;
+      color: #1B223C;
+      cursor: pointer;
     }
+    
+
     .search-icon {
       padding-right: 20px;
       width: 18px;
       height: 18px;
     }
+    

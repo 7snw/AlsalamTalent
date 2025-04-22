@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import '../Style/ProjectDetailsPage.css';
 import Navbar from '../Components/Navbar';
+import Footer from '../Components/Footer';
+
 import {
   NavConfig1,
   NavConfig2,
@@ -74,6 +76,7 @@ const ProjectDetails = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

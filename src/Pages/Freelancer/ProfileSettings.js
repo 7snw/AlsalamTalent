@@ -3,6 +3,7 @@ import '../../Style/Freelancer/ProfileSettings.css';
 import Navbar from '../../Components/Navbar';
 import userIcon from '../../Assets/ProfileIcon.png';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
 
 const ProfileSettings = () => {
   const [activeSection, setActiveSection] = useState('general');
@@ -182,6 +183,7 @@ const ProfileSettings = () => {
           )}
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };
