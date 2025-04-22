@@ -96,6 +96,7 @@ const SignUpPage = () => {
             I have an account? <span onClick={() => navigate('/signin')}>Sign In</span>
           </p>
         </div>
+       
       </div>
     
   );

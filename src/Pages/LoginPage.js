@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import '../Style/Login.css';
 import LoginPhoto from '../Assets/LoginPhoto.png'; 
 
+
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -67,6 +69,7 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+    
     </div>
   );
 };

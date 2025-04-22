@@ -8,7 +8,7 @@ import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import uploadIcon from '../../Assets/Upload.png';
-
+import Footer from '../../Components/Footer';
 
 const SubmitProject = () => {
   const { id } = useParams();
@@ -17,8 +17,6 @@ const SubmitProject = () => {
   const [contractFile, setContractFile] = useState(null);
   const defaultProgress = project && project.progress ? parseFloat(project.progress) : 0;
   const [progress, setProgress] = useState(defaultProgress);
-  
-
   
 
   const handleProjectFileChange = (e) => {
@@ -68,7 +66,7 @@ const SubmitProject = () => {
               </div>
 
               <div className="submit-form-group">
-                <label className="submit-label">Progress Percentage:</label>
+                <label className="progress-label">Progress Percentage:</label>
                 <input
                   type="range"
                   min="0"
@@ -106,6 +104,7 @@ const SubmitProject = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

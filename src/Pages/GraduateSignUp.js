@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/GraduateSignUp.css';
 
+
+
 const GraduateSignUp = () => {
     const [formData, setFormData] = useState({
         studentId: '',
@@ -104,6 +106,7 @@ const GraduateSignUp = () => {
 
         <p className="graduate-signin-link">I have an account? <span onClick={() => navigate('/signin')}>Sign In</span></p>
       </div>
+      
     </div>
   );
 };

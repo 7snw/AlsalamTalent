@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../Style/PortfolioPopup.css';
+import '../../Style/Freelancer/PortfolioPopup.css';
 
 const PortfolioPopup = ({ onClose, onSubmit }) => {
   const [image, setImage] = useState(null);
@@ -24,12 +24,12 @@ const PortfolioPopup = ({ onClose, onSubmit }) => {
     <div className="popup-overlay">
       <div className="popup-container">
         <div className="popup-content">
-          <h3>Add Project Details</h3>
+          <h2 className="view-title">Add Project Details</h2>
 
-          <label>Upload Project Image:</label>
+          <label classname="upload0">Upload Project Image:</label>
           <input type="file" accept="image/*" onChange={handleImageChange} />
 
-          <label>Upload Project File:</label>
+          <label classname="upload0" >Upload Project File:</label>
           <input type="file" onChange={handleFileChange} />
 
           <label>Add Description:</label>
@@ -39,12 +39,12 @@ const PortfolioPopup = ({ onClose, onSubmit }) => {
             placeholder="Brief about this project"
           />
 
-          <label>Project Type:</label>
+          <label>Project Category:</label>
           <select
             value={projectType}
             onChange={(e) => setProjectType(e.target.value)}
           >
-            <option value="">Select type</option>
+            <option value="">Select Category</option>
             <option value="Illustration">Illustration</option>
             <option value="Branding">Branding</option>
             <option value="Video Editing">Video Editing</option>

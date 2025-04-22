@@ -5,11 +5,13 @@
   min-height: 100vh;
   margin-left: 91px;
   margin-right: 91px;
+  padding-bottom: 20%;
+  
 }
 
 .profile-container2 {
   width: 80%;
-  margin-left: 91px;
+  margin-left: 120px;
   margin-right: 91px;
   padding-top: 0px;
   margin-top: 0;
@@ -124,20 +126,53 @@
 .portfolio-section2 {
   margin-top: 20px;
 }
-
 .portfolio-grid2 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 50px;
+  gap: 60px;
+  margin-top: 20px;
 }
-
 .portfolio-card2 {
-  height: 150px;
-  border-radius: 15px;
+  width: 270px;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      text-align: left;
+      padding: 0 0 15px;
+      position: relative;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+      cursor: pointer;
 }
 
-.card21 { background-color: #848484; }
-.card22 { background-color: #5d7f77; }
+.portfolio-card2:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+.portfolio-image {
+  width: 100%;
+      height: 160px;
+      object-fit: cover;
+}
+
+.portfolio-info {
+  padding: 15px;
+  text-align: left;
+}
+
+.portfolio-title {
+  margin: 10px 15px 5px;
+  font-size: 16px;
+  color: #1B223C;
+}
+
+.portfolio-category {
+  margin: 0 15px;
+  font-size: 14px;
+  color: #333;
+}
+
 
 .upload-card2 {
   background-color: #e5e5e5;
@@ -178,19 +213,24 @@
 
 .add-portfolio-card {
   background-color: #e5e5e5;
-  border-radius: 15px;
-  height: 150px;
+  border-radius: 20px;
+  height: 213px;
+  width: 266px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 40px;
+  font-size: 60px;
   font-weight: bold;
   color: #1B223C;
   cursor: pointer;
   border: 1px dashed #1B223C;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
 }
 
 .add-portfolio-card:hover {
   background-color: #dcdcdc;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
+

@@ -4,23 +4,15 @@ import '../Style/FreelancersList.css';
 import '../Style/Navbar.css';
 import '../Style/PageContents.css';
 import Navbar from '../Components/Navbar';
+import Footer from '../Components/Footer';
+
+
 import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
 import SearchIcon from '../Assets/search.png';
 import UserIcon from '../Assets/ProfileImage.png';
+import { motion, AnimatePresence } from 'framer-motion';
+import ProjectsData from '../Data/ProjectsData';
 
-// Dummy freelancer data
-const freelancers = [
-  { name: 'Sarah Ahmed Isa', title: 'Senior Graphic Designer and illustrator', rating: 5 },
-  { name: 'Muneera Mohamed', title: 'Senior illustrator and UX/ UI designer', rating: 4 },
-  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
-  { name: 'Lulwa Khalid', title: 'Advanced illustrator and editor', rating: 4 },
-  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
-  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
-  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 },
-  { name: 'Ahmed Rashed', title: 'illustrator', rating: 4 }
-];
-
-// Render star rating
 const renderStars = (count) => {
   return Array.from({ length: count }, (_, i) => <span key={i}>★</span>);
 };
@@ -37,27 +29,47 @@ const FreelancersList = () => {
 
   let navLinks;
   switch (role) {
-    case 'admin': navLinks = NavConfig4; break;
-    case 'client': navLinks = NavConfig3; break;
-    case 'freelancer': default: navLinks = NavConfig2; break;
+    case 'admin':
+      navLinks = NavConfig4;
+      break;
+    case 'client':
+      navLinks = NavConfig3;
+      break;
+    case 'freelancer':
+    default:
+      navLinks = NavConfig2;
+      break;
   }
 
-  const toggleFilter = (category, value) => {
+  const freelancers = ProjectsData.freelancers;
+
+  const handleFilterChange = (category, value) => {
     setFilters((prev) => {
-      const exists = prev[category].includes(value);
-      const updatedCategory = exists
-        ? prev[category].filter((v) => v !== value)
-        : [...prev[category], value];
-      return { ...prev, [category]: updatedCategory };
+      const updated = { ...prev };
+      if (updated[category].includes(value)) {
+        updated[category] = updated[category].filter((v) => v !== value);
+      } else {
+        updated[category] = [...updated[category], value];
+      }
+      return updated;
     });
   };
 
-  const filteredFreelancers = freelancers.filter((f) => {
-    const nameMatch = f.name.toLowerCase().includes(search.toLowerCase());
-    const expertiseMatch = filters.expertise.length === 0 || filters.expertise.includes(f.expertise);
-    const levelMatch = filters.level.length === 0 || filters.level.includes(f.level);
-    const ratingMatch = filters.rating.length === 0 || filters.rating.includes(String(f.rating));
-    return nameMatch && expertiseMatch && levelMatch && ratingMatch;
+  const filteredFreelancers = freelancers.filter((freelancer) => {
+    const nameMatch = freelancer.name.toLowerCase().includes(search.toLowerCase());
+    const titleMatch = freelancer.title.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = nameMatch || titleMatch;
+
+    const matchesExpertise =
+      filters.expertise.length === 0 ||
+      filters.expertise.some((exp) => freelancer.title.toLowerCase().includes(exp.toLowerCase()));
+
+    const matchesLevel = true; // Placeholder - no level field yet
+
+    const matchesRating =
+      filters.rating.length === 0 || filters.rating.includes(freelancer.rating.toString());
+
+    return matchesSearch && matchesExpertise && matchesLevel && matchesRating;
   });
 
   return (
@@ -65,6 +77,7 @@ const FreelancersList = () => {
       <Navbar links={navLinks} />
       <div className="freelancer-container9">
         <div className="freelancer-content">
+          {/* LEFT FILTER */}
           <div className="freelancer-left-panel">
             <h1 className="page-title">Freelancers</h1>
             <div className="filter-section">
@@ -78,9 +91,8 @@ const FreelancersList = () => {
                     <input
                       type="checkbox"
                       checked={filters.expertise.includes(type)}
-                      onChange={() => toggleFilter('expertise', type)}
-                    />
-                    {type}
+                      onChange={() => handleFilterChange('expertise', type)}
+                    /> {type}
                   </label>
                 ))}
               </div>
@@ -91,10 +103,8 @@ const FreelancersList = () => {
                   <label key={level}>
                     <input
                       type="checkbox"
-                      checked={filters.level.includes(level)}
-                      onChange={() => toggleFilter('level', level)}
-                    />
-                    {level}
+                      onChange={() => handleFilterChange('level', level)}
+                    /> {level}
                   </label>
                 ))}
               </div>
@@ -105,9 +115,9 @@ const FreelancersList = () => {
                   <label key={rating}>
                     <input
                       type="checkbox"
-                      checked={filters.rating.includes(String(rating))}
-                      onChange={() => toggleFilter('rating', String(rating))}
-                    />
+                      checked={filters.rating.includes(rating.toString())}
+                      onChange={() => handleFilterChange('rating', rating.toString())}
+                    />{' '}
                     {'★'.repeat(rating)}
                   </label>
                 ))}
@@ -115,6 +125,7 @@ const FreelancersList = () => {
             </div>
           </div>
 
+          {/* RIGHT SEARCH & RESULTS */}
           <div className="freelancer-results">
             <div className="search-wrapper9">
               <input
@@ -126,37 +137,45 @@ const FreelancersList = () => {
               <img src={SearchIcon} alt="Search" className="search-icon9" />
             </div>
 
-            {filteredFreelancers.map((freelancer, i) => (
-              <div
-                className="freelancer-card"
-                key={i}
-                onClick={() => navigate('/freelancerprofile')}
-              >
-                <div className="freelancer-info">
-                  <img src={UserIcon} alt="user" className="profile-icon" />
-                  <div>
-                    <h3>{freelancer.name}</h3>
-                    <p>{freelancer.title}</p>
+            <AnimatePresence>
+              {filteredFreelancers.map((freelancer, i) => (
+                <motion.div
+                  className="freelancer-card"
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{ duration: 0.3, delay: i * 0.05 }}
+                  onClick={() => navigate('/freelancerprofile')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="freelancer-info">
+                    <img src={UserIcon} alt="user" className="profile-icon" />
+                    <div>
+                      <h3>{freelancer.name}</h3>
+                      <p>{freelancer.title}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="freelancer-meta">
-                  <div className="rating">{renderStars(freelancer.rating)}</div>
-                  <button
-                    className="contact-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate('/freelancermessages');
-                    }}
-                  >
-                    Get in touch
-                  </button>
-                </div>
-              </div>
-            ))}
+                  <div className="freelancer-meta">
+                    <div className="rating">{renderStars(freelancer.rating)}</div>
+                    <button
+                      className="contact-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/freelancermessages');
+                      }}
+                    >
+                      Get in touch
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

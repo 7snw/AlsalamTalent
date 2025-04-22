@@ -11,6 +11,7 @@
     display: flex;
     gap: 40px;
     padding: 0 6%;
+    margin-bottom: 330px;
   }
   
   .my-left-panel {
@@ -25,17 +26,20 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 25px;
-    margin-bottom: 20px;
+ 
   }
   
   .my-project-card{
-    background: #ddd;
+    background: #ffffff;
     border-radius: 20px;
     padding: 0 0 15px;
     overflow: hidden;
     position: relative;
-
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
+
   .my-project-card:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
@@ -70,8 +74,8 @@
     font-size: 13px;
     font-weight: bold;
     color: #1B223C;
-    background-color: #fff;
-    padding: 1px 10px;
+    background-color: #e3e3e3;
+    padding: 1px 11px;
     border-radius: 12px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   }

@@ -1,23 +1,31 @@
-// src/Pages/AllProjects.js
-import React, { useState } from 'react';
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/AllProjects.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
-import { useNavigate } from 'react-router-dom';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
+import Footer from '../../Components/Footer';
 
 const AllProjects = () => {
   const navigate = useNavigate();
-  const allProjects = ProjectsData.deitailes; // ✅ Use from external data
+  const allProjects = ProjectsData.deitailes;
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     type: [],
     level: [],
     price: []
   });
+  const [savedProjects, setSavedProjects] = useState([]);
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
+    setSavedProjects(stored);
+  }, []);
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
@@ -32,6 +40,23 @@ const AllProjects = () => {
     });
   };
 
+
+  const handleBookmarkClick = (e, project) => {
+    e.stopPropagation();
+    const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
+    const isSaved = stored.find(p => p.title === project.title);
+
+    let updated;
+    if (isSaved) {
+      updated = stored.filter(p => p.title !== project.title);
+    } else {
+      updated = [...stored, project];
+    }
+
+    setSavedProjects(updated);
+    localStorage.setItem('savedProjects', JSON.stringify(updated));
+  };
+
   const filteredProjects = allProjects.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
@@ -43,8 +68,9 @@ const AllProjects = () => {
 
   return (
     <div className="browse-projects-page">
-      <Navbar links={NavConfig2} />
+       <Navbar links={NavConfig2} />
       <div className="browse-container">
+       
         <aside className="browse-left-panel">
           <h1 className="page-title">All Projects</h1>
           <div className="filter-section">
@@ -107,22 +133,36 @@ const AllProjects = () => {
           </div>
 
           <div className="projects-grid">
-            {filteredProjects.map((proj, index) => (
-              <div
-                className="project-card"
-                key={index}
-                onClick={() => navigate(`/project-details/${index}`)}
-                style={{ cursor: 'pointer' }}
-              >
-                <img src={proj.image || proj.coverImage} alt={proj.title} />
-                <h4>{proj.title}</h4>
-                <p>{proj.budget}</p>
-                <span className="bookmark">🔖</span>
-              </div>
-            ))}
+            <AnimatePresence>
+              {filteredProjects.map((proj, index) => (
+                <motion.div
+                  className="project-card"
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  whileHover={{
+                    y: -4,
+                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    transition: { duration: 0.2 },
+                  }}
+                  onClick={() => navigate(`/project-details/${index}`)}
+                >
+                  <img src={proj.image || proj.coverImage} alt={proj.title} />
+                  <h4>{proj.title}</h4>
+                  <p>{proj.budget}</p>
+                  <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj)}>
+                    {savedProjects.some(p => p.title === proj.title) ? <FaBookmark /> : <FaRegBookmark />}
+                  </span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </main>
       </div>
+      
+      <Footer />
     </div>
   );
 };

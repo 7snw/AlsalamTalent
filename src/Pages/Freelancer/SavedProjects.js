@@ -1,25 +1,56 @@
-// src/Pages/SavedProjects.js
-import React, { useState } from 'react';
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/SavedProjects.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
-import ProjectsData from '../../Data/ProjectsData';
-import { useNavigate } from 'react-router-dom';
+import Footer from '../../Components/Footer';
 
 
 const SavedProjects = () => {
-   const navigate = useNavigate();
-   const [search, setSearch] = useState('');
-   const [filters, setFilters] = useState({
-     type: [],
-     level: [],
-     price: []
-   });
+  const navigate = useNavigate();
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({ type: [], level: [], price: [] });
+  const [savedProjects, setSavedProjects] = useState([]);
 
-   const handleCheckbox = (category, value) => {
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
+    setSavedProjects(stored);
+  }, []);
+
+  const isProjectSaved = (project) => {
+    return savedProjects.some((p) => p.title === project.title);
+  };
+
+  const handleBookmarkClick = (e, project) => {
+    e.stopPropagation();
+    const current = JSON.parse(localStorage.getItem('savedProjects')) || [];
+    const isSaved = current.find((p) => p.title === project.title);
+
+    let updated;
+    if (isSaved) {
+      updated = current.filter((p) => p.title !== project.title);
+    } else {
+      updated = [...current, project];
+    }
+
+    setSavedProjects(updated);
+    localStorage.setItem('savedProjects', JSON.stringify(updated));
+  };
+
+  const filteredProjects = savedProjects.filter((proj) => {
+    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+    const matchesType = filters.type.length === 0 || filters.type.includes(proj.type);
+    const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
+    const matchesPrice = filters.price.length === 0 || filters.price.includes(proj.priceRange);
+    return matchesSearch && matchesType && matchesLevel && matchesPrice;
+  });
+
+  const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
       const alreadySelected = updated[category].includes(value);
@@ -97,24 +128,35 @@ const SavedProjects = () => {
           </div>
 
           <div className="my-projects-grid">
-          {filteredProjects.map((proj, index) => (
-               <div
-               className="my-project-card"
-               key={index}
-               onClick={() => navigate(`/project-details/${index}`)}
-               style={{ cursor: 'pointer' }}
-             >
-                <img src={proj.image} alt={proj.title} />
-                <h4>{proj.title}</h4>
-                <p>{proj.budget}</p>
-                <span className="bookmark">🔖</span>
-
-              </div>
-            ))}
-            
+            <AnimatePresence>
+              {filteredProjects.map((proj, index) => (
+                <motion.div
+                  className="my-project-card"
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  whileHover={{
+                    y: -4,
+                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    transition: { duration: 0.2 },
+                  }}
+                  onClick={() => navigate(`/project-details/${index}`)}
+                >
+                  <img src={proj.image || proj.coverImage} alt={proj.title} />
+                  <h4>{proj.title}</h4>
+                  <p>{proj.budget}</p>
+                  <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj)}>
+                    {isProjectSaved(proj) ? <FaBookmark /> : <FaRegBookmark />}
+                  </span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

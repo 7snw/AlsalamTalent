@@ -3,7 +3,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import '../Style/Clients/PostProject.css';
 import '../Style/PageContents.css';
+import Footer from '../Components/Footer';
 import Navbar from '../Components/Navbar';
+
+
 import {
   NavConfig1,
   NavConfig2,
@@ -215,6 +218,7 @@ const EditProject = () => {
           </div>
         </form>
       </div>
+      <Footer/>
     </div>
   );
 };

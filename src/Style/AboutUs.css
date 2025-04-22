@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
+  margin-bottom: 100px;
 }
 
 .about-container {
@@ -22,6 +23,7 @@
   font-size: 40px;
   font-weight: bold;
   margin-bottom: 40px;
+  margin-left: 60px;
   color: #1B223C;
   padding-left: 90px;
   padding-right: 90px;

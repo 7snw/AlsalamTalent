@@ -11,6 +11,7 @@
     display: flex;
     gap: 40px;
     padding: 0 6%;
+    margin-bottom: 200px;
   }
   
   .saved-left-panel {
@@ -23,7 +24,7 @@
   
 
   .my-project-card {
-    background: #ddd;
+    background: #ffffff;
     border-radius: 20px;
     padding: 0 0 15px;
     overflow: hidden;

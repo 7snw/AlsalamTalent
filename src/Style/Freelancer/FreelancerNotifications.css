@@ -1,5 +1,5 @@
 .notifications-page {
-    background-color: #e6e7e8;
+    background-color: #E6E7E8;
     font-family: 'Segoe UI', sans-serif;
     min-height: 100vh;
     margin-left: 91px;
@@ -10,7 +10,7 @@
 
     margin-left: 85px;
     margin-right: 85px;
-    
+    margin-bottom: 100px;
   }
   
   .notifications-container2 h2 {
@@ -22,13 +22,14 @@
   .notification-list {
     list-style: none;
     padding: 0;
+    margin-bottom: 50px;
   }
   
   .notification-list li {
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
     padding: 14px 20px;
     border-radius: 10px;
     margin-bottom: 15px;

@@ -6,7 +6,7 @@ import LandingPhoto from '../Assets/LandingPhoto.jpg';
 import Briefcase from '../Assets/Briefcase.png';
 import GraduationCap from '../Assets/GradCap.png';
 import ChatApp from '../Assets/ChatApp.png';
-
+import Footer from '../Components/Footer';
 import Navbar from '../Components/Navbar';
 import { NavConfig1 } from '../Data/NavbarConfigs';
 
@@ -32,12 +32,11 @@ const LandingPage = () => {
           <div className="text-section">
             <p className="subheading">BUILD &nbsp; YOUR &nbsp; CAREER</p>
             <h1>
-              Be A <span className="highlight">Freelancer</span><br />
-              Easy & Unique <br /> Ways.
+            Your   <span className="highlight">Freelancing</span><br />
+            Journey Starts <br /> Here.
             </h1>
             <p className="description">
-              Step into the world of professional excellence with<br />
-              hands-on projects from Al Salam Bank.
+            Gain real-world experience through  impactful,<br/> hands-on projects from Al Salam Bank.
             </p>
             <div className="button-group">
               <button className="primary-btn" onClick={() => navigate('/studentgraduate')}>
@@ -74,6 +73,7 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

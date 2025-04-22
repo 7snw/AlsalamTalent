@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../Style/ProjectDetailsPage.css";
 import Navbar from "../Components/Navbar";
+import Footer from '../Components/Footer';
+
 import {
   NavConfig1,
   NavConfig2,
@@ -80,6 +82,7 @@ const ProjectDetailsPage = () => {
           </div>
         </div>
       </div>
+     <Footer/>
     </div>
   );
 };

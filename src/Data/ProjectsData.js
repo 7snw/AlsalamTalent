@@ -5,6 +5,7 @@ const projectsData = {
       name: 'Sarah Ahmed Isa',
       image: require('../Assets/Projects/banner.png'),
       status: 'ongoing',
+      application: 'Pending',
       category: 'Marketing',
       description: 'Refreshing branding of social media channels...',
       budget: '50 BHD',
@@ -28,6 +29,7 @@ const projectsData = {
       duration: '3 weeks',
       startDate: '2024-06-10',
       endDate: '2024-07-01',
+      application: 'Approved',
       statuss: 'Closed',
       coverImage: require('../Assets/Projects/Design.png'),
       files: '/files/uiux-app.zip',
@@ -43,6 +45,7 @@ const projectsData = {
       description: '3D illustrations for product marketing...',
       budget: '40 BHD',
       duration: '1 month',
+      application: 'Rejected',
       startDate: '2024-07-01',
       endDate: '2024-07-31',
       statuss: 'Open',
@@ -52,28 +55,12 @@ const projectsData = {
       progress: '30%'
     },
     {
-      title: 'Landing Page for Product',
-      name: 'Lama Hassan',
-      image: require('../Assets/Projects/Design.png'),
-      status: 'open',
-      category: 'Web Design',
-      description: 'Design and develop a responsive landing page...',
-      budget: '45 BHD',
-      duration: '10 days',
-      startDate: '2024-06-20',
-      endDate: '2024-06-30',
-      statuss: 'Open',
-      coverImage: require('../Assets/Projects/Design.png'),
-      files: '/files/landing-page.zip',
-      docs: '/files/landing-contract.pdf',
-      progress: '10%'
-    },
-    {
       title: 'Social Media Ads Campaign',
       name: 'Nada AlKhater',
       image: require('../Assets/Projects/socialmedia.png'),
       status: 'ongoing',
       category: 'Marketing',
+      application: 'Pending',
       description: 'Create graphics and captions for social campaigns...',
       budget: '60 BHD',
       duration: '2 weeks',
@@ -95,6 +82,7 @@ const projectsData = {
       budget: '55 BHD',
       duration: '3 weeks',
       startDate: '2024-06-05',
+      application: 'Approved',
       endDate: '2024-06-25',
       statuss: 'Open',
       coverImage: require('../Assets/Projects/packaging.png'),
@@ -112,6 +100,7 @@ const projectsData = {
       budget: '70 BHD',
       duration: '3 weeks',
       startDate: '2024-06-15',
+      application: 'Approved',
       endDate: '2024-07-05',
       statuss: 'Open',
       coverImage: require('../Assets/Projects/illustration.png'),
@@ -119,6 +108,25 @@ const projectsData = {
       docs: '/files/book-contract.pdf',
       progress: '50%'
     },
+    {
+      title: 'Landing Page for Product',
+      name: 'Lama Hassan',
+      image: require('../Assets/Projects/Design.png'),
+      status: 'open',
+      category: 'Web Design',
+      application: 'Rejected',
+      description: 'Design and develop a responsive landing page...',
+      budget: '45 BHD',
+      duration: '10 days',
+      startDate: '2024-06-20',
+      endDate: '2024-06-30',
+      statuss: 'Open',
+      coverImage: require('../Assets/Projects/Design.png'),
+      files: '/files/landing-page.zip',
+      docs: '/files/landing-contract.pdf',
+      progress: '10%'
+    },
+  
     {
       title: 'Web Development for Local Business',
       name: 'Ahmed Salman',
@@ -128,6 +136,7 @@ const projectsData = {
       description: 'Build a static site for a Bahraini coffee shop, with contact form and map...',
       budget: '100 BHD',
       duration: '1 month',
+      application: 'Pending',
       startDate: '2024-07-01',
       endDate: '2024-07-31',
       statuss: 'Open',
@@ -146,6 +155,7 @@ const projectsData = {
       budget: '80 BHD',
       duration: '4 weeks',
       startDate: '2024-06-10',
+      application: 'Rejected',
       endDate: '2024-07-10',
       statuss: 'Open',
       coverImage: require('../Assets/Projects/Design.png'),
@@ -163,6 +173,7 @@ const projectsData = {
       budget: '35 BHD',
       duration: '10 days',
       startDate: '2024-06-01',
+      application: 'Rejected',
       endDate: '2024-06-11',
       statuss: 'Closed',
       coverImage: require('../Assets/Projects/socialmedia.png'),
@@ -179,6 +190,7 @@ const projectsData = {
       name: 'Sarah Ahmed Isa',
       progress: '70%' ,
       image: require('../Assets/Projects/Design.png'),
+      
     },
     {
       title: 'New in-house Platform app idea',
@@ -207,49 +219,66 @@ const projectsData = {
     },
   ],
 
-  applied: [
-    {
-      title: 'Website UX Redesign',
-      client: 'Noura Salman',
-      image: require('../Assets/Projects/illustration.png'),
-      status: 'pending',
+applied: [
+  {
+    title: 'Website UX Redesign',
+    client: 'Noura Salman',
+    image: require('../Assets/Projects/illustration.png'),
+    status: 'Pending',
       category: 'Web Design',
-      appliedDate: '2024-06-01'
-    },
-    {
-      title: 'Summer Ads Social Posts',
-      client: 'Ali Rashed',
-      image: require('../Assets/Projects/socialmedia.png'),
-      status: 'pending',
+    appliedDate: '2024-06-01',
+    price: '50 BHD'
+  },
+  {
+    title: 'Summer Ads Social Posts',
+    client: 'Ali Rashed',
+    image: require('../Assets/Projects/socialmedia.png'),
+    status: 'Approved',
       category: 'Illustration',
-      appliedDate: '2024-06-03'
-    },
-    {
-      title: 'Summer Ads Social Posts',
-      client: 'Ali Rashed',
-      image: require('../Assets/Projects/socialmedia.png'),
-      status: 'pending',    
+    appliedDate: '2024-06-03',
+    price: '30 BHD'
+  },
+  {
+    title: 'Digital Brochure Design',
+    client: 'Maha Yusuf',
+    image: require('../Assets/Projects/Design.png'),
+    status: 'Rejected',    
       category: 'Marketing',
-      appliedDate: '2024-06-03'
-    },
-    {
-      title: 'Summer Ads Social Posts',
-      client: 'Ali Rashed',
-      image: require('../Assets/Projects/socialmedia.png'),
-      status: 'pending',
+    appliedDate: '2024-06-05',
+    price: '40 BHD'
+  },
+  {
+    title: 'Interactive Infographic Animation',
+    client: 'Saeed AlMansoori',
+    image: require('../Assets/Projects/illustration.png'),
+    status: 'Pending',
       category: 'Product Design',
-      appliedDate: '2024-06-03'
-    },
-    {
-      title: 'Summer Ads Social Posts',
-      client: 'Ali Rashed',
-      image: require('../Assets/Projects/socialmedia.png'),
-      status: 'pending',
+    appliedDate: '2024-06-06',
+    price: '70 BHD'
+  },
+  {
+    title: 'Minimalist Poster Series',
+    client: 'Layla AlHajeri',
+    image: require('../Assets/Projects/Design.png'),
+    status: 'Rejected',
       category: 'Graphic Design',
-      appliedDate: '2024-06-03'
+    appliedDate: '2024-06-07',
       
-    }
-  ],
+    price: '60 BHD'
+  }
+],
+
+
+freelancers: [
+  { name: 'Sarah Ahmed Isa', title: 'Senior Graphic Designer and Illustrator', rating: 5 },
+  { name: 'Muneera Mohamed', title: 'Senior Illustrator and UX/UI Designer', rating: 4 },
+  { name: 'Ahmed Rashed', title: 'Illustrator', rating: 4 },
+  { name: 'Lulwa Khalid', title: 'Advanced Illustrator and Editor', rating: 4 },
+  { name: 'Samiya Yaqoob', title: 'UX Researcher and Product Designer', rating: 5 },
+  { name: 'Salman Jasim', title: 'React Developer and Frontend Mentor', rating: 3 },
+  { name: 'Fahad AlAli', title: 'Creative Motion Graphics Designer', rating: 4 },
+  { name: 'Reem Mohammed', title: 'Illustrator and Comic Artist', rating: 5 }
+]
 };
 
 
