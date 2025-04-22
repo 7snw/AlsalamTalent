@@ -5,6 +5,8 @@ import "../../Style/Clients/ProjectProgress.css";
 import Navbar from "../../Components/Navbar";
 import { NavConfig3 } from "../../Data/NavbarConfigs";
 import ProjectsData from "../../Data/ProjectsData";
+import Footer from '../../Components/Footer';
+
 
 const ProjectProgress = () => {
   const { id } = useParams();
@@ -64,6 +66,7 @@ const ProjectProgress = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

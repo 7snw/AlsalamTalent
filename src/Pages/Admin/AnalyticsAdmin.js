@@ -3,6 +3,8 @@ import React from 'react';
 import '../../Style/Admin/AnalyticsAdmin.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+
 
 const AnalyticsAdmin = () => {
   const yLines = [0, 50, 100, 150];
@@ -83,6 +85,7 @@ const AnalyticsAdmin = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

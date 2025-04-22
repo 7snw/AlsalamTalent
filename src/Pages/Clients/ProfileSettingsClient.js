@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import '../../Style/Clients/ProfileSettingsClient.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+
 
 const ProfileSettingsClient = () => {
   const [activeSection, setActiveSection] = useState('edit');
@@ -66,6 +68,7 @@ const ProfileSettingsClient = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

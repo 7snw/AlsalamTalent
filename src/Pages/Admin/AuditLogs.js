@@ -3,6 +3,8 @@ import React from 'react';
 import '../../Style/Admin/AuditLogs.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+
 
 const logs = [
   { id: 1, user: 'Admin', action: 'Deleted user Maryam Yusuf', timestamp: '2025-04-20 10:12 AM' },
@@ -42,6 +44,7 @@ const AuditLogs = () => {
           </table>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

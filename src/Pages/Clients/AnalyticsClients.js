@@ -3,6 +3,8 @@ import React from 'react';
 import '../../Style/Clients/AnalyticsClient.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+
 
 const AnalyticsClient = () => {
   const yLines = [0, 50, 100, 150];
@@ -83,6 +85,7 @@ const AnalyticsClient = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

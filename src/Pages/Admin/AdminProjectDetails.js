@@ -5,6 +5,8 @@ import '../../Style/Admin/ProjectDetailsPage.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import ProjectsData from '../../Data/ProjectsData';
+import Footer from '../../Components/Footer';
+
 
 const AdminProjectDetails = () => {
   const { id } = useParams();
@@ -34,6 +36,7 @@ const AdminProjectDetails = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

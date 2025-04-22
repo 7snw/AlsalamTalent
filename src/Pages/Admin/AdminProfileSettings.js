@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import '../../Style/Admin/ProfileSettings.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+
 
 const AdminProfileSettings = () => {
   const [activeSection, setActiveSection] = useState('edit');
@@ -65,6 +67,7 @@ const AdminProfileSettings = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

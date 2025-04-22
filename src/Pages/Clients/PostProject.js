@@ -5,6 +5,8 @@ import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import uploadIcon from '../../Assets/Upload.png';
+import Footer from '../../Components/Footer';
+
 
 const PostProject = () => {
   const [projectTitle, setProjectTitle] = useState('');
@@ -180,6 +182,7 @@ const PostProject = () => {
           </div>
         </form>
       </div>
+      <Footer />
     </div>
   );
 };

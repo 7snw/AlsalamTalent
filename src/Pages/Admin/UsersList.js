@@ -8,6 +8,8 @@ import { NavConfig4 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import { useNavigate } from 'react-router-dom';
 import AddUser from '../../Assets/AddUser.png';
+import Footer from '../../Components/Footer';
+
 
 const usersData = [
   { name: 'Sarah Ahmed Isa', title: 'Marketing Executive', type: 'Client' },
@@ -120,6 +122,7 @@ const UsersList = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

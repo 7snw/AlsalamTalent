@@ -6,6 +6,8 @@ import Navbar from "../../Components/Navbar";
 import { NavConfig3 } from "../../Data/NavbarConfigs";
 import SearchIcon from "../../Assets/search.png";
 import projectsData from "../../Data/ProjectsData";
+import Footer from '../../Components/Footer';
+
 
 const SubmittedProjects = () => {
   const [search, setSearch] = useState("");
@@ -49,7 +51,7 @@ const SubmittedProjects = () => {
     ))}
   </div>
 </div>
-
+<Footer />
   </div>
   
   );

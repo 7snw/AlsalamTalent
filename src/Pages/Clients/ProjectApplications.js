@@ -7,6 +7,8 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import FakeProjects from '../../Data/ProjectsData';
+import Footer from '../../Components/Footer';
+
 
 
 const ProjectApplications = () => {
@@ -122,6 +124,7 @@ const ProjectApplications = () => {
             </div>
           </main>
         </div>
+        <Footer />
       </div>
   );
 };

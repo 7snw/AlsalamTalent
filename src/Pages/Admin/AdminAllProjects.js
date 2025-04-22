@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
+import Footer from '../../Components/Footer';
+
 
 const   AdminAllProjects = () => {
   const navigate = useNavigate();
@@ -111,6 +113,7 @@ const   AdminAllProjects = () => {
           </div>
         </main>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -7,6 +7,8 @@ import { NavConfig3 } from '../../Data/NavbarConfigs';
 import { useNavigate } from 'react-router-dom';
 import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
+import Footer from '../../Components/Footer';
+
 
 const BrowseProjects = () => {
   const navigate = useNavigate();
@@ -122,6 +124,7 @@ const BrowseProjects = () => {
           </div>
         </main>
       </div>
+      <Footer />
     </div>
   );
 };

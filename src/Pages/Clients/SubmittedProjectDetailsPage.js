@@ -5,6 +5,8 @@ import '../../Style/Clients/SubmittedProjectDetailsPage.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import ProjectsData from '../../Data/ProjectsData';
+import Footer from '../../Components/Footer';
+
 
 const SubmittedProjectDetailsPage = () => {
   const { id } = useParams();
@@ -73,6 +75,7 @@ const SubmittedProjectDetailsPage = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

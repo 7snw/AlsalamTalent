@@ -2,6 +2,8 @@ import React from 'react';
 import '../../Style/Admin/AdminNotifications.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4} from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+
 
 const notifications = [
   'Updates and revision are needed for the progress of recent completed projects.',
@@ -27,6 +29,7 @@ const AdminNotifications = () => {
           ))}
         </ul>
       </div>
+      <Footer />
     </div>
   );
 };

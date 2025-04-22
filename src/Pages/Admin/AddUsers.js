@@ -3,6 +3,8 @@ import React from 'react';
 import '../../Style/Admin/AddUsers.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+
 
 const AddUsers = () => {
   return (
@@ -61,6 +63,7 @@ const AddUsers = () => {
         </div>
       </div>
     </div>
+    <Footer />
     </div>
   );
 };
