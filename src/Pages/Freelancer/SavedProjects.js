@@ -10,11 +10,10 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 
-
 const SavedProjects = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({ type: [], level: [], price: [] });
+  const [filters, setFilters] = useState({ type: [], level: [], budget: [] });
   const [savedProjects, setSavedProjects] = useState([]);
 
   useEffect(() => {
@@ -46,8 +45,15 @@ const SavedProjects = () => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
     const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
-    const matchesPrice = filters.price.length === 0 || filters.price.includes(proj.priceRange);
-    return matchesSearch && matchesType && matchesLevel && matchesPrice;
+    const matchesBudget =
+      filters.budget.length === 0 ||
+      filters.budget.some((range) => {
+        const [min, max] = range.replace('BHD', '').split('-').map((v) => parseFloat(v.trim()));
+        const budget = parseFloat(proj.budget.replace('BHD', '').trim());
+        return budget >= min && budget <= max;
+      });
+
+    return matchesSearch && matchesType && matchesLevel && matchesBudget;
   });
 
   const handleCheckbox = (category, value) => {
@@ -71,7 +77,7 @@ const SavedProjects = () => {
           <h1 className="page-title">Saved Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type, level and price range.</p>
+            <p className="hint">Filter the projects according to their type, level and budget range.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
@@ -92,10 +98,10 @@ const SavedProjects = () => {
             </div>
 
             <div className="filter-group">
-              <h4>Price</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
-                <label key={price}>
-                  <input type="checkbox" onChange={() => handleCheckbox('price', price)} /> {price}
+              <h4>Budget</h4>
+              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((budget) => (
+                <label key={budget}>
+                  <input type="checkbox" onChange={() => handleCheckbox('budget', budget)} /> {budget}
                 </label>
               ))}
             </div>
@@ -142,7 +148,7 @@ const SavedProjects = () => {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

@@ -1,20 +1,19 @@
 // src/Pages/Clients/EditProject.js
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import '../Style/Clients/PostProject.css';
-import '../Style/PageContents.css';
-import Footer from '../Components/Footer';
-import Navbar from '../Components/Navbar';
-
+import React, { useState, useRef, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import "../Style/Clients/PostProject.css";
+import "../Style/PageContents.css";
+import Footer from "../Components/Footer";
+import Navbar from "../Components/Navbar";
 
 import {
   NavConfig1,
   NavConfig2,
   NavConfig3,
-  NavConfig4
-} from '../Data/NavbarConfigs';
-import uploadIcon from '../Assets/Upload.png';
-import ProjectsData from '../Data/ProjectsData';
+  NavConfig4,
+} from "../Data/NavbarConfigs";
+import uploadIcon from "../Assets/Upload.png";
+import ProjectsData from "../Data/ProjectsData";
 
 const EditProject = () => {
   const { id } = useParams();
@@ -22,15 +21,15 @@ const EditProject = () => {
 
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default
   useEffect(() => {
-    const role = localStorage.getItem('role');
+    const role = localStorage.getItem("role");
     switch (role) {
-      case 'freelancer':
+      case "freelancer":
         setNavbarConfig(NavConfig2);
         break;
-      case 'client':
+      case "client":
         setNavbarConfig(NavConfig3);
         break;
-      case 'admin':
+      case "admin":
         setNavbarConfig(NavConfig4);
         break;
       default:
@@ -38,13 +37,13 @@ const EditProject = () => {
     }
   }, []);
 
-  const [projectTitle, setProjectTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [budget, setBudget] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [status, setStatus] = useState('');
+  const [projectTitle, setProjectTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [budget, setBudget] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [status, setStatus] = useState("");
   const [projectFiles, setProjectFiles] = useState(null);
   const [contractDocs, setContractDocs] = useState(null);
   const [projectImage, setProjectImage] = useState(null);
@@ -55,12 +54,12 @@ const EditProject = () => {
 
   useEffect(() => {
     if (project) {
-      setProjectTitle(project.projectTitle || project.title || '');
-      setDescription(project.description || '');
-      setCategory(project.category || '');
-      setBudget(project.budget || '');
-      setStartDate(project.startDate || '');
-      setEndDate(project.endDate || '');
+      setProjectTitle(project.projectTitle || project.title || "");
+      setDescription(project.description || "");
+      setCategory(project.category || "");
+      setBudget(project.budget || "");
+      setStartDate(project.startDate || "");
+      setEndDate(project.endDate || "");
       setProjectFiles(project.projectFiles || null);
       setContractDocs(project.contractDocs || null);
       setProjectImage(project.coverImage || null);
@@ -80,8 +79,8 @@ const EditProject = () => {
       contractDocs,
       projectImage,
     };
-    console.log('Updated Project:', updatedProject);
-    alert('Project updated successfully!');
+    console.log("Updated Project:", updatedProject);
+    alert("Project updated successfully!");
   };
 
   if (!project) return <p>Project not found</p>;
@@ -147,12 +146,15 @@ const EditProject = () => {
           </div>
 
           <label>Status*</label>
-          <input
-            type="text"
+          <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            required
-          />
+            required>
+            <option value="">Select Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In-progress">In-progress</option>
+            <option value="Completed">Completed</option>
+          </select>
 
           <div className="post-project-upload-group">
             <label>Project Files*</label>
@@ -162,7 +164,11 @@ const EditProject = () => {
               onClick={() => projectFileInput.current.click()}
             >
               Attach File
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
+              <img
+                src={uploadIcon}
+                alt="upload"
+                className="post-project-upload-icon"
+              />
             </button>
             <input
               type="file"
@@ -170,7 +176,9 @@ const EditProject = () => {
               onChange={(e) => setProjectFiles(e.target.files[0]?.name)}
               hidden
             />
-            {projectFiles && <p className="post-project-filename">{projectFiles}</p>}
+            {projectFiles && (
+              <p className="post-project-filename">{projectFiles}</p>
+            )}
           </div>
 
           <div className="post-project-upload-group">
@@ -181,7 +189,11 @@ const EditProject = () => {
               onClick={() => contractDocInput.current.click()}
             >
               Attach Docs
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
+              <img
+                src={uploadIcon}
+                alt="upload"
+                className="post-project-upload-icon"
+              />
             </button>
             <input
               type="file"
@@ -189,7 +201,9 @@ const EditProject = () => {
               onChange={(e) => setContractDocs(e.target.files[0]?.name)}
               hidden
             />
-            {contractDocs && <p className="post-project-filename">{contractDocs}</p>}
+            {contractDocs && (
+              <p className="post-project-filename">{contractDocs}</p>
+            )}
           </div>
 
           <div className="post-project-upload-group">
@@ -200,7 +214,11 @@ const EditProject = () => {
               onClick={() => projectImageInput.current.click()}
             >
               Attach Image
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
+              <img
+                src={uploadIcon}
+                alt="upload"
+                className="post-project-upload-icon"
+              />
             </button>
             <input
               type="file"
@@ -209,16 +227,22 @@ const EditProject = () => {
               onChange={(e) => setProjectImage(e.target.files[0]?.name)}
               hidden
             />
-            {projectImage && <p className="post-project-filename">{projectImage}</p>}
+            {projectImage && (
+              <p className="post-project-filename">{projectImage}</p>
+            )}
           </div>
 
           <div className="post-project-actions">
-            <button type="submit" className="post-project-button post">Update</button>
-            <button type="button" className="post-project-button cancel">Cancel</button>
+            <button type="submit" className="post-project-button post">
+              Update
+            </button>
+            <button type="button" className="post-project-button cancel">
+              Cancel
+            </button>
           </div>
         </form>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

@@ -12,6 +12,8 @@
   min-height: 74vh;
   box-sizing: border-box;
   padding: 0 6%;
+  margin-bottom: 100px;
+
 }
 
 .analytics-container h2 {
@@ -27,7 +29,7 @@
   margin-bottom: 20px;
 }
 
-.card {
+.card1 {
   flex: 1;
   background-color: #ffffff;
   padding: 25px;
@@ -37,7 +39,7 @@
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
-.card h4 {
+.card1 h4 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 15px;
@@ -129,7 +131,7 @@
 
 .card {
   flex: 1;
-  background-color: #dcdcdc;
+  background-color: #ffffff;
   padding: 25px;
   border-radius: 25px;
   text-align: center;

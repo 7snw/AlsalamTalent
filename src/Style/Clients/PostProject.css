@@ -12,6 +12,8 @@
   margin: 5px auto 50px; /* ⬅️ reduce top space */
   padding: 1px 40px 30px;
   background-color: transparent;
+  margin-bottom: 100px;
+
 }
 
 .post-project-container h2 {

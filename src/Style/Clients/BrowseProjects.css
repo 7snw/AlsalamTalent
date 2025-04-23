@@ -11,7 +11,8 @@
   display: flex;
   gap: 40px;
   padding: 0 6%;
-  padding-bottom: 100px;
+  margin-bottom: 100px;
+
 }
 
 .browse-left-panel {

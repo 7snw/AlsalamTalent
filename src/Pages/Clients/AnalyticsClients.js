@@ -17,22 +17,22 @@ const AnalyticsClient = () => {
         <h2>Client Analytics</h2>
 
         <div className="summary-cards">
-          <div className="card">
+          <div className="card1">
             <h4>Number of Projects</h4>
             <div className="big-number">9</div>
           </div>
-          <div className="card">
+          <div className="card1">
             <h4>Number of Freelancers</h4>
             <div className="big-number">2</div>
           </div>
-          <div className="card">
+          <div className="card1">
             <h4>Active Projects</h4>
             <div className="big-number">1</div>
           </div>
         </div>
 
         <div className="details-section9">
-          <div className="card progress">
+          <div className="card progress9">
             <h4>Projects Progress</h4>
             <div className="custom-chart">
               <div className="y-labels">
@@ -64,7 +64,7 @@ const AnalyticsClient = () => {
             </div>
           </div>
 
-          <div className="card performance">
+          <div className="card performance9">
             <h4>Performance Graph</h4>
             <div className="circular-chart8">
               <svg viewBox="0 0 36 36" className="circular8">

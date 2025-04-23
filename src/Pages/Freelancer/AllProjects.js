@@ -18,7 +18,7 @@ const AllProjects = () => {
   const [filters, setFilters] = useState({
     type: [],
     level: [],
-    price: []
+    budget: []
   });
   const [savedProjects, setSavedProjects] = useState([]);
 
@@ -61,9 +61,15 @@ const AllProjects = () => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
     const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
-    const matchesPrice = filters.price.length === 0 || filters.price.includes(proj.priceRange);
+    const matchesBudget =
+      filters.budget.length === 0 ||
+      filters.budget.some((range) => {
+        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
+        const projectBudget = parseFloat(proj.budget.replace('BHD', '').trim());
+        return projectBudget >= min && projectBudget <= max;
+      });
 
-    return matchesSearch && matchesType && matchesLevel && matchesPrice;
+    return matchesSearch && matchesType && matchesLevel && matchesBudget;
   });
 
   return (
@@ -106,15 +112,15 @@ const AllProjects = () => {
             </div>
 
             <div className="filter-group">
-              <h4>Price</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
-                <label key={price}>
+              <h4>Budget</h4>
+              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((budget) => (
+                <label key={budget}>
                   <input
                     type="checkbox"
-                    checked={filters.price.includes(price)}
-                    onChange={() => handleCheckbox('price', price)}
+                    checked={filters.budget.includes(budget)}
+                    onChange={() => handleCheckbox('budget', budget)}
                   />{' '}
-                  {price}
+                  {budget}
                 </label>
               ))}
             </div>

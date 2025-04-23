@@ -64,8 +64,9 @@ const FreelancersList = () => {
       filters.expertise.length === 0 ||
       filters.expertise.some((exp) => freelancer.title.toLowerCase().includes(exp.toLowerCase()));
 
-    const matchesLevel = true; // Placeholder - no level field yet
-
+      const matchesLevel =
+      filters.level.length === 0 || filters.level.includes(freelancer.level);
+    
     const matchesRating =
       filters.rating.length === 0 || filters.rating.includes(freelancer.rating.toString());
 

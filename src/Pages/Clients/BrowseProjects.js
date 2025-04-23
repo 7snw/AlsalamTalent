@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
+import { motion, AnimatePresence } from 'framer-motion';
 
 
 const BrowseProjects = () => {
@@ -16,7 +17,7 @@ const BrowseProjects = () => {
   const [filters, setFilters] = useState({
     type: [],
     level: [],
-    price: []
+    budget: []
   });
 
   const handleCheckbox = (category, value) => {
@@ -34,14 +35,17 @@ const BrowseProjects = () => {
 
   const filteredProjects = ProjectsData.deitailes.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType =
-      filters.type.length === 0 || filters.type.includes(proj.category);
-    const matchesLevel =
-      filters.level.length === 0 || filters.level.includes(proj.level);
-    const matchesPrice =
-      filters.price.length === 0 || filters.price.includes(proj.priceRange);
+    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+    const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
+    const matchesBudget =
+      filters.budget.length === 0 ||
+      filters.budget.some((range) => {
+        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
+        const projectBudget = parseFloat(proj.budget.replace('BHD', '').trim());
+        return projectBudget >= min && projectBudget <= max;
+      });
 
-    return matchesSearch && matchesType && matchesLevel && matchesPrice;
+    return matchesSearch && matchesType && matchesLevel && matchesBudget;
   });
 
   return (
@@ -52,7 +56,7 @@ const BrowseProjects = () => {
           <h1 className="page-title">All Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type, level and price range.</p>
+            <p className="hint">Filter the projects according to their type, level and budget range.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
@@ -83,15 +87,15 @@ const BrowseProjects = () => {
             </div>
 
             <div className="filter-group">
-              <h4>Price</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
-                <label key={price}>
+              <h4>Budget</h4>
+              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((budget) => (
+                <label key={budget}>
                   <input
                     type="checkbox"
-                    checked={filters.price.includes(price)}
-                    onChange={() => handleCheckbox('price', price)}
+                    checked={filters.budget.includes(budget)}
+                    onChange={() => handleCheckbox('budget', budget)}
                   />{' '}
-                  {price}
+                  {budget}
                 </label>
               ))}
             </div>
@@ -110,17 +114,28 @@ const BrowseProjects = () => {
           </div>
 
           <div className="projects-grid">
+          <AnimatePresence>
             {filteredProjects.map((proj, index) => (
-              <div
+              <motion.dev
                 key={index}
                 className="project-card"
+                initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  whileHover={{
+                    y: -4,
+                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    transition: { duration: 0.2 },
+                  }}
                 onClick={() => navigate(`/project-info/${index}`)}
               >
                 <img src={proj.image} alt={proj.title} />
                 <h4>{proj.title}</h4>
                 <p>{proj.budget}</p>
-              </div>
+              </motion.dev>
             ))}
+            </AnimatePresence>
           </div>
         </main>
       </div>

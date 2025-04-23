@@ -13,6 +13,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 25px;
+  margin-bottom: 230px;
+  padding-bottom: 60px;
+
 }
 
 .submitted-project-card {

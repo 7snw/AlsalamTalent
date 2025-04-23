@@ -1,3 +1,4 @@
+// src/Pages/Freelancer/MyApplications.js
 import React, { useState } from 'react';
 import '../../Style/Freelancer/MyApplications.css';
 import '../../Style/PageContents.css';
@@ -15,7 +16,7 @@ const MyApplications = () => {
   const [filters, setFilters] = useState({
     type: [],
     level: [],
-    price: [],
+    budget: [],
   });
 
   const toggleFilter = (category, value) => {
@@ -29,12 +30,17 @@ const MyApplications = () => {
 
   const filteredProjects = FakeProjects.deitailes.filter((project) => {
     const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
-
     const matchesType = filters.type.length === 0 || filters.type.includes(project.category);
     const matchesLevel = filters.level.length === 0 || filters.level.includes(project.level);
-    const matchesPrice = filters.price.length === 0 || filters.price.includes(project.priceRange);
+    const matchesBudget =
+      filters.budget.length === 0 ||
+      filters.budget.some((range) => {
+        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
+        const budget = parseFloat(project.budget.replace('BHD', '').trim());
+        return budget >= min && budget <= max;
+      });
 
-    return matchesSearch && matchesType && matchesLevel && matchesPrice;
+    return matchesSearch && matchesType && matchesLevel && matchesBudget;
   });
 
   const getApplicationClass = (application) => {
@@ -60,7 +66,7 @@ const MyApplications = () => {
 
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter your applications by type, level, and price.</p>
+            <p className="hint">Filter your applications by type, level, and budget.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
@@ -91,15 +97,15 @@ const MyApplications = () => {
             </div>
 
             <div className="filter-group">
-              <h4>Price</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((price) => (
-                <label key={price}>
+              <h4>Budget</h4>
+              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
+                <label key={range}>
                   <input
                     type="checkbox"
-                    checked={filters.price.includes(price)}
-                    onChange={() => toggleFilter('price', price)}
+                    checked={filters.budget.includes(range)}
+                    onChange={() => toggleFilter('budget', range)}
                   />
-                  {price}
+                  {range}
                 </label>
               ))}
             </div>
@@ -140,7 +146,9 @@ const MyApplications = () => {
                     <p>{proj.budget || '—'}</p>
                   </div>
                   <div className="my-application-actions">
-                    <button className={getApplicationClass(proj.application)}>{proj.application}</button>
+                    <button className={getApplicationClass(proj.application)}>
+                      {proj.application}
+                    </button>
                   </div>
                 </motion.div>
               ))}

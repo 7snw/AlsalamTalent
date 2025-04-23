@@ -14,7 +14,7 @@ import Footer from '../../Components/Footer';
 const MyProjects = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({ type: ['Completed'] });
+  const [filters, setFilters] = useState({ type: [] });
 
   const handleCheckbox = (value) => {
     setFilters((prev) => {
@@ -25,10 +25,17 @@ const MyProjects = () => {
     });
   };
 
-  const filteredProjects = ProjectsData.submitted.filter((proj) =>
-    filters.type.length === 0 || filters.type.includes(proj.status)
-  );
-
+  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
+    const projectType = proj.progress === '100%' ? 'Completed' : 'In-progress';
+  
+    const matchesType =
+      filters.type.length === 0 || filters.type.includes(projectType);
+  
+    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+  
+    return matchesType && matchesSearch;
+  });
+  
   return (
     <div className="my-projects-page">
       <Navbar links={NavConfig2} />

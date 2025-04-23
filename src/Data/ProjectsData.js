@@ -12,11 +12,11 @@ const projectsData = {
       duration: '2 weeks',
       startDate: '2024-06-01',
       endDate: '2024-06-14',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/banner.png'),
       files: '/files/rebranding-project.zip',
       docs: '/files/rebranding-contract.pdf',
-      progress: '70%'
+      progress: '70%',
+      level: 'Advanced'
     },
     {
       title: 'Platform App UI Design',
@@ -30,11 +30,11 @@ const projectsData = {
       startDate: '2024-06-10',
       endDate: '2024-07-01',
       application: 'Approved',
-      statuss: 'Closed',
       coverImage: require('../Assets/Projects/Design.png'),
       files: '/files/uiux-app.zip',
       docs: '/files/uiux-contract.pdf',
-      progress: '100%'
+      progress: '100%',
+      level:'Advanced'
     },
     {
       title: '3D Product Illustration',
@@ -48,11 +48,11 @@ const projectsData = {
       application: 'Rejected',
       startDate: '2024-07-01',
       endDate: '2024-07-31',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/illustration.png'),
       files: '/files/3d-product.zip',
       docs: '/files/3d-product-contract.pdf',
-      progress: '30%'
+      progress: '30%',
+      level:'Intermediate'
     },
     {
       title: 'Social Media Ads Campaign',
@@ -66,11 +66,11 @@ const projectsData = {
       duration: '2 weeks',
       startDate: '2024-06-18',
       endDate: '2024-07-01',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/socialmedia.png'),
       files: '/files/social-campaign.zip',
       docs: '/files/social-contract.pdf',
-      progress: '45%'
+      progress: '45%',
+      level:'Intermediate'
     },
     {
       title: 'Packaging Redesign',
@@ -84,11 +84,11 @@ const projectsData = {
       startDate: '2024-06-05',
       application: 'Approved',
       endDate: '2024-06-25',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/packaging.png'),
       files: '/files/eco-packaging.zip',
       docs: '/files/eco-contract.pdf',
-      progress: '20%'
+      progress: '20%',
+      level:'Expert'
     },
     {
       title: 'Illustrated Book Cover',
@@ -102,11 +102,11 @@ const projectsData = {
       startDate: '2024-06-15',
       application: 'Approved',
       endDate: '2024-07-05',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/illustration.png'),
       files: '/files/book-cover.zip',
       docs: '/files/book-contract.pdf',
-      progress: '50%'
+      progress: '50%',
+      level:'Expert'
     },
     {
       title: 'Landing Page for Product',
@@ -120,11 +120,11 @@ const projectsData = {
       duration: '10 days',
       startDate: '2024-06-20',
       endDate: '2024-06-30',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/Design.png'),
       files: '/files/landing-page.zip',
       docs: '/files/landing-contract.pdf',
-      progress: '10%'
+      progress: '10%',
+      level:'Beginner'
     },
   
     {
@@ -139,11 +139,11 @@ const projectsData = {
       application: 'Pending',
       startDate: '2024-07-01',
       endDate: '2024-07-31',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/banner.png'),
       files: '/files/web-bahrain.zip',
       docs: '/files/web-contract.pdf',
-      progress: '5%'
+      progress: '5%',
+      level:'Beginner'
     },
     {
       title: 'Brand Identity for New Startup',
@@ -157,11 +157,11 @@ const projectsData = {
       startDate: '2024-06-10',
       application: 'Rejected',
       endDate: '2024-07-10',
-      statuss: 'Open',
       coverImage: require('../Assets/Projects/Design.png'),
       files: '/files/branding-kit.zip',
       docs: '/files/branding-contract.pdf',
-      progress: '65%'
+      progress: '65%',
+      level:'Beginner'
     },
     {
       title: 'Ad Copywriting for E-commerce',
@@ -175,11 +175,11 @@ const projectsData = {
       startDate: '2024-06-01',
       application: 'Rejected',
       endDate: '2024-06-11',
-      statuss: 'Closed',
       coverImage: require('../Assets/Projects/socialmedia.png'),
       files: '/files/copywriting.zip',
       docs: '/files/copywriting-contract.pdf',
-      progress: '100%'
+      progress: '100%',
+      level:'Advanced'
     }    
   ]
   ,
@@ -270,14 +270,14 @@ applied: [
 
 
 freelancers: [
-  { name: 'Sarah Ahmed Isa', title: 'Senior Graphic Designer and Illustrator', rating: 5 },
-  { name: 'Muneera Mohamed', title: 'Senior Illustrator and UX/UI Designer', rating: 4 },
-  { name: 'Ahmed Rashed', title: 'Illustrator', rating: 4 },
-  { name: 'Lulwa Khalid', title: 'Advanced Illustrator and Editor', rating: 4 },
-  { name: 'Samiya Yaqoob', title: 'UX Researcher and Product Designer', rating: 5 },
-  { name: 'Salman Jasim', title: 'React Developer and Frontend Mentor', rating: 3 },
-  { name: 'Fahad AlAli', title: 'Creative Motion Graphics Designer', rating: 4 },
-  { name: 'Reem Mohammed', title: 'Illustrator and Comic Artist', rating: 5 }
+  { name: 'Sarah Ahmed Isa', title: 'Senior Graphic Designer and Illustrator', level:'Expert', rating: 5 },
+  { name: 'Muneera Mohamed', title: 'Senior Illustrator and UX/UI Designer', level:'Beginner',rating: 4 },
+  { name: 'Ahmed Rashed', title: 'Illustrator', level:'Intermediate',rating: 4 },
+  { name: 'Lulwa Khalid', title: 'Advanced Illustrator and Editor', level:'Intermediate',rating: 4 },
+  { name: 'Samiya Yaqoob', title: 'UX Researcher and Product Designer', level:'Expert',rating: 5 },
+  { name: 'Salman Jasim', title: 'React Developer and Frontend Mentor', level:'Beginner',rating: 3 },
+  { name: 'Fahad AlAli', title: 'Creative Motion Graphics Designer', level:'Advanced',rating: 4 },
+  { name: 'Reem Mohammed', title: 'Illustrator and Comic Artist', level:'Expert',rating: 5 }
 ]
 };
 
