@@ -49,8 +49,8 @@ const MyApplications = () => {
     switch (application.toLowerCase()) {
       case 'approved':
         return 'Approved';
-      case 'rejected':
-        return 'Rejected';
+      case 'canceled':
+        return 'Canceled';
       case 'pending':
       default:
         return 'Pending';

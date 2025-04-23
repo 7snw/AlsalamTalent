@@ -124,7 +124,7 @@
   cursor: default;
 }
 
-.my-application-actions .Rejected {
+.my-application-actions .Canceled {
   background-color: #EE582B;
   padding: 8px 18px;
   font-size: 14px;
