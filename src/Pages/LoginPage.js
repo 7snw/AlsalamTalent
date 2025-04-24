@@ -1,37 +1,41 @@
-// src/pages/LoginPage.js 
+// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/Login.css';
-import LoginPhoto from '../Assets/LoginPhoto.png'; 
-
-
+import LoginPhoto from '../Assets/LoginPhoto.png';
+import axios from 'axios';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Simulate login logic
-    console.log('User logged in:', { email, password });
-  
-    // Mock login based on email
-    if (email === 'admin@gmail.com' && password === '123') {
-      localStorage.setItem('role', 'admin');
-      navigate('/analyticsadmin'); // or '/admin-dashboard' if you have one
-    } else if (email === 'client@gmail.com' && password === '123') {
-      localStorage.setItem('role', 'client');
-      navigate('/clienthome');
-    } else if (email === 'freelancer@gmail.com' && password === '123') {
-      localStorage.setItem('role', 'freelancer');
-      navigate('/freelancer-home');
-    } else {
-      alert('Invalid credentials');
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/users/login', {
+        email,
+        password
+      });
+
+      const { role } = response.data;
+      localStorage.setItem('role', role);
+
+      if (role === 'admin') {
+        navigate('/analyticsadmin');
+      } else if (role === 'client') {
+        navigate('/clienthome');
+      } else if (role === 'freelancer') {
+        navigate('/freelancer-home');
+      } else {
+        alert('Unknown role');
+      }
+    } catch (err) {
+      console.error('Login error:', err.response?.data || err.message);
+      alert(err.response?.data?.message || 'Invalid credentials or server error');
     }
   };
-  
 
   return (
     <div className="login-body">
@@ -69,7 +73,6 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
-    
     </div>
   );
 };
