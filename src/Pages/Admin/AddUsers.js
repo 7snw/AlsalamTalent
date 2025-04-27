@@ -1,69 +1,98 @@
-// src/pages/AddUserAccount.js
-import React from 'react';
+import React, { useState } from 'react';
 import '../../Style/Admin/AddUsers.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
-
+import axios from 'axios';
 
 const AddUsers = () => {
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    occupation: '',
+    phone: '',
+    companyName: '',
+    dateOfBirth: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/client/register', formData);
+
+      if (response.status === 201 || response.status === 200) {
+        alert('Client account created successfully!');
+        setFormData({
+          fullName: '',
+          email: '',
+          password: '',
+          occupation: '',
+          phone: '',
+          companyName: '',
+          dateOfBirth: ''
+        });
+      }
+    } catch (err) {
+      console.error('Error creating client:', err);
+      alert(err.response?.data?.message || 'Failed to create client.');
+    }
+  };
+
   return (
     <div className="add-user-page">
       <Navbar links={NavConfig4} />
       <div className="add-user-container">
-       
-
         <div className="add-user-content">
-          <h2>
-
-            Add a new Account <strong>(Admin/Client)</strong>
-          </h2>
+          <h2>Add A New Client Account</h2>
           <div className="add-user-form">
-          <div className="form-group">
-  <label>Name</label>
-  <input type="text" placeholder="Enter user name" />
-</div>
 
-<div className="form-group">
-  <label>Email</label>
-  <input type="email" placeholder="Enter email" />
-</div>
+            <div className="form-group">
+              <label>Name</label>
+              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Enter user name" required />
+            </div>
 
-<div className="form-group">
-  <label>Occupation</label>
-  <input type="text" placeholder="Enter occupation" />
-</div>
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Enter email" required />
+            </div>
 
-<div className="form-group">
-  <label>Phone Number</label>
-  <input type="text" placeholder="Enter phone number" />
-</div>
+            <div className="form-group">
+              <label>Password</label>
+              <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Enter password" required />
+            </div>
 
-<div className="form-group">
-  <label>Company Name</label>
-  <input type="text" placeholder="Enter company name" />
-</div>
+            <div className="form-group">
+              <label>Occupation</label>
+              <input type="text" name="occupation" value={formData.occupation} onChange={handleChange} placeholder="Enter occupation" />
+            </div>
 
-<div className="form-group">
-  <label>Date of Birth</label>
-  <input type="date" placeholder="dd-mm-yyyy" />
-</div>
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Enter phone number" />
+            </div>
 
+            <div className="form-group">
+              <label>Company Name</label>
+              <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Enter company name" />
+            </div>
 
-<div className="option-form-group">
-  <label>Type</label>
-  <select>
-    <option value="client">Client</option>
-    <option value="admin">Admin</option>
-  </select>
-</div>
+            <div className="form-group">
+              <label>Date of Birth</label>
+              <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} />
+            </div>
 
-            <button className="add-btn">Add</button>
-        
+            <button className="add-btn" onClick={handleSubmit}>Add</button>
+          </div>
         </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
     </div>
   );
 };

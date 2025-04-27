@@ -41,10 +41,11 @@ const Navbar = ({ links = [] }) => {
   return (
     <nav className="navbar">
       <div className="nav-left">
-        <div className="logo-title">
-          <img src={Logo} alt="Logo" className="logo-image" />
-          <span className="site-name">Al Salam Talents</span>
-        </div>
+      <div className="logo-title" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+  <img src={Logo} alt="Logo" className="logo-image" />
+  <span className="site-name">Al Salam Talents</span>
+</div>
+
 
         <ul className="nav-links">
           {links.map((link, index) => (

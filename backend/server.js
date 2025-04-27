@@ -1,28 +1,35 @@
-// server.js
-
 const express = require('express');
-const cors = require('cors')
+const cors = require('cors');
 const connectDB = require('./db');
 require('dotenv').config();
 
 const app = express();
 
-// Connect to MongoDB
+// 1. Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors()); // ✅ Enable CORS for all routes
-app.use(express.json()); // For parsing application/json
+// 2. Middleware
+app.use(cors());
+app.use(express.json());
 
-// Routes
-const userRoutes = require('./routes/users');
+// 3. Routes
+const userRoutes = require('./routes/users'); // login route for all users
 app.use('/api/users', userRoutes);
+app.use('/api/freelancer', require('./routes/freelancers'));
+const clientRoutes = require('./routes/clients');
+app.use('/api/client', clientRoutes);
 
-// Test route
+
+// Optional: Additional routes (freelancer, client, admin-specific APIs in future)
+// const freelancerRoutes = require('./routes/freelancers');
+// const clientRoutes = require('./routes/clients');
+// const adminRoutes = require('./routes/admins');
+
+// 4. Health Check Route
 app.get('/', (req, res) => {
-  res.send('API is running...');
+  res.send('🎯 API is running...');
 });
 
-// Start server
+// 5. Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
