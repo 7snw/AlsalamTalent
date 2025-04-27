@@ -1,20 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const path = require('path');
 const Project = require('../models/Project');
 
-// setup multer for file uploads
+// setup multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // folder inside backend
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
+    const uniqueSuffix = Date.now() + '-' + file.originalname.replace(/\s+/g, '-');
+    cb(null, uniqueSuffix);
   }
 });
 const upload = multer({ storage });
 
-// POST route to handle FormData
+router.get('/all', async (req, res) => {
+  try {
+    const projects = await Project.find();
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+// ✅ FIRST: GET projects by client
+router.get('/client/:authorId', async (req, res) => {
+  try {
+    const { authorId } = req.params;
+    const projects = await Project.find({ authorId: authorId });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ✅ SECOND: POST upload new project
 router.post('/upload', upload.fields([
   { name: 'projectImage', maxCount: 1 },
   { name: 'projectFile', maxCount: 1 },
@@ -22,9 +45,18 @@ router.post('/upload', upload.fields([
 ]), async (req, res) => {
   try {
     const { title, brief, budget, category, authorId, status, durationFrom, durationTo } = req.body;
-    const projectImage = req.files['projectImage'] ? req.files['projectImage'][0].path : '';
-    const projectFile = req.files['projectFile'] ? [{ name: req.files['projectFile'][0].originalname, url: req.files['projectFile'][0].path }] : [];
-    const contractDoc = req.files['contractDoc'] ? [{ name: req.files['contractDoc'][0].originalname, url: req.files['contractDoc'][0].path }] : [];
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+    const projectImage = req.files['projectImage'] ? `${baseUrl}/${req.files['projectImage'][0].path}` : '';
+    const projectFile = req.files['projectFile'] ? [{
+      name: req.files['projectFile'][0].originalname,
+      url: `${baseUrl}/${req.files['projectFile'][0].path}`
+    }] : [];
+    const contractDoc = req.files['contractDoc'] ? [{
+      name: req.files['contractDoc'][0].originalname,
+      url: `${baseUrl}/${req.files['contractDoc'][0].path}`
+    }] : [];
 
     const newProject = new Project({
       title,
@@ -44,8 +76,10 @@ router.post('/upload', upload.fields([
 
     await newProject.save();
     res.status(201).json(newProject);
+
   } catch (error) {
-    console.error('Error saving project:', error);
+    console.error('Error saving project:', error.message);
+    console.error('Full error:', error);
     res.status(500).json({ message: error.message });
   }
 });

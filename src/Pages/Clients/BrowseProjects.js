@@ -1,14 +1,14 @@
 // src/Pages/Clients/BrowseProjects.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../Style/Clients/BrowseProjects.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import { useNavigate } from 'react-router-dom';
-import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 
 const BrowseProjects = () => {
@@ -16,51 +16,70 @@ const BrowseProjects = () => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     type: [],
-    level: [],
     budget: []
   });
+  const [projects, setProjects] = useState([]);
+
+  const userId = localStorage.getItem('userId');
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/projects/client/${userId}`);
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+  
+    if (userId) { // make sure userId exists
+      fetchProjects();
+    }
+  }, [userId]); // ✅ Include userId here
+  
+  
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
-      const alreadySelected = updated[category].includes(value);
+      const alreadySelected = updated[category]?.includes(value);
 
       updated[category] = alreadySelected
         ? updated[category].filter((v) => v !== value)
-        : [...updated[category], value];
+        : [...(updated[category] || []), value];
 
       return { ...updated };
     });
   };
 
-  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
-    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
-    const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
-    const matchesBudget =
-      filters.budget.length === 0 ||
-      filters.budget.some((range) => {
-        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-        const projectBudget = parseFloat(proj.budget.replace('BHD', '').trim());
-        return projectBudget >= min && projectBudget <= max;
-      });
+  const filteredProjects = projects
+    .filter((proj) => proj.authorId === userId)
+    .filter((proj) => {
+      const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+      const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+      const matchesBudget =
+        filters.budget.length === 0 ||
+        filters.budget.some((range) => {
+          const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
+          const projectBudget = parseFloat(proj.budget);
+          return projectBudget >= min && projectBudget <= max;
+        });
 
-    return matchesSearch && matchesType && matchesLevel && matchesBudget;
-  });
+      return matchesSearch && matchesType && matchesBudget;
+    });
 
   return (
     <div className="browse-projects-page">
       <Navbar links={NavConfig3} />
       <div className="browse-container">
         <aside className="browse-left-panel">
-          <h1 className="page-title">All Projects</h1>
+          <h1 className="page-title">My Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type, level and budget range.</p>
+            <p className="hint">Filter the projects according to their type and budget range.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
+              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
@@ -72,19 +91,7 @@ const BrowseProjects = () => {
               ))}
             </div>
 
-            <div className="filter-group">
-              <h4>Level</h4>
-              {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
-                <label key={level}>
-                  <input
-                    type="checkbox"
-                    checked={filters.level.includes(level)}
-                    onChange={() => handleCheckbox('level', level)}
-                  />{' '}
-                  {level}
-                </label>
-              ))}
-            </div>
+            {/* ❌ Level Filter REMOVED completely */}
 
             <div className="filter-group">
               <h4>Budget</h4>
@@ -114,12 +121,12 @@ const BrowseProjects = () => {
           </div>
 
           <div className="projects-grid">
-          <AnimatePresence>
-            {filteredProjects.map((proj, index) => (
-              <motion.dev
-                key={index}
-                className="project-card"
-                initial={{ opacity: 0, y: 30 }}
+            <AnimatePresence>
+              {filteredProjects.map((proj, index) => (
+                <motion.div
+                  key={proj._id}
+                  className="project-card"
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -128,13 +135,13 @@ const BrowseProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                onClick={() => navigate(`/project-info/${index}`)}
-              >
-                <img src={proj.image} alt={proj.title} />
-                <h4>{proj.title}</h4>
-                <p>{proj.budget}</p>
-              </motion.dev>
-            ))}
+                  onClick={() => navigate(`/project-info/${proj._id}`)}
+                >
+                  <img src={proj.imageUrl} alt={proj.title} />
+                  <h4>{proj.title}</h4>
+                  <p>{proj.budget} BHD</p>
+                </motion.div>
+              ))}
             </AnimatePresence>
           </div>
         </main>

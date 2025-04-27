@@ -1,7 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
+const path = require('path');
 require('dotenv').config();
+
+const projects = require('./routes/projects');
+
 
 const app = express();
 
@@ -18,6 +22,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/freelancer', require('./routes/freelancers'));
 const clientRoutes = require('./routes/clients');
 app.use('/api/client', clientRoutes);
+app.use('/api/projects', projects);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 
 // Optional: Additional routes (freelancer, client, admin-specific APIs in future)
