@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/FreelancersList.css';
 import '../Style/Navbar.css';
 import '../Style/PageContents.css';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
-
-
 import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
 import SearchIcon from '../Assets/search.png';
 import UserIcon from '../Assets/ProfileImage.png';
 import { motion, AnimatePresence } from 'framer-motion';
-import ProjectsData from '../Data/ProjectsData';
+import axios from 'axios'; // ADD axios for API call!
 
 const renderStars = (count) => {
   return Array.from({ length: count }, (_, i) => <span key={i}>★</span>);
@@ -20,12 +18,26 @@ const renderStars = (count) => {
 const FreelancersList = () => {
   const role = localStorage.getItem('role');
   const navigate = useNavigate();
+
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     expertise: [],
     level: [],
     rating: []
   });
+
+  const [freelancers, setFreelancers] = useState([]); // ADD state to hold freelancers from database
+
+  // Fetch freelancers from API
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/freelancer/list')
+      .then(response => {
+        setFreelancers(response.data); // save freelancers from backend
+      })
+      .catch(error => {
+        console.error('Error fetching freelancers:', error);
+      });
+  }, []);
 
   let navLinks;
   switch (role) {
@@ -41,8 +53,6 @@ const FreelancersList = () => {
       break;
   }
 
-  const freelancers = ProjectsData.freelancers;
-
   const handleFilterChange = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
@@ -56,21 +66,14 @@ const FreelancersList = () => {
   };
 
   const filteredFreelancers = freelancers.filter((freelancer) => {
-    const nameMatch = freelancer.name.toLowerCase().includes(search.toLowerCase());
-    const titleMatch = freelancer.title.toLowerCase().includes(search.toLowerCase());
-    const matchesSearch = nameMatch || titleMatch;
+    const nameMatch = freelancer.fullName?.toLowerCase().includes(search.toLowerCase());
+    const expertiseMatch = freelancer.expertise?.some(exp =>
+      exp.toLowerCase().includes(search.toLowerCase())
+    );
+    const matchesSearch = nameMatch || expertiseMatch;
 
-    const matchesExpertise =
-      filters.expertise.length === 0 ||
-      filters.expertise.some((exp) => freelancer.title.toLowerCase().includes(exp.toLowerCase()));
-
-      const matchesLevel =
-      filters.level.length === 0 || filters.level.includes(freelancer.level);
-    
-    const matchesRating =
-      filters.rating.length === 0 || filters.rating.includes(freelancer.rating.toString());
-
-    return matchesSearch && matchesExpertise && matchesLevel && matchesRating;
+    // For now assume all freelancers are same level and rating (you can improve later)
+    return matchesSearch;
   });
 
   return (
@@ -87,7 +90,7 @@ const FreelancersList = () => {
 
               <div className="filter-group">
                 <h4>Expertise</h4>
-                {['Marketing consultant', 'Graphic Designer', 'Illustrator', 'Video Editor', 'Web Developer'].map((type) => (
+                {['Marketing Consultant', 'Graphic Designer', 'Illustrator', 'Video Editor', 'Web Developer'].map((type) => (
                   <label key={type}>
                     <input
                       type="checkbox"
@@ -153,13 +156,14 @@ const FreelancersList = () => {
                   <div className="freelancer-info">
                     <img src={UserIcon} alt="user" className="profile-icon" />
                     <div>
-                      <h3>{freelancer.name}</h3>
-                      <p>{freelancer.title}</p>
+                      <h3>{freelancer.fullName}</h3>
+                      <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>
                     </div>
                   </div>
 
                   <div className="freelancer-meta">
-                    <div className="rating">{renderStars(freelancer.rating)}</div>
+                    {/* Future: you can add real rating from DB */}
+                    <div className="rating">{renderStars(5)}</div>
                     <button
                       className="contact-btn"
                       onClick={(e) => {
