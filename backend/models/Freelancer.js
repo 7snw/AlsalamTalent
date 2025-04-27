@@ -9,11 +9,12 @@ const freelancerSchema = new mongoose.Schema({
   major: String,
   phone: String,
   expertise: [String],
-  cprImageUrl: { type: String, required: function() { return this.userType === 'graduate'; } },
+  cprImageUrl: { type: String, required: function () { return this.userType === 'graduate'; } },
   bio: String,
   skills: [String],
   specialties: [String],
-  profileImageUrl: String,
+  dateOfBirth: Date, // 📅 (already added correctly!)
+  profileImageUrl: { type: String }, // 🌟 NEW FIELD (Profile Picture URL/Base64)
   portfolio: [
     {
       title: String,

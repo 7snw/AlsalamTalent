@@ -1,35 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/Navbar.css';
 import Logo from '../Assets/Logo.jpg';
 import ChatIcon from '../Assets/Chat.png';
 import BellIcon from '../Assets/Bell.png';
-import UserIcon from '../Assets/User.png';
+import DefaultUserIcon from '../Assets/User.png';
+import axios from 'axios';
 
 const Navbar = ({ links = [] }) => {
   const navigate = useNavigate();
+  const [profileImage, setProfileImage] = useState(DefaultUserIcon);
+
   const showIcons = links.showIcons === true;
   const hideSignIn = links.hideSignIn === true;
   const showSignIn = !hideSignIn;
 
-  // Determine role and profile paths
   const role = localStorage.getItem('role');
-  let profilePath = '/myprofile'; // fallback default
+  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      if (role === 'freelancer' && userId) {
+        try {
+          const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${userId}`);
+          if (data?.profileImageUrl) {
+            setProfileImage(data.profileImageUrl);
+          }
+        } catch (error) {
+          console.error('Error fetching profile image:', error);
+        }
+      }
+    };
+
+    fetchProfileImage();
+  }, [role, userId]);
+
+  let profilePath = '/myprofile';
   let editProfilePath = null;
   let addProfilePath = null;
   let auditProfilePath = null;
 
-
-
   if (role === 'freelancer') {
     profilePath = '/myprofile';
-    editProfilePath = '/profilesettings'; // only for freelancers
+    editProfilePath = '/profilesettings';
   } else if (role === 'client') {
     profilePath = '/profilesettingsclint';
   } else if (role === 'admin') {
     profilePath = '/adminprofilesettings';
-    addProfilePath = '/AddUsers'; // only for admin
-    auditProfilePath = '/AuditLogs'; // only for admin
+    addProfilePath = '/AddUsers';
+    auditProfilePath = '/AuditLogs';
   }
 
   const handleSignOut = () => {
@@ -41,11 +60,10 @@ const Navbar = ({ links = [] }) => {
   return (
     <nav className="navbar">
       <div className="nav-left">
-      <div className="logo-title" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-  <img src={Logo} alt="Logo" className="logo-image" />
-  <span className="site-name">Al Salam Talents</span>
-</div>
-
+        <div className="logo-title" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <img src={Logo} alt="Logo" className="logo-image" />
+          <span className="site-name">Al Salam Talents</span>
+        </div>
 
         <ul className="nav-links">
           {links.map((link, index) => (
@@ -92,13 +110,17 @@ const Navbar = ({ links = [] }) => {
           />
 
           <div className="user-dropdown-wrapper">
-            <img src={UserIcon} alt="User" className="nav-icon" />
+            <img
+              src={profileImage || DefaultUserIcon}
+              alt="User"
+              className="nav-icon profile-icon-navbar"
+            />
             <div className="user-dropdown">
               <div className="dropdown-item" onClick={() => navigate(profilePath)}>Profile</div>
               {editProfilePath && (
                 <div className="dropdown-item" onClick={() => navigate(editProfilePath)}>Edit Profile</div>
               )}
-               {addProfilePath && (
+              {addProfilePath && (
                 <div className="dropdown-item" onClick={() => navigate(addProfilePath)}>Add a new account</div>
               )}
               {auditProfilePath && (

@@ -9,7 +9,7 @@ import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
 import SearchIcon from '../Assets/search.png';
 import UserIcon from '../Assets/ProfileImage.png';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios'; // ADD axios for API call!
+import axios from 'axios';
 
 const renderStars = (count) => {
   return Array.from({ length: count }, (_, i) => <span key={i}>★</span>);
@@ -22,17 +22,14 @@ const FreelancersList = () => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     expertise: [],
-    level: [],
     rating: []
   });
+  const [freelancers, setFreelancers] = useState([]);
 
-  const [freelancers, setFreelancers] = useState([]); // ADD state to hold freelancers from database
-
-  // Fetch freelancers from API
   useEffect(() => {
     axios.get('http://localhost:5000/api/freelancer/list')
       .then(response => {
-        setFreelancers(response.data); // save freelancers from backend
+        setFreelancers(response.data);
       })
       .catch(error => {
         console.error('Error fetching freelancers:', error);
@@ -72,8 +69,17 @@ const FreelancersList = () => {
     );
     const matchesSearch = nameMatch || expertiseMatch;
 
-    // For now assume all freelancers are same level and rating (you can improve later)
-    return matchesSearch;
+    const matchesExpertiseFilter =
+      filters.expertise.length === 0 ||
+      freelancer.expertise?.some(exp =>
+        filters.expertise.includes(exp)
+      );
+
+    const matchesRatingFilter =
+      filters.rating.length === 0 ||
+      filters.rating.includes((freelancer.rating || 5).toString()); // Assume 5 stars if no rating
+
+    return matchesSearch && matchesExpertiseFilter && matchesRatingFilter;
   });
 
   return (
@@ -86,7 +92,7 @@ const FreelancersList = () => {
             <h1 className="page-title">Freelancers</h1>
             <div className="filter-section">
               <h3>Filter</h3>
-              <p className="hint">Filter your Freelancers according to their Expertise, Level and Rating.</p>
+              <p className="hint">Filter your Freelancers according to their Expertise and Rating.</p>
 
               <div className="filter-group">
                 <h4>Expertise</h4>
@@ -97,18 +103,6 @@ const FreelancersList = () => {
                       checked={filters.expertise.includes(type)}
                       onChange={() => handleFilterChange('expertise', type)}
                     /> {type}
-                  </label>
-                ))}
-              </div>
-
-              <div className="filter-group">
-                <h4>Level</h4>
-                {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
-                  <label key={level}>
-                    <input
-                      type="checkbox"
-                      onChange={() => handleFilterChange('level', level)}
-                    /> {level}
                   </label>
                 ))}
               </div>
@@ -142,45 +136,48 @@ const FreelancersList = () => {
             </div>
 
             <AnimatePresence>
-              {filteredFreelancers.map((freelancer, i) => (
-                <motion.div
-                  className="freelancer-card"
-                  key={i}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  onClick={() => navigate('/freelancerprofile')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="freelancer-info">
-                    <img src={UserIcon} alt="user" className="profile-icon" />
-                    <div>
-                      <h3>{freelancer.fullName}</h3>
-                      <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>
+              {filteredFreelancers.length > 0 ? (
+                filteredFreelancers.map((freelancer, i) => (
+                  <motion.div
+                    className="freelancer-card"
+                    key={i}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 30 }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                    onClick={() => navigate('/freelancerprofile')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="freelancer-info">
+                      <img src={UserIcon} alt="user" className="profile-icon" />
+                      <div>
+                        <h3>{freelancer.fullName}</h3>
+                        <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="freelancer-meta">
-                    {/* Future: you can add real rating from DB */}
-                    <div className="rating">{renderStars(5)}</div>
-                    <button
-                      className="contact-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/freelancermessages');
-                      }}
-                    >
-                      Get in touch
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="freelancer-meta">
+                      <div className="rating">{renderStars(freelancer.rating || 5)}</div>
+                      <button
+                        className="contact-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/freelancermessages');
+                        }}
+                      >
+                        Get in touch
+                      </button>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <p>No freelancers found matching your search and filters.</p>
+              )}
             </AnimatePresence>
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

@@ -1,23 +1,40 @@
-// src/pages/Freelancer/MyProfile.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import userIcon from '../../Assets/ProfileIcon.png';
 import PortfolioPopup from './PortfolioPopup';
 import ViewPortfolioPopup from './ViewPortfolioPopup';
-import ProjectsData from '../../Data/ProjectsData';
 import '../../Style/Freelancer/MyProfile.css';
 import '../../Style/Navbar.css';
 import '../../Style/Freelancer/PortfolioPopup.css';
+import axios from 'axios';
 
 const MyProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [viewPopup, setViewPopup] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [freelancerData, setFreelancerData] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchFreelancerProfile = async () => {
+      try {
+        const freelancerId = localStorage.getItem('userId');
+        if (!freelancerId) {
+          console.error('No user ID found in localStorage.');
+          return;
+        }
+        const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
+        setFreelancerData(data);
+      } catch (error) {
+        console.error('Failed to fetch freelancer profile:', error);
+      }
+    };
+
+    fetchFreelancerProfile();
+  }, []);
 
   const handlePopupSave = (projectData) => {
     setUploadedFiles([...uploadedFiles, projectData]);
@@ -30,9 +47,13 @@ const MyProfile = () => {
       <div className="profile-container2">
         <div className="profile-header2">
           <div className="left-profile2">
-            <img src={userIcon} alt="User Icon" className="profile-image2" />
+            <img
+              src={freelancerData?.profileImageUrl || userIcon}
+              alt="User Icon"
+              className="profile-image2"
+            />
             <div className="profile-info2">
-              <h2>Maryam Yusuf</h2>
+              <h2>{freelancerData?.fullName || 'Your Name'}</h2>
             </div>
           </div>
           <button className="edit-profile" onClick={() => navigate('/profilesettings')}>
@@ -59,53 +80,34 @@ const MyProfile = () => {
         {activeTab === 'about' ? (
           <div className="about-section2">
             <div className="basic-info2">
-              <p><strong>Name:</strong> Fatema Almutawa</p>
-              <p><strong>ID:</strong> 202100888</p>
-              <p><strong>Major:</strong> Web Media</p>
+              <p><strong>Name:</strong> {freelancerData?.fullName || 'Not provided'}</p>
+              <p><strong>ID:</strong> {freelancerData?.studentId || 'Not provided'}</p>
+              <p><strong>Major:</strong> {freelancerData?.major || 'Not provided'}</p>
             </div>
+
             <div className="bio-info2">
               <h4>Biography</h4>
-              <p>
-                I'm a passionate Web Media student with a focus on creating visually compelling and
-                user-friendly websites. Skilled in HTML, CSS, and JavaScript, I specialize in
-                designing responsive websites that enhance user experience. Currently freelancing, I
-                help clients bring their digital visions to life with custom, innovative web
-                solutions.
-              </p>
+              <p>{freelancerData?.bio || 'No biography provided yet.'}</p>
             </div>
+
             <div className="skills-info2">
               <h4>Skills</h4>
-              <p>Branding, Marketing, Web Design, Photography</p>
+              <p>{freelancerData?.skills?.join(', ') || 'No skills added yet.'}</p>
             </div>
+
             <div className="specialties-info2">
               <h4>Specialties</h4>
-              <p>Marketing, Web Design</p>
+              <p>{freelancerData?.specialties?.join(', ') || 'No specialties added yet.'}</p>
             </div>
           </div>
         ) : (
           <div className="portfolio-section2">
             <div className="portfolio-grid2">
-              {ProjectsData.deitailes.slice(0, 3).map((proj, i) => (
-                <div
-                  key={i}
-                  className="project-card"
-                  onClick={() => {
-                    setSelectedProject(proj);
-                    setViewPopup(true);
-                  }}
-                >
-                  <img src={proj.image} alt={proj.title} />
-                  <h4>{proj.title}</h4>
-                  <p>{proj.category}</p>
-                </div>
-              ))}
-
               {uploadedFiles.map((proj, i) => (
                 <div
                   key={`uploaded-${i}`}
                   className="project-card"
                   onClick={() => {
-                    setSelectedProject(proj);
                     setViewPopup(true);
                   }}
                 >
@@ -123,20 +125,16 @@ const MyProfile = () => {
         )}
       </div>
 
-      {/* Upload Popup */}
       {showPopup && (
         <PortfolioPopup onClose={() => setShowPopup(false)} onSave={handlePopupSave} />
       )}
 
-      {/* View Popup */}
       {viewPopup && (
         <ViewPortfolioPopup
-          project={selectedProject}
+          project={uploadedFiles.find((p) => p)}
           onClose={() => setViewPopup(false)}
         />
       )}
-
-  
     </div>
   );
 };
