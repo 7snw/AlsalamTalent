@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import '../Style/ProjectDetailsPage.css';
+import '../Style/ProjectDetailsPage.css'; 
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
+import axios from 'axios';
 
 import {
   NavConfig1,
@@ -12,12 +13,12 @@ import {
   NavConfig3,
   NavConfig4
 } from '../Data/NavbarConfigs';
-import ProjectsData from '../Data/ProjectsData';
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default fallback
-  const project = ProjectsData.deitailes[parseInt(id)];
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const role = localStorage.getItem('role');
@@ -36,7 +37,23 @@ const ProjectDetails = () => {
     }
   }, []);
 
-  if (!project) return <p>Project not found</p>;
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+        setProject(response.data);
+      } catch (error) {
+        console.error('Error fetching project details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProject();
+  }, [id]);
+
+  if (loading) return <p>Loading project...</p>;
+  if (!project) return <p>Project not found.</p>;
 
   return (
     <div className="project-details-page">
@@ -48,35 +65,53 @@ const ProjectDetails = () => {
         <div className="details-layout">
           <div className="left">
             <h4>Author / Organization:</h4>
-            <p>{project.name}</p>
+            <p>{project.authorName || 'Unknown'}</p>
 
             <h4>Project Brief:</h4>
-            <p>{project.description}</p>
+            <p>{project.brief}</p>
 
             <h4>Budget/Price:</h4>
-            <p>{project.budget}</p>
+            <p>{project.budget} BHD</p>
 
             <h4>Duration:</h4>
-            <p>{project.duration || `${project.startDate} to ${project.endDate}`}</p>
+            <p>{new Date(project.duration.from).toLocaleDateString()} - {new Date(project.duration.to).toLocaleDateString()}</p>
 
             <h4>Status:</h4>
-            <p>Open</p>
+            <p>{project.status}</p>
 
             <h4>Project Files:</h4>
-            <button disabled={!project.files}>Download Files</button>
-            <p>{project.projectFiles || 'No file uploaded'}</p>
+            {project.files && project.files.length > 0 ? (
+              project.files.map((file, idx) => (
+                <div key={idx}>
+                  <a href={file.url} target="_blank" rel="noopener noreferrer" download>
+                    {file.name}
+                  </a>
+                </div>
+              ))
+            ) : (
+              <p>No project files uploaded</p>
+            )}
 
             <h4>Contract Documents:</h4>
-            <button disabled={!project.docs}>Download Docs</button>
-            <p>{project.contractDocs || 'No document uploaded'}</p>
+            {project.docs && project.docs.length > 0 ? (
+              project.docs.map((doc, idx) => (
+                <div key={idx}>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" download>
+                    {doc.name}
+                  </a>
+                </div>
+              ))
+            ) : (
+              <p>No contract documents uploaded</p>
+            )}
           </div>
 
           <div className="right">
-            <img src={project.coverImage || project.image} alt={project.title} />
+            <img src={project.imageUrl} alt={project.title} />
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

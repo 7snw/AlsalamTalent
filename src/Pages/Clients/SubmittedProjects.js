@@ -1,19 +1,41 @@
 // src/Pages/Clients/SubmittedProjects.jsx
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "../../Style/Clients/SubmittedProjects.css";
 import Navbar from "../../Components/Navbar";
 import { NavConfig3 } from "../../Data/NavbarConfigs";
 import SearchIcon from "../../Assets/search.png";
-import projectsData from "../../Data/ProjectsData";
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const SubmittedProjects = () => {
   const [search, setSearch] = useState("");
+  const [submittedProjects, setSubmittedProjects] = useState([]);
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
 
-  const filteredProjects = projectsData.submitted.filter((project) =>
+  useEffect(() => {
+    const fetchSubmittedProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/projects/all');
+        const allProjects = response.data;
+
+        // ✅ Only projects submitted by this user (you can adjust based on your logic)
+        const filtered = allProjects.filter(
+          (proj) => proj.authorId === userId && proj.status === 'Completed'
+        );
+        setSubmittedProjects(filtered);
+      } catch (error) {
+        console.error('Error fetching submitted projects:', error);
+      }
+    };
+
+    fetchSubmittedProjects();
+  }, [userId]);
+
+  const filteredProjects = submittedProjects.filter((project) =>
     project.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -40,7 +62,7 @@ const SubmittedProjects = () => {
             {filteredProjects.map((proj, index) => (
               <motion.div
                 className="submitted-project-card"
-                key={index}
+                key={proj._id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 30 }}
@@ -50,12 +72,12 @@ const SubmittedProjects = () => {
                   boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                   transition: { duration: 0.2 },
                 }}
-                onClick={() => navigate(`/submitted-project/${index}`)}
+                onClick={() => navigate(`/submitted-project/${proj._id}`)} // ✅ Navigate with real ID
               >
-                <img src={proj.image} alt={proj.title} />
+                <img src={proj.imageUrl} alt={proj.title} />
                 <div className="submitted-project-info">
                   <h5>{proj.title}</h5>
-                  <p>{proj.name}</p>
+                  <p>{proj.authorName || 'Unknown'}</p>
                 </div>
               </motion.div>
             ))}

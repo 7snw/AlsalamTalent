@@ -1,5 +1,6 @@
 // src/Pages/Clients/AssignedProject.js
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../Style/Clients/AssignedProject.css';
@@ -7,13 +8,40 @@ import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
-import projectsData from '../../Data/ProjectsData';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const AssignedProject = () => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ status: [] });
+  const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId'); // ✅ Logged-in client ID
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/projects/all');
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  // ✅ Only take assigned projects (authorId matches userId)
+  const assignedProjects = projects.filter((proj) => proj.authorId === userId);
+
+  // ✅ Filter by search and status
+  const filteredProjects = assignedProjects.filter((project) => {
+    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
+    const projectStatus = project.status === 'Completed' ? 'completed' : 'ongoing';
+    const matchesStatus =
+      filters.status.length === 0 || filters.status.includes(projectStatus);
+    return matchesSearch && matchesStatus;
+  });
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
@@ -28,14 +56,6 @@ const AssignedProject = () => {
       };
     });
   };
-
-  const filteredProjects = projectsData.deitailes.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
-    const projectStatus = project.progress === '100%' ? 'completed' : 'ongoing';
-    const matchesStatus =
-      filters.status.length === 0 || filters.status.includes(projectStatus);
-    return matchesSearch && matchesStatus;
-  });
 
   return (
     <div className="assigned-projects-page">
@@ -78,7 +98,7 @@ const AssignedProject = () => {
               {filteredProjects.map((proj, index) => (
                 <motion.div
                   className="project-card"
-                  key={index}
+                  key={proj._id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
@@ -88,12 +108,13 @@ const AssignedProject = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/assigned-project/${index}`)}
+                  onClick={() => navigate(`/assigned-project/${proj._id}`)} // ✅ Real MongoDB _id navigation
+                  style={{ cursor: 'pointer' }}
                 >
-                  <img src={proj.image} alt={proj.title} />
+                  <img src={proj.imageUrl} alt={proj.title} />
                   <h4>{proj.title}</h4>
-                  <p>{proj.name}</p>
-                  <span className="progress-text2">{proj.progress}</span>
+                  <p>{proj.authorName || 'Unknown'}</p>
+                  <span className="progress-text2">{proj.status}</span>
                 </motion.div>
               ))}
             </AnimatePresence>
