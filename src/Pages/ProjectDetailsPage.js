@@ -1,11 +1,8 @@
-// src/Pages/Clients/ProjectDetailsPage.js
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "../Style/ProjectDetailsPage.css";  // ✅ Correct path
+import "../Style/ProjectDetailsPage.css";
 import Navbar from "../Components/Navbar";
 import Footer from '../Components/Footer';
-import axios from 'axios';
 
 import {
   NavConfig1,
@@ -13,14 +10,15 @@ import {
   NavConfig3,
   NavConfig4,
 } from "../Data/NavbarConfigs";
+import ProjectsData from "../Data/ProjectsData";
 
 const ProjectDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1);
   const [userRole, setUserRole] = useState(null);
-  const [project, setProject] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  const project = ProjectsData.deitailes[parseInt(id)];
 
   useEffect(() => {
     const role = localStorage.getItem("role");
@@ -41,87 +39,50 @@ const ProjectDetailsPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
-        setProject(response.data);
-      } catch (error) {
-        console.error('Error fetching project:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProject();
-  }, [id]);
-
-  if (loading) return <p>Loading project...</p>;
-  if (!project) return <p>Project not found.</p>;
+  if (!project) return <p>Project not found</p>;
 
   return (
     <div className="project-details-page">
       <Navbar links={navbarConfig} />
       <div className="details-container">
-        <h2>{project.title}</h2>
-
+        <h2>{project.projectTitle || project.title}</h2>
         <div className="details-layout">
           <div className="left">
             <h4>Project Brief:</h4>
-            <p>{project.brief}</p>
+            <p>{project.description}</p>
 
             <h4>Budget/Price:</h4>
-            <p>{project.budget} BHD</p>
+            <p>{project.budget} </p>
 
             <h4>Duration:</h4>
-            <p>{new Date(project.duration.from).toLocaleDateString()} - {new Date(project.duration.to).toLocaleDateString()}</p>
+            <p>{project.startDate} to {project.endDate}</p>
 
             <h4>Status:</h4>
-            <p>{project.status}</p>
+            <p>{project.status} </p>
 
             <h4>Project Files:</h4>
-            {project.files && project.files.length > 0 ? (
-              project.files.map((file, idx) => (
-                <div key={idx}>
-                  <a href={file.url} target="_blank" rel="noopener noreferrer" download>
-                    {file.name}
-                  </a>
-                </div>
-              ))
-            ) : (
-              <p>No project files uploaded</p>
-            )}
-
-            <h4>Contract Documents:</h4>
-            {project.docs && project.docs.length > 0 ? (
-              project.docs.map((doc, idx) => (
-                <div key={idx}>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" download>
-                    {doc.name}
-                  </a>
-                </div>
-              ))
-            ) : (
-              <p>No contract documents uploaded</p>
-            )}
+            <button disabled>Download Files</button>
+            <p>{project.projectFiles || "No file uploaded"}</p>
             
-            <br/>
+            <h4>Contract Documents:</h4>
+            <button disabled>Download Docs</button>
+            <p>{project.contractDocs || "No document uploaded"}</p>
+<br/>
             {(userRole === "client" || userRole === "admin") && (
               <button
                 className="edit-btn"
-                onClick={() => navigate(`/edit-project/${project._id}`)}
+                onClick={() => navigate(`/edit-project/${id}`)}
               >
                 Edit Project
               </button>
             )}
           </div>
-
           <div className="right">
-            <img src={project.imageUrl} alt={project.title} />
+            <img src={project.coverImage || project.image} alt={project.title} />
           </div>
         </div>
       </div>
-      <Footer />
+     <Footer/>
     </div>
   );
 };

@@ -1,43 +1,14 @@
-import React, { useEffect, useState } from 'react';
+// src/Pages/Clients/AnalyticsClient.js
+import React from 'react';
 import '../../Style/Clients/AnalyticsClient.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
-import axios from 'axios';
+
 
 const AnalyticsClient = () => {
-  const [analytics, setAnalytics] = useState({
-    projectCount: 0,
-    freelancerCount: 0,
-    activeProjectsCount: 0,
-    projectsProgress: [],  // Add projects progress data
-  });
-
-  const [chartPoints, setChartPoints] = useState('0,140 100,100 200,60 300,80 400,60 500,40');
   const yLines = [0, 50, 100, 150];
-
-  useEffect(() => {
-    // Fetch analytics data from backend API
-    const fetchAnalytics = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/client/analytics');
-        setAnalytics(response.data);
-
-        // If you receive projects progress, update chartPoints accordingly
-        const progressData = response.data.projectsProgress || [];
-        const progressPoints = progressData.map(p => `${p.month},${p.progress}`);
-        setChartPoints(progressPoints.join(' '));
-      } catch (error) {
-        console.error('Error fetching analytics:', error);
-      }
-    };
-
-    fetchAnalytics();
-  }, []);
-
-  const safePercentage = isNaN((analytics.activeProjectsCount / analytics.projectCount) * 100) || !isFinite((analytics.activeProjectsCount / analytics.projectCount) * 100)
-    ? 0
-    : (analytics.activeProjectsCount / analytics.projectCount) * 100;
+  const chartPoints = '0,140 100,100 200,60 300,80 400,60 500,40'; // Example data
 
   return (
     <div className="analytics-page">
@@ -48,15 +19,15 @@ const AnalyticsClient = () => {
         <div className="summary-cards">
           <div className="card1">
             <h4>Number of Projects</h4>
-            <div className="big-number">{analytics.projectCount}</div>
+            <div className="big-number">9</div>
           </div>
           <div className="card1">
             <h4>Number of Freelancers</h4>
-            <div className="big-number">{analytics.freelancerCount}</div>
+            <div className="big-number">2</div>
           </div>
           <div className="card1">
             <h4>Active Projects</h4>
-            <div className="big-number">{analytics.activeProjectsCount}</div>
+            <div className="big-number">1</div>
           </div>
         </div>
 
@@ -103,11 +74,11 @@ const AnalyticsClient = () => {
                 />
                 <path
                   className="circle8"
-                  strokeDasharray={`${safePercentage}, 100`}
+                  strokeDasharray="66, 100"
                   d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
                 />
                 <text x="18" y="20.35" className="percentage8">
-                  {safePercentage.toFixed(0)}%
+                  70%
                 </text>
               </svg>
             </div>

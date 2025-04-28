@@ -7,7 +7,7 @@ import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
 import SearchIcon from '../Assets/search.png';
-import UserIcon from '../Assets/ProfileImage.png';
+import DefaultUserIcon from '../Assets/ProfileImage.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -149,7 +149,11 @@ const FreelancersList = () => {
                     style={{ cursor: 'pointer' }}
                   >
                     <div className="freelancer-info">
-                      <img src={UserIcon} alt="user" className="profile-icon" />
+                      <img
+                        src={freelancer.profileImageUrl || DefaultUserIcon}
+                        alt="user"
+                        className="profile-icon"
+                      />
                       <div>
                         <h3>{freelancer.fullName}</h3>
                         <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>

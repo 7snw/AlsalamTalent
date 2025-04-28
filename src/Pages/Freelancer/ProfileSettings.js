@@ -1,3 +1,4 @@
+// src/pages/Freelancer/ProfileSettings.js
 import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/ProfileSettings.css';
 import Navbar from '../../Components/Navbar';
@@ -51,7 +52,7 @@ const ProfileSettings = () => {
         ...formData,
         skills: formData.skills.split(',').map(skill => skill.trim()),
         specialties: formData.specialties,
-        profileImageUrl: preview || formData.profileImageUrl, 
+        profileImageUrl: preview !== null ? preview : formData.profileImageUrl, 
       };
 
       await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, updatedData);
@@ -60,6 +61,24 @@ const ProfileSettings = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile.');
+    }
+  };
+
+  const handleDeleteProfilePicture = async () => {
+    try {
+      const freelancerId = localStorage.getItem('userId');
+
+      await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, {
+        profileImageUrl: '',
+      });
+
+      alert('Profile picture removed.');
+      setPreview(null);
+      setFreelancerData(prev => ({ ...prev, profileImageUrl: '' }));
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting profile picture:', error);
+      alert('Failed to remove picture.');
     }
   };
 
@@ -85,7 +104,11 @@ const ProfileSettings = () => {
       <div className="settings-container9">
         <div className="settings-sidebar9">
           <div className="sidebar-profile-header9">
-            <img src={preview || freelancerData?.profileImageUrl || userIcon} alt="Profile" className="settings-user-icon9" />
+            <img
+              src={preview || freelancerData?.profileImageUrl || userIcon}
+              alt="Profile"
+              className="settings-user-icon9"
+            />
             <h3 className="settings-username9">{freelancerData?.fullName || 'Your Name'}</h3>
           </div>
 
@@ -111,10 +134,17 @@ const ProfileSettings = () => {
           {activeSection === 'edit' && (
             <div className="section9">
               <div className="edit-profile-picture9">
-                <img src={preview || freelancerData?.profileImageUrl || userIcon} alt="Profile" className="profile-preview9" />
+                <img
+                  src={preview || freelancerData?.profileImageUrl || userIcon}
+                  alt="Profile"
+                  className="profile-preview9"
+                />
                 <div className="upload-delete-container9">
                   <button className="upload-pic-btn9" onClick={() => document.getElementById('hiddenFileInput').click()}>
                     Upload a picture
+                  </button>
+                  <button className="delete-btn9" onClick={handleDeleteProfilePicture}>
+                    Delete picture
                   </button>
                   <input type="file" id="hiddenFileInput" hidden accept="image/*"
                     onChange={(e) => {
@@ -129,6 +159,7 @@ const ProfileSettings = () => {
                 </div>
               </div>
 
+              {/* Form inputs */}
               <h4>Name</h4>
               <input type="text" value={formData.fullName} onChange={(e) => handleChange('fullName', e.target.value)} />
 

@@ -47,11 +47,12 @@ const MyProfile = () => {
       <div className="profile-container2">
         <div className="profile-header2">
           <div className="left-profile2">
-            <img
-              src={freelancerData?.profileImageUrl || userIcon}
-              alt="User Icon"
-              className="profile-image2"
-            />
+          <img
+  src={freelancerData?.profileImageUrl || userIcon}
+  alt="User Icon"
+  className="profile-image2"
+/>
+
             <div className="profile-info2">
               <h2>{freelancerData?.fullName || 'Your Name'}</h2>
             </div>

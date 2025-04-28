@@ -66,9 +66,17 @@ transition: all 0.2s ease;
   gap: 15px;
 }
 
-.freelancer-info .profile-icon {
-  width: 60px;
+.freelancer-info  {
+  width: 300px;
   height: 63px;
+
+
+}
+
+.profile-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
 }
 
 .freelancer-info h3 {
