@@ -87,7 +87,7 @@ const ProjectDetails = () => {
             {project.files && project.files.length > 0 ? (
               project.files.map((file, idx) => (
                 <div key={idx}>
-                  <a href={file.url} target="_blank" rel="noopener noreferrer" download>
+                  <a href={file.url} target="_blank" rel="noopener noreferrer" className="download-btn" download>
                     {file.name}
                   </a>
                 </div>
@@ -100,7 +100,7 @@ const ProjectDetails = () => {
             {project.docs && project.docs.length > 0 ? (
               project.docs.map((doc, idx) => (
                 <div key={idx}>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" download>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer"className="download-btn" download>
                     {doc.name}
                   </a>
                 </div>

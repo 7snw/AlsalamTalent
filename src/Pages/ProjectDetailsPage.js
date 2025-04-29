@@ -66,7 +66,7 @@ const ProjectDetailsPage = () => {
         <div className="details-layout">
           <div className="left">
             <h4>Project Brief:</h4>
-            <p>{project.description}</p>
+            <p>{project.brief}</p>
 
             <h4>Budget/Price:</h4>
             <p>{project.budget} BHD</p>
@@ -81,7 +81,7 @@ const ProjectDetailsPage = () => {
             {project.files && project.files.length > 0 ? (
               project.files.map((file, idx) => (
                 <div key={idx}>
-                  <a href={file.url} target="_blank" rel="noopener noreferrer" download>
+                  <a href={file.url} target="_blank" rel="noopener noreferrer" className="download-btn" download>
                     {file.name}
                   </a>
                 </div>
@@ -94,7 +94,7 @@ const ProjectDetailsPage = () => {
             {project.docs && project.docs.length > 0 ? (
               project.docs.map((doc, idx) => (
                 <div key={idx}>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" download>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="download-btn" download>
                     {doc.name}
                   </a>
                 </div>

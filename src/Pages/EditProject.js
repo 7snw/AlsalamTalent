@@ -1,11 +1,9 @@
-// src/Pages/Clients/EditProject.js
 import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "../Style/Clients/PostProject.css";
 import "../Style/PageContents.css";
 import Footer from "../Components/Footer";
 import Navbar from "../Components/Navbar";
-
 import {
   NavConfig1,
   NavConfig2,
@@ -13,13 +11,15 @@ import {
   NavConfig4,
 } from "../Data/NavbarConfigs";
 import uploadIcon from "../Assets/Upload.png";
-import ProjectsData from "../Data/ProjectsData";
+import axios from "axios";
 
 const EditProject = () => {
   const { id } = useParams();
-  const project = ProjectsData.deitailes[parseInt(id)];
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig1);
+
   useEffect(() => {
     const role = localStorage.getItem("role");
     switch (role) {
@@ -36,6 +36,20 @@ const EditProject = () => {
         setNavbarConfig(NavConfig1);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+        setProject(response.data);
+      } catch (error) {
+        console.error("Error fetching project:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProject();
+  }, [id]);
 
   const [projectTitle, setProjectTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -55,34 +69,52 @@ const EditProject = () => {
   useEffect(() => {
     if (project) {
       setProjectTitle(project.projectTitle || project.title || "");
-      setDescription(project.description || "");
+      setDescription(project.description || project.brief || "");
       setCategory(project.category || "");
       setBudget(project.budget || "");
-      setStartDate(project.startDate || "");
-      setEndDate(project.endDate || "");
-      setProjectFiles(project.projectFiles || null);
-      setContractDocs(project.contractDocs || null);
-      setProjectImage(project.coverImage || null);
+      setStartDate(project.duration?.from?.split("T")[0] || "");
+      setEndDate(project.duration?.to?.split("T")[0] || "");
+      setStatus(project.status || "");
+      setProjectFiles(project.files?.[0]?.name || null);
+      setContractDocs(project.docs?.[0]?.name || null);
+      setProjectImage(project.imageUrl || null);
     }
   }, [project]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+  
     const updatedProject = {
-      projectTitle,
-      description,
+      title: projectTitle,
+      brief: description,
       category,
       budget,
-      startDate,
-      endDate,
-      projectFiles,
-      contractDocs,
-      projectImage,
+      status,
+      duration: {
+        from: startDate,
+        to: endDate,
+      },
+      files: projectFiles
+        ? [{ name: projectFiles, url: `uploads/${projectFiles}` }]
+        : [],
+      docs: contractDocs
+        ? [{ name: contractDocs, url: `uploads/${contractDocs}` }]
+        : [],
+      imageUrl: projectImage || "",
     };
-    console.log("Updated Project:", updatedProject);
-    alert("Project updated successfully!");
+  
+    try {
+      await axios.put(`http://localhost:5000/api/projects/${id}`, updatedProject);
+      alert("Project updated successfully!");
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Failed to update project.");
+    }
   };
+  
+  
 
+  if (loading) return <p>Loading project...</p>;
   if (!project) return <p>Project not found</p>;
 
   return (
@@ -149,8 +181,10 @@ const EditProject = () => {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            required>
+            required
+          >
             <option value="">Select Status</option>
+            <option value="Open">Open</option>
             <option value="Pending">Pending</option>
             <option value="In-progress">In-progress</option>
             <option value="Completed">Completed</option>
@@ -164,11 +198,7 @@ const EditProject = () => {
               onClick={() => projectFileInput.current.click()}
             >
               Attach File
-              <img
-                src={uploadIcon}
-                alt="upload"
-                className="post-project-upload-icon"
-              />
+              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
             </button>
             <input
               type="file"
@@ -176,9 +206,7 @@ const EditProject = () => {
               onChange={(e) => setProjectFiles(e.target.files[0]?.name)}
               hidden
             />
-            {projectFiles && (
-              <p className="post-project-filename">{projectFiles}</p>
-            )}
+            {projectFiles && <p className="post-project-filename">{projectFiles}</p>}
           </div>
 
           <div className="post-project-upload-group">
@@ -189,11 +217,7 @@ const EditProject = () => {
               onClick={() => contractDocInput.current.click()}
             >
               Attach Docs
-              <img
-                src={uploadIcon}
-                alt="upload"
-                className="post-project-upload-icon"
-              />
+              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
             </button>
             <input
               type="file"
@@ -201,9 +225,7 @@ const EditProject = () => {
               onChange={(e) => setContractDocs(e.target.files[0]?.name)}
               hidden
             />
-            {contractDocs && (
-              <p className="post-project-filename">{contractDocs}</p>
-            )}
+            {contractDocs && <p className="post-project-filename">{contractDocs}</p>}
           </div>
 
           <div className="post-project-upload-group">
@@ -214,11 +236,7 @@ const EditProject = () => {
               onClick={() => projectImageInput.current.click()}
             >
               Attach Image
-              <img
-                src={uploadIcon}
-                alt="upload"
-                className="post-project-upload-icon"
-              />
+              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
             </button>
             <input
               type="file"
@@ -227,9 +245,7 @@ const EditProject = () => {
               onChange={(e) => setProjectImage(e.target.files[0]?.name)}
               hidden
             />
-            {projectImage && (
-              <p className="post-project-filename">{projectImage}</p>
-            )}
+            {projectImage && <p className="post-project-filename">{projectImage}</p>}
           </div>
 
           <div className="post-project-actions">

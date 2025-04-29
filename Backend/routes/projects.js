@@ -102,4 +102,25 @@ router.post('/upload', upload.fields([
   }
 });
 
+// PUT /api/projects/:id — Update project by ID
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedProject = await Project.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    res.json(updatedProject);
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).json({ message: 'Failed to update project' });
+  }
+});
+
+
 module.exports = router;
