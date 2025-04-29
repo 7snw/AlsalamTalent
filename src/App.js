@@ -82,6 +82,7 @@ const App = () => {
         <Route path="/freelancernotifications" element={<FreelanceNotifications />} />
         <Route path="/freelancermessages" element={<FreelancerMessages />} />
         <Route path="/submit-project/:id" element={<SubmitProject />} />
+        <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
 
 
 

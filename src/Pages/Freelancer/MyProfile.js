@@ -95,11 +95,7 @@ const MyProfile = () => {
               <h4>Skills</h4>
               <p>{freelancerData?.skills?.join(', ') || 'No skills added yet.'}</p>
             </div>
-
-            <div className="specialties-info2">
-              <h4>Specialties</h4>
-              <p>{freelancerData?.specialties?.join(', ') || 'No specialties added yet.'}</p>
-            </div>
+            
           </div>
         ) : (
           <div className="portfolio-section2">

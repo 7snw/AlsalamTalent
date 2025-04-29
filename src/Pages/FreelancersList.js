@@ -139,40 +139,41 @@ const FreelancersList = () => {
               {filteredFreelancers.length > 0 ? (
                 filteredFreelancers.map((freelancer, i) => (
                   <motion.div
-                    className="freelancer-card"
-                    key={i}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 30 }}
-                    transition={{ duration: 0.3, delay: i * 0.05 }}
-                    onClick={() => navigate('/freelancerprofile')}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className="freelancer-info">
-                      <img
-                        src={freelancer.profileImageUrl || DefaultUserIcon}
-                        alt="user"
-                        className="profile-icon"
-                      />
-                      <div>
-                        <h3>{freelancer.fullName}</h3>
-                        <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>
-                      </div>
+                  className="freelancer-card"
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{ duration: 0.3, delay: i * 0.05 }}
+                  onClick={() => navigate(`/freelancerprofile/${freelancer._id}`)} // <<< Pass ID here
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="freelancer-info">
+                    <img
+                      src={freelancer.profileImageUrl || DefaultUserIcon}
+                      alt="user"
+                      className="profile-icon"
+                    />
+                    <div>
+                      <h3>{freelancer.fullName}</h3>
+                      <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>
                     </div>
-
-                    <div className="freelancer-meta">
-                      <div className="rating">{renderStars(freelancer.rating || 5)}</div>
-                      <button
-                        className="contact-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate('/freelancermessages');
-                        }}
-                      >
-                        Get in touch
-                      </button>
-                    </div>
-                  </motion.div>
+                  </div>
+                
+                  <div className="freelancer-meta">
+                    <div className="rating">{renderStars(freelancer.rating || 5)}</div>
+                    <button
+                      className="contact-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/freelancermessages');
+                      }}
+                    >
+                      Get in touch
+                    </button>
+                  </div>
+                </motion.div>
+                
                 ))
               ) : (
                 <p>No freelancers found matching your search and filters.</p>

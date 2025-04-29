@@ -1,4 +1,3 @@
-// src/pages/Freelancer/ProfileSettings.js
 import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/ProfileSettings.css';
 import Navbar from '../../Components/Navbar';
@@ -7,6 +6,16 @@ import userIcon from '../../Assets/ProfileIcon.png';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import axios from 'axios';
 
+const expertiseOptions = [
+  "Marketing Consultant",
+  "Graphic Designer",
+  "Illustrator",
+  "Web Developer",
+  "Content Creator",
+  "UX/UI Designer"
+];
+
+
 const ProfileSettings = () => {
   const [activeSection, setActiveSection] = useState('general');
   const [freelancerData, setFreelancerData] = useState(null);
@@ -14,7 +23,7 @@ const ProfileSettings = () => {
   const [preview, setPreview] = useState(null);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-
+const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
@@ -24,6 +33,7 @@ const ProfileSettings = () => {
         setFormData({
           ...data,
           skills: data.skills?.join(', ') || '',
+          dateOfBirth: data.dateOfBirth ? data.dateOfBirth.substring(0, 10) : '',
         });
       } catch (error) {
         console.error('Error fetching freelancer data:', error);
@@ -36,6 +46,15 @@ const ProfileSettings = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleExpertiseChange = (value) => {
+    setFormData(prev => {
+      const isSelected = prev.expertise.includes(value);
+      const updated = isSelected
+        ? prev.expertise.filter(item => item !== value)
+        : [...prev.expertise, value];
+      return { ...prev, expertise: updated };
+    });
+  };
   const handleCheckboxChange = (specialty) => {
     setFormData(prev => {
       const updated = prev.specialties.includes(specialty)
@@ -47,12 +66,22 @@ const ProfileSettings = () => {
 
   const handleSave = async () => {
     try {
+      if (!formData.expertise || formData.expertise.trim() === '') {
+        alert('Please select at least one area of expertise.');
+        return;
+      }
+
+        // Validate expertise (at least 1 selected)
+    if (formData.expertise.length === 0) {
+      alert('Please select at least one area of expertise.');
+      return;
+    }
       const freelancerId = localStorage.getItem('userId');
       const updatedData = {
         ...formData,
         skills: formData.skills.split(',').map(skill => skill.trim()),
         specialties: formData.specialties,
-        profileImageUrl: preview !== null ? preview : formData.profileImageUrl, 
+        profileImageUrl: preview !== null ? preview : formData.profileImageUrl,
       };
 
       await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, updatedData);
@@ -67,11 +96,9 @@ const ProfileSettings = () => {
   const handleDeleteProfilePicture = async () => {
     try {
       const freelancerId = localStorage.getItem('userId');
-
       await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, {
         profileImageUrl: '',
       });
-
       alert('Profile picture removed.');
       setPreview(null);
       setFreelancerData(prev => ({ ...prev, profileImageUrl: '' }));
@@ -159,21 +186,67 @@ const ProfileSettings = () => {
                 </div>
               </div>
 
-              {/* Form inputs */}
               <h4>Name</h4>
-              <input type="text" value={formData.fullName} onChange={(e) => handleChange('fullName', e.target.value)} />
+              <input type="text" value={formData.fullName} readOnly />
 
               <h4>Email</h4>
               <input type="text" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
 
-              <h4>Major</h4>
-              <select value={formData.major} onChange={(e) => handleChange('major', e.target.value)}>
-                <option value="">Select Major</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Information Technology">Information Technology</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Business">Business</option>
-              </select>
+              <div className="majorr">
+                <p>Major</p>
+                <select value={formData.major} onChange={(e) => handleChange('major', e.target.value)} >
+                  <option value="">Select Major</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Information Technology">Information Technology</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Business">Business</option>
+                </select>
+              </div>
+
+              <div className="expertiseer">
+  <p>Expertise</p>
+  <div
+    className="expertise-display"
+    onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
+  >
+    {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
+  </div>
+
+  {showExpertiseDropdown && (
+  <>
+    <div className="expertise-dropdown-list">
+      {expertiseOptions.map((option, index) => (
+        <label key={index} className="expertise-checkbox-item">
+          <input
+            type="checkbox"
+            checked={formData.expertise?.includes(option)}
+            onChange={() => handleExpertiseChange(option)}
+          />
+          <span>{option}</span>
+        </label>
+      ))}
+    </div>
+
+    <div className="expertise-dropdown-actions">
+      <button
+        type="button"
+        className="close-expertise-dropdown"
+        onClick={() => setShowExpertiseDropdown(false)}
+      >
+        Done
+      </button>
+      <button
+        type="button"
+        className="clear-expertise-dropdown"
+        onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}
+      >
+        Clear
+      </button>
+    </div>
+  </>
+)}
+
+</div>
 
               <h4>Phone Number</h4>
               <input type="text" value={formData.phone} onChange={(e) => handleChange('phone', e.target.value)} />
@@ -181,23 +254,24 @@ const ProfileSettings = () => {
               <h4>Date of Birth</h4>
               <input type="date" value={formData.dateOfBirth} onChange={(e) => handleChange('dateOfBirth', e.target.value)} />
 
+            
+
               <h4>Bio</h4>
               <textarea value={formData.bio} onChange={(e) => handleChange('bio', e.target.value)} />
 
-              <h4>Skills</h4>
-              <input type="text" value={formData.skills} onChange={(e) => handleChange('skills', e.target.value)} />
+            
 
-              <h4>Specialties</h4>
+              <h4>Skills</h4>
               <div className="checkboxes-grid9">
-                {['Animation', 'Illustration', 'Mobile Design', 'Product Design', 'Brand / Graphic Design', 'Leadership', 'UI / Visual Design', 'UX Design / Research'].map((specialty) => (
-                  <label key={specialty}>
+                {['Animation', 'Illustration', 'Mobile Design', 'Product Design', 'Brand / Graphic Design', 'Leadership', 'UI / Visual Design', 'UX Design / Research'].map((specialty, index) => (
+                  <div key={index} className="checkbox-item9">
                     <input
                       type="checkbox"
                       checked={formData.specialties?.includes(specialty)}
                       onChange={() => handleCheckboxChange(specialty)}
                     />
-                    {specialty}
-                  </label>
+                    <span>{specialty}</span>
+                  </div>
                 ))}
               </div>
 

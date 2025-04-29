@@ -1,7 +1,26 @@
-// routes/freelancers.js
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const router = express.Router();
 const Freelancer = require('../models/Freelancer');
+
+// Create uploads folder if it doesn't exist
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+// Multer storage config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  }
+});
+
+const upload = multer({ storage });
 
 // Register new freelancer
 router.post('/register', async (req, res) => {
@@ -9,7 +28,7 @@ router.post('/register', async (req, res) => {
     const data = {
       ...req.body,
       cprImageUrl: req.body.userType === 'graduate' ? req.body.cprImageUrl : undefined,
-      dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : undefined
+      dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : undefined,
     };
 
     const newFreelancer = await Freelancer.create(data);
@@ -20,10 +39,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Get freelancer list
+// Get freelancer list (brief)
 router.get('/list', async (req, res) => {
   try {
-    const freelancers = await Freelancer.find({}, 'fullName expertise profileImageUrl'); // Include profileImageUrl
+    const freelancers = await Freelancer.find({}, 'fullName expertise profileImageUrl');
     res.json(freelancers);
   } catch (err) {
     console.error('Error fetching freelancers:', err);
@@ -63,14 +82,19 @@ router.get('/profile/:id', async (req, res) => {
   }
 });
 
-// Update freelancer profile
-router.put('/profile/:id', async (req, res) => {
+// ✅ Update freelancer profile with support for image upload
+router.put('/profile/:id', upload.single('profileImage'), async (req, res) => {
   try {
     const freelancerId = req.params.id;
-    const updates = req.body;
+    const parsedData = JSON.parse(req.body.data); // data was sent as JSON string
+    const updates = { ...parsedData };
 
     if (updates.dateOfBirth) {
       updates.dateOfBirth = new Date(updates.dateOfBirth);
+    }
+
+    if (req.file) {
+      updates.profileImageUrl = `/uploads/${req.file.filename}`;
     }
 
     const updatedFreelancer = await Freelancer.findByIdAndUpdate(

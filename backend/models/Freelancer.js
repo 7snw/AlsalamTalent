@@ -13,7 +13,7 @@ const freelancerSchema = new mongoose.Schema({
   bio: String,
   skills: [String],
   specialties: [String],
-  dateOfBirth: Date, // 📅 (already added correctly!)
+  dateOfBirth: { type: Date },
   profileImageUrl: { type: String }, // 🌟 NEW FIELD (Profile Picture URL/Base64)
   portfolio: [
     {

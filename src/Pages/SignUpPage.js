@@ -8,12 +8,9 @@ const expertiseOptions = [
   "Marketing Consultant",
   "Graphic Designer",
   "Illustrator",
-  "Video Editor",
   "Web Developer",
   "Content Creator",
-  "Brand Strategist",
-  "UX/UI Designer",
-  "Photographer"
+  "UX/UI Designer"
 ];
 
 const SignUpPage = () => {
@@ -204,36 +201,51 @@ const SignUpPage = () => {
 
             </div>
 
-            <div className="expertise-wrapper">
-              <label>Choose Your Expertise</label>
-              <div
-                className="expertise-dropdown"
-                onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
-              >
-                {formData.expertise.join(', ') || 'Select Expertise'}
-              </div>
-              {showExpertiseDropdown && (
-                <div className="expertise-list">
-                  {expertiseOptions.map((option, index) => (
-                    <label key={index} className="expertise-option">
-                      <input
-                        type="checkbox"
-                        checked={formData.expertise.includes(option)}
-                        onChange={() => handleExpertiseChange(option)}
-                      />
-                      {option}
-                    </label>
-                  ))}
-                  <button
-                    type="button"
-                    className="ok-btn"
-                    onClick={() => setShowExpertiseDropdown(false)}
-                  >
-                    OK
-                  </button>
-                </div>
-              )}
-            </div>
+            <div className="expertiseer9">
+  <p>Expertise</p>
+  <div
+    className="expertise-display9"
+    onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
+  >
+    {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
+  </div>
+
+  {showExpertiseDropdown && (
+  <>
+    <div className="expertise-dropdown-list9">
+  {expertiseOptions.map((option, index) => (
+    <label key={index} className="expertise-checkbox-item9">
+      <input
+        type="checkbox"
+        checked={formData.expertise?.includes(option)}
+        onChange={() => handleExpertiseChange(option)}
+      />
+      <span>{option}</span>
+    </label>
+  ))}
+
+  <div className="expertise-dropdown-actions9">
+    <button
+      type="button"
+      className="close-expertise-dropdown9"
+      onClick={() => setShowExpertiseDropdown(false)}
+    >
+      Done
+    </button>
+    <button
+      type="button"
+      className="clear-expertise-dropdown9"
+      onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}
+    >
+      Clear
+    </button>
+  </div>
+</div>
+  </>
+)}
+
+</div>
+
 
             <button type="submit" className="create-btn">Create</button>
           </div>
