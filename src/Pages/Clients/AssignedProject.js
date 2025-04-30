@@ -1,5 +1,6 @@
 // src/Pages/Clients/AssignedProject.js
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../Style/Clients/AssignedProject.css';
@@ -7,13 +8,40 @@ import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
-import projectsData from '../../Data/ProjectsData';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const AssignedProject = () => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ status: [] });
+  const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId'); // ✅ Logged-in client ID
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/projects/all');
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  // ✅ Only take assigned projects (authorId matches userId)
+  const assignedProjects = projects.filter((proj) => proj.authorId === userId);
+
+  // ✅ Filter by search and status
+  const filteredProjects = assignedProjects.filter((project) => {
+    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
+    const projectStatus = project.status === 'Completed' ? 'completed' : 'ongoing';
+    const matchesStatus =
+      filters.status.length === 0 || filters.status.includes(projectStatus);
+    return matchesSearch && matchesStatus;
+  });
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
@@ -29,20 +57,14 @@ const AssignedProject = () => {
     });
   };
 
-  const filteredProjects = projectsData.deitailes.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
-    const projectStatus = project.progress === '100%' ? 'completed' : 'ongoing';
-    const matchesStatus =
-      filters.status.length === 0 || filters.status.includes(projectStatus);
-    return matchesSearch && matchesStatus;
-  });
-
   return (
     <div className="assigned-projects-page">
       <Navbar links={NavConfig3} />
+
       <div className="assigned-projects-container">
         <aside className="assigned-left-panel">
           <h1 className="page-title">Assigned Projects</h1>
+
           <div className="filter-section">
             <h3>Filter</h3>
             <p className="hint">Filter your assigned projects by their status.</p>
@@ -75,31 +97,37 @@ const AssignedProject = () => {
 
           <div className="projects-grid">
             <AnimatePresence>
-              {filteredProjects.map((proj, index) => (
+              {filteredProjects.map((proj) => (
                 <motion.div
                   className="project-card"
-                  key={index}
+                  key={proj._id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  transition={{ duration: 0.3 }}
                   whileHover={{
                     y: -4,
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/assigned-project/${index}`)}
+                  onClick={() => navigate(`/assigned-project/${proj._id}`)}
+                  style={{ cursor: 'pointer' }}
                 >
-                  <img src={proj.image} alt={proj.title} />
+                  {proj.imageUrl ? (
+                    <img src={proj.imageUrl} alt={proj.title} />
+                  ) : (
+                    <p>No image available</p>
+                  )}
                   <h4>{proj.title}</h4>
-                  <p>{proj.name}</p>
-                  <span className="progress-text2">{proj.progress}</span>
+                  <p>{proj.authorName || 'Unknown'}</p>
+                  <span className="progress-text2">{proj.status}</span>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         </div>
       </div>
+
       <Footer />
     </div>
   );

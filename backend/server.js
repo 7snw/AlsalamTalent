@@ -4,7 +4,14 @@ const connectDB = require('./db');
 const path = require('path');
 require('dotenv').config();
 
-const projects = require('./routes/projects');
+// Import routes
+const userRoutes = require('./routes/users'); // login + register users
+const freelancerRoutes = require('./routes/freelancers');
+const clientRoutes = require('./routes/clients');
+const analyticsClientRoutes = require('./routes/analyticsClient');
+const applicationRoutes = require('./routes/applications');
+const projectRoutes = require('./routes/projects');
+const analyticsAdminRoutes = require('./routes/analyticsAdmin');
 
 
 const app = express();
@@ -16,27 +23,23 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// 3. Routes
-const userRoutes = require('./routes/users'); // login route for all users
-app.use('/api/users', userRoutes);
-app.use('/api/freelancer', require('./routes/freelancers'));
-const clientRoutes = require('./routes/clients');
-app.use('/api/client', clientRoutes);
-app.use('/api/projects', projects);
+// 3. Static files (uploaded project files)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// 4. API Routes
+app.use('/api/users', userRoutes);
+app.use('/api/freelancer', freelancerRoutes);
+app.use('/api/client', clientRoutes);
+app.use('/api/client/analytics', analyticsClientRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/admin/analytics', analyticsAdminRoutes);
 
-
-// Optional: Additional routes (freelancer, client, admin-specific APIs in future)
-// const freelancerRoutes = require('./routes/freelancers');
-// const clientRoutes = require('./routes/clients');
-// const adminRoutes = require('./routes/admins');
-
-// 4. Health Check Route
+// 5. Health Check Route
 app.get('/', (req, res) => {
   res.send('🎯 API is running...');
 });
 
-// 5. Start server
+// 6. Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));

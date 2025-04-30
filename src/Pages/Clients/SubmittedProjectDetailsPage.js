@@ -1,32 +1,81 @@
 // src/Pages/Clients/SubmittedProjectDetailsPage.js
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import '../../Style/Clients/SubmittedProjectDetailsPage.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
-import ProjectsData from '../../Data/ProjectsData';
 import Footer from '../../Components/Footer';
-
+import axios from 'axios';
 
 const SubmittedProjectDetailsPage = () => {
   const { id } = useParams();
-  const project = ProjectsData.submitted[parseInt(id)];
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
 
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+        setProject(response.data);
+      } catch (error) {
+        console.error('Error fetching project:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProject();
+  }, [id]);
+
+  if (loading) return <p>Loading project...</p>;
   if (!project) return <p>Project not found</p>;
 
   return (
     <div className="submitted-details-page">
       <Navbar links={NavConfig3} />
       <div className="details-container">
-        <h2>Submitted Projects</h2>
+        <h2>Submitted Project</h2>
+
         <div className="submitted-layout">
           <div className="left">
             <h4>Project Files:</h4>
-            <button>Download Files</button>
+            {project.files && project.files.length > 0 ? (
+              project.files.map((file, idx) => (
+                <a
+                  key={idx}
+                  className="download-btn"
+                  href={file.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                >
+                  {file.name}
+                </a>
+              ))
+            ) : (
+              <p>No project files uploaded.</p>
+            )}
+
             <h4>Contract Documents:</h4>
-            <button>Download Files</button>
+            {project.docs && project.docs.length > 0 ? (
+              project.docs.map((doc, idx) => (
+                <a
+                  key={idx}
+                  className="download-btn"
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                >
+                  {doc.name}
+                </a>
+              ))
+            ) : (
+              <p>No contract documents uploaded.</p>
+            )}
 
             <h4>Review:*</h4>
             <div className="stars">
@@ -35,6 +84,7 @@ const SubmittedProjectDetailsPage = () => {
                   key={star}
                   onClick={() => setRating(star)}
                   className={rating >= star ? 'filled' : ''}
+                  style={{ cursor: 'pointer' }}
                 >
                   ★
                 </span>

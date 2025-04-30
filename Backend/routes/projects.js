@@ -2,9 +2,16 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const Project = require('../models/Project');
 
-// setup multer
+// Ensure uploads folder exists
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
+// Setup Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -14,8 +21,10 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix);
   }
 });
+
 const upload = multer({ storage });
 
+// GET all projects
 router.get('/all', async (req, res) => {
   try {
     const projects = await Project.find();
@@ -25,19 +34,29 @@ router.get('/all', async (req, res) => {
   }
 });
 
+// GET project by id
+router.get('/:id', async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-// ✅ FIRST: GET projects by client
+// GET projects by client (authorId)
 router.get('/client/:authorId', async (req, res) => {
   try {
     const { authorId } = req.params;
-    const projects = await Project.find({ authorId: authorId });
+    const projects = await Project.find({ authorId });
     res.json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// ✅ SECOND: POST upload new project
+// POST upload new project
 router.post('/upload', upload.fields([
   { name: 'projectImage', maxCount: 1 },
   { name: 'projectFile', maxCount: 1 },
@@ -79,9 +98,29 @@ router.post('/upload', upload.fields([
 
   } catch (error) {
     console.error('Error saving project:', error.message);
-    console.error('Full error:', error);
     res.status(500).json({ message: error.message });
   }
 });
+
+// PUT /api/projects/:id — Update project by ID
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedProject = await Project.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    res.json(updatedProject);
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).json({ message: 'Failed to update project' });
+  }
+});
+
 
 module.exports = router;

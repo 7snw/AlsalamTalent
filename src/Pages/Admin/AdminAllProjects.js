@@ -1,5 +1,4 @@
-// src/Pages/AllProjects.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../Style/Admin/AdminAllProjects.css';
 import '../../Style/Navbar.css';
@@ -7,18 +6,32 @@ import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
-import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const AdminAllProjects = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     type: [],
-    level: [],
-    budget: []
+    budget: [],
   });
+
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/projects/all');
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
@@ -29,24 +42,23 @@ const AdminAllProjects = () => {
 
       return {
         ...prev,
-        [category]: updatedCategory
+        [category]: updatedCategory,
       };
     });
   };
 
-  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
+  const filteredProjects = projects.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
-    const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
     const matchesBudget =
       filters.budget.length === 0 ||
       filters.budget.some((range) => {
         const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-        const projectBudget = parseFloat(proj.budget.replace('BHD', '').trim());
+        const projectBudget = parseFloat(proj.budget);
         return projectBudget >= min && projectBudget <= max;
       });
 
-    return matchesSearch && matchesType && matchesLevel && matchesBudget;
+    return matchesSearch && matchesType && matchesBudget;
   });
 
   return (
@@ -57,7 +69,7 @@ const AdminAllProjects = () => {
           <h1 className="page-title">All Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type, level and budget range.</p>
+            <p className="hint">Filter the projects according to their type and budget range.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
@@ -67,22 +79,8 @@ const AdminAllProjects = () => {
                     type="checkbox"
                     checked={filters.type.includes(type)}
                     onChange={() => handleCheckbox('type', type)}
-                  />{' '}
+                  />
                   {type}
-                </label>
-              ))}
-            </div>
-
-            <div className="filter-group">
-              <h4>Level</h4>
-              {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
-                <label key={level}>
-                  <input
-                    type="checkbox"
-                    checked={filters.level.includes(level)}
-                    onChange={() => handleCheckbox('level', level)}
-                  />{' '}
-                  {level}
                 </label>
               ))}
             </div>
@@ -95,7 +93,7 @@ const AdminAllProjects = () => {
                     type="checkbox"
                     checked={filters.budget.includes(budget)}
                     onChange={() => handleCheckbox('budget', budget)}
-                  />{' '}
+                  />
                   {budget}
                 </label>
               ))}
@@ -119,7 +117,7 @@ const AdminAllProjects = () => {
               {filteredProjects.map((proj, index) => (
                 <motion.div
                   className="project-card"
-                  key={index}
+                  key={proj._id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
@@ -129,11 +127,11 @@ const AdminAllProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/project-info/${index}`)}
+                  onClick={() => navigate(`/project-info/${proj._id}`)}
                 >
-                  <img src={proj.image} alt={proj.title} />
+                  <img src={proj.imageUrl} alt={proj.title} />
                   <h4>{proj.title}</h4>
-                  <p>{proj.budget}</p>
+                  <p>{proj.budget} BHD</p>
                 </motion.div>
               ))}
             </AnimatePresence>
