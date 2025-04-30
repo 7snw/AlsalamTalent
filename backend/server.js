@@ -11,6 +11,8 @@ const clientRoutes = require('./routes/clients');
 const analyticsClientRoutes = require('./routes/analyticsClient');
 const applicationRoutes = require('./routes/applications');
 const projectRoutes = require('./routes/projects');
+const analyticsAdminRoutes = require('./routes/analyticsAdmin');
+
 
 const app = express();
 
@@ -28,9 +30,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/users', userRoutes);
 app.use('/api/freelancer', freelancerRoutes);
 app.use('/api/client', clientRoutes);
-app.use('/api/client/analytics', analyticsClientRoutes); // ✅ Mounted separately to avoid overwrite
+app.use('/api/client/analytics', analyticsClientRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/admin/analytics', analyticsAdminRoutes);
 
 // 5. Health Check Route
 app.get('/', (req, res) => {

@@ -1,14 +1,36 @@
-// src/Pages/Admin/AnalyticsAdmin.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../Style/Admin/AnalyticsAdmin.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
-
+import axios from 'axios';
 
 const AnalyticsAdmin = () => {
   const yLines = [0, 50, 100, 150];
-  const chartPoints = '0,140 100,100 200,60 300,80 400,60 500,40';
+  const [analytics, setAnalytics] = useState({
+    totalClients: 0,
+    totalFreelancers: 0,
+    totalProjects: 0,
+    projectsProgress: [],
+  });
+
+  const [chartPoints, setChartPoints] = useState('0,140 100,100 200,60 300,80 400,60 500,40');
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/admin/analytics');
+        setAnalytics(res.data);
+
+        const progressPoints = res.data.projectsProgress.map((p, i) => `${i * 100},${140 - p.progress}`).join(' ');
+        setChartPoints(progressPoints);
+      } catch (err) {
+        console.error('Error fetching admin analytics:', err);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
 
   return (
     <div className="analytics-page2">
@@ -19,15 +41,15 @@ const AnalyticsAdmin = () => {
         <div className="summary-cards2">
           <div className="card22">
             <h4>Total Clients</h4>
-            <div className="big-number2">12</div>
+            <div className="big-number2">{analytics.totalClients}</div>
           </div>
           <div className="card22">
             <h4>Total Freelancers</h4>
-            <div className="big-number2">24</div>
+            <div className="big-number2">{analytics.totalFreelancers}</div>
           </div>
           <div className="card22">
             <h4>Total Projects</h4>
-            <div className="big-number2">18</div>
+            <div className="big-number2">{analytics.totalProjects}</div>
           </div>
         </div>
 
@@ -58,8 +80,6 @@ const AnalyticsAdmin = () => {
                 <span>Feb</span>
                 <span>Mar</span>
                 <span>Apr</span>
-                <span>May</span>
-                <span>Jun</span>
               </div>
             </div>
           </div>
@@ -74,11 +94,11 @@ const AnalyticsAdmin = () => {
                 />
                 <path
                   className="circle9"
-                  strokeDasharray="66, 100"
+                  strokeDasharray={`${(analytics.totalProjects / 100) * 100}, 100`}
                   d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
                 />
                 <text x="18" y="20.35" className="percentage9">
-                  70%
+                  {analytics.totalProjects}%
                 </text>
               </svg>
             </div>
