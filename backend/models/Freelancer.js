@@ -1,3 +1,5 @@
+// Updated freelancer.js
+
 const mongoose = require('mongoose');
 
 const freelancerSchema = new mongoose.Schema({
@@ -12,18 +14,24 @@ const freelancerSchema = new mongoose.Schema({
   cprImageUrl: { type: String, required: function () { return this.userType === 'graduate'; } },
   bio: String,
   skills: [String],
-  specialties: [String],
   dateOfBirth: { type: Date },
-  profileImageUrl: { type: String }, // 🌟 NEW FIELD (Profile Picture URL/Base64)
+  profileImageUrl: { type: String },
   portfolio: [
     {
       title: String,
       description: String,
       imageUrl: String,
-      fileUrl: String,
       type: String
     }
   ],
+  projects: [
+    {
+      projectTitle: String,
+      projectStatus: String,
+      projectFiles: [String],
+      projectImage: String
+    }
+  ], // Updated: Full project structure
   role: { type: String, default: 'freelancer' }
 }, { timestamps: true });
 

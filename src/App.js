@@ -25,6 +25,7 @@ import MyProfile from './Pages//Freelancer/MyProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
 import FreelanceNotifications from './Pages/Freelancer/FreelancerNotifications';
 import FreelancerMessages from './Pages/Freelancer/FreelancerMessages';
+import MyProjectsDetails from './Pages/Freelancer/MyProjectsDetails';
 
 
 //Client
@@ -83,6 +84,7 @@ const App = () => {
         <Route path="/freelancermessages" element={<FreelancerMessages />} />
         <Route path="/submit-project/:id" element={<SubmitProject />} />
         <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
+        <Route path="/project/:projectId" element={<MyProjectsDetails />} />
 
 
 

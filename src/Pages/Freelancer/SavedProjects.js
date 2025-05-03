@@ -22,17 +22,17 @@ const SavedProjects = () => {
   }, []);
 
   const isProjectSaved = (project) => {
-    return savedProjects.some((p) => p.title === project.title);
+    return savedProjects.some((p) => p._id === project._id);
   };
 
   const handleBookmarkClick = (e, project) => {
     e.stopPropagation();
     const current = JSON.parse(localStorage.getItem('savedProjects')) || [];
-    const isSaved = current.find((p) => p.title === project.title);
+    const isSaved = current.find((p) => p._id === project._id);
 
     let updated;
     if (isSaved) {
-      updated = current.filter((p) => p.title !== project.title);
+      updated = current.filter((p) => p._id !== project._id);
     } else {
       updated = [...current, project];
     }
@@ -83,7 +83,12 @@ const SavedProjects = () => {
               <h4>Type</h4>
               {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
                 <label key={type}>
-                  <input type="checkbox" onChange={() => handleCheckbox('type', type)} /> {type}
+                  <input
+                    type="checkbox"
+                    checked={filters.type.includes(type)}
+                    onChange={() => handleCheckbox('type', type)}
+                  />{' '}
+                  {type}
                 </label>
               ))}
             </div>
@@ -92,7 +97,12 @@ const SavedProjects = () => {
               <h4>Level</h4>
               {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
                 <label key={level}>
-                  <input type="checkbox" onChange={() => handleCheckbox('level', level)} /> {level}
+                  <input
+                    type="checkbox"
+                    checked={filters.level.includes(level)}
+                    onChange={() => handleCheckbox('level', level)}
+                  />{' '}
+                  {level}
                 </label>
               ))}
             </div>
@@ -101,7 +111,12 @@ const SavedProjects = () => {
               <h4>Budget</h4>
               {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((budget) => (
                 <label key={budget}>
-                  <input type="checkbox" onChange={() => handleCheckbox('budget', budget)} /> {budget}
+                  <input
+                    type="checkbox"
+                    checked={filters.budget.includes(budget)}
+                    onChange={() => handleCheckbox('budget', budget)}
+                  />{' '}
+                  {budget}
                 </label>
               ))}
             </div>
@@ -124,7 +139,7 @@ const SavedProjects = () => {
               {filteredProjects.map((proj, index) => (
                 <motion.div
                   className="my-project-card"
-                  key={index}
+                  key={proj._id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
@@ -134,9 +149,9 @@ const SavedProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/project-details/${index}`)}
+                  onClick={() => navigate(`/project-details/${proj._id}`)}
                 >
-                  <img src={proj.image || proj.coverImage} alt={proj.title} />
+                  <img src={proj.imageUrl || proj.image || proj.coverImage} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.budget}</p>
                   <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj)}>

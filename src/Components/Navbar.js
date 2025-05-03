@@ -24,7 +24,7 @@ const Navbar = ({ links = [] }) => {
         try {
           const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${userId}`);
           if (data?.profileImageUrl) {
-            setProfileImage(data.profileImageUrl);
+            setProfileImage(`http://localhost:5000${data.profileImageUrl}`);
           }
         } catch (error) {
           console.error('Error fetching profile image:', error);
@@ -75,7 +75,6 @@ const Navbar = ({ links = [] }) => {
               ) : (
                 <span className="nav-link">{link.label}</span>
               )}
-
               {link.dropdown && (
                 <ul className="dropdown">
                   {link.dropdown.map((sub, subIndex) => (

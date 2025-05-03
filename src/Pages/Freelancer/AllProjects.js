@@ -7,13 +7,13 @@ import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
-import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const AllProjects = () => {
   const navigate = useNavigate();
-  const allProjects = ProjectsData.deitailes;
+  const [allProjects, setAllProjects] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     type: [],
@@ -22,6 +22,21 @@ const AllProjects = () => {
   });
   const [savedProjects, setSavedProjects] = useState([]);
 
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/projects/all');
+        setAllProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  // Load saved projects from localStorage
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
     setSavedProjects(stored);
@@ -39,7 +54,6 @@ const AllProjects = () => {
       return { ...updated };
     });
   };
-
 
   const handleBookmarkClick = (e, project) => {
     e.stopPropagation();
@@ -74,9 +88,9 @@ const AllProjects = () => {
 
   return (
     <div className="browse-projects-page">
-       <Navbar links={NavConfig2} />
+      <Navbar links={NavConfig2} />
       <div className="browse-container">
-       
+
         <aside className="browse-left-panel">
           <h1 className="page-title">All Projects</h1>
           <div className="filter-section">
@@ -143,7 +157,7 @@ const AllProjects = () => {
               {filteredProjects.map((proj, index) => (
                 <motion.div
                   className="project-card"
-                  key={index}
+                  key={proj._id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
@@ -153,11 +167,11 @@ const AllProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/project-details/${index}`)}
+                  onClick={() => navigate(`/project-details/${proj._id}`)}
                 >
-                  <img src={proj.image || proj.coverImage} alt={proj.title} />
+                  <img src={proj.imageUrl} alt={proj.title} />
                   <h4>{proj.title}</h4>
-                  <p>{proj.budget}</p>
+                  <p>{proj.budget} BHD</p>
                   <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj)}>
                     {savedProjects.some(p => p.title === proj.title) ? <FaBookmark /> : <FaRegBookmark />}
                   </span>
@@ -167,7 +181,7 @@ const AllProjects = () => {
           </div>
         </main>
       </div>
-      
+
       <Footer />
     </div>
   );

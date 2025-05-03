@@ -1,20 +1,34 @@
-// src/Pages/MyProjects.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/MyProjects.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
-import { useNavigate } from 'react-router-dom';
-import ProjectsData from '../../Data/ProjectsData';
 import SearchIcon from '../../Assets/search.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '../../Components/Footer';
+import { useNavigate } from 'react-router-dom'; // ✅ Added
+import axios from 'axios';
 
 const MyProjects = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ✅ Added
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: [] });
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const freelancerId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:5000/api/freelancer/${freelancerId}/my-projects`);
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const handleCheckbox = (value) => {
     setFilters((prev) => {
@@ -25,17 +39,15 @@ const MyProjects = () => {
     });
   };
 
-  const filteredProjects = ProjectsData.deitailes.filter((proj) => {
-    const projectType = proj.progress === '100%' ? 'Completed' : 'In-progress';
-  
+  const filteredProjects = projects.filter((proj) => {
     const matchesType =
-      filters.type.length === 0 || filters.type.includes(projectType);
-  
-    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-  
+      filters.type.length === 0 || filters.type.includes(proj.projectStatus);
+
+    const matchesSearch = proj.projectTitle.toLowerCase().includes(search.toLowerCase());
+
     return matchesType && matchesSearch;
   });
-  
+
   return (
     <div className="my-projects-page">
       <Navbar links={NavConfig2} />
@@ -87,19 +99,23 @@ const MyProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/submit-project/${i}`)}
+                  onClick={() => navigate(`/project/${project._id}`)} // ✅ On click go to project details
                 >
-                  <img src={project.image} alt={project.name} />
-                  <h4>{project.title}</h4>
-                  <p>{project.budget}</p>
-                  {project.progress && <span className="progress-text">{project.progress}</span>}
+                  <img
+                    src={project.projectImage || "path_to_default_image.jpg"}
+                    alt={project.projectTitle}
+                  />
+                  <h4>{project.projectTitle}</h4>
+                  {project.projectStatus && (
+                    <span className="progress-text">{project.projectStatus}</span>
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

@@ -7,33 +7,43 @@ import '../../Style/Navbar.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
-import ProjectsData from '../../Data/ProjectsData';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const FreelancerHome = () => {
   const navigate = useNavigate();
-  const allProjects = ProjectsData.deitailes;
+  const [allProjects, setAllProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/projects/all');
+        setAllProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
     const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
     setSavedProjects(stored);
+    fetchProjects();
   }, []);
 
   const isProjectSaved = (project) => {
-    return savedProjects.some(p => p.title === project.title);
+    return savedProjects.some(p => p._id === project._id);
   };
 
   const handleBookmarkClick = (e, project) => {
     e.stopPropagation();
     const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
-    const isSaved = stored.find(p => p.title === project.title);
+    const isSaved = stored.find(p => p._id === project._id);
 
     let updated;
     if (isSaved) {
-      updated = stored.filter(p => p.title !== project.title);
+      updated = stored.filter(p => p._id !== project._id);
     } else {
       updated = [...stored, project];
     }
@@ -88,7 +98,7 @@ const FreelancerHome = () => {
             {filteredProjects.map((project, index) => (
               <motion.div
                 className="project-card"
-                key={index}
+                key={project._id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 30 }}
@@ -98,11 +108,12 @@ const FreelancerHome = () => {
                   boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                   transition: { duration: 0.2 },
                 }}
-                onClick={() => navigate(`/project-details/${index}`)}
+                onClick={() => navigate(`/project-details/${project._id}`)}
               >
-                <img src={project.image || project.coverImage} alt={project.title} />
+                
+                <img src={project.imageUrl || project.image || project.coverImage} alt={project.title} />
                 <h4>{project.title}</h4>
-                <p>{project.budget}</p>
+                <p>{project.budget} BHD</p>
                 <span className="bookmark" onClick={(e) => handleBookmarkClick(e, project)}>
                   {isProjectSaved(project) ? <FaBookmark /> : <FaRegBookmark />}
                 </span>

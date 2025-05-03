@@ -1,3 +1,5 @@
+// src/Pages/Freelancer/ProfileSettings.js
+
 import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/ProfileSettings.css';
 import Navbar from '../../Components/Navbar';
@@ -15,15 +17,16 @@ const expertiseOptions = [
   "UX/UI Designer"
 ];
 
-
 const ProfileSettings = () => {
   const [activeSection, setActiveSection] = useState('general');
   const [freelancerData, setFreelancerData] = useState(null);
   const [formData, setFormData] = useState({});
   const [preview, setPreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
+  const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
+
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
@@ -55,43 +58,72 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
       return { ...prev, expertise: updated };
     });
   };
-  const handleCheckboxChange = (specialty) => {
+
+  const handleSkillsCheckboxChange = (skill) => {
     setFormData(prev => {
-      const updated = prev.specialties.includes(specialty)
-        ? prev.specialties.filter(item => item !== specialty)
-        : [...prev.specialties, specialty];
-      return { ...prev, specialties: updated };
+      const updatedSkills = prev.skills ? prev.skills.split(', ') : [];
+      if (updatedSkills.includes(skill)) {
+        return { ...prev, skills: updatedSkills.filter(item => item !== skill).join(', ') };
+      } else {
+        return { ...prev, skills: [...updatedSkills, skill].join(', ') };
+      }
     });
+  };
+  
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const maxSizeMB = 2;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      alert(`Image must be less than ${maxSizeMB} MB.`);
+      return;
+    }
+
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result);
+    reader.readAsDataURL(file);
   };
 
   const handleSave = async () => {
     try {
-      if (!formData.expertise || formData.expertise.trim() === '') {
-        alert('Please select at least one area of expertise.');
-        return;
-      }
+     
 
-        // Validate expertise (at least 1 selected)
-    if (formData.expertise.length === 0) {
-      alert('Please select at least one area of expertise.');
-      return;
-    }
       const freelancerId = localStorage.getItem('userId');
-      const updatedData = {
+      const updates = {
         ...formData,
         skills: formData.skills.split(',').map(skill => skill.trim()),
-        specialties: formData.specialties,
-        profileImageUrl: preview !== null ? preview : formData.profileImageUrl,
       };
-
-      await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, updatedData);
+  
+      const form = new FormData();
+      form.append('data', JSON.stringify(updates));
+      if (imageFile) {
+        form.append('profileImage', imageFile);
+      }
+  
+      const { data: res } = await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, form);
+  
       alert('Profile updated successfully!');
-      window.location.reload();
+      
+      // Update the image preview immediately
+      if (res.profileImageUrl) {
+        setPreview(`http://localhost:5000${res.profileImageUrl}`);
+      } else {
+        setPreview(userIcon); // Fallback if no image is returned
+      }
+  
+      setFreelancerData(res);  // Update freelancer data
+      setImageFile(null);  // Reset the file input
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile.');
     }
   };
+  
+  
 
   const handleDeleteProfilePicture = async () => {
     try {
@@ -132,7 +164,7 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
         <div className="settings-sidebar9">
           <div className="sidebar-profile-header9">
             <img
-              src={preview || freelancerData?.profileImageUrl || userIcon}
+              src={preview || (freelancerData?.profileImageUrl ? `http://localhost:5000${freelancerData.profileImageUrl}` : userIcon)}
               alt="Profile"
               className="settings-user-icon9"
             />
@@ -162,7 +194,7 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
             <div className="section9">
               <div className="edit-profile-picture9">
                 <img
-                  src={preview || freelancerData?.profileImageUrl || userIcon}
+                  src={preview || (freelancerData?.profileImageUrl ? `http://localhost:5000${freelancerData.profileImageUrl}` : userIcon)}
                   alt="Profile"
                   className="profile-preview9"
                 />
@@ -173,15 +205,12 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
                   <button className="delete-btn9" onClick={handleDeleteProfilePicture}>
                     Delete picture
                   </button>
-                  <input type="file" id="hiddenFileInput" hidden accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => setPreview(reader.result);
-                        reader.readAsDataURL(file);
-                      }
-                    }}
+                  <input
+                    type="file"
+                    id="hiddenFileInput"
+                    hidden
+                    accept="image/*"
+                    onChange={handleImageChange}
                   />
                 </div>
               </div>
@@ -194,7 +223,7 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
 
               <div className="majorr">
                 <p>Major</p>
-                <select value={formData.major} onChange={(e) => handleChange('major', e.target.value)} >
+                <select value={formData.major} onChange={(e) => handleChange('major', e.target.value)}>
                   <option value="">Select Major</option>
                   <option value="Computer Science">Computer Science</option>
                   <option value="Information Technology">Information Technology</option>
@@ -204,49 +233,33 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
               </div>
 
               <div className="expertiseer">
-  <p>Expertise</p>
-  <div
-    className="expertise-display"
-    onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
-  >
-    {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
-  </div>
+                <p>Expertise</p>
+                <div className="expertise-display" onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}>
+                  {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
+                </div>
 
-  {showExpertiseDropdown && (
-  <>
-    <div className="expertise-dropdown-list">
-      {expertiseOptions.map((option, index) => (
-        <label key={index} className="expertise-checkbox-item">
-          <input
-            type="checkbox"
-            checked={formData.expertise?.includes(option)}
-            onChange={() => handleExpertiseChange(option)}
-          />
-          <span>{option}</span>
-        </label>
-      ))}
-    </div>
+                {showExpertiseDropdown && (
+                  <>
+                    <div className="expertise-dropdown-list">
+                      {expertiseOptions.map((option, index) => (
+                        <label key={index} className="expertise-checkbox-item">
+                          <input
+                            type="checkbox"
+                            checked={formData.expertise?.includes(option)}
+                            onChange={() => handleExpertiseChange(option)}
+                          />
+                          <span>{option}</span>
+                        </label>
+                      ))}
+                    </div>
 
-    <div className="expertise-dropdown-actions">
-      <button
-        type="button"
-        className="close-expertise-dropdown"
-        onClick={() => setShowExpertiseDropdown(false)}
-      >
-        Done
-      </button>
-      <button
-        type="button"
-        className="clear-expertise-dropdown"
-        onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}
-      >
-        Clear
-      </button>
-    </div>
-  </>
-)}
-
-</div>
+                    <div className="expertise-dropdown-actions">
+                      <button type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
+                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
+                    </div>
+                  </>
+                )}
+              </div>
 
               <h4>Phone Number</h4>
               <input type="text" value={formData.phone} onChange={(e) => handleChange('phone', e.target.value)} />
@@ -254,26 +267,22 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
               <h4>Date of Birth</h4>
               <input type="date" value={formData.dateOfBirth} onChange={(e) => handleChange('dateOfBirth', e.target.value)} />
 
-            
-
               <h4>Bio</h4>
               <textarea value={formData.bio} onChange={(e) => handleChange('bio', e.target.value)} />
 
-            
-
               <h4>Skills</h4>
-              <div className="checkboxes-grid9">
-                {['Animation', 'Illustration', 'Mobile Design', 'Product Design', 'Brand / Graphic Design', 'Leadership', 'UI / Visual Design', 'UX Design / Research'].map((specialty, index) => (
-                  <div key={index} className="checkbox-item9">
-                    <input
-                      type="checkbox"
-                      checked={formData.specialties?.includes(specialty)}
-                      onChange={() => handleCheckboxChange(specialty)}
-                    />
-                    <span>{specialty}</span>
-                  </div>
-                ))}
-              </div>
+<div className="checkboxes-grid9">
+  {['Animation', 'Illustration', 'Mobile Design', 'Product Design', 'Brand / Graphic Design', 'Leadership', 'UI / Visual Design', 'UX Design / Research'].map((skill, index) => (
+    <div key={index} className="checkbox-item9">
+      <input
+        type="checkbox"
+        checked={formData.skills?.split(', ').includes(skill)}  // Check if the skill is in the list of selected skills
+        onChange={() => handleSkillsCheckboxChange(skill)}  // Update the skills list when checked or unchecked
+      />
+      <span>{skill}</span>
+    </div>
+  ))}
+</div>
 
               <button className="save-btn9" onClick={handleSave}>Save</button>
             </div>
@@ -282,9 +291,9 @@ const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
           {activeSection === 'password' && (
             <div className="section9">
               <h4>Old Password</h4>
-              <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} placeholder="Enter old password" />
+              <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
               <h4>New Password</h4>
-              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" />
+              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
               <button className="save-btn9" onClick={handleChangePassword}>Save Password</button>
             </div>
           )}

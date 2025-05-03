@@ -20,7 +20,27 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+// Image file filter (for profile image uploads)
+const imageFileFilter = (req, file, cb) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+  if (allowed.includes(file.mimetype)) cb(null, true);
+  else cb(new Error('Only JPEG, PNG, JPG, or WEBP images are allowed.'));
+};
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max size
+  fileFilter: imageFileFilter
+});
+
+// Any file filter (for project files)
+const uploadAnyFile = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB max size
+});
+
+// BASE URL for uploaded files
+const BASE_URL = 'http://localhost:5000';
 
 // Register new freelancer
 router.post('/register', async (req, res) => {
@@ -68,7 +88,7 @@ router.get('/graduates', async (req, res) => {
 router.get('/profile/:id', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.id).select(
-      'fullName email studentId major phone dateOfBirth bio skills specialties expertise portfolio role cprImageUrl profileImageUrl'
+      'fullName email studentId major phone dateOfBirth bio skills specialties expertise portfolio role cprImageUrl profileImageUrl projects'
     );
 
     if (!freelancer) {
@@ -82,11 +102,11 @@ router.get('/profile/:id', async (req, res) => {
   }
 });
 
-// ✅ Update freelancer profile with support for image upload
+// Update freelancer profile
 router.put('/profile/:id', upload.single('profileImage'), async (req, res) => {
   try {
     const freelancerId = req.params.id;
-    const parsedData = JSON.parse(req.body.data); // data was sent as JSON string
+    const parsedData = JSON.parse(req.body.data);
     const updates = { ...parsedData };
 
     if (updates.dateOfBirth) {
@@ -94,7 +114,7 @@ router.put('/profile/:id', upload.single('profileImage'), async (req, res) => {
     }
 
     if (req.file) {
-      updates.profileImageUrl = `/uploads/${req.file.filename}`;
+      updates.profileImageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
     }
 
     const updatedFreelancer = await Freelancer.findByIdAndUpdate(
@@ -110,7 +130,7 @@ router.put('/profile/:id', upload.single('profileImage'), async (req, res) => {
     res.json(updatedFreelancer);
   } catch (err) {
     console.error('Error updating freelancer profile:', err);
-    res.status(500).json({ message: 'Server error', error: err });
+    res.status(500).json({ message: 'Server error', error: err.message || err });
   }
 });
 
@@ -138,5 +158,87 @@ router.put('/changepassword/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
+
+// Add project to freelancer
+router.post('/:id/add-project', 
+  uploadAnyFile.fields([
+    { name: 'projectFiles', maxCount: 10 },
+    { name: 'projectImage', maxCount: 1 }
+  ]), 
+async (req, res) => {
+  try {
+    const { projectTitle, projectStatus } = req.body;
+    const freelancerId = req.params.id;
+
+    const projectFiles = req.files['projectFiles']?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
+    const projectImage = req.files['projectImage']?.[0] ? `${BASE_URL}/uploads/${req.files['projectImage'][0].filename}` : '';
+
+    const newProject = {
+      projectTitle,
+      projectStatus,
+      projectFiles,
+      projectImage
+    };
+
+    const freelancer = await Freelancer.findByIdAndUpdate(
+      freelancerId,
+      { $push: { projects: newProject } },
+      { new: true }
+    );
+
+    res.status(200).json(freelancer.projects);
+  } catch (err) {
+    console.error('Error adding project:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Get freelancer's own projects
+router.get('/:id/my-projects', async (req, res) => {
+  try {
+    const freelancer = await Freelancer.findById(req.params.id).select('projects');
+    if (!freelancer) {
+      return res.status(404).json({ message: 'Freelancer not found' });
+    }
+    res.json(freelancer.projects);
+  } catch (err) {
+    console.error('Error fetching projects:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Update project
+router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([
+  { name: 'projectFiles', maxCount: 10 },
+  { name: 'projectImage', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { freelancerId, projectId } = req.params;
+    const { projectTitle, projectStatus, existingFiles = [] } = req.body;
+
+    const newProjectFiles = req.files['projectFiles']?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
+    const allFiles = Array.isArray(existingFiles) ? [...existingFiles, ...newProjectFiles] : [...newProjectFiles];
+
+    const projectImage = req.files['projectImage']?.[0] ? `${BASE_URL}/uploads/${req.files['projectImage'][0].filename}` : undefined;
+
+    const freelancer = await Freelancer.findById(freelancerId);
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
+
+    const project = freelancer.projects.id(projectId);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    project.projectTitle = projectTitle || project.projectTitle;
+    project.projectStatus = projectStatus || project.projectStatus;
+    project.projectFiles = allFiles;
+    if (projectImage) project.projectImage = projectImage;
+
+    await freelancer.save();
+    res.json(freelancer.projects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 
 module.exports = router;

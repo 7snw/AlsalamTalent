@@ -31,10 +31,10 @@ const BrowseProjects = () => {
       }
     };
   
-    if (userId) { // make sure userId exists
+    if (userId) { 
       fetchProjects();
     }
-  }, [userId]); // ✅ Include userId here
+  }, [userId]); 
   
   
 

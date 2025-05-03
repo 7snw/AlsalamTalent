@@ -1,7 +1,5 @@
-// src/Pages/SubmitProject.js
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import ProjectsData from '../../Data/ProjectsData';
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../Style/Freelancer/SubmitProject.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
@@ -9,22 +7,51 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import uploadIcon from '../../Assets/Upload.png';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const SubmitProject = () => {
-  const { id } = useParams();
-  const project = id !== undefined ? ProjectsData.submitted[id] : null;
-  const [projectFile, setProjectFile] = useState(null);
-  const [contractFile, setContractFile] = useState(null);
-  const defaultProgress = project && project.progress ? parseFloat(project.progress) : 0;
-  const [progress, setProgress] = useState(defaultProgress);
-  
+  const navigate = useNavigate();
+
+  const [projectTitle, setProjectTitle] = useState('');
+  const [projectStatus, setProjectStatus] = useState('');
+  const [projectFiles, setProjectFiles] = useState([]);
+  const [projectImage, setProjectImage] = useState(null);
+
+  const projectFileInput = useRef();
+  const projectImageInput = useRef();
 
   const handleProjectFileChange = (e) => {
-    setProjectFile(e.target.files[0]?.name);
+    const selectedFiles = Array.from(e.target.files);
+    setProjectFiles(prevFiles => [...prevFiles, ...selectedFiles]);
   };
 
-  const handleContractFileChange = (e) => {
-    setContractFile(e.target.files[0]?.name);
+  const handleRemoveFile = (indexToRemove) => {
+    setProjectFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleProjectImageChange = (e) => {
+    setProjectImage(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const freelancerId = localStorage.getItem('userId');
+      const formData = new FormData();
+
+      formData.append('projectTitle', projectTitle);
+      formData.append('projectStatus', projectStatus);
+      projectFiles.forEach(file => formData.append('projectFiles', file));
+      if (projectImage) formData.append('projectImage', projectImage);
+
+      await axios.post(`http://localhost:5000/api/freelancer/${freelancerId}/add-project`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      navigate('/myprojects');
+    } catch (error) {
+      console.error('Error submitting project:', error);
+    }
   };
 
   return (
@@ -34,77 +61,105 @@ const SubmitProject = () => {
         <div className="submit-container">
           <div className="left-panel">
             <h1 className="page-title">Submit Project / Progress</h1>
-            <h4>{project ? project.title : "New Project Submission"}</h4>
 
-            <form className="submit-form">
+            <form className="submit-form" onSubmit={handleSubmit}>
+              {/* Project Title */}
+              <div className="submit-form-group">
+                <label className="submit-label">Project Title:</label>
+                <input
+                  type="text"
+                  value={projectTitle}
+                  onChange={(e) => setProjectTitle(e.target.value)}
+                  placeholder="Enter your project title"
+                  className="submit-input-title"
+                  required
+                />
+              </div>
+
+              {/* Project Status */}
+              <div className="submit-form-group">
+                <label className="submit-label">Project Status:</label>
+                <select
+                  value={projectStatus}
+                  onChange={(e) => setProjectStatus(e.target.value)}
+                  className="submit-input-title9"
+                  required
+                >
+                  <option value="">Select Status</option>
+                  <option value="In-progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+
+              {/* Project Image */}
+              <div className="submit-form-group">
+                <label className="submit-label">Project Image:</label>
+                <button
+                  type="button"
+                  className="submit-file-btn9"
+                  onClick={() => projectImageInput.current.click()}
+                >
+                  {projectImage ? "Image Selected" : "Attach Image"}
+                  <img src={uploadIcon} alt="upload" className="submit-upload-icon" />
+                </button>
+                <input
+                  type="file"
+                  ref={projectImageInput}
+                  onChange={handleProjectImageChange}
+                  className="submit-file-input"
+                  hidden
+                  accept="image/*"
+                />
+              </div>
+
+              {/* Project Files */}
               <div className="submit-form-group">
                 <label className="submit-label">Project Files:</label>
-                <label className="submit-file-label">
-                  Attach Files
+                <button
+                  type="button"
+                  className="submit-file-btn9"
+                  onClick={() => projectFileInput.current.click()}
+                >
+                  {projectFiles.length ? `${projectFiles.length} Files Selected` : "Attach Files"}
                   <img src={uploadIcon} alt="upload" className="submit-upload-icon" />
-                  <input
-                    type="file"
-                    onChange={handleProjectFileChange}
-                    className="submit-file-input"
-                  />
-                </label>
-                {projectFile && <p className="submit-filename">{projectFile}</p>}
-              </div>
-
-              <div className="submit-form-group">
-                <label className="submit-label">Contract Documents:</label>
-                <label className="submit-file-label">
-                  Attach Docs
-                  <img src={uploadIcon} alt="upload" className="submit-upload-icon" />
-                  <input
-                    type="file"
-                    onChange={handleContractFileChange}
-                    className="submit-file-input"
-                  />
-                </label>
-                {contractFile && <p className="submit-filename">{contractFile}</p>}
-              </div>
-
-              <div className="submit-form-group">
-                <label className="progress-label">Progress Percentage:</label>
+                </button>
                 <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  value={progress}
-                  onChange={(e) => setProgress(e.target.value)}
+                  type="file"
+                  ref={projectFileInput}
+                  onChange={handleProjectFileChange}
+                  className="submit-file-input"
+                  hidden
+                  multiple
                 />
-                <p>{progress}%</p>
+
+           
+                {projectFiles.length > 0 && (
+                  <ul className="attached-files-list9">
+                    {projectFiles.map((file, index) => (
+                      <li key={index} className="attached-file-item9">
+                        {file.name}
+                        <button
+                          type="button"
+                          className="remove-file-btn9"
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          ✖
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
+              {/* Submit button */}
               <button type="submit" className="submit-project-btn">
                 Submit
               </button>
             </form>
           </div>
-
-          <div className="right-section2">
-            <div className="circular-chart2">
-              <svg viewBox="0 0 36 36" className="circular2">
-                <path
-                  className="circle-bg2"
-                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
-                />
-                <path
-                  className="circle2"
-                  strokeDasharray={`${progress}, 100`}
-                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
-                />
-                <text x="18" y="20.35" className="percentage2">
-                  {progress}%
-                </text>
-              </svg>
-            </div>
-          </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

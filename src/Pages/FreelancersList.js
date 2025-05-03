@@ -150,7 +150,9 @@ const FreelancersList = () => {
                 >
                   <div className="freelancer-info">
                     <img
-                      src={freelancer.profileImageUrl || DefaultUserIcon}
+                   src={freelancer.profileImageUrl ? `http://localhost:5000${freelancer.profileImageUrl}` : DefaultUserIcon}
+
+
                       alt="user"
                       className="profile-icon"
                     />

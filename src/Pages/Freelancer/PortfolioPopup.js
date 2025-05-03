@@ -2,35 +2,45 @@ import React, { useState } from 'react';
 import '../../Style/Freelancer/PortfolioPopup.css';
 
 const PortfolioPopup = ({ onClose, onSubmit }) => {
-  const [image, setImage] = useState(null);
-  const [file, setFile] = useState(null);
+  const [image, setImage] = useState(null);  // Now handling the file as an object
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [projectType, setProjectType] = useState('');
 
   const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
-  };
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setImage(e.target.files[0]);  // Store the selected image file
   };
 
   const handleSubmit = () => {
-    onSubmit({ image, file, description, projectType });
-    onClose();
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('projectType', projectType);
+    formData.append('image', image);  // Send the image file
+  
+    onSubmit(formData);  // Pass the FormData to the parent component (MyProfile)
+    onClose();  // Close the popup
   };
-
+  
+  
   return (
     <div className="popup-overlay">
       <div className="popup-container">
         <div className="popup-content">
           <h2 className="view-title">Add Project Details</h2>
 
-          <label classname="upload0">Upload Project Image:</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} />
-
-          <label classname="upload0" >Upload Project File:</label>
-          <input type="file" onChange={handleFileChange} />
+          <label>Project Title:</label>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          
+          <label>Upload Project Image:</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
 
           <label>Add Description:</label>
           <textarea

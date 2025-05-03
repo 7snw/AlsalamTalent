@@ -1,4 +1,3 @@
-// src/pages/FreelancerProfile.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../Style/FreelancerProfile.css';
@@ -12,7 +11,7 @@ import ProjectsData from '../Data/ProjectsData';
 import axios from 'axios';
 
 const FreelancerProfile = () => {
-  const { id } = useParams(); // get freelancer ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [freelancer, setFreelancer] = useState(null);
   const [activeTab, setActiveTab] = useState('about');
@@ -23,6 +22,9 @@ const FreelancerProfile = () => {
     const fetchFreelancer = async () => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${id}`);
+        if (data?.profileImageUrl) {
+          data.profileImageUrl = `http://localhost:5000${data.profileImageUrl}`;
+        }
         setFreelancer(data);
       } catch (error) {
         console.error('Error fetching freelancer profile:', error);
@@ -88,14 +90,10 @@ const FreelancerProfile = () => {
               <p>{freelancer.bio || 'No biography provided yet.'}</p>
             </div>
 
+
             <div className="skills-info">
               <h4>Skills</h4>
               <p>{freelancer.skills?.join(', ') || 'No skills added yet.'}</p>
-            </div>
-
-            <div className="specialties-info">
-              <h4>Specialties</h4>
-              <p>{freelancer.specialties?.join(', ') || 'No specialties added yet.'}</p>
             </div>
           </div>
         ) : (

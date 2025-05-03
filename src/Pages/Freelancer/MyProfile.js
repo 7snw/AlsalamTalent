@@ -12,10 +12,10 @@ import axios from 'axios';
 
 const MyProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);  // Portfolio items
   const [showPopup, setShowPopup] = useState(false);
   const [viewPopup, setViewPopup] = useState(false);
-  const [freelancerData, setFreelancerData] = useState(null);
+  const [freelancerData, setFreelancerData] = useState(null); // Freelancer profile data
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,19 +26,45 @@ const MyProfile = () => {
           console.error('No user ID found in localStorage.');
           return;
         }
+
+        // Fetch freelancer profile data
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
         setFreelancerData(data);
+
+        // Fetch freelancer portfolio data
+        fetchPortfolio(freelancerId);
       } catch (error) {
         console.error('Failed to fetch freelancer profile:', error);
+      }
+    };
+
+    const fetchPortfolio = async (freelancerId) => {
+      try {
+        // Fetch portfolio data using freelancerId
+        const { data } = await axios.get(`http://localhost:5000/api/portfolio/${freelancerId}`);
+        setUploadedFiles(data);  // Set portfolio data to state
+      } catch (error) {
+        console.error('Failed to fetch portfolio:', error);
       }
     };
 
     fetchFreelancerProfile();
   }, []);
 
-  const handlePopupSave = (projectData) => {
-    setUploadedFiles([...uploadedFiles, projectData]);
-    setShowPopup(false);
+  const handlePopupSave = (formData) => {
+    axios.post(`http://localhost:5000/api/freelancer/portfolio/${freelancerData._id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then(response => {
+      // Once the portfolio is added, update the state
+      setUploadedFiles([...uploadedFiles, response.data]);  // Add the new portfolio to state
+      setShowPopup(false);  // Close the popup
+    })
+    .catch(error => {
+      console.error("Error adding portfolio:", error);
+    });
   };
 
   return (
@@ -47,12 +73,11 @@ const MyProfile = () => {
       <div className="profile-container2">
         <div className="profile-header2">
           <div className="left-profile2">
-          <img
-  src={freelancerData?.profileImageUrl || userIcon}
-  alt="User Icon"
-  className="profile-image2"
-/>
-
+            <img
+              src={freelancerData?.profileImageUrl ? `http://localhost:5000${freelancerData.profileImageUrl}` : userIcon}
+              alt="User Icon"
+              className="profile-image2"
+            />
             <div className="profile-info2">
               <h2>{freelancerData?.fullName || 'Your Name'}</h2>
             </div>
@@ -95,7 +120,6 @@ const MyProfile = () => {
               <h4>Skills</h4>
               <p>{freelancerData?.skills?.join(', ') || 'No skills added yet.'}</p>
             </div>
-            
           </div>
         ) : (
           <div className="portfolio-section2">
@@ -104,16 +128,13 @@ const MyProfile = () => {
                 <div
                   key={`uploaded-${i}`}
                   className="project-card"
-                  onClick={() => {
-                    setViewPopup(true);
-                  }}
+                  onClick={() => setViewPopup(true)} // Opens the project details popup
                 >
                   <img src={proj.imageUrl} alt={`portfolio-${i}`} />
                   <h4>{proj.title}</h4>
-                  <p>{proj.category}</p>
+                  <p>{proj.category}</p>  {/* Adjusted "type" to "category" */}
                 </div>
               ))}
-
               <div className="add-portfolio-card" onClick={() => setShowPopup(true)}>
                 +
               </div>
@@ -122,13 +143,15 @@ const MyProfile = () => {
         )}
       </div>
 
+      {/* Portfolio add popup */}
       {showPopup && (
-        <PortfolioPopup onClose={() => setShowPopup(false)} onSave={handlePopupSave} />
+        <PortfolioPopup onClose={() => setShowPopup(false)} onSubmit={handlePopupSave} />
       )}
 
+      {/* View portfolio popup */}
       {viewPopup && (
         <ViewPortfolioPopup
-          project={uploadedFiles.find((p) => p)}
+          project={uploadedFiles.find((p) => p)}  // Use the first project as an example for viewing
           onClose={() => setViewPopup(false)}
         />
       )}

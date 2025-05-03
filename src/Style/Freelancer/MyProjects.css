@@ -68,14 +68,14 @@
   }
   
   .progress-text {
-    position: absolute;
-    bottom: 14.5px;
-    right: 15px;
+    position: left;
+    bottom: 12px;
+    margin-left: 14px;
     font-size: 13px;
     font-weight: bold;
     color: #1B223C;
     background-color: #e3e3e3;
-    padding: 1px 11px;
+    padding: 1px 11px 5px;
     border-radius: 12px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   }
