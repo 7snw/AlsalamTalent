@@ -1,164 +1,152 @@
-// src/Pages/Clients/PostProject.js
-import React, { useState, useRef } from 'react';
+// src/Pages/Clients/ProjectApplications.js
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import '../../Style/Clients/PostProject.css';
+import '../../Style/Clients/ProjectApplications.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
-import uploadIcon from '../../Assets/Upload.png';
+import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
 
-const PostProject = () => {
-  const [projectTitle, setProjectTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [budget, setBudget] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [category, setCategory] = useState('');
-  const [status, setStatus] = useState('');
-  const [projectFiles, setProjectFiles] = useState([]);
-  const [projectImage, setProjectImage] = useState(null);
+const ProjectApplications = () => {
+  const [search, setSearch] = useState('');
+  const [applications, setApplications] = useState([]);
+  const [filters, setFilters] = useState({ status: [] });
 
-  const projectFileInput = useRef();
-  const projectImageInput = useRef();
   const navigate = useNavigate();
+  const clientId = localStorage.getItem('userId');
 
-  const handleProjectFilesChange = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setProjectFiles((prev) => [...prev, ...newFiles]);
-  
-    // Clear the file input so selecting the same file again will trigger onChange
-    e.target.value = '';
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/applications/by-author/${clientId}`);
+        setApplications(response.data);
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+      }
+    };
+
+    if (clientId) fetchApplications();
+  }, [clientId]);
+
+  const toggleFilter = (category, value) => {
+    setFilters((prev) => {
+      const newValues = prev[category].includes(value)
+        ? prev[category].filter((v) => v !== value)
+        : [...prev[category], value];
+      return { ...prev, [category]: newValues };
+    });
   };
 
-  const handleProjectImageChange = (e) => {
-    setProjectImage(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const authorId = localStorage.getItem('userId');
-    if (!authorId) {
-      alert('You must be logged in to post a project.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('title', projectTitle);
-    formData.append('brief', description);
-    formData.append('budget', budget);
-    formData.append('category', category);
-    formData.append('authorId', authorId);
-    formData.append('status', status);
-    formData.append('durationFrom', startDate);
-    formData.append('durationTo', endDate);
-
-    if (projectImage) {
-      formData.append('projectImage', projectImage);
-    }
-
-    projectFiles.forEach((file) => formData.append('projectFile', file));
-
+  const handleAction = async (projectId, freelancerId, action) => {
     try {
-      await axios.post('http://localhost:5000/api/projects/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      alert('Project successfully posted!');
-      navigate('/clientprojects');
+      await axios.post(`http://localhost:5000/api/applications/${projectId}/${action}`, { freelancerId });
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.project.id === projectId && app.freelancer.id === freelancerId
+            ? { ...app, status: action === 'approve' ? 'Assigned' : 'Cancelled' }
+            : app
+        )
+      );
     } catch (error) {
-      console.error('Error posting project:', error.response?.data || error.message);
-      alert('Failed to post project.');
+      console.error(`Error on ${action}:`, error);
     }
   };
+
+  const filteredApps = applications.filter((app) => {
+    const matchesSearch = app.project?.title?.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus =
+      filters.status.length === 0 || filters.status.includes(app.status);
+    return matchesSearch && matchesStatus;
+  });
 
   return (
-    <div className="post-project-page">
+    <div className="project-applications-page">
       <Navbar links={NavConfig3} />
-      <div className="post-project-container">
-        <h2>Post Project</h2>
-        <form className="post-project-form" onSubmit={handleSubmit}>
-          <label>Project Title*</label>
-          <input type="text" value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} required />
+      <div className="project-applications-container">
+        <aside className="applications-left-panel">
+          <h1 className="page-title">Project Applications</h1>
+          <div className="filter-section">
+            <h3>Filter</h3>
+            <p className="hint">Filter your projects by status.</p>
 
-          <label>About this project/Description*</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
-
-          <label>Budget/Price*</label>
-          <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} required />
-
-          <label>Project Category*</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-            <option value="">Select category</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Graphic Design">Graphic Design</option>
-            <option value="Illustration">Illustration</option>
-            <option value="Product Design">Product Design</option>
-            <option value="Web Design">Web Design</option>
-          </select>
-
-          <label>Timeframe/Duration*</label>
-          <div className="post-project-date-range">
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
-            <span className="post-project-to-separator">-</span>
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+            <div className="filter-group">
+              <h4>Status</h4>
+              {['Under Review', 'Assigned', 'Cancelled'].map((status) => (
+                <label key={status}>
+                  <input
+                    type="checkbox"
+                    checked={filters.status.includes(status)}
+                    onChange={() => toggleFilter('status', status)}
+                  />
+                  {status}
+                </label>
+              ))}
+            </div>
           </div>
+        </aside>
 
-          <label>Project Status*</label>
-          <select value={status} onChange={(e) => setStatus(e.target.value)} required>
-            <option value="">Select status</option>
-            <option value="Open">Open</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-
-          <div className="post-project-upload-group">
-            <label>Project Files*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => projectFileInput.current.click()}
-            >
-              Attach Files
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
-            </button>
+        <main className="applications-right-panel">
+          <div className="search-wrapper">
             <input
-              type="file"
-              ref={projectFileInput}
-              onChange={handleProjectFilesChange}
-              multiple
-              hidden
+              type="text"
+              placeholder="Search by project title"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
-            {projectFiles.map((file, index) => (
-              <p key={index} className="post-project-filename">{file.name}</p>
-            ))}
+            <img src={SearchIcon} alt="search" className="search-icon" />
           </div>
 
-          <div className="post-project-upload-group">
-            <label>Project Image*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => projectImageInput.current.click()}
-            >
-              Attach Image
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
-            </button>
-            <input type="file" accept="image/*" ref={projectImageInput} onChange={handleProjectImageChange} hidden />
-            {projectImage && <p className="post-project-filename">{projectImage.name}</p>}
+          <div className="applications-list">
+            <AnimatePresence>
+              {filteredApps.map((app, index) => (
+                <motion.div
+                  className="application-card"
+                  key={app._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  whileHover={{
+                    y: -4,
+                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    transition: { duration: 0.2 },
+                  }}
+                >
+                  <img src={app.project?.imageUrl} alt={app.project?.title} />
+                  <div className="application-info">
+                    <h4>{app.project?.title}</h4>
+                    <p>Freelancer: <span className="freelancer-link" onClick={() => navigate(`/freelancer/${app.freelancer.id}`)}>{app.freelancer?.name}</span></p>
+                    <p>Status: {app.status}</p>
+                  </div>
+                  <div className="application-actions">
+                    <button
+                      className="approve"
+                      disabled={app.status === 'Assigned'}
+                      onClick={() => handleAction(app.project.id, app.freelancer.id, 'approve')}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="reject"
+                      disabled={app.status === 'Cancelled'}
+                      onClick={() => handleAction(app.project.id, app.freelancer.id, 'reject')}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
-
-          <div className="post-project-actions">
-            <button type="submit" className="post-project-button post">Post</button>
-            <button type="button" className="post-project-button cancel">Cancel</button>
-          </div>
-        </form>
+        </main>
       </div>
       <Footer />
     </div>
   );
 };
 
-export default PostProject;
+export default ProjectApplications;
