@@ -38,7 +38,6 @@ export const NavConfig3 = Object.assign([
       { label: 'Browse Projects', path: '/browseprojects' },
       { label: 'Post Project Brief', path: '/PostProject' },
       { label: 'Assigned Projects', path: '/AssignedProject' },
-      { label: 'Submitted Projects', path: '/submittedprojects' },
       { label: 'Project Applications', path: '/project-applications' }
     ]
   },
@@ -57,7 +56,7 @@ export const NavConfig4 = Object.assign([
    
   },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'Users', path: '/userslist' }
+  { label: 'Clients', path: '/clientlist' }
 ], {
   showIcons: true,
   hideSignIn: true

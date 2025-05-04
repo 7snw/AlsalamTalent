@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../Style/Clients/PostProject.css";
 import "../Style/PageContents.css";
 import Footer from "../Components/Footer";
@@ -15,6 +15,7 @@ import axios from "axios";
 
 const EditProject = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,8 +59,8 @@ const EditProject = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState("");
-  const [projectFiles, setProjectFiles] = useState(null);
-  const [contractDocs, setContractDocs] = useState(null);
+  const [projectFiles, setProjectFiles] = useState([]);
+  const [contractDocs, setContractDocs] = useState([]);
   const [projectImage, setProjectImage] = useState(null);
 
   const projectFileInput = useRef();
@@ -75,15 +76,15 @@ const EditProject = () => {
       setStartDate(project.duration?.from?.split("T")[0] || "");
       setEndDate(project.duration?.to?.split("T")[0] || "");
       setStatus(project.status || "");
-      setProjectFiles(project.files?.[0]?.name || null);
-      setContractDocs(project.docs?.[0]?.name || null);
+      setProjectFiles(project.files || []);
+      setContractDocs(project.docs || []);
       setProjectImage(project.imageUrl || null);
     }
   }, [project]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const updatedProject = {
       title: projectTitle,
       brief: description,
@@ -94,15 +95,11 @@ const EditProject = () => {
         from: startDate,
         to: endDate,
       },
-      files: projectFiles
-        ? [{ name: projectFiles, url: `uploads/${projectFiles}` }]
-        : [],
-      docs: contractDocs
-        ? [{ name: contractDocs, url: `uploads/${contractDocs}` }]
-        : [],
+      files: projectFiles,
+      docs: contractDocs,
       imageUrl: projectImage || "",
     };
-  
+
     try {
       await axios.put(`http://localhost:5000/api/projects/${id}`, updatedProject);
       alert("Project updated successfully!");
@@ -111,8 +108,20 @@ const EditProject = () => {
       alert("Failed to update project.");
     }
   };
-  
-  
+
+  const handleMultipleFileChange = (e, setter) => {
+    const files = Array.from(e.target.files);
+    setter((prev) => [...prev, ...files.map(file => ({ name: file.name, url: `uploads/${file.name}` }))]);
+    e.target.value = '';
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProjectImage(file.name);
+    }
+    e.target.value = '';
+  };
 
   if (loading) return <p>Loading project...</p>;
   if (!project) return <p>Project not found</p>;
@@ -202,11 +211,14 @@ const EditProject = () => {
             </button>
             <input
               type="file"
+              multiple
               ref={projectFileInput}
-              onChange={(e) => setProjectFiles(e.target.files[0]?.name)}
+              onChange={(e) => handleMultipleFileChange(e, setProjectFiles)}
               hidden
             />
-            {projectFiles && <p className="post-project-filename">{projectFiles}</p>}
+            {projectFiles.map((file, idx) => (
+              <p key={idx} className="post-project-filename">{file.name}</p>
+            ))}
           </div>
 
           <div className="post-project-upload-group">
@@ -221,11 +233,14 @@ const EditProject = () => {
             </button>
             <input
               type="file"
+              multiple
               ref={contractDocInput}
-              onChange={(e) => setContractDocs(e.target.files[0]?.name)}
+              onChange={(e) => handleMultipleFileChange(e, setContractDocs)}
               hidden
             />
-            {contractDocs && <p className="post-project-filename">{contractDocs}</p>}
+            {contractDocs.map((file, idx) => (
+              <p key={idx} className="post-project-filename">{file.name}</p>
+            ))}
           </div>
 
           <div className="post-project-upload-group">
@@ -242,7 +257,7 @@ const EditProject = () => {
               type="file"
               accept="image/*"
               ref={projectImageInput}
-              onChange={(e) => setProjectImage(e.target.files[0]?.name)}
+              onChange={handleImageChange}
               hidden
             />
             {projectImage && <p className="post-project-filename">{projectImage}</p>}
@@ -252,7 +267,11 @@ const EditProject = () => {
             <button type="submit" className="post-project-button post">
               Update
             </button>
-            <button type="button" className="post-project-button cancel">
+            <button
+              type="button"
+              className="post-project-button cancel"
+              onClick={() => navigate(-1)}
+            >
               Cancel
             </button>
           </div>

@@ -46,7 +46,7 @@ import ClientProjects from './Pages/Clients/ClientProjects';
 
 //Admin
 import AdminAllProjects from './Pages/Admin/AdminAllProjects';
-import UsersList from './Pages/Admin/UsersList';
+import Clientlist from './Pages/Admin/UsersList';
 import AddUsers from './Pages/Admin/AddUsers';
 import AnalyticsAdmin from './Pages/Admin/AnalyticsAdmin';
 import AdminProfileSettings from './Pages/Admin/AdminProfileSettings';
@@ -108,7 +108,7 @@ const App = () => {
         
 
 
-        <Route path="/userslist" element={<UsersList />} />
+        <Route path="/clientlist" element={<Clientlist />} />
         <Route path="/addusers" element={<AddUsers />} />
         <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
         <Route path="/adminallprojects" element={<AdminAllProjects />} />
@@ -116,7 +116,7 @@ const App = () => {
         <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
         <Route path="/adminnotifications" element={<AdminNotifications />} />
         <Route path="/adminmessages" element={<AdminMessages />} />
-        <Route path="/edituser" element={<EditUserProfile />} />
+        <Route path="/edituser/:userId" element={<EditUserProfile />} />
         <Route path="/auditlogs" element={<AuditLogs />} />
       </Routes>
     </Router>

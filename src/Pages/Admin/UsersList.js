@@ -1,5 +1,4 @@
-// src/pages/UsersList.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../Style/Admin/UsersList.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
@@ -9,39 +8,28 @@ import SearchIcon from '../../Assets/search.png';
 import { useNavigate } from 'react-router-dom';
 import AddUser from '../../Assets/AddUser.png';
 import Footer from '../../Components/Footer';
-
-
-const usersData = [
-  { name: 'Sarah Ahmed Isa', title: 'Marketing Executive', type: 'Client' },
-  { name: 'Muneera Mohamed', title: 'Marketing Executive', type: 'Admin' },
-  { name: 'Ahmed Rashed', title: 'Marketing Executive', type: 'Client' },
-  { name: 'Lulwa Khalid', title: 'Marketing Executive', type: 'Admin' },
-  { name: 'Ahmed Rashed', title: 'Marketing Executive', type: 'Client' },
-  { name: 'Ahmed Rashed', title: 'Marketing Executive', type: 'Client' },
-  { name: 'Ahmed Rashed', title: 'Marketing Executive', type: 'Admin' },
-  { name: 'Ahmed Rashed', title: 'Marketing Executive', type: 'Client' }
-];
+import axios from 'axios';
 
 const UsersList = () => {
   const navigate = useNavigate();
-  const [filters, setFilters] = useState({ type: [] });
   const [search, setSearch] = useState('');
+  const [usersData, setUsersData] = useState([]);
 
-  const handleCheckbox = (value) => {
-    setFilters((prev) => {
-      const updatedType = prev.type.includes(value)
-        ? prev.type.filter((v) => v !== value) 
-        : [...prev.type, value];             
-  
-      return { ...prev, type: updatedType }; 
-    });
-  };
-  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/client');
+        setUsersData(response.data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const filteredUsers = usersData.filter(
-    (user) =>
-      (filters.type.length === 0 || filters.type.includes(user.type)) &&
-      user.name.toLowerCase().includes(search.toLowerCase())
+    (user) => user.fullName.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -51,32 +39,7 @@ const UsersList = () => {
         <div className="users-content">
           {/* LEFT - Filter */}
           <div className="users-left-panel">
-            <h1 className="page-title">Users</h1>
-
-            <div className="filter-section">
-              <h3>Filter</h3>
-              <p className="hint">Filter your Users according to their Type.</p>
-
-              <div className="filter-group">
-                <h4>Type</h4>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={filters.type.includes('Admin')}
-                    onChange={() => handleCheckbox('Admin')}
-                  />{' '}
-                  Admin
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={filters.type.includes('Client')}
-                    onChange={() => handleCheckbox('Client')}
-                  />{' '}
-                  Client
-                </label>
-              </div>
-            </div>
+            <h1 className="page-title">Clients</h1>
           </div>
 
           {/* RIGHT - Search & Results */}
@@ -101,8 +64,8 @@ const UsersList = () => {
               <div className="users-card" key={i}>
                 <div className="users-info">
                   <div>
-                    <h3>{user.name}</h3>
-                    <p>{user.title}</p>
+                    <h3>{user.fullName}</h3>
+                    <p>{user.occupation || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -111,7 +74,7 @@ const UsersList = () => {
                     className="edit-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/edituser');
+                      navigate(`/edituser/${user._id}`);
                     }}
                   >
                     Edit Profile

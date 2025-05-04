@@ -17,35 +17,30 @@ const PostProject = () => {
   const [endDate, setEndDate] = useState('');
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
-  const [projectFiles, setProjectFiles] = useState(null);
-  const [contractDocs, setContractDocs] = useState(null);
+  const [projectFiles, setProjectFiles] = useState([]);
   const [projectImage, setProjectImage] = useState(null);
 
   const projectFileInput = useRef();
-  const contractDocInput = useRef();
   const projectImageInput = useRef();
   const navigate = useNavigate();
 
   const handleProjectFilesChange = (e) => {
-    setProjectFiles(e.target.files[0]);
-  };
-
-  const handleContractDocsChange = (e) => {
-    setContractDocs(e.target.files[0]);
+    setProjectFiles(Array.from(e.target.files));
   };
 
   const handleProjectImageChange = (e) => {
     setProjectImage(e.target.files[0]);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const authorId = localStorage.getItem('userId');
     if (!authorId) {
       alert('You must be logged in to post a project.');
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('title', projectTitle);
     formData.append('brief', description);
@@ -55,22 +50,18 @@ const PostProject = () => {
     formData.append('status', status);
     formData.append('durationFrom', startDate);
     formData.append('durationTo', endDate);
-  
+
     if (projectImage) {
       formData.append('projectImage', projectImage);
     }
-  
-    if (projectFiles) {
-      formData.append('projectFile', projectFiles);
+
+    if (projectFiles.length) {
+      projectFiles.forEach((file) => formData.append('projectFile', file));
     }
-  
-    if (contractDocs) {
-      formData.append('contractDoc', contractDocs);
-    }
-  
+
     try {
       await axios.post('http://localhost:5000/api/projects/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       alert('Project successfully posted!');
       navigate('/clientprojects');
@@ -79,8 +70,6 @@ const PostProject = () => {
       alert('Failed to post project.');
     }
   };
-  
-  
 
   return (
     <div className="post-project-page">
@@ -89,37 +78,16 @@ const PostProject = () => {
         <h2>Post Project</h2>
         <form className="post-project-form" onSubmit={handleSubmit}>
           <label>Project Title*</label>
-          <input
-            type="text"
-            placeholder="Write a title..."
-            value={projectTitle}
-            onChange={(e) => setProjectTitle(e.target.value)}
-            required
-          />
+          <input type="text" value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} required />
 
           <label>About this project/Description*</label>
-          <textarea
-            placeholder="Write a description..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          ></textarea>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
 
           <label>Budget/Price*</label>
-          <input
-            type="number"
-            placeholder="0 BD"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            required
-          />
+          <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} required />
 
           <label>Project Category*</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
+          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
             <option value="">Select category</option>
             <option value="Marketing">Marketing</option>
             <option value="Graphic Design">Graphic Design</option>
@@ -130,37 +98,20 @@ const PostProject = () => {
 
           <label>Timeframe/Duration*</label>
           <div className="post-project-date-range">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-            />
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
             <span className="post-project-to-separator">-</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-            />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
           </div>
 
           <label>Project Status*</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            required
-          >
+          <select value={status} onChange={(e) => setStatus(e.target.value)} required>
             <option value="">Select status</option>
             <option value="Open">Open</option>
-<option value="In Progress">In Progress</option>
-<option value="Completed">Completed</option>
-<option value="Cancelled">Cancelled</option>
-
-            
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
           </select>
 
-          
           <div className="post-project-upload-group">
             <label>Project Files*</label>
             <button
@@ -168,37 +119,13 @@ const PostProject = () => {
               className="post-project-button post-project-submit-btn"
               onClick={() => projectFileInput.current.click()}
             >
-              Attach File
+              Attach Files
               <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
             </button>
-            <input
-              type="file"
-              ref={projectFileInput}
-              onChange={handleProjectFilesChange}
-              className="post-project-file-input"
-              hidden
-            />
-            {projectFiles && <p className="post-project-filename">{projectFiles.name}</p>}
-          </div>
-
-          <div className="post-project-upload-group">
-            <label>Contract Documents*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => contractDocInput.current.click()}
-            >
-              Attach Docs
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
-            </button>
-            <input
-              type="file"
-              ref={contractDocInput}
-              onChange={handleContractDocsChange}
-              className="post-project-file-input"
-              hidden
-            />
-            {contractDocs && <p className="post-project-filename">{contractDocs.name}</p>}
+            <input type="file" ref={projectFileInput} onChange={handleProjectFilesChange} multiple hidden />
+            {projectFiles.map((file) => (
+              <p key={file.name} className="post-project-filename">{file.name}</p>
+            ))}
           </div>
 
           <div className="post-project-upload-group">
@@ -211,14 +138,7 @@ const PostProject = () => {
               Attach Image
               <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
             </button>
-            <input
-              type="file"
-              accept="image/*"
-              ref={projectImageInput}
-              onChange={handleProjectImageChange}
-              className="post-project-file-input"
-              hidden
-            />
+            <input type="file" accept="image/*" ref={projectImageInput} onChange={handleProjectImageChange} hidden />
             {projectImage && <p className="post-project-filename">{projectImage.name}</p>}
           </div>
 

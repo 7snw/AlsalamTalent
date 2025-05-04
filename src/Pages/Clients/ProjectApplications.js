@@ -1,151 +1,164 @@
-// src/Pages/Clients/ProjectApplications.js
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import '../../Style/Clients/ProjectApplications.css';
-import { Link } from 'react-router-dom';
+// src/Pages/Clients/PostProject.js
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../../Style/Clients/PostProject.css';
 import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
-import SearchIcon from '../../Assets/search.png';
-import FakeProjects from '../../Data/ProjectsData';
+import uploadIcon from '../../Assets/Upload.png';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
-const ProjectApplications = () => {
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({
-    type: [],
-    level: [],
-    budget: [],
-  });
+const PostProject = () => {
+  const [projectTitle, setProjectTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [budget, setBudget] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [category, setCategory] = useState('');
+  const [status, setStatus] = useState('');
+  const [projectFiles, setProjectFiles] = useState([]);
+  const [projectImage, setProjectImage] = useState(null);
 
-  const toggleFilter = (category, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [category]: prev[category].includes(value)
-        ? prev[category].filter((v) => v !== value)
-        : [...prev[category], value],
-    }));
+  const projectFileInput = useRef();
+  const projectImageInput = useRef();
+  const navigate = useNavigate();
+
+  const handleProjectFilesChange = (e) => {
+    const newFiles = Array.from(e.target.files);
+    setProjectFiles((prev) => [...prev, ...newFiles]);
+  
+    // Clear the file input so selecting the same file again will trigger onChange
+    e.target.value = '';
   };
 
-  const filteredProjects = FakeProjects.deitailes.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType = filters.type.length === 0 || filters.type.includes(project.category);
-    const matchesLevel = filters.level.length === 0 || filters.level.includes(project.level);
-    const matchesBudget =
-      filters.budget.length === 0 ||
-      filters.budget.some((range) => {
-        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-        const projectBudget = parseFloat(project.budget.replace('BHD', '').trim());
-        return projectBudget >= min && projectBudget <= max;
-      });
+  const handleProjectImageChange = (e) => {
+    setProjectImage(e.target.files[0]);
+  };
 
-    return matchesSearch && matchesType && matchesLevel && matchesBudget;
-  });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const authorId = localStorage.getItem('userId');
+    if (!authorId) {
+      alert('You must be logged in to post a project.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', projectTitle);
+    formData.append('brief', description);
+    formData.append('budget', budget);
+    formData.append('category', category);
+    formData.append('authorId', authorId);
+    formData.append('status', status);
+    formData.append('durationFrom', startDate);
+    formData.append('durationTo', endDate);
+
+    if (projectImage) {
+      formData.append('projectImage', projectImage);
+    }
+
+    projectFiles.forEach((file) => formData.append('projectFile', file));
+
+    try {
+      await axios.post('http://localhost:5000/api/projects/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      alert('Project successfully posted!');
+      navigate('/clientprojects');
+    } catch (error) {
+      console.error('Error posting project:', error.response?.data || error.message);
+      alert('Failed to post project.');
+    }
+  };
 
   return (
-    <div className="project-applications-page">
+    <div className="post-project-page">
       <Navbar links={NavConfig3} />
-      <div className="project-applications-container">
-        <aside className="applications-left-panel">
-          <h1 className="page-title">Project Applications</h1>
-          <div className="filter-section">
-            <h3>Filter</h3>
-            <p className="hint">Filter your projects according to their type, level and budget range.</p>
+      <div className="post-project-container">
+        <h2>Post Project</h2>
+        <form className="post-project-form" onSubmit={handleSubmit}>
+          <label>Project Title*</label>
+          <input type="text" value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} required />
 
-            <div className="filter-group">
-              <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'].map((type) => (
-                <label key={type}>
-                  <input
-                    type="checkbox"
-                    checked={filters.type.includes(type)}
-                    onChange={() => toggleFilter('type', type)}
-                  />
-                  {type}
-                </label>
-              ))}
-            </div>
+          <label>About this project/Description*</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required></textarea>
 
-            <div className="filter-group">
-              <h4>Level</h4>
-              {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
-                <label key={level}>
-                  <input
-                    type="checkbox"
-                    checked={filters.level.includes(level)}
-                    onChange={() => toggleFilter('level', level)}
-                  />
-                  {level}
-                </label>
-              ))}
-            </div>
+          <label>Budget/Price*</label>
+          <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} required />
 
-            <div className="filter-group">
-              <h4>Budget</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
-                <label key={range}>
-                  <input
-                    type="checkbox"
-                    checked={filters.budget.includes(range)}
-                    onChange={() => toggleFilter('budget', range)}
-                  />
-                  {range}
-                </label>
-              ))}
-            </div>
+          <label>Project Category*</label>
+          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+            <option value="">Select category</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Graphic Design">Graphic Design</option>
+            <option value="Illustration">Illustration</option>
+            <option value="Product Design">Product Design</option>
+            <option value="Web Design">Web Design</option>
+          </select>
+
+          <label>Timeframe/Duration*</label>
+          <div className="post-project-date-range">
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+            <span className="post-project-to-separator">-</span>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
           </div>
-        </aside>
 
-        <main className="applications-right-panel">
-          <div className="search-wrapper">
+          <label>Project Status*</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} required>
+            <option value="">Select status</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+
+          <div className="post-project-upload-group">
+            <label>Project Files*</label>
+            <button
+              type="button"
+              className="post-project-button post-project-submit-btn"
+              onClick={() => projectFileInput.current.click()}
+            >
+              Attach Files
+              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
+            </button>
             <input
-              type="text"
-              placeholder="What are you looking for?"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              type="file"
+              ref={projectFileInput}
+              onChange={handleProjectFilesChange}
+              multiple
+              hidden
             />
-            <img src={SearchIcon} alt="search" className="search-icon" />
+            {projectFiles.map((file, index) => (
+              <p key={index} className="post-project-filename">{file.name}</p>
+            ))}
           </div>
 
-          <div className="applications-list">
-            <AnimatePresence>
-              {filteredProjects.map((proj, index) => (
-                <motion.div
-                  className="application-card"
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  whileHover={{
-                    y: -4,
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-                    transition: { duration: 0.2 },
-                  }}
-                >
-                  <img src={proj.image} alt={proj.title} />
-                  <div className="application-info">
-                    <h4>{proj.title}</h4>
-                    <div className="freelancer-name">
-                      <span>👤</span>
-                      <Link to="/freelancerprofile" className="freelancer-link">
-                        {proj.name}
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="application-actions">
-                    <button className="approve">Approve</button>
-                    <button className="reject">Reject</button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+          <div className="post-project-upload-group">
+            <label>Project Image*</label>
+            <button
+              type="button"
+              className="post-project-button post-project-submit-btn"
+              onClick={() => projectImageInput.current.click()}
+            >
+              Attach Image
+              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
+            </button>
+            <input type="file" accept="image/*" ref={projectImageInput} onChange={handleProjectImageChange} hidden />
+            {projectImage && <p className="post-project-filename">{projectImage.name}</p>}
           </div>
-        </main>
+
+          <div className="post-project-actions">
+            <button type="submit" className="post-project-button post">Post</button>
+            <button type="button" className="post-project-button cancel">Cancel</button>
+          </div>
+        </form>
       </div>
       <Footer />
     </div>
   );
 };
 
-export default ProjectApplications;
+export default PostProject;

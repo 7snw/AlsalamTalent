@@ -16,7 +16,7 @@ const AssignedProject = () => {
   const [filters, setFilters] = useState({ status: [] });
   const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId'); // ✅ Logged-in client ID
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -31,32 +31,35 @@ const AssignedProject = () => {
     fetchProjects();
   }, []);
 
-  // ✅ Only take assigned projects (authorId matches userId)
   const assignedProjects = projects.filter(
-    (proj) => proj.authorId?.toString() === userId
+    (proj) => proj.authorId?._id === userId || proj.authorId === userId
   );
 
-  // ✅ Filter by search and status
   const filteredProjects = assignedProjects.filter((project) => {
     const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
-    const projectStatus = project.status === 'Completed' ? 'completed' : 'ongoing';
     const matchesStatus =
-      filters.status.length === 0 || filters.status.includes(projectStatus);
+      filters.status.length === 0 || filters.status.includes(project.status);
     return matchesSearch && matchesStatus;
   });
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
-      const updated = { ...prev };
-      const isSelected = updated[category].includes(value);
-
+      const isSelected = prev[category].includes(value);
       return {
-        ...updated,
+        ...prev,
         [category]: isSelected
-          ? updated[category].filter((v) => v !== value)
-          : [...updated[category], value],
+          ? prev[category].filter((v) => v !== value)
+          : [...prev[category], value],
       };
     });
+  };
+
+  const handleProjectClick = (proj) => {
+    if (proj.status === 'Submitted') {
+      navigate(`/submitted-project/${proj._id}`);
+    } else {
+      navigate(`/assigned-project/${proj._id}`);
+    }
   };
 
   return (
@@ -66,20 +69,19 @@ const AssignedProject = () => {
       <div className="assigned-projects-container">
         <aside className="assigned-left-panel">
           <h1 className="page-title">Assigned Projects</h1>
-
           <div className="filter-section">
             <h3>Filter</h3>
             <p className="hint">Filter your assigned projects by their status.</p>
             <div className="filter-group">
               <h4>Status</h4>
-              {['ongoing', 'completed'].map((status) => (
+              {['On Going', 'Submitted', 'Completed'].map((status) => (
                 <label key={status}>
                   <input
                     type="checkbox"
                     checked={filters.status.includes(status)}
                     onChange={() => handleCheckbox('status', status)}
                   />
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status}
                 </label>
               ))}
             </div>
@@ -112,7 +114,7 @@ const AssignedProject = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/assigned-project/${proj._id}`)}
+                  onClick={() => handleProjectClick(proj)}
                   style={{ cursor: 'pointer' }}
                 >
                   {proj.imageUrl ? (

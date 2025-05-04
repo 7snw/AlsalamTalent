@@ -11,7 +11,7 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
-// Setup Multer
+// Multer Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -21,10 +21,12 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix);
   }
 });
+
 const upload = multer({ storage });
 
+// ========== ROUTES ==========
 
-// GET all projects — include authorName
+// GET all projects (with author name)
 router.get('/all', async (req, res) => {
   try {
     const projects = await Project.find().populate('authorId', 'fullName');
@@ -38,7 +40,7 @@ router.get('/all', async (req, res) => {
   }
 });
 
-// GET project by id 
+// GET one project by ID (with author name)
 router.get('/:id', async (req, res) => {
   try {
     const project = await Project.findById(req.params.id).populate('authorId', 'fullName');
@@ -55,7 +57,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// GET projects by client (authorId) — include authorName
+// GET projects for a client (with author name)
 router.get('/client/:authorId', async (req, res) => {
   try {
     const projects = await Project.find({ authorId: req.params.authorId }).populate('authorId', 'fullName');
@@ -72,23 +74,30 @@ router.get('/client/:authorId', async (req, res) => {
 // POST upload new project
 router.post('/upload', upload.fields([
   { name: 'projectImage', maxCount: 1 },
-  { name: 'projectFile', maxCount: 1 },
-  { name: 'contractDoc', maxCount: 1 }
+  { name: 'projectFile', maxCount: 10 },
+  { name: 'contractDoc', maxCount: 10 }
 ]), async (req, res) => {
   try {
     const { title, brief, budget, category, authorId, status, durationFrom, durationTo } = req.body;
-
     const baseUrl = `${req.protocol}://${req.get('host')}`;
 
-    const projectImage = req.files['projectImage'] ? `${baseUrl}/${req.files['projectImage'][0].path}` : '';
-    const projectFile = req.files['projectFile'] ? [{
-      name: req.files['projectFile'][0].originalname,
-      url: `${baseUrl}/${req.files['projectFile'][0].path}`
-    }] : [];
-    const contractDoc = req.files['contractDoc'] ? [{
-      name: req.files['contractDoc'][0].originalname,
-      url: `${baseUrl}/${req.files['contractDoc'][0].path}`
-    }] : [];
+    const projectImage = req.files['projectImage']
+      ? `${baseUrl}/${req.files['projectImage'][0].path}`
+      : '';
+
+    const projectFiles = req.files['projectFile']
+      ? req.files['projectFile'].map(file => ({
+          name: file.originalname,
+          url: `${baseUrl}/${file.path}`
+        }))
+      : [];
+
+    const contractDocs = req.files['contractDoc']
+      ? req.files['contractDoc'].map(file => ({
+          name: file.originalname,
+          url: `${baseUrl}/${file.path}`
+        }))
+      : [];
 
     const newProject = new Project({
       title,
@@ -102,27 +111,49 @@ router.post('/upload', upload.fields([
         to: new Date(durationTo)
       },
       imageUrl: projectImage,
-      files: projectFile,
-      docs: contractDoc
+      files: projectFiles,
+      docs: contractDocs
     });
 
     await newProject.save();
     res.status(201).json(newProject);
-
   } catch (error) {
     console.error('Error saving project:', error.message);
     res.status(500).json({ message: error.message });
   }
 });
 
-// PUT /api/projects/:id — Update project by ID
-router.put('/:id', async (req, res) => {
+// PUT update existing project with optional files
+router.put('/:id', upload.fields([
+  { name: 'projectImage', maxCount: 1 },
+  { name: 'projectFile', maxCount: 10 },
+  { name: 'contractDoc', maxCount: 10 }
+]), async (req, res) => {
   try {
-    const updatedProject = await Project.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const updates = { ...req.body };
+
+    if (req.files['projectImage']) {
+      updates.imageUrl = `${baseUrl}/${req.files['projectImage'][0].path}`;
+    }
+
+    if (req.files['projectFile']) {
+      updates.files = req.files['projectFile'].map(file => ({
+        name: file.originalname,
+        url: `${baseUrl}/${file.path}`
+      }));
+    }
+
+    if (req.files['contractDoc']) {
+      updates.docs = req.files['contractDoc'].map(file => ({
+        name: file.originalname,
+        url: `${baseUrl}/${file.path}`
+      }));
+    }
+
+    const updatedProject = await Project.findByIdAndUpdate(req.params.id, updates, {
+      new: true
+    });
 
     if (!updatedProject) {
       return res.status(404).json({ message: 'Project not found' });
@@ -130,7 +161,7 @@ router.put('/:id', async (req, res) => {
 
     res.json(updatedProject);
   } catch (error) {
-    console.error('Error updating project:', error);
+    console.error('Error updating project:', error.message);
     res.status(500).json({ message: 'Failed to update project' });
   }
 });

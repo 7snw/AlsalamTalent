@@ -1,3 +1,5 @@
+// src/Pages/Admin/AdminAllProjects.js
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../../Style/Admin/AdminAllProjects.css';
@@ -16,6 +18,7 @@ const AdminAllProjects = () => {
   const [filters, setFilters] = useState({
     type: [],
     budget: [],
+    status: []  // ✅ New status filter
   });
 
   const [projects, setProjects] = useState([]);
@@ -57,8 +60,10 @@ const AdminAllProjects = () => {
         const projectBudget = parseFloat(proj.budget);
         return projectBudget >= min && projectBudget <= max;
       });
+    const matchesStatus =
+      filters.status.length === 0 || filters.status.includes(proj.status); // ✅ status filter
 
-    return matchesSearch && matchesType && matchesBudget;
+    return matchesSearch && matchesType && matchesBudget && matchesStatus;
   });
 
   return (
@@ -69,7 +74,7 @@ const AdminAllProjects = () => {
           <h1 className="page-title">All Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type and budget range.</p>
+            <p className="hint">Filter the projects according to their type, budget, and status.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
@@ -95,6 +100,20 @@ const AdminAllProjects = () => {
                     onChange={() => handleCheckbox('budget', budget)}
                   />
                   {budget}
+                </label>
+              ))}
+            </div>
+
+            <div className="filter-group">
+              <h4>Status</h4>
+              {['Open', 'In Progress', 'Completed', 'Cancelled'].map((status) => (
+                <label key={status}>
+                  <input
+                    type="checkbox"
+                    checked={filters.status.includes(status)}
+                    onChange={() => handleCheckbox('status', status)}
+                  />
+                  {status}
                 </label>
               ))}
             </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../Style/Admin/AddUsers.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
@@ -6,6 +7,7 @@ import Footer from '../../Components/Footer';
 import axios from 'axios';
 
 const AddUsers = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -13,7 +15,8 @@ const AddUsers = () => {
     occupation: '',
     phone: '',
     companyName: '',
-    dateOfBirth: ''
+    dateOfBirth: '',
+    role: 'client'
   });
 
   const handleChange = (e) => {
@@ -23,21 +26,12 @@ const AddUsers = () => {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/api/client/register', formData);
-
       if (response.status === 201 || response.status === 200) {
-        alert('Client account created successfully!');
-        setFormData({
-          fullName: '',
-          email: '',
-          password: '',
-          occupation: '',
-          phone: '',
-          companyName: '',
-          dateOfBirth: ''
-        });
+        navigate('/clientlist');
       }
     } catch (err) {
       console.error('Error creating client:', err);
@@ -51,7 +45,7 @@ const AddUsers = () => {
       <div className="add-user-container">
         <div className="add-user-content">
           <h2>Add A New Client Account</h2>
-          <div className="add-user-form">
+          <form className="add-user-form" onSubmit={handleSubmit}>
 
             <div className="form-group">
               <label>Name</label>
@@ -70,26 +64,26 @@ const AddUsers = () => {
 
             <div className="form-group">
               <label>Occupation</label>
-              <input type="text" name="occupation" value={formData.occupation} onChange={handleChange} placeholder="Enter occupation" />
+              <input type="text" name="occupation" value={formData.occupation} onChange={handleChange} placeholder="Enter occupation" required />
             </div>
 
             <div className="form-group">
               <label>Phone Number</label>
-              <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Enter phone number" />
+              <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Enter phone number" required />
             </div>
 
             <div className="form-group">
               <label>Company Name</label>
-              <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Enter company name" />
+              <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Enter company name" required />
             </div>
 
             <div className="form-group">
               <label>Date of Birth</label>
-              <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} />
+              <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} required />
             </div>
 
-            <button className="add-btn" onClick={handleSubmit}>Add</button>
-          </div>
+            <button type="submit" className="add-btn">Add</button>
+          </form>
         </div>
       </div>
       <Footer />

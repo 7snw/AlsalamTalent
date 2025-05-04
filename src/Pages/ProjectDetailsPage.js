@@ -104,14 +104,15 @@ const ProjectDetailsPage = () => {
             )}
 
             <br />
-            {(userRole === "client" || userRole === "admin") && (
-              <button
-                className="edit-btn"
-                onClick={() => navigate(`/edit-project/${project._id}`)}
-              >
-                Edit Project
-              </button>
-            )}
+            {userRole === "client" && localStorage.getItem("userId") === project.authorId?._id && (
+  <button
+    className="edit-btn"
+    onClick={() => navigate(`/edit-project/${project._id}`)}
+  >
+    Edit Project
+  </button>
+)}
+
           </div>
 
           <div className="right">

@@ -108,6 +108,13 @@ const ProjectDetails = () => {
             ) : (
               <p>No contract documents uploaded</p>
             )}
+
+            {localStorage.getItem('role') === 'freelancer' && (
+  <button className="apply-btn" onClick={() => alert('Apply logic coming soon')}>
+    Apply for this Project
+  </button>
+)}
+
           </div>
 
           <div className="right">
