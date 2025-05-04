@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', required: true },
+  authorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Client',
+    required: true
+  },
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Freelancer' },
   brief: { type: String, required: true },
   category: { type: String, required: true },
