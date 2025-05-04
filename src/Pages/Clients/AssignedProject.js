@@ -32,7 +32,9 @@ const AssignedProject = () => {
   }, []);
 
   // ✅ Only take assigned projects (authorId matches userId)
-  const assignedProjects = projects.filter((proj) => proj.authorId === userId);
+  const assignedProjects = projects.filter(
+    (proj) => proj.authorId?.toString() === userId
+  );
 
   // ✅ Filter by search and status
   const filteredProjects = assignedProjects.filter((project) => {

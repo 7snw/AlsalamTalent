@@ -21,36 +21,49 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix);
   }
 });
-
 const upload = multer({ storage });
 
-// GET all projects
+
+// GET all projects — include authorName
 router.get('/all', async (req, res) => {
   try {
-    const projects = await Project.find();
-    res.json(projects);
+    const projects = await Project.find().populate('authorId', 'fullName');
+    const withNames = projects.map(p => ({
+      ...p.toObject(),
+      authorName: p.authorId?.fullName || 'Unknown'
+    }));
+    res.json(withNames);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// GET project by id
+// GET project by id — include authorName
 router.get('/:id', async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
+    const project = await Project.findById(req.params.id).populate('authorId', 'fullName');
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    res.json(project);
+
+    const projectWithAuthor = {
+      ...project.toObject(),
+      authorName: project.authorId?.fullName || 'Unknown'
+    };
+
+    res.json(projectWithAuthor);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// GET projects by client (authorId)
+// GET projects by client (authorId) — include authorName
 router.get('/client/:authorId', async (req, res) => {
   try {
-    const { authorId } = req.params;
-    const projects = await Project.find({ authorId });
-    res.json(projects);
+    const projects = await Project.find({ authorId: req.params.authorId }).populate('authorId', 'fullName');
+    const withNames = projects.map(p => ({
+      ...p.toObject(),
+      authorName: p.authorId?.fullName || 'Unknown'
+    }));
+    res.json(withNames);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -121,6 +134,5 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to update project' });
   }
 });
-
 
 module.exports = router;

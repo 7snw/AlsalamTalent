@@ -10,7 +10,6 @@ import Footer from '../../Components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
-
 const BrowseProjects = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -21,6 +20,7 @@ const BrowseProjects = () => {
   const [projects, setProjects] = useState([]);
 
   const userId = localStorage.getItem('userId');
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -30,13 +30,11 @@ const BrowseProjects = () => {
         console.error('Error fetching projects:', error);
       }
     };
-  
-    if (userId) { // make sure userId exists
+
+    if (userId) {
       fetchProjects();
     }
-  }, [userId]); // ✅ Include userId here
-  
-  
+  }, [userId]);
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
@@ -51,21 +49,19 @@ const BrowseProjects = () => {
     });
   };
 
-  const filteredProjects = projects
-    .filter((proj) => proj.authorId === userId)
-    .filter((proj) => {
-      const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-      const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
-      const matchesBudget =
-        filters.budget.length === 0 ||
-        filters.budget.some((range) => {
-          const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-          const projectBudget = parseFloat(proj.budget);
-          return projectBudget >= min && projectBudget <= max;
-        });
+  const filteredProjects = projects.filter((proj) => {
+    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+    const matchesBudget =
+      filters.budget.length === 0 ||
+      filters.budget.some((range) => {
+        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
+        const projectBudget = parseFloat(proj.budget);
+        return projectBudget >= min && projectBudget <= max;
+      });
 
-      return matchesSearch && matchesType && matchesBudget;
-    });
+    return matchesSearch && matchesType && matchesBudget;
+  });
 
   return (
     <div className="browse-projects-page">
@@ -90,8 +86,6 @@ const BrowseProjects = () => {
                 </label>
               ))}
             </div>
-
-            {/* ❌ Level Filter REMOVED completely */}
 
             <div className="filter-group">
               <h4>Budget</h4>
@@ -140,6 +134,9 @@ const BrowseProjects = () => {
                   <img src={proj.imageUrl} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.budget} BHD</p>
+                  <p style={{ fontSize: '13px', color: '#888' }}>
+                    {proj.authorName || 'No Name'}
+                  </p>
                 </motion.div>
               ))}
             </AnimatePresence>
