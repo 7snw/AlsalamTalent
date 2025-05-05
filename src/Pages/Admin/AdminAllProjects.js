@@ -16,9 +16,9 @@ const AdminAllProjects = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
+    status: [], 
     type: [],
     budget: [],
-    status: []  // ✅ New status filter
   });
 
   const [projects, setProjects] = useState([]);
@@ -56,12 +56,11 @@ const AdminAllProjects = () => {
     const matchesBudget =
       filters.budget.length === 0 ||
       filters.budget.some((range) => {
-        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
+        const [min, max] = range.replace('BHD', '').split('-').map((v) => parseFloat(v.trim()));
         const projectBudget = parseFloat(proj.budget);
         return projectBudget >= min && projectBudget <= max;
       });
-    const matchesStatus =
-      filters.status.length === 0 || filters.status.includes(proj.status); // ✅ status filter
+    const matchesStatus = filters.status.length === 0 || filters.status.includes(proj.status);
 
     return matchesSearch && matchesType && matchesBudget && matchesStatus;
   });
@@ -74,7 +73,21 @@ const AdminAllProjects = () => {
           <h1 className="page-title">All Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type, budget, and status.</p>
+            <p className="hint">Filter the projects according to their status, type, and budget.</p>
+
+            <div className="filter-group">
+              <h4>Status</h4>
+              {['Open', 'Outgoing', 'Submitted', 'Completed'].map((status) => (
+                <label key={status}>
+                  <input
+                    type="checkbox"
+                    checked={filters.status.includes(status)}
+                    onChange={() => handleCheckbox('status', status)}
+                  />
+                  {status}
+                </label>
+              ))}
+            </div>
 
             <div className="filter-group">
               <h4>Type</h4>
@@ -100,20 +113,6 @@ const AdminAllProjects = () => {
                     onChange={() => handleCheckbox('budget', budget)}
                   />
                   {budget}
-                </label>
-              ))}
-            </div>
-
-            <div className="filter-group">
-              <h4>Status</h4>
-              {['Open', 'In Progress', 'Completed', 'Cancelled'].map((status) => (
-                <label key={status}>
-                  <input
-                    type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={() => handleCheckbox('status', status)}
-                  />
-                  {status}
                 </label>
               ))}
             </div>
