@@ -1,3 +1,5 @@
+// src/Pages/Freelancer/SavedProjects.js
+
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -12,14 +14,30 @@ import Footer from '../../Components/Footer';
 
 const SavedProjects = () => {
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({ type: [], level: [], budget: [] });
+  const [filters, setFilters] = useState({ type: [], budget: [] });
   const [savedProjects, setSavedProjects] = useState([]);
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
-    setSavedProjects(stored);
-  }, []);
+    if (userId) {
+      const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
+      setSavedProjects(stored);
+    }
+  }, [userId]);
+
+  const handleCheckbox = (category, value) => {
+    setFilters((prev) => {
+      const updated = { ...prev };
+      const alreadySelected = updated[category]?.includes(value);
+
+      updated[category] = alreadySelected
+        ? updated[category].filter((v) => v !== value)
+        : [...(updated[category] || []), value];
+
+      return { ...updated };
+    });
+  };
 
   const isProjectSaved = (project) => {
     return savedProjects.some((p) => p._id === project._id);
@@ -27,7 +45,7 @@ const SavedProjects = () => {
 
   const handleBookmarkClick = (e, project) => {
     e.stopPropagation();
-    const current = JSON.parse(localStorage.getItem('savedProjects')) || [];
+    const current = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
     const isSaved = current.find((p) => p._id === project._id);
 
     let updated;
@@ -38,46 +56,40 @@ const SavedProjects = () => {
     }
 
     setSavedProjects(updated);
-    localStorage.setItem('savedProjects', JSON.stringify(updated));
+    localStorage.setItem(`savedProjects_${userId}`, JSON.stringify(updated));
   };
 
   const filteredProjects = savedProjects.filter((proj) => {
-    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = proj.title?.toLowerCase().includes(search.toLowerCase());
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
-    const matchesLevel = filters.level.length === 0 || filters.level.includes(proj.level);
     const matchesBudget =
       filters.budget.length === 0 ||
       filters.budget.some((range) => {
         const [min, max] = range.replace('BHD', '').split('-').map((v) => parseFloat(v.trim()));
-        const budget = parseFloat(proj.budget.replace('BHD', '').trim());
-        return budget >= min && budget <= max;
+        const rawBudget = proj.budget;
+
+        if (!rawBudget) return false;
+        const projectBudget =
+          typeof rawBudget === 'number'
+            ? rawBudget
+            : parseFloat(rawBudget.replace('BHD', '').trim());
+
+        return projectBudget >= min && projectBudget <= max;
       });
 
-    return matchesSearch && matchesType && matchesLevel && matchesBudget;
+    return matchesSearch && matchesType && matchesBudget;
   });
-
-  const handleCheckbox = (category, value) => {
-    setFilters((prev) => {
-      const updated = { ...prev };
-      const alreadySelected = updated[category].includes(value);
-
-      updated[category] = alreadySelected
-        ? updated[category].filter((v) => v !== value)
-        : [...updated[category], value];
-
-      return { ...updated };
-    });
-  };
 
   return (
     <div className="saved-projects-page">
       <Navbar links={NavConfig2} />
       <div className="saved-projects-container">
-        <div className="saved-left-panel">
+        <aside className="saved-left-panel">
           <h1 className="page-title">Saved Projects</h1>
+
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type, level and budget range.</p>
+            <p className="hint">Filter the projects according to their type and budget range.</p>
 
             <div className="filter-group">
               <h4>Type</h4>
@@ -94,36 +106,22 @@ const SavedProjects = () => {
             </div>
 
             <div className="filter-group">
-              <h4>Level</h4>
-              {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
-                <label key={level}>
-                  <input
-                    type="checkbox"
-                    checked={filters.level.includes(level)}
-                    onChange={() => handleCheckbox('level', level)}
-                  />{' '}
-                  {level}
-                </label>
-              ))}
-            </div>
-
-            <div className="filter-group">
               <h4>Budget</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((budget) => (
-                <label key={budget}>
+              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
+                <label key={range}>
                   <input
                     type="checkbox"
-                    checked={filters.budget.includes(budget)}
-                    onChange={() => handleCheckbox('budget', budget)}
+                    checked={filters.budget.includes(range)}
+                    onChange={() => handleCheckbox('budget', range)}
                   />{' '}
-                  {budget}
+                  {range}
                 </label>
               ))}
             </div>
           </div>
-        </div>
+        </aside>
 
-        <div className="saved-right-panel">
+        <main className="saved-right-panel">
           <div className="search-wrapper">
             <input
               type="text"
@@ -153,7 +151,7 @@ const SavedProjects = () => {
                 >
                   <img src={proj.imageUrl || proj.image || proj.coverImage} alt={proj.title} />
                   <h4>{proj.title}</h4>
-                  <p>{proj.budget}</p>
+                  <p>{proj.budget} BHD</p>
                   <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj)}>
                     {isProjectSaved(proj) ? <FaBookmark /> : <FaRegBookmark />}
                   </span>
@@ -161,7 +159,7 @@ const SavedProjects = () => {
               ))}
             </AnimatePresence>
           </div>
-        </div>
+        </main>
       </div>
       <Footer />
     </div>

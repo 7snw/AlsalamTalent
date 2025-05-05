@@ -13,8 +13,6 @@
     display: flex;
     gap: 40px;
     margin-bottom: 100px;
-
-  
 }
 
 .project-applications-layout {
@@ -98,21 +96,25 @@
   border: none;
 }
 
-.application-actions .approve {
+.application-actions .assign {
   background-color: #1B223C;
   color: white;
 }
 
-.application-actions .reject {
+.application-actions .cancel {
   background-color: #EE582B;
   color: #ffffff;
 }
 
-.application-actions .reject:hover {
-  background-color: #EE582B;
+.application-actions .cancel:hover {
+  background-color: #ee592bce;
   color: white;
 }
 
+.application-actions .assign:hover {
+  background-color: #1b223ce9;
+  color: white;
+}
 @media (max-width: 768px) {
   .project-applications-layout {
     flex-direction: column;

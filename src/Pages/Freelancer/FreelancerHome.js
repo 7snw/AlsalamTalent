@@ -1,3 +1,5 @@
+// src/Pages/Freelancer/FreelancerHome.js
+
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +14,7 @@ import axios from 'axios';
 
 const FreelancerHome = () => {
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
   const [allProjects, setAllProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -27,10 +30,13 @@ const FreelancerHome = () => {
       }
     };
 
-    const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
-    setSavedProjects(stored);
+    if (userId) {
+      const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
+      setSavedProjects(stored);
+    }
+
     fetchProjects();
-  }, []);
+  }, [userId]);
 
   const isProjectSaved = (project) => {
     return savedProjects.some(p => p._id === project._id);
@@ -38,7 +44,7 @@ const FreelancerHome = () => {
 
   const handleBookmarkClick = (e, project) => {
     e.stopPropagation();
-    const stored = JSON.parse(localStorage.getItem('savedProjects')) || [];
+    const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
     const isSaved = stored.find(p => p._id === project._id);
 
     let updated;
@@ -49,7 +55,7 @@ const FreelancerHome = () => {
     }
 
     setSavedProjects(updated);
-    localStorage.setItem('savedProjects', JSON.stringify(updated));
+    localStorage.setItem(`savedProjects_${userId}`, JSON.stringify(updated));
   };
 
   const categories = ['All', 'Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'];
@@ -110,7 +116,6 @@ const FreelancerHome = () => {
                 }}
                 onClick={() => navigate(`/project-details/${project._id}`)}
               >
-                
                 <img src={project.imageUrl || project.image || project.coverImage} alt={project.title} />
                 <h4>{project.title}</h4>
                 <p>{project.budget} BHD</p>

@@ -119,23 +119,24 @@ const ProjectApplications = () => {
                   <img src={app.project?.imageUrl} alt={app.project?.title} />
                   <div className="application-info">
                     <h4>{app.project?.title}</h4>
-                    <p>Freelancer: <span className="freelancer-link" onClick={() => navigate(`/freelancer/${app.freelancer.id}`)}>{app.freelancer?.name}</span></p>
+                    <p>Freelancer: <span className="freelancer-link" onClick={() => navigate(`/freelancerprofile/${app.freelancer.id}`)}>{app.freelancer?.name}</span></p>
+
                     <p>Status: {app.status}</p>
                   </div>
                   <div className="application-actions">
                     <button
-                      className="approve"
+                      className="assign"
                       disabled={app.status === 'Assigned'}
                       onClick={() => handleAction(app.project.id, app.freelancer.id, 'approve')}
                     >
-                      Approve
+                      Assign
                     </button>
                     <button
-                      className="reject"
+                      className="cancel"
                       disabled={app.status === 'Cancelled'}
                       onClick={() => handleAction(app.project.id, app.freelancer.id, 'reject')}
                     >
-                      Reject
+                      Cancel
                     </button>
                   </div>
                 </motion.div>

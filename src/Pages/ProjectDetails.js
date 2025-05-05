@@ -16,9 +16,13 @@ import {
 
 const ProjectDetails = () => {
   const { id } = useParams();
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default fallback
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig1);
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [applied, setApplied] = useState(false);
+
+
+  const role = localStorage.getItem('role');
 
   useEffect(() => {
     const role = localStorage.getItem("role");
@@ -35,7 +39,7 @@ const ProjectDetails = () => {
       default:
         setNavbarConfig(NavConfig1);
     }
-  }, []);
+  }, [role]);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -54,13 +58,31 @@ const ProjectDetails = () => {
     fetchProject();
   }, [id]);
 
+  const handleApply = async () => {
+    const userId = localStorage.getItem('userId'); // move it here
+    const authorId = project.authorId; // the client ID
+  
+    try {
+      await axios.post('http://localhost:5000/api/applications/create', {
+        projectId: project._id,
+        freelancerId: userId,
+        authorId: authorId
+      });
+  
+      alert('Successfully applied to this project!');
+      setApplied(true);
+    } catch (error) {
+      console.error('Error applying to project:', error);
+      alert(error.response?.data?.message || 'Already applied or error occurred.');
+    }
+  };
+  
   if (loading) return <p>Loading project...</p>;
   if (!project) return <p>Project not found.</p>;
 
   return (
     <div className="project-details-page">
       <Navbar links={navbarConfig} />
-
       <div className="details-container">
         <h2>{project.title}</h2>
 
@@ -113,6 +135,16 @@ const ProjectDetails = () => {
                 onClick={() => alert("Apply logic coming soon")}
               >
                 Apply for this Project
+              </button>
+            )}
+
+            {role === 'freelancer' && (
+              <button
+                className="apply-btn"
+                onClick={handleApply}
+                disabled={applied}
+              >
+                {applied ? 'Applied' : 'Apply for this Project'}
               </button>
             )}
           </div>
