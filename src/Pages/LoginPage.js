@@ -19,20 +19,31 @@ const LoginPage = () => {
         password
       });
 
-      const { role, id, name, email: userEmail } = response.data;
+      const userData = response.data;
 
-      // Save role & user info if needed
-      localStorage.setItem('role', role);
-      localStorage.setItem('userId', id);
-      localStorage.setItem('userName', name);
-      localStorage.setItem('userEmail', userEmail);
+      // Confirm data format
+      if (!userData || !userData.id || !userData.role) {
+        alert('Invalid response from server.');
+        return;
+      }
 
-      // Redirect based on role
-      if (role === 'admin') {
+      // ✅ Save entire user object to localStorage
+      const user = {
+        _id: userData.id,
+        fullName: userData.name,
+        email: userData.email,
+        role: userData.role
+      };
+
+      localStorage.setItem('user', JSON.stringify(user));
+      console.log('User saved to localStorage:', user);
+
+      // 🔁 Redirect based on role
+      if (user.role === 'admin') {
         navigate('/analyticsadmin');
-      } else if (role === 'client') {
+      } else if (user.role === 'client') {
         navigate('/clienthome');
-      } else if (role === 'freelancer') {
+      } else if (user.role === 'freelancer') {
         navigate('/freelancer-home');
       } else {
         alert('Unknown role detected');
@@ -48,9 +59,10 @@ const LoginPage = () => {
     <div className="login-body">
       <div className="login-wrapper">
         <div className="login-container">
-           <button className="back-btn" onClick={() => navigate('/studentgraduate')}>
-                    <FaArrowLeft />
-                  </button>
+          <button className="back-btn" onClick={() => navigate('/studentgraduate')}>
+            <FaArrowLeft />
+          </button>
+
           <div className="login-left">
             <h2>Sign in to your Account</h2>
             <form onSubmit={handleSubmit} className="login-form">

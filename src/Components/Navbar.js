@@ -109,7 +109,7 @@ const Navbar = ({ links = [] }) => {
             src={ChatIcon}
             alt="Chat"
             className="nav-icon"
-            onClick={() => navigate('/freelancermessages')}
+            onClick={() => navigate('/messages')}
           />
           <img
             src={BellIcon}
