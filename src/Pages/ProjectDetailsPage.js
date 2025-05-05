@@ -43,7 +43,9 @@ const ProjectDetailsPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/projects/${id}`
+        );
         setProject(response.data);
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -65,6 +67,13 @@ const ProjectDetailsPage = () => {
 
         <div className="details-layout">
           <div className="left">
+            {userRole === "admin" && project.authorId?.fullName && (
+              <>
+                <h4>Author:</h4>
+                <p>{project.authorId.fullName}</p>
+              </>
+            )}
+
             <h4>Project Brief:</h4>
             <p>{project.brief}</p>
 
@@ -104,14 +113,15 @@ const ProjectDetailsPage = () => {
             )}
 
             <br />
-            {userRole === "client" && localStorage.getItem("userId") === project.authorId?._id && (
-              <button
-                className="edit-btn"
-                onClick={() => navigate(`/edit-project/${project._id}`)}
-              >
-                Edit Project
-              </button>
-            )}
+            {userRole === "client" &&
+              localStorage.getItem("userId") === project.authorId?._id && (
+                <button
+                  className="edit-btn"
+                  onClick={() => navigate(`/edit-project/${project._id}`)}
+                >
+                  Edit Project
+                </button>
+              )}
           </div>
 
           <div className="right">
