@@ -51,10 +51,7 @@ export const NavConfig3 = Object.assign([
 //Admin
 export const NavConfig4 = Object.assign([
   { label: 'Home', path: '/analyticsadmin' },
-  {
-    label: 'Projects', path: '/adminallprojects' 
-   
-  },
+  { label: 'Projects', path: '/adminallprojects' },
   { label: 'Freelancers', path: '/freelancers' },
   { label: 'Clients', path: '/clientlist' }
 ], {

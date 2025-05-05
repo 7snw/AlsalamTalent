@@ -58,14 +58,14 @@ const uploadAnyFile = multer({ storage, fileFilter: anyFileFilter });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 5. API Routes
+app.use('/api/admin/analytics', analyticsAdminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/freelancer', freelancerRoutes);
 app.use('/api/client', clientRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminRoutes); // 👈 Place this second
 app.use('/api/client/analytics', analyticsClientRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/admin/analytics', analyticsAdminRoutes);
 app.use('/api/auditlogs', auditLogRoutes);
 
 
