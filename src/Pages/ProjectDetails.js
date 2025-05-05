@@ -129,15 +129,6 @@ const ProjectDetails = () => {
               <p>No project files uploaded</p>
             )}
 
-            {localStorage.getItem("role") === "freelancer" && (
-              <button
-                className="apply-btn"
-                onClick={() => alert("Apply logic coming soon")}
-              >
-                Apply for this Project
-              </button>
-            )}
-
             {role === 'freelancer' && (
               <button
                 className="apply-btn"

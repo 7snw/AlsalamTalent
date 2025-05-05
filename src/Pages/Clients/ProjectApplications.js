@@ -57,11 +57,12 @@ const ProjectApplications = () => {
   };
 
   const filteredApps = applications.filter((app) => {
+    const appStatus = app.status || 'Under Review'; 
     const matchesSearch = app.project?.title?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus =
-      filters.status.length === 0 || filters.status.includes(app.status);
+    const matchesStatus = filters.status.length === 0 || filters.status.includes(appStatus);
     return matchesSearch && matchesStatus;
   });
+  
 
   return (
     <div className="project-applications-page">
@@ -118,11 +119,12 @@ const ProjectApplications = () => {
                 >
                   <img src={app.project?.imageUrl} alt={app.project?.title} />
                   <div className="application-info">
-                    <h4>{app.project?.title}</h4>
-                    <p>Freelancer: <span className="freelancer-link" onClick={() => navigate(`/freelancerprofile/${app.freelancer.id}`)}>{app.freelancer?.name}</span></p>
+  <h4>{app.project?.title}</h4>
+  <p>Freelancer: <span className="freelancer-link" onClick={() => navigate(`/freelancerprofile/${app.freelancer.id}`)}>{app.freelancer?.name}</span></p>
 
-                    <p>Status: {app.status}</p>
-                  </div>
+  <p>Status: {app.status || 'Under Review'}</p> 
+</div>
+
                   <div className="application-actions">
                     <button
                       className="assign"

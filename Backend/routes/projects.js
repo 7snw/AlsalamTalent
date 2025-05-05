@@ -74,8 +74,7 @@ router.get('/client/:authorId', async (req, res) => {
 // POST upload new project
 router.post('/upload', upload.fields([
   { name: 'projectImage', maxCount: 1 },
-  { name: 'projectFile', maxCount: 10 },
-  { name: 'contractDoc', maxCount: 10 }
+  { name: 'projectFile', maxCount: 10 }
 ]), async (req, res) => {
   try {
     const { title, brief, budget, category, authorId, status, durationFrom, durationTo } = req.body;
@@ -87,13 +86,6 @@ router.post('/upload', upload.fields([
 
     const projectFiles = req.files['projectFile']
       ? req.files['projectFile'].map(file => ({
-          name: file.originalname,
-          url: `${baseUrl}/${file.path}`
-        }))
-      : [];
-
-    const contractDocs = req.files['contractDoc']
-      ? req.files['contractDoc'].map(file => ({
           name: file.originalname,
           url: `${baseUrl}/${file.path}`
         }))
@@ -111,8 +103,7 @@ router.post('/upload', upload.fields([
         to: new Date(durationTo)
       },
       imageUrl: projectImage,
-      files: projectFiles,
-      docs: contractDocs
+      files: projectFiles
     });
 
     await newProject.save();
@@ -126,8 +117,7 @@ router.post('/upload', upload.fields([
 // PUT update existing project with optional files
 router.put('/:id', upload.fields([
   { name: 'projectImage', maxCount: 1 },
-  { name: 'projectFile', maxCount: 10 },
-  { name: 'contractDoc', maxCount: 10 }
+  { name: 'projectFile', maxCount: 10 }
 ]), async (req, res) => {
   try {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -139,13 +129,6 @@ router.put('/:id', upload.fields([
 
     if (req.files['projectFile']) {
       updates.files = req.files['projectFile'].map(file => ({
-        name: file.originalname,
-        url: `${baseUrl}/${file.path}`
-      }));
-    }
-
-    if (req.files['contractDoc']) {
-      updates.docs = req.files['contractDoc'].map(file => ({
         name: file.originalname,
         url: `${baseUrl}/${file.path}`
       }));

@@ -1,3 +1,5 @@
+// 1. models/Freelancer.js
+
 const mongoose = require('mongoose');
 
 const freelancerSchema = new mongoose.Schema({
@@ -25,17 +27,12 @@ const freelancerSchema = new mongoose.Schema({
   projects: [
     {
       projectTitle: String,
-      projectStatus: String,
-      projectFiles: [String],
-      projectImage: String
+      projectStatus: { type: String, default: 'Assigned' },
+      projectFiles: { type: [String], default: [] },
+      projectImage: { type: String, default: '' }
     }
   ],
-  savedProjects: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Project'
-    }
-  ],
+  savedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
   applications: [
     {
       projectId: {
@@ -44,11 +41,12 @@ const freelancerSchema = new mongoose.Schema({
       },
       status: {
         type: String,
-        enum: ['Pending', 'Approved', 'Canceled'],
+        enum: ['Cancelled', 'Assigned', 'Submitted'], // ADDED Assigned and Submitted
         default: 'Pending'
       }
     }
   ],
+  
   role: { type: String, default: 'freelancer' }
 }, { timestamps: true });
 

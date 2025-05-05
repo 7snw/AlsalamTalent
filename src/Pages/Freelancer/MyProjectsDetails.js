@@ -1,3 +1,5 @@
+// src/Pages/Freelancer/MyProjectsDetails.js
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../Components/Navbar';
@@ -5,7 +7,7 @@ import Footer from '../../Components/Footer';
 import '../../Style/Freelancer/MyProjectsDetails.css';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import axios from 'axios';
-import { FiDownload, FiTrash2, FiPaperclip } from 'react-icons/fi'; // 📎 + Download + Trash
+import { FiDownload, FiTrash2, FiPaperclip } from 'react-icons/fi';
 
 const MyProjectsDetails = () => {
   const { projectId } = useParams();
@@ -15,7 +17,7 @@ const MyProjectsDetails = () => {
 
   const [project, setProject] = useState(null);
   const [newTitle, setNewTitle] = useState('');
-  const [newStatus, setNewStatus] = useState('');
+  const [newStatus, setNewStatus] = useState('Assigned');
   const [newProjectImage, setNewProjectImage] = useState(null);
   const [newFiles, setNewFiles] = useState([]);
 
@@ -33,7 +35,7 @@ const MyProjectsDetails = () => {
         } else {
           setProject(selectedProject);
           setNewTitle(selectedProject.projectTitle);
-          setNewStatus(selectedProject.projectStatus);
+          setNewStatus(selectedProject.projectStatus || 'Assigned');
           setNewFiles(selectedProject.projectFiles || []);
         }
       } catch (error) {
@@ -71,9 +73,9 @@ const MyProjectsDetails = () => {
 
       newFiles.forEach(file => {
         if (typeof file === 'string') {
-          formData.append('existingFiles', file); // existing
+          formData.append('existingFiles', file);
         } else {
-          formData.append('projectFiles', file); // new uploads
+          formData.append('projectFiles', file);
         }
       });
 
@@ -98,8 +100,8 @@ const MyProjectsDetails = () => {
       <Navbar links={NavConfig2} />
 
       <div className="details-container4">
+        <h1 className="page-title">My Project Details</h1>
 
-      <h1 className="page-title">My Project Details</h1>
         <div className="submit-form-group4">
           <label className="submit-label44">Project Title:</label>
           <input
@@ -112,7 +114,6 @@ const MyProjectsDetails = () => {
           />
         </div>
 
-        {/* Project Status */}
         <div className="submit-form-group4">
           <label className="submit-label4">Project Status:</label>
           <select
@@ -121,13 +122,11 @@ const MyProjectsDetails = () => {
             onChange={(e) => setNewStatus(e.target.value)}
             required
           >
-            <option value="">Select Status</option>
-            <option value="In-progress">In Progress</option>
-            <option value="Completed">Completed</option>
+            <option value="Assigned">Assigned</option>
+            <option value="Submitted">Submitted</option>
           </select>
         </div>
 
-        {/* Project Image */}
         <div className="submit-form-group4">
           <label className="submit-label4">Project Image:</label>
           <div className="project-image44">
@@ -145,7 +144,6 @@ const MyProjectsDetails = () => {
           />
         </div>
 
-        {/* Project Files */}
         <div className="submit-form-group4">
           <label className="submit-Files">Project Files:</label>
           <div className="uploaded-files-list4">
@@ -173,11 +171,7 @@ const MyProjectsDetails = () => {
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            className="submit-file-btn4"
-            onClick={() => fileInputRef.current.click()}
-          >
+          <button type="button" className="submit-file-btn4" onClick={() => fileInputRef.current.click()}>
             Attach Files <FiPaperclip style={{ marginLeft: '8px' }} />
           </button>
           <input
@@ -190,12 +184,10 @@ const MyProjectsDetails = () => {
           />
         </div>
 
-        {/* Save + Back Buttons */}
         <div className="button-container4">
           <button className="back-btn4" onClick={() => navigate('/myprojects')}>Back to My Projects</button>
           <button className="save-btn4" onClick={handleSaveChanges}>Save Changes</button>
         </div>
-
       </div>
 
       <Footer />
