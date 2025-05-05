@@ -16,15 +16,30 @@ const renderStars = (count) => {
 };
 
 const FreelancersList = () => {
-  const role = localStorage.getItem('role');
   const navigate = useNavigate();
 
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default to freelancer
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     expertise: [],
     rating: []
   });
   const [freelancers, setFreelancers] = useState([]);
+
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    switch (role) {
+      case 'admin':
+        setNavbarConfig(NavConfig4);
+        break;
+      case 'client':
+        setNavbarConfig(NavConfig3);
+        break;
+      case 'freelancer':
+      default:
+        setNavbarConfig(NavConfig2);
+    }
+  }, []);
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/freelancer/list')
@@ -35,20 +50,6 @@ const FreelancersList = () => {
         console.error('Error fetching freelancers:', error);
       });
   }, []);
-
-  let navLinks;
-  switch (role) {
-    case 'admin':
-      navLinks = NavConfig4;
-      break;
-    case 'client':
-      navLinks = NavConfig3;
-      break;
-    case 'freelancer':
-    default:
-      navLinks = NavConfig2;
-      break;
-  }
 
   const handleFilterChange = (category, value) => {
     setFilters((prev) => {
@@ -77,14 +78,15 @@ const FreelancersList = () => {
 
     const matchesRatingFilter =
       filters.rating.length === 0 ||
-      filters.rating.includes((freelancer.rating || 5).toString()); // Assume 5 stars if no rating
+      filters.rating.includes((freelancer.rating || 5).toString());
 
     return matchesSearch && matchesExpertiseFilter && matchesRatingFilter;
   });
 
   return (
     <div className="freelancer-page">
-      <Navbar links={navLinks} />
+      <Navbar links={navbarConfig} />
+
       <div className="freelancer-container9">
         <div className="freelancer-content">
           {/* LEFT FILTER */}
@@ -139,43 +141,40 @@ const FreelancersList = () => {
               {filteredFreelancers.length > 0 ? (
                 filteredFreelancers.map((freelancer, i) => (
                   <motion.div
-                  className="freelancer-card"
-                  key={i}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  onClick={() => navigate(`/freelancerprofile/${freelancer._id}`)} // <<< Pass ID here
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="freelancer-info">
-                    <img
-                   src={freelancer.profileImageUrl ? `http://localhost:5000${freelancer.profileImageUrl}` : DefaultUserIcon}
-
-
-                      alt="user"
-                      className="profile-icon"
-                    />
-                    <div>
-                      <h3>{freelancer.fullName}</h3>
-                      <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>
+                    className="freelancer-card"
+                    key={i}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 30 }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                    onClick={() => navigate(`/freelancerprofile/${freelancer._id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="freelancer-info">
+                      <img
+                        src={freelancer.profileImageUrl ? `http://localhost:5000${freelancer.profileImageUrl}` : DefaultUserIcon}
+                        alt="user"
+                        className="profile-icon"
+                      />
+                      <div>
+                        <h3>{freelancer.fullName}</h3>
+                        <p>{freelancer.expertise?.join(', ') || "Freelancer"}</p>
+                      </div>
                     </div>
-                  </div>
-                
-                  <div className="freelancer-meta">
-                    <div className="rating">{renderStars(freelancer.rating || 5)}</div>
-                    <button
-                      className="contact-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/freelancermessages');
-                      }}
-                    >
-                      Get in touch
-                    </button>
-                  </div>
-                </motion.div>
-                
+
+                    <div className="freelancer-meta">
+                      <div className="rating">{renderStars(freelancer.rating || 5)}</div>
+                      <button
+                        className="contact-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/freelancermessages');
+                        }}
+                      >
+                        Get in touch
+                      </button>
+                    </div>
+                  </motion.div>
                 ))
               ) : (
                 <p>No freelancers found matching your search and filters.</p>
@@ -184,6 +183,7 @@ const FreelancersList = () => {
           </div>
         </div>
       </div>
+
       <Footer />
     </div>
   );

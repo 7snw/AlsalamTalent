@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import '../../Style/Clients/SubmittedProjectDetailsPage.css';
+import '../../Style/CircularProgress.css'; // ✅ Import circular progress styles
 import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
@@ -59,24 +60,6 @@ const SubmittedProjectDetailsPage = () => {
               <p>No project files uploaded.</p>
             )}
 
-            <h4>Contract Documents:</h4>
-            {project.docs && project.docs.length > 0 ? (
-              project.docs.map((doc, idx) => (
-                <a
-                  key={idx}
-                  className="download-btn"
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                >
-                  {doc.name}
-                </a>
-              ))
-            ) : (
-              <p>No contract documents uploaded.</p>
-            )}
-
             <h4>Review:*</h4>
             <div className="stars">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -106,20 +89,21 @@ const SubmittedProjectDetailsPage = () => {
           </div>
 
           <div className="right-section4">
-            <div className="circular-chart4">
-              <svg viewBox="0 0 36 36" className="circular4">
+            <div className="circular-chart">
+              <svg viewBox="0 0 36 36" className="circular">
                 <path
-                  className="circle-bg4"
-                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
+                  className="circle-bg"
+                  d="M18 2.0845
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
                 <path
-                  className="circle4"
-                  strokeDasharray="100, 0"
-                  d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831A15.9155 15.9155 0 1 1 18 2.0845"
+                  className="circle submitted"
+                  d="M18 2.0845
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
-                <text x="18" y="20.35" className="percentage4">
-                  100%
-                </text>
+                <text x="18" y="20.35" className="percentage">75%</text>
               </svg>
             </div>
           </div>

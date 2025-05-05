@@ -1,18 +1,18 @@
 // src/Pages/Clients/ProjectDetails.js
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import '../Style/ProjectDetailsPage.css';
-import Navbar from '../Components/Navbar';
-import Footer from '../Components/Footer';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import "../Style/ProjectDetailsPage.css";
+import Navbar from "../Components/Navbar";
+import Footer from "../Components/Footer";
+import axios from "axios";
 
 import {
   NavConfig1,
   NavConfig2,
   NavConfig3,
-  NavConfig4
-} from '../Data/NavbarConfigs';
+  NavConfig4,
+} from "../Data/NavbarConfigs";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -21,15 +21,15 @@ const ProjectDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
+    const role = localStorage.getItem("role");
     switch (role) {
-      case 'freelancer':
+      case "freelancer":
         setNavbarConfig(NavConfig2);
         break;
-      case 'client':
+      case "client":
         setNavbarConfig(NavConfig3);
         break;
-      case 'admin':
+      case "admin":
         setNavbarConfig(NavConfig4);
         break;
       default:
@@ -40,10 +40,12 @@ const ProjectDetails = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/projects/${id}`
+        );
         setProject(response.data);
       } catch (error) {
-        console.error('Error fetching project details:', error);
+        console.error("Error fetching project details:", error);
       } finally {
         setLoading(false);
       }
@@ -65,29 +67,38 @@ const ProjectDetails = () => {
         <div className="details-layout">
           <div className="left">
             <h4>Author / Organization:</h4>
-            <p>{project.authorName || 'Unknown'}</p>
+            <p>{project.authorName || "Unknown"}</p>
 
             <h4>Project Brief:</h4>
-            <p>{project.description}</p>
+            <p>{project.brief}</p>
 
             <h4>Budget/Price:</h4>
             <p>{project.budget} BHD</p>
 
             <h4>Duration:</h4>
-            {project.startDate && project.endDate ? (
-              <p>{new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}</p>
+            {project.duration?.from && project.duration?.to ? (
+              <p>
+                {new Date(project.duration.from).toLocaleDateString()} -{" "}
+                {new Date(project.duration.to).toLocaleDateString()}
+              </p>
             ) : (
               <p>Duration not specified</p>
             )}
 
             <h4>Status:</h4>
-            <p>{project.status || 'Open'}</p>
+            <p>{project.status || "Open"}</p>
 
             <h4>Project Files:</h4>
             {project.files && project.files.length > 0 ? (
               project.files.map((file, idx) => (
                 <div key={idx}>
-                  <a href={file.url} target="_blank" rel="noopener noreferrer" className="download-btn" download>
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="download-btn"
+                    download
+                  >
                     {file.name}
                   </a>
                 </div>
@@ -96,25 +107,14 @@ const ProjectDetails = () => {
               <p>No project files uploaded</p>
             )}
 
-            <h4>Contract Documents:</h4>
-            {project.docs && project.docs.length > 0 ? (
-              project.docs.map((doc, idx) => (
-                <div key={idx}>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer"className="download-btn" download>
-                    {doc.name}
-                  </a>
-                </div>
-              ))
-            ) : (
-              <p>No contract documents uploaded</p>
+            {localStorage.getItem("role") === "freelancer" && (
+              <button
+                className="apply-btn"
+                onClick={() => alert("Apply logic coming soon")}
+              >
+                Apply for this Project
+              </button>
             )}
-
-            {localStorage.getItem('role') === 'freelancer' && (
-  <button className="apply-btn" onClick={() => alert('Apply logic coming soon')}>
-    Apply for this Project
-  </button>
-)}
-
           </div>
 
           <div className="right">

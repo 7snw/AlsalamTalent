@@ -72,7 +72,14 @@ const ProjectDetailsPage = () => {
             <p>{project.budget} BHD</p>
 
             <h4>Duration:</h4>
-            <p>{project.startDate} to {project.endDate}</p>
+            {project.duration?.from && project.duration?.to ? (
+              <p>
+                {new Date(project.duration.from).toLocaleDateString()} to{" "}
+                {new Date(project.duration.to).toLocaleDateString()}
+              </p>
+            ) : (
+              <p>Duration not specified</p>
+            )}
 
             <h4>Status:</h4>
             <p>{project.status}</p>
@@ -81,7 +88,13 @@ const ProjectDetailsPage = () => {
             {project.files && project.files.length > 0 ? (
               project.files.map((file, idx) => (
                 <div key={idx}>
-                  <a href={file.url} target="_blank" rel="noopener noreferrer" className="download-btn" download>
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="download-btn"
+                    download
+                  >
                     {file.name}
                   </a>
                 </div>
@@ -90,29 +103,15 @@ const ProjectDetailsPage = () => {
               <p>No project files uploaded</p>
             )}
 
-            <h4>Contract Documents:</h4>
-            {project.docs && project.docs.length > 0 ? (
-              project.docs.map((doc, idx) => (
-                <div key={idx}>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="download-btn" download>
-                    {doc.name}
-                  </a>
-                </div>
-              ))
-            ) : (
-              <p>No contract documents uploaded</p>
-            )}
-
             <br />
             {userRole === "client" && localStorage.getItem("userId") === project.authorId?._id && (
-  <button
-    className="edit-btn"
-    onClick={() => navigate(`/edit-project/${project._id}`)}
-  >
-    Edit Project
-  </button>
-)}
-
+              <button
+                className="edit-btn"
+                onClick={() => navigate(`/edit-project/${project._id}`)}
+              >
+                Edit Project
+              </button>
+            )}
           </div>
 
           <div className="right">

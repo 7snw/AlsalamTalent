@@ -32,7 +32,8 @@ const AssignedProject = () => {
   }, []);
 
   const assignedProjects = projects.filter(
-    (proj) => proj.authorId?._id === userId || proj.authorId === userId
+    (proj) => (proj.authorId?._id === userId || proj.authorId === userId )&&
+    proj.status !== 'Open'
   );
 
   const filteredProjects = assignedProjects.filter((project) => {
@@ -74,7 +75,7 @@ const AssignedProject = () => {
             <p className="hint">Filter your assigned projects by their status.</p>
             <div className="filter-group">
               <h4>Status</h4>
-              {['On Going', 'Submitted', 'Completed'].map((status) => (
+              {['Outgoing', 'Submitted', 'Completed'].map((status) => (
                 <label key={status}>
                   <input
                     type="checkbox"
@@ -123,7 +124,7 @@ const AssignedProject = () => {
                     <p>No image available</p>
                   )}
                   <h4>{proj.title}</h4>
-                  <p>{proj.authorName || 'Unknown'}</p>
+                  <p>{proj.freelancerId?.fullName || 'No Freelancer Assigned'}</p>
                   <span className="progress-text2">{proj.status}</span>
                 </motion.div>
               ))}

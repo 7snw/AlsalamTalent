@@ -11,10 +11,13 @@ const multer = require('multer');
 const userRoutes = require('./routes/users'); // login + register users
 const freelancerRoutes = require('./routes/freelancers');
 const clientRoutes = require('./routes/clients');
+const adminRoutes = require('./routes/admin');
 const analyticsClientRoutes = require('./routes/analyticsClient');
 const applicationRoutes = require('./routes/applications');
 const projectRoutes = require('./routes/projects');
 const analyticsAdminRoutes = require('./routes/analyticsAdmin');
+const auditLogRoutes = require('./routes/auditLogs');
+
 
 const app = express();
 
@@ -58,10 +61,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/users', userRoutes);
 app.use('/api/freelancer', freelancerRoutes);
 app.use('/api/client', clientRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/client/analytics', analyticsClientRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/admin/analytics', analyticsAdminRoutes);
+app.use('/api/auditlogs', auditLogRoutes);
+
 
 // 6. Upload routes
 app.post('/api/upload-image', uploadImage.single('image'), (req, res) => {

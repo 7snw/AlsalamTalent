@@ -60,11 +60,9 @@ const EditProject = () => {
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState("");
   const [projectFiles, setProjectFiles] = useState([]);
-  const [contractDocs, setContractDocs] = useState([]);
   const [projectImage, setProjectImage] = useState(null);
 
   const projectFileInput = useRef();
-  const contractDocInput = useRef();
   const projectImageInput = useRef();
 
   useEffect(() => {
@@ -77,7 +75,6 @@ const EditProject = () => {
       setEndDate(project.duration?.to?.split("T")[0] || "");
       setStatus(project.status || "");
       setProjectFiles(project.files || []);
-      setContractDocs(project.docs || []);
       setProjectImage(project.imageUrl || null);
     }
   }, [project]);
@@ -96,7 +93,6 @@ const EditProject = () => {
         to: endDate,
       },
       files: projectFiles,
-      docs: contractDocs,
       imageUrl: projectImage || "",
     };
 
@@ -109,9 +105,9 @@ const EditProject = () => {
     }
   };
 
-  const handleMultipleFileChange = (e, setter) => {
+  const handleMultipleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setter((prev) => [...prev, ...files.map(file => ({ name: file.name, url: `uploads/${file.name}` }))]);
+    setProjectFiles((prev) => [...prev, ...files.map(file => ({ name: file.name, url: `uploads/${file.name}` }))]);
     e.target.value = '';
   };
 
@@ -194,8 +190,7 @@ const EditProject = () => {
           >
             <option value="">Select Status</option>
             <option value="Open">Open</option>
-            <option value="Pending">Pending</option>
-            <option value="In-progress">In-progress</option>
+            <option value="Assigned">Assigned</option>
             <option value="Completed">Completed</option>
           </select>
 
@@ -213,32 +208,10 @@ const EditProject = () => {
               type="file"
               multiple
               ref={projectFileInput}
-              onChange={(e) => handleMultipleFileChange(e, setProjectFiles)}
+              onChange={handleMultipleFileChange}
               hidden
             />
             {projectFiles.map((file, idx) => (
-              <p key={idx} className="post-project-filename">{file.name}</p>
-            ))}
-          </div>
-
-          <div className="post-project-upload-group">
-            <label>Contract Documents*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => contractDocInput.current.click()}
-            >
-              Attach Docs
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
-            </button>
-            <input
-              type="file"
-              multiple
-              ref={contractDocInput}
-              onChange={(e) => handleMultipleFileChange(e, setContractDocs)}
-              hidden
-            />
-            {contractDocs.map((file, idx) => (
               <p key={idx} className="post-project-filename">{file.name}</p>
             ))}
           </div>
