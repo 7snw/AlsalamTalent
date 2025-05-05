@@ -75,7 +75,7 @@ const AssignedProject = () => {
             <p className="hint">Filter your assigned projects by their status.</p>
             <div className="filter-group">
               <h4>Status</h4>
-              {['Outgoing', 'Submitted', 'Completed'].map((status) => (
+              {['Assigned', 'Submitted', 'Completed'].map((status) => (
                 <label key={status}>
                   <input
                     type="checkbox"

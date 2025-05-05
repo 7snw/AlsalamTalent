@@ -5,7 +5,6 @@ const fs = require('fs');
 const router = express.Router();
 const Freelancer = require('../models/Freelancer');
 
-
 // Create uploads folder if it doesn't exist
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -21,26 +20,15 @@ const storage = multer.diskStorage({
   }
 });
 
-// Image file filter (for profile image uploads)
 const imageFileFilter = (req, file, cb) => {
   const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
   if (allowed.includes(file.mimetype)) cb(null, true);
   else cb(new Error('Only JPEG, PNG, JPG, or WEBP images are allowed.'));
 };
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max size
-  fileFilter: imageFileFilter
-});
+const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 }, fileFilter: imageFileFilter });
+const uploadAnyFile = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// Any file filter (for project files)
-const uploadAnyFile = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB max size
-});
-
-// BASE URL for uploaded files
 const BASE_URL = 'http://localhost:5000';
 
 // Register new freelancer
@@ -51,7 +39,6 @@ router.post('/register', async (req, res) => {
       cprImageUrl: req.body.userType === 'graduate' ? req.body.cprImageUrl : undefined,
       dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : undefined,
     };
-
     const newFreelancer = await Freelancer.create(data);
     res.status(201).json(newFreelancer);
   } catch (err) {
@@ -60,7 +47,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Get freelancer list (brief)
+// Get freelancer list
 router.get('/list', async (req, res) => {
   try {
     const freelancers = await Freelancer.find({}, 'fullName expertise profileImageUrl');
@@ -71,13 +58,10 @@ router.get('/list', async (req, res) => {
   }
 });
 
-// Get graduates list
+// Get graduates
 router.get('/graduates', async (req, res) => {
   try {
-    const graduates = await Freelancer.find(
-      { userType: 'graduate' },
-      'fullName studentId cprImageUrl'
-    );
+    const graduates = await Freelancer.find({ userType: 'graduate' }, 'fullName studentId cprImageUrl');
     res.json(graduates);
   } catch (err) {
     console.error('Error fetching graduates:', err);
@@ -91,11 +75,7 @@ router.get('/profile/:id', async (req, res) => {
     const freelancer = await Freelancer.findById(req.params.id).select(
       'fullName email studentId major phone dateOfBirth bio skills specialties expertise portfolio role cprImageUrl profileImageUrl projects'
     );
-
-    if (!freelancer) {
-      return res.status(404).json({ message: 'Freelancer not found' });
-    }
-
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
     res.json(freelancer);
   } catch (err) {
     console.error('Error fetching freelancer profile:', err);
@@ -110,23 +90,11 @@ router.put('/profile/:id', upload.single('profileImage'), async (req, res) => {
     const parsedData = JSON.parse(req.body.data);
     const updates = { ...parsedData };
 
-    if (updates.dateOfBirth) {
-      updates.dateOfBirth = new Date(updates.dateOfBirth);
-    }
+    if (updates.dateOfBirth) updates.dateOfBirth = new Date(updates.dateOfBirth);
+    if (req.file) updates.profileImageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
 
-    if (req.file) {
-      updates.profileImageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
-    }
-
-    const updatedFreelancer = await Freelancer.findByIdAndUpdate(
-      freelancerId,
-      updates,
-      { new: true }
-    );
-
-    if (!updatedFreelancer) {
-      return res.status(404).json({ message: 'Freelancer not found' });
-    }
+    const updatedFreelancer = await Freelancer.findByIdAndUpdate(freelancerId, updates, { new: true });
+    if (!updatedFreelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
     res.json(updatedFreelancer);
   } catch (err) {
@@ -135,20 +103,14 @@ router.put('/profile/:id', upload.single('profileImage'), async (req, res) => {
   }
 });
 
-// Change freelancer password
+// Change password
 router.put('/changepassword/:id', async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const freelancerId = req.params.id;
+    const freelancer = await Freelancer.findById(req.params.id);
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    const freelancer = await Freelancer.findById(freelancerId);
-    if (!freelancer) {
-      return res.status(404).json({ message: 'Freelancer not found' });
-    }
-
-    if (freelancer.password !== oldPassword) {
-      return res.status(400).json({ message: 'Old password is incorrect' });
-    }
+    if (freelancer.password !== oldPassword) return res.status(400).json({ message: 'Old password is incorrect' });
 
     freelancer.password = newPassword;
     await freelancer.save();
@@ -160,47 +122,30 @@ router.put('/changepassword/:id', async (req, res) => {
   }
 });
 
-// Add project to freelancer
-router.post('/:id/add-project', 
-  uploadAnyFile.fields([
-    { name: 'projectFiles', maxCount: 10 },
-    { name: 'projectImage', maxCount: 1 }
-  ]), 
-async (req, res) => {
+// Add project
+router.post('/:id/add-project', uploadAnyFile.fields([{ name: 'projectFiles', maxCount: 10 }, { name: 'projectImage', maxCount: 1 }]), async (req, res) => {
   try {
     const { projectTitle, projectStatus } = req.body;
     const freelancerId = req.params.id;
 
-    const projectFiles = req.files['projectFiles']?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
-    const projectImage = req.files['projectImage']?.[0] ? `${BASE_URL}/uploads/${req.files['projectImage'][0].filename}` : '';
+    const projectFiles = req.files?.projectFiles?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
+    const projectImage = req.files?.projectImage?.[0] ? `${BASE_URL}/uploads/${req.files.projectImage[0].filename}` : '';
 
-    const newProject = {
-      projectTitle,
-      projectStatus,
-      projectFiles,
-      projectImage
-    };
+    const newProject = { projectTitle, projectStatus, projectFiles, projectImage };
+    const freelancer = await Freelancer.findByIdAndUpdate(freelancerId, { $push: { projects: newProject } }, { new: true });
 
-    const freelancer = await Freelancer.findByIdAndUpdate(
-      freelancerId,
-      { $push: { projects: newProject } },
-      { new: true }
-    );
-
-    res.status(200).json(freelancer.projects);
+    res.json({ message: 'Project added successfully', project: newProject });
   } catch (err) {
     console.error('Error adding project:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// Get freelancer's own projects
+// Get my projects
 router.get('/:id/my-projects', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.id).select('projects');
-    if (!freelancer) {
-      return res.status(404).json({ message: 'Freelancer not found' });
-    }
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
     res.json(freelancer.projects);
   } catch (err) {
     console.error('Error fetching projects:', err);
@@ -209,18 +154,14 @@ router.get('/:id/my-projects', async (req, res) => {
 });
 
 // Update project
-router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([
-  { name: 'projectFiles', maxCount: 10 },
-  { name: 'projectImage', maxCount: 1 }
-]), async (req, res) => {
+router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([{ name: 'projectFiles', maxCount: 10 }, { name: 'projectImage', maxCount: 1 }]), async (req, res) => {
   try {
     const { freelancerId, projectId } = req.params;
     const { projectTitle, projectStatus, existingFiles = [] } = req.body;
 
-    const newProjectFiles = req.files['projectFiles']?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
-    const allFiles = Array.isArray(existingFiles) ? [...existingFiles, ...newProjectFiles] : [...newProjectFiles];
-
-    const projectImage = req.files['projectImage']?.[0] ? `${BASE_URL}/uploads/${req.files['projectImage'][0].filename}` : undefined;
+    const newProjectFiles = req.files?.projectFiles?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
+    const allFiles = [...(Array.isArray(existingFiles) ? existingFiles : [existingFiles]), ...newProjectFiles];
+    const projectImage = req.files?.projectImage?.[0] ? `${BASE_URL}/uploads/${req.files.projectImage[0].filename}` : undefined;
 
     const freelancer = await Freelancer.findById(freelancerId);
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
@@ -234,30 +175,27 @@ router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([
     if (projectImage) project.projectImage = projectImage;
 
     await freelancer.save();
-    res.json(freelancer.projects);
+    res.json({ message: 'Project updated successfully', project });
   } catch (err) {
-    console.error(err);
+    console.error('Error updating project:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// Apply to a project
+// Apply to project
 router.put('/:id/apply-project', async (req, res) => {
   try {
     const { projectId } = req.body;
     const freelancer = await Freelancer.findById(req.params.id);
-
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
     const alreadyApplied = freelancer.applications.find((a) => a.projectId.toString() === projectId);
-    if (alreadyApplied) {
-      return res.status(400).json({ message: 'Already applied to this project' });
-    }
+    if (alreadyApplied) return res.status(400).json({ message: 'Already applied to this project' });
 
     freelancer.applications.push({ projectId });
     await freelancer.save();
 
-    res.json(freelancer.applications);
+    res.json({ message: 'Applied successfully', applications: freelancer.applications });
   } catch (err) {
     console.error('Error applying to project:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -270,11 +208,7 @@ router.get('/:id/applications', async (req, res) => {
     const freelancer = await Freelancer.findById(req.params.id).populate('applications.projectId');
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    const apps = freelancer.applications.map(a => ({
-      project: a.projectId,
-      status: a.status
-    }));
-
+    const apps = freelancer.applications.map(a => ({ project: a.projectId, status: a.status }));
     res.json(apps);
   } catch (err) {
     console.error('Error fetching applications:', err);
@@ -282,25 +216,21 @@ router.get('/:id/applications', async (req, res) => {
   }
 });
 
-// Update freelancer's saved projects
+// Save/Unsave project
 router.put('/:id/save-project', async (req, res) => {
   try {
     const { projectId } = req.body;
     const freelancer = await Freelancer.findById(req.params.id);
-
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    const alreadySaved = freelancer.savedProjects.includes(projectId);
-
-    let updatedFreelancer;
-    if (alreadySaved) {
+    if (freelancer.savedProjects.includes(projectId)) {
       freelancer.savedProjects = freelancer.savedProjects.filter(id => id.toString() !== projectId);
     } else {
       freelancer.savedProjects.push(projectId);
     }
 
-    updatedFreelancer = await freelancer.save();
-    res.json(updatedFreelancer.savedProjects);
+    await freelancer.save();
+    res.json({ message: 'Saved projects updated', savedProjects: freelancer.savedProjects });
   } catch (error) {
     console.error('Error saving project:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

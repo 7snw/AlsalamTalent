@@ -59,7 +59,7 @@ const MyProjects = () => {
             <p className="hint">Filter your projects according to their progress.</p>
             <div className="filter-group">
               <h4>Type</h4>
-              {['Completed', 'In-progress'].map((type) => (
+              {['Assigned', 'Submitted'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
