@@ -1,4 +1,4 @@
-// src/Pages/Freelancer/FreelancerHome.js
+// Updated FreelancerHome.js
 
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,41 +21,36 @@ const FreelancerHome = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/projects/all');
-        setAllProjects(response.data);
+        const projectsRes = await axios.get('http://localhost:5000/api/projects/all');
+        setAllProjects(projectsRes.data);
+
+        if (userId) {
+          const savedRes = await axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`);
+          setSavedProjects(savedRes.data);
+        }
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    if (userId) {
-      const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
-      setSavedProjects(stored);
-    }
-
-    fetchProjects();
+    fetchData();
   }, [userId]);
 
-  const isProjectSaved = (project) => {
-    return savedProjects.some(p => p._id === project._id);
+  const isProjectSaved = (projectId) => {
+    return savedProjects.some(p => p._id === projectId);
   };
 
-  const handleBookmarkClick = (e, project) => {
+  const handleBookmarkClick = async (e, projectId) => {
     e.stopPropagation();
-    const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
-    const isSaved = stored.find(p => p._id === project._id);
-
-    let updated;
-    if (isSaved) {
-      updated = stored.filter(p => p._id !== project._id);
-    } else {
-      updated = [...stored, project];
+    try {
+      await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
+      const res = await axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`);
+      setSavedProjects(res.data);
+    } catch (error) {
+      console.error('Error saving project:', error);
     }
-
-    setSavedProjects(updated);
-    localStorage.setItem(`savedProjects_${userId}`, JSON.stringify(updated));
   };
 
   const categories = ['All', 'Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'];
@@ -119,8 +114,8 @@ const FreelancerHome = () => {
                 <img src={project.imageUrl || project.image || project.coverImage} alt={project.title} />
                 <h4>{project.title}</h4>
                 <p>{project.budget} BHD</p>
-                <span className="bookmark" onClick={(e) => handleBookmarkClick(e, project)}>
-                  {isProjectSaved(project) ? <FaBookmark /> : <FaRegBookmark />}
+                <span className="bookmark" onClick={(e) => handleBookmarkClick(e, project._id)}>
+                  {isProjectSaved(project._id) ? <FaBookmark /> : <FaRegBookmark />}
                 </span>
               </motion.div>
             ))}

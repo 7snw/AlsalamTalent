@@ -20,14 +20,23 @@ const Navbar = ({ links = [] }) => {
 
   useEffect(() => {
     const fetchProfileImage = async () => {
-      if (role === 'freelancer' && userId) {
+      if (role && userId) {
         try {
-          const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${userId}`);
-          if (data?.profileImageUrl) {
-            setProfileImage(`http://localhost:5000${data.profileImageUrl}`);
+          let apiUrl = '';
+          if (role === 'freelancer') {
+            apiUrl = `http://localhost:5000/api/freelancer/profile/${userId}`;
+          }
+          // You can add for client/admin if needed.
+
+          if (apiUrl) {
+            const { data } = await axios.get(apiUrl);
+            if (data?.profileImageUrl) {
+              setProfileImage(data.profileImageUrl); // No need to add http://localhost:5000 manually
+            }
           }
         } catch (error) {
           console.error('Error fetching profile image:', error);
+          setProfileImage(DefaultUserIcon);
         }
       }
     };
@@ -35,7 +44,8 @@ const Navbar = ({ links = [] }) => {
     fetchProfileImage();
   }, [role, userId]);
 
-  let profilePath = '/myprofile';
+  // Paths depending on user role
+  let profilePath = '/';
   let editProfilePath = null;
   let addProfilePath = null;
   let auditProfilePath = null;

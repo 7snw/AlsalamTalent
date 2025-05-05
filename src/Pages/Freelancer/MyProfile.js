@@ -40,13 +40,13 @@ const MyProfile = () => {
 
     const fetchPortfolio = async (freelancerId) => {
       try {
-        // Fetch portfolio data using freelancerId
-        const { data } = await axios.get(`http://localhost:5000/api/portfolio/${freelancerId}`);
-        setUploadedFiles(data);  // Set portfolio data to state
+        const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
+        setUploadedFiles(data.portfolio);  
       } catch (error) {
         console.error('Failed to fetch portfolio:', error);
       }
     };
+    
 
     fetchFreelancerProfile();
   }, []);
@@ -74,7 +74,7 @@ const MyProfile = () => {
         <div className="profile-header2">
           <div className="left-profile2">
             <img
-              src={freelancerData?.profileImageUrl ? `http://localhost:5000${freelancerData.profileImageUrl}` : userIcon}
+               src={freelancerData?.profileImageUrl ? freelancerData.profileImageUrl : userIcon}
               alt="User Icon"
               className="profile-image2"
             />

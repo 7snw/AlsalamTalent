@@ -33,7 +33,7 @@ const SignUpPage = () => {
       [e.target.name]: e.target.value
     }));
   };
-
+  
   const handleExpertiseChange = (value) => {
     setFormData(prev => {
       const isSelected = prev.expertise.includes(value);

@@ -164,7 +164,8 @@ const ProfileSettings = () => {
         <div className="settings-sidebar9">
           <div className="sidebar-profile-header9">
             <img
-              src={preview || (freelancerData?.profileImageUrl ? `http://localhost:5000${freelancerData.profileImageUrl}` : userIcon)}
+            src={freelancerData?.profileImageUrl ? freelancerData.profileImageUrl : userIcon}
+
               alt="Profile"
               className="settings-user-icon9"
             />
@@ -194,7 +195,7 @@ const ProfileSettings = () => {
             <div className="section9">
               <div className="edit-profile-picture9">
                 <img
-                  src={preview || (freelancerData?.profileImageUrl ? `http://localhost:5000${freelancerData.profileImageUrl}` : userIcon)}
+                  src={preview || (freelancerData?.profileImageUrl ? freelancerData.profileImageUrl : userIcon)}
                   alt="Profile"
                   className="profile-preview9"
                 />

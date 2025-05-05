@@ -13,10 +13,9 @@ const SubmitProject = () => {
   const navigate = useNavigate();
 
   const [projectTitle, setProjectTitle] = useState('');
-  const [projectStatus, setProjectStatus] = useState('');
   const [projectFiles, setProjectFiles] = useState([]);
   const [projectImage, setProjectImage] = useState(null);
-
+ const [newStatus, setNewStatus] = useState('Assigned');
   const projectFileInput = useRef();
   const projectImageInput = useRef();
 
@@ -38,21 +37,22 @@ const SubmitProject = () => {
     try {
       const freelancerId = localStorage.getItem('userId');
       const formData = new FormData();
-
+  
       formData.append('projectTitle', projectTitle);
-      formData.append('projectStatus', projectStatus);
+      formData.append('projectStatus', newStatus); // <-- fixed here
       projectFiles.forEach(file => formData.append('projectFiles', file));
       if (projectImage) formData.append('projectImage', projectImage);
-
+  
       await axios.post(`http://localhost:5000/api/freelancer/${freelancerId}/add-project`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+  
       navigate('/myprojects');
     } catch (error) {
       console.error('Error submitting project:', error);
     }
   };
+  
 
   return (
     <div className="submit-page">
@@ -78,18 +78,17 @@ const SubmitProject = () => {
 
               {/* Project Status */}
               <div className="submit-form-group">
-                <label className="submit-label">Project Status:</label>
-                <select
-                  value={projectStatus}
-                  onChange={(e) => setProjectStatus(e.target.value)}
-                  className="submit-input-title9"
-                  required
-                >
-                  <option value="">Select Status</option>
-                  <option value="In-progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                </select>
-              </div>
+          <label className="submit-label">Project Status:</label>
+          <select
+            className="submit-input-title"
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value)}
+            required
+          >
+            <option value="Assigned">Assigned</option>
+            <option value="Submitted">Submitted</option>
+          </select>
+        </div>
 
               {/* Project Image */}
               <div className="submit-form-group">

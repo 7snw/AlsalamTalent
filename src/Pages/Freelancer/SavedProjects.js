@@ -1,6 +1,6 @@
 // src/Pages/Freelancer/SavedProjects.js
 
-import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { FaBookmark } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
@@ -11,19 +11,26 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
+import axios from 'axios';
 
 const SavedProjects = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
+  const [savedProjects, setSavedProjects] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: [], budget: [] });
-  const [savedProjects, setSavedProjects] = useState([]);
 
   useEffect(() => {
-    if (userId) {
-      const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
-      setSavedProjects(stored);
-    }
+    const fetchSavedProjects = async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`);
+        setSavedProjects(data);
+      } catch (error) {
+        console.error('Error fetching saved projects:', error);
+      }
+    };
+
+    if (userId) fetchSavedProjects();
   }, [userId]);
 
   const handleCheckbox = (category, value) => {
@@ -39,24 +46,14 @@ const SavedProjects = () => {
     });
   };
 
-  const isProjectSaved = (project) => {
-    return savedProjects.some((p) => p._id === project._id);
-  };
-
-  const handleBookmarkClick = (e, project) => {
+  const handleUnsave = async (e, projectId) => {
     e.stopPropagation();
-    const current = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
-    const isSaved = current.find((p) => p._id === project._id);
-
-    let updated;
-    if (isSaved) {
-      updated = current.filter((p) => p._id !== project._id);
-    } else {
-      updated = [...current, project];
+    try {
+      await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
+      setSavedProjects((prev) => prev.filter((proj) => proj._id !== projectId));
+    } catch (error) {
+      console.error('Error unsaving project:', error);
     }
-
-    setSavedProjects(updated);
-    localStorage.setItem(`savedProjects_${userId}`, JSON.stringify(updated));
   };
 
   const filteredProjects = savedProjects.filter((proj) => {
@@ -152,8 +149,8 @@ const SavedProjects = () => {
                   <img src={proj.imageUrl || proj.image || proj.coverImage} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.budget} BHD</p>
-                  <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj)}>
-                    {isProjectSaved(proj) ? <FaBookmark /> : <FaRegBookmark />}
+                  <span className="bookmark" onClick={(e) => handleUnsave(e, proj._id)}>
+                    <FaBookmark />
                   </span>
                 </motion.div>
               ))}

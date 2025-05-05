@@ -7,7 +7,6 @@ import { NavConfig2 } from '../Data/NavbarConfigs';
 import ViewPortfolioPopup from '../Pages/Freelancer/ViewPortfolioPopup';
 import userIcon from '../Assets/ProfileIcon.png';
 import Footer from '../Components/Footer';
-import ProjectsData from '../Data/ProjectsData';
 import axios from 'axios';
 
 const FreelancerProfile = () => {
@@ -17,20 +16,29 @@ const FreelancerProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
   const [viewPopup, setViewPopup] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [portfolio, setPortfolio] = useState([]);
 
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${id}`);
-        if (data?.profileImageUrl) {
-          data.profileImageUrl = `http://localhost:5000${data.profileImageUrl}`;
-        }
         setFreelancer(data);
       } catch (error) {
         console.error('Error fetching freelancer profile:', error);
       }
     };
+
+    const fetchPortfolio = async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:5000/api/freelancer/portfolio/${id}`);
+        setPortfolio(data);
+      } catch (error) {
+        console.error('Error fetching portfolio:', error);
+      }
+    };
+
     fetchFreelancer();
+    fetchPortfolio();
   }, [id]);
 
   if (!freelancer) return <div>Loading...</div>;
@@ -90,7 +98,6 @@ const FreelancerProfile = () => {
               <p>{freelancer.bio || 'No biography provided yet.'}</p>
             </div>
 
-
             <div className="skills-info">
               <h4>Skills</h4>
               <p>{freelancer.skills?.join(', ') || 'No skills added yet.'}</p>
@@ -99,26 +106,29 @@ const FreelancerProfile = () => {
         ) : (
           <div className="portfolio-section9">
             <div className="portfolio-grid99">
-              {ProjectsData.deitailes.slice(0, 3).map((proj, i) => (
-                <div
-                  key={i}
-                  className="project-card"
-                  onClick={() => {
-                    setSelectedProject(proj);
-                    setViewPopup(true);
-                  }}
-                >
-                  <img src={proj.image} alt={proj.title} />
-                  <h4>{proj.title}</h4>
-                  <p>{proj.category}</p>
-                </div>
-              ))}
+              {portfolio.length > 0 ? (
+                portfolio.map((proj, i) => (
+                  <div
+                    key={i}
+                    className="project-card"
+                    onClick={() => {
+                      setSelectedProject(proj);
+                      setViewPopup(true);
+                    }}
+                  >
+                    <img src={proj.imageUrl} alt={proj.title} />
+                    <h4>{proj.title}</h4>
+                    <p>{proj.category}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No portfolio projects yet.</p>
+              )}
             </div>
           </div>
         )}
       </div>
 
-      {/* View Popup */}
       {viewPopup && (
         <ViewPortfolioPopup
           project={selectedProject}

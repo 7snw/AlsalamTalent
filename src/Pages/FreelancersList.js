@@ -18,7 +18,7 @@ const renderStars = (count) => {
 const FreelancersList = () => {
   const navigate = useNavigate();
 
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default to freelancer
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default freelancer navbar
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     expertise: [],
@@ -152,7 +152,7 @@ const FreelancersList = () => {
                   >
                     <div className="freelancer-info">
                       <img
-                        src={freelancer.profileImageUrl ? `http://localhost:5000${freelancer.profileImageUrl}` : DefaultUserIcon}
+                        src={freelancer.profileImageUrl || DefaultUserIcon}
                         alt="user"
                         className="profile-icon"
                       />

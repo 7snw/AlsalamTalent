@@ -12,8 +12,7 @@ const expertiseOptions = [
   "Web Developer",
   "Content Creator",
   "Brand Strategist",
-  "UX/UI Designer",
-  "Photographer"
+  "UX/UI Designer"
 ];
 
 const GraduateSignUp = () => {
@@ -48,14 +47,44 @@ const GraduateSignUp = () => {
       return { ...prev, expertise: updated };
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.cpr) {
-      alert('Please upload your CPR image.');
+  
+    // Validate student ID (numbers only)
+    if (!/^\d+$/.test(formData.studentId)) {
+      alert('Student ID must contain numbers only.');
       return;
     }
+
+       // Validate full name
+       if (!formData.fullName.trim()) {
+        alert('Full Name is required.');
+        return;
+      }
+    
+      // Validate password length
+      if (formData.password.length < 8) {
+        alert('Password must be at least 8 characters long.');
+        return;
+      }
+    
+      // Validate major selection
+      if (!formData.major) {
+        alert('Please select your Major.');
+        return;
+      }
+    
+      // Validate phone number (must be 8 digits)
+      if (!/^\d{8}$/.test(formData.contactNumber)) {
+        alert('Phone number must be exactly 8 digits.');
+        return;
+      }
+    
+      // Validate expertise (at least 1 selected)
+      if (formData.expertise.length === 0) {
+        alert('Please select at least one area of expertise.');
+        return;
+      }
 
     // Convert CPR file to base64 (you can replace this with file upload logic)
     const toBase64 = file =>
@@ -157,41 +186,55 @@ const GraduateSignUp = () => {
               />
             </div>
 
-            {/* 🔽 Expertise Dropdown */}
-            <div className="expertise-wrapper">
-              <label>Choose Your Expertise</label>
-              <div
-                className="expertise-dropdown"
-                onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
-              >
-                {formData.expertise.join(', ') || 'Select Expertise'}
-              </div>
-              {showExpertiseDropdown && (
-                <div className="expertise-list">
-                  {expertiseOptions.map((option, index) => (
-                    <label key={index} className="expertise-option">
-                      <input
-                        type="checkbox"
-                        checked={formData.expertise.includes(option)}
-                        onChange={() => handleExpertiseChange(option)}
-                      />
-                      {option}
-                    </label>
-                  ))}
-                  <button
-                    type="button"
-                    className="ok-btn"
-                    onClick={() => setShowExpertiseDropdown(false)}
-                  >
-                    OK
-                  </button>
-                </div>
-              )}
-            </div>
+         
+            <div className="expertiseer0">
+  <p>Expertise</p>
+  <div
+    className="expertise-display0"
+    onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
+  >
+    {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
+  </div>
+
+  {showExpertiseDropdown && (
+  <>
+    <div className="expertise-dropdown-list0">
+  {expertiseOptions.map((option, index) => (
+    <label key={index} className="expertise-checkbox-item0">
+      <input
+        type="checkbox"
+        checked={formData.expertise?.includes(option)}
+        onChange={() => handleExpertiseChange(option)}
+      />
+      <span>{option}</span>
+    </label>
+  ))}
+
+  <div className="expertise-dropdown-actions0">
+    <button
+      type="button"
+      className="close-expertise-dropdown0"
+      onClick={() => setShowExpertiseDropdown(false)}
+    >
+      Done
+    </button>
+    <button
+      type="button"
+      className="clear-expertise-dropdown0"
+      onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}
+    >
+      Clear
+    </button>
+  </div>
+</div>
+  </>
+)}
+
+</div>
 
             <div className="graduate-file-upload-wrapper">
               <label htmlFor="cpr-upload" className="graduate-file-upload-label">
-                Upload CPR <span className="graduate-upload-icon">📤</span>
+                Upload CPR <span className="graduate-upload-icon"></span>
               </label>
               <input
                 id="cpr-upload"

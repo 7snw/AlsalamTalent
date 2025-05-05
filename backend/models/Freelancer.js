@@ -1,9 +1,7 @@
-// 1. models/Freelancer.js
-
 const mongoose = require('mongoose');
 
 const freelancerSchema = new mongoose.Schema({
-  userType: String, // student or graduate
+  userType: String,
   studentId: String,
   fullName: String,
   email: { type: String, unique: true },
@@ -21,7 +19,7 @@ const freelancerSchema = new mongoose.Schema({
       title: String,
       description: String,
       imageUrl: String,
-      type: String
+      category: String
     }
   ],
   projects: [
@@ -35,18 +33,10 @@ const freelancerSchema = new mongoose.Schema({
   savedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
   applications: [
     {
-      projectId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project'
-      },
-      status: {
-        type: String,
-        enum: ['Cancelled', 'Assigned', 'Submitted'], // ADDED Assigned and Submitted
-        default: 'Pending'
-      }
+      projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
+      status: { type: String, enum: ['Under Review', 'Assigned', 'Cancelled', 'Submitted'], default: 'Pending' }
     }
   ],
-  
   role: { type: String, default: 'freelancer' }
 }, { timestamps: true });
 

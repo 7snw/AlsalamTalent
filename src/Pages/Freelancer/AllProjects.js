@@ -17,28 +17,25 @@ const AllProjects = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   const [allProjects, setAllProjects] = useState([]);
+  const [savedProjects, setSavedProjects] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: [], budget: [] });
-  const [savedProjects, setSavedProjects] = useState([]);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/projects/all');
-        setAllProjects(response.data);
+        const [projectsRes, savedRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/projects/all'),
+          axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`)
+        ]);
+        setAllProjects(projectsRes.data);
+        setSavedProjects(savedRes.data.map(p => p._id));
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
-      setSavedProjects(stored);
-    }
+    if (userId) fetchData();
   }, [userId]);
 
   const handleCheckbox = (category, value) => {
@@ -54,24 +51,16 @@ const AllProjects = () => {
     });
   };
 
-  const isProjectSaved = (project) => {
-    return savedProjects.some((p) => p._id === project._id);
-  };
+  const isProjectSaved = (projectId) => savedProjects.includes(projectId);
 
-  const handleBookmarkClick = (e, project) => {
+  const handleBookmarkClick = async (e, projectId) => {
     e.stopPropagation();
-    const stored = JSON.parse(localStorage.getItem(`savedProjects_${userId}`)) || [];
-    const isSaved = stored.find(p => p._id === project._id);
-
-    let updated;
-    if (isSaved) {
-      updated = stored.filter(p => p._id !== project._id);
-    } else {
-      updated = [...stored, project];
+    try {
+      const res = await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
+      setSavedProjects(res.data);
+    } catch (error) {
+      console.error('Error updating saved projects:', error);
     }
-
-    setSavedProjects(updated);
-    localStorage.setItem(`savedProjects_${userId}`, JSON.stringify(updated));
   };
 
   const filteredProjects = allProjects.filter((proj) => {
@@ -98,11 +87,8 @@ const AllProjects = () => {
       <div className="browse-container">
         <aside className="browse-left-panel">
           <h1 className="page-title">All Projects</h1>
-
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type and price range.</p>
-
             <div className="filter-group">
               <h4>Type</h4>
               {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
@@ -116,7 +102,6 @@ const AllProjects = () => {
                 </label>
               ))}
             </div>
-
             <div className="filter-group">
               <h4>Budget</h4>
               {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
@@ -164,8 +149,8 @@ const AllProjects = () => {
                   <img src={proj.imageUrl || proj.image || proj.coverImage} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.budget} BHD</p>
-                  <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj)}>
-                    {isProjectSaved(proj) ? <FaBookmark /> : <FaRegBookmark />}
+                  <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj._id)}>
+                    {isProjectSaved(proj._id) ? <FaBookmark /> : <FaRegBookmark />}
                   </span>
                 </motion.div>
               ))}
@@ -173,7 +158,6 @@ const AllProjects = () => {
           </div>
         </main>
       </div>
-
       <Footer />
     </div>
   );
