@@ -125,17 +125,26 @@ const ProjectApplications = () => {
                 >
                   <img src={proj.image} alt={proj.title} />
                   <div className="application-info">
-                    <h4>{proj.title}</h4>
-                    <div className="freelancer-name">
-                      <span>👤</span>
-                      <Link to="/freelancerprofile" className="freelancer-link">
-                        {proj.name}
-                      </Link>
-                    </div>
+                    <h4>{app.project?.title}</h4>
+                    <p>Freelancer: <span className="freelancer-link" onClick={() => navigate(`/freelancerprofile/${app.freelancer.id}`)}>{app.freelancer?.name}</span></p>
+
+                    <p>Status: {app.status}</p>
                   </div>
                   <div className="application-actions">
-                    <button className="approve">Approve</button>
-                    <button className="reject">Reject</button>
+                    <button
+                      className="assign"
+                      disabled={app.status === 'Assigned'}
+                      onClick={() => handleAction(app.project.id, app.freelancer.id, 'approve')}
+                    >
+                      Assign
+                    </button>
+                    <button
+                      className="cancel"
+                      disabled={app.status === 'Cancelled'}
+                      onClick={() => handleAction(app.project.id, app.freelancer.id, 'reject')}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </motion.div>
               ))}

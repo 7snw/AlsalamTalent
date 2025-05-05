@@ -1,5 +1,3 @@
-// Updated freelancer.js
-
 const mongoose = require('mongoose');
 
 const freelancerSchema = new mongoose.Schema({
@@ -31,7 +29,26 @@ const freelancerSchema = new mongoose.Schema({
       projectFiles: [String],
       projectImage: String
     }
-  ], // Updated: Full project structure
+  ],
+  savedProjects: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project'
+    }
+  ],
+  applications: [
+    {
+      projectId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Project'
+      },
+      status: {
+        type: String,
+        enum: ['Pending', 'Approved', 'Canceled'],
+        default: 'Pending'
+      }
+    }
+  ],
   role: { type: String, default: 'freelancer' }
 }, { timestamps: true });
 

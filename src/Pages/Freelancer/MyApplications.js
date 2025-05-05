@@ -1,23 +1,37 @@
 // src/Pages/Freelancer/MyApplications.js
-import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../../Style/Freelancer/MyApplications.css';
-import '../../Style/PageContents.css';
 import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
-import SearchIcon from '../../Assets/search.png';
-import { useNavigate } from 'react-router-dom';
-import FakeProjects from '../../Data/ProjectsData';
-import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '../../Components/Footer';
+import SearchIcon from '../../Assets/search.png';
 
 const MyApplications = () => {
   const navigate = useNavigate();
+  const [applications, setApplications] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     type: [],
     level: [],
     budget: [],
   });
+
+  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/freelancer/${userId}/applications`);
+        setApplications(res.data);
+      } catch (err) {
+        console.error('Error fetching applications:', err);
+      }
+    };
+    fetchApplications();
+  }, [userId]);
 
   const toggleFilter = (category, value) => {
     setFilters((prev) => ({
@@ -28,34 +42,45 @@ const MyApplications = () => {
     }));
   };
 
-  const filteredProjects = FakeProjects.deitailes.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType = filters.type.length === 0 || filters.type.includes(project.category);
-    const matchesLevel = filters.level.length === 0 || filters.level.includes(project.level);
+  const filteredApplications = applications.filter((app) => {
+    const matchesSearch = app.project?.title?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesType =
+      filters.type.length === 0 || filters.type.includes(app.project?.category);
+
     const matchesBudget =
       filters.budget.length === 0 ||
       filters.budget.some((range) => {
         const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-        const budget = parseFloat(project.budget.replace('BHD', '').trim());
-        return budget >= min && budget <= max;
+        const rawBudget = app.project?.budget;
+
+        if (!rawBudget) return false; // if no budget, don't match
+
+        // If budget is a number, use directly
+        const budgetValue =
+          typeof rawBudget === 'number'
+            ? rawBudget
+            : parseFloat(rawBudget.replace('BHD', '').trim());
+
+        return budgetValue >= min && budgetValue <= max;
       });
 
-    return matchesSearch && matchesType && matchesLevel && matchesBudget;
+    return matchesSearch && matchesType && matchesBudget;
   });
 
-  const getApplicationClass = (application) => {
-    if (!application) return 'Pending';
-
-    switch (application.toLowerCase()) {
-      case 'approved':
+  const getStatusClass = (status) => {
+    switch (status.toLowerCase()) {
+      case 'assigned':
         return 'Approved';
-      case 'canceled':
+      case 'cancelled':
         return 'Canceled';
-      case 'pending':
+      case 'under review':
+        return 'Pending'; // show 'Pending' styling but label will be 'Under Review'
       default:
         return 'Pending';
     }
   };
+  
 
   return (
     <div className="my-applications-page">
@@ -78,20 +103,6 @@ const MyApplications = () => {
                     onChange={() => toggleFilter('type', type)}
                   />
                   {type}
-                </label>
-              ))}
-            </div>
-
-            <div className="filter-group">
-              <h4>Level</h4>
-              {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
-                <label key={level}>
-                  <input
-                    type="checkbox"
-                    checked={filters.level.includes(level)}
-                    onChange={() => toggleFilter('level', level)}
-                  />
-                  {level}
                 </label>
               ))}
             </div>
@@ -125,7 +136,7 @@ const MyApplications = () => {
 
           <div className="my-applications-list">
             <AnimatePresence>
-              {filteredProjects.map((proj, index) => (
+              {filteredApplications.map((app, index) => (
                 <motion.div
                   className="my-application-card"
                   key={index}
@@ -133,22 +144,21 @@ const MyApplications = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  whileHover={{
-                    y: -4,
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-                    transition: { duration: 0.2 },
-                  }}
-                  onClick={() => navigate(`/project-details/${index}`)}
+                  onClick={() => navigate(`/project-details/${app.project._id}`)}
                 >
-                  <img src={proj.image} alt={proj.title} />
+                  <img
+                    src={app.project?.imageUrl || app.project?.coverImage || app.project?.image || ''}
+                    alt={app.project?.title}
+                  />
                   <div className="my-application-info">
-                    <h4>{proj.title}</h4>
-                    <p>{proj.budget || '—'}</p>
+                    <h4>{app.project?.title}</h4>
+                    <p>{app.project?.budget ? `${app.project.budget} BHD` : '—'}</p>
                   </div>
                   <div className="my-application-actions">
-                    <button className={getApplicationClass(proj.application)}>
-                      {proj.application}
-                    </button>
+                  <button className={getStatusClass(app.status)}>
+  {app.status === 'Under Review' ? 'Under Review' : app.status}
+</button>
+
                   </div>
                 </motion.div>
               ))}

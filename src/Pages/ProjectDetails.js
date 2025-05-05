@@ -1,5 +1,4 @@
-// src/Pages/Clients/ProjectDetails.js
-
+// FULL FINAL ProjectDetails.js
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import '../Style/ProjectDetailsPage.css';
@@ -16,12 +15,15 @@ import {
 
 const ProjectDetails = () => {
   const { id } = useParams();
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default fallback
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig1);
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [applied, setApplied] = useState(false);
+
+
+  const role = localStorage.getItem('role');
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
     switch (role) {
       case 'freelancer':
         setNavbarConfig(NavConfig2);
@@ -35,7 +37,7 @@ const ProjectDetails = () => {
       default:
         setNavbarConfig(NavConfig1);
     }
-  }, []);
+  }, [role]);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -52,13 +54,31 @@ const ProjectDetails = () => {
     fetchProject();
   }, [id]);
 
+  const handleApply = async () => {
+    const userId = localStorage.getItem('userId'); // move it here
+    const authorId = project.authorId; // the client ID
+  
+    try {
+      await axios.post('http://localhost:5000/api/applications/create', {
+        projectId: project._id,
+        freelancerId: userId,
+        authorId: authorId
+      });
+  
+      alert('Successfully applied to this project!');
+      setApplied(true);
+    } catch (error) {
+      console.error('Error applying to project:', error);
+      alert(error.response?.data?.message || 'Already applied or error occurred.');
+    }
+  };
+  
   if (loading) return <p>Loading project...</p>;
   if (!project) return <p>Project not found.</p>;
 
   return (
     <div className="project-details-page">
       <Navbar links={navbarConfig} />
-
       <div className="details-container">
         <h2>{project.title}</h2>
 
@@ -68,7 +88,7 @@ const ProjectDetails = () => {
             <p>{project.authorName || 'Unknown'}</p>
 
             <h4>Project Brief:</h4>
-            <p>{project.description}</p>
+            <p>{project.description || 'No description available.'}</p>
 
             <h4>Budget/Price:</h4>
             <p>{project.budget} BHD</p>
@@ -100,13 +120,23 @@ const ProjectDetails = () => {
             {project.docs && project.docs.length > 0 ? (
               project.docs.map((doc, idx) => (
                 <div key={idx}>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer"className="download-btn" download>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="download-btn" download>
                     {doc.name}
                   </a>
                 </div>
               ))
             ) : (
               <p>No contract documents uploaded</p>
+            )}
+
+            {role === 'freelancer' && (
+              <button
+                className="apply-btn"
+                onClick={handleApply}
+                disabled={applied}
+              >
+                {applied ? 'Applied' : 'Apply for this Project'}
+              </button>
             )}
           </div>
 

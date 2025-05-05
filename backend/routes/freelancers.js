@@ -5,6 +5,7 @@ const fs = require('fs');
 const router = express.Router();
 const Freelancer = require('../models/Freelancer');
 
+
 // Create uploads folder if it doesn't exist
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -240,5 +241,83 @@ router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([
   }
 });
 
+// Apply to a project
+router.put('/:id/apply-project', async (req, res) => {
+  try {
+    const { projectId } = req.body;
+    const freelancer = await Freelancer.findById(req.params.id);
+
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
+
+    const alreadyApplied = freelancer.applications.find((a) => a.projectId.toString() === projectId);
+    if (alreadyApplied) {
+      return res.status(400).json({ message: 'Already applied to this project' });
+    }
+
+    freelancer.applications.push({ projectId });
+    await freelancer.save();
+
+    res.json(freelancer.applications);
+  } catch (err) {
+    console.error('Error applying to project:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Get freelancer's applications
+router.get('/:id/applications', async (req, res) => {
+  try {
+    const freelancer = await Freelancer.findById(req.params.id).populate('applications.projectId');
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
+
+    const apps = freelancer.applications.map(a => ({
+      project: a.projectId,
+      status: a.status
+    }));
+
+    res.json(apps);
+  } catch (err) {
+    console.error('Error fetching applications:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Update freelancer's saved projects
+router.put('/:id/save-project', async (req, res) => {
+  try {
+    const { projectId } = req.body;
+    const freelancer = await Freelancer.findById(req.params.id);
+
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
+
+    const alreadySaved = freelancer.savedProjects.includes(projectId);
+
+    let updatedFreelancer;
+    if (alreadySaved) {
+      freelancer.savedProjects = freelancer.savedProjects.filter(id => id.toString() !== projectId);
+    } else {
+      freelancer.savedProjects.push(projectId);
+    }
+
+    updatedFreelancer = await freelancer.save();
+    res.json(updatedFreelancer.savedProjects);
+  } catch (error) {
+    console.error('Error saving project:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get freelancer's saved projects
+router.get('/:id/saved-projects', async (req, res) => {
+  try {
+    const freelancer = await Freelancer.findById(req.params.id).populate('savedProjects');
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
+
+    res.json(freelancer.savedProjects);
+  } catch (error) {
+    console.error('Error fetching saved projects:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 module.exports = router;
