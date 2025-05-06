@@ -24,7 +24,8 @@ const MyProjectsDetails = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const freelancerId = localStorage.getItem('userId');
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const freelancerId = storedUser?._id;
         const response = await axios.get(`http://localhost:5000/api/freelancer/${freelancerId}/my-projects`);
         const projects = response.data;
         const selectedProject = projects.find((proj) => proj._id === projectId);
@@ -61,7 +62,8 @@ const MyProjectsDetails = () => {
 
   const handleSaveChanges = async () => {
     try {
-      const freelancerId = localStorage.getItem('userId');
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const freelancerId = storedUser?._id;
       const formData = new FormData();
 
       formData.append('projectTitle', newTitle);

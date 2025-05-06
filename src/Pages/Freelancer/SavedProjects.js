@@ -15,7 +15,8 @@ import axios from 'axios';
 
 const SavedProjects = () => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const userId = storedUser?._id;
   const [savedProjects, setSavedProjects] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: [], budget: [] });

@@ -30,7 +30,8 @@ const ProfileSettings = () => {
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
-        const freelancerId = localStorage.getItem('userId');
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const freelancerId = storedUser?._id;
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
         setFreelancerData(data);
         setFormData({
@@ -92,7 +93,8 @@ const ProfileSettings = () => {
     try {
      
 
-      const freelancerId = localStorage.getItem('userId');
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const freelancerId = storedUser?._id;
       const updates = {
         ...formData,
         skills: formData.skills.split(',').map(skill => skill.trim()),
@@ -127,7 +129,8 @@ const ProfileSettings = () => {
 
   const handleDeleteProfilePicture = async () => {
     try {
-      const freelancerId = localStorage.getItem('userId');
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const freelancerId = storedUser?._id;
       await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, {
         profileImageUrl: '',
       });
@@ -143,7 +146,8 @@ const ProfileSettings = () => {
 
   const handleChangePassword = async () => {
     try {
-      const freelancerId = localStorage.getItem('userId');
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const freelancerId = storedUser?._id;
       await axios.put(`http://localhost:5000/api/freelancer/changepassword/${freelancerId}`, {
         oldPassword,
         newPassword,

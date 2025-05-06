@@ -20,8 +20,9 @@ const AdminProfileSettings = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  const adminId = localStorage.getItem('userId');
-
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const adminId = storedUser?._id;
+  
   useEffect(() => {
     const fetchAdmin = async () => {
       try {

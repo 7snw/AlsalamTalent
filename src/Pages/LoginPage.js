@@ -1,29 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../Style/Login.css';
-import LoginPhoto from '../Assets/LoginPhoto.png';
-import axios from 'axios';
-import { FaArrowLeft } from 'react-icons/fa';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../Style/Login.css";
+import LoginPhoto from "../Assets/LoginPhoto.png";
+import axios from "axios";
+import { FaArrowLeft } from "react-icons/fa";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
-        email,
-        password
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/users/login",
+        {
+          email,
+          password,
+        }
+      );
 
       const userData = response.data;
 
       // Confirm data format
       if (!userData || !userData.id || !userData.role) {
-        alert('Invalid response from server.');
+        alert("Invalid response from server.");
         return;
       }
 
@@ -32,26 +35,30 @@ const LoginPage = () => {
         _id: userData.id,
         fullName: userData.name,
         email: userData.email,
-        role: userData.role
+        role: userData.role,
       };
 
-      localStorage.setItem('user', JSON.stringify(user));
-      console.log('User saved to localStorage:', user);
+      // ✅ Save to localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userId", user._id); // ✅ added
+      localStorage.setItem("role", user.role); // ✅ added
+      console.log("User saved to localStorage:", user);
 
       // 🔁 Redirect based on role
-      if (user.role === 'admin') {
-        navigate('/analyticsadmin');
-      } else if (user.role === 'client') {
-        navigate('/clienthome');
-      } else if (user.role === 'freelancer') {
-        navigate('/freelancer-home');
+      if (user.role === "admin") {
+        navigate("/analyticsadmin");
+      } else if (user.role === "client") {
+        navigate("/clienthome");
+      } else if (user.role === "freelancer") {
+        navigate("/freelancer-home");
       } else {
-        alert('Unknown role detected');
+        alert("Unknown role detected");
       }
-
     } catch (err) {
-      console.error('Login error:', err.response?.data || err.message);
-      alert(err.response?.data?.message || 'Invalid credentials or server error');
+      console.error("Login error:", err.response?.data || err.message);
+      alert(
+        err.response?.data?.message || "Invalid credentials or server error"
+      );
     }
   };
 
@@ -59,7 +66,10 @@ const LoginPage = () => {
     <div className="login-body">
       <div className="login-wrapper">
         <div className="login-container">
-          <button className="back-btn" onClick={() => navigate('/studentgraduate')}>
+          <button
+            className="back-btn"
+            onClick={() => navigate("/studentgraduate")}
+          >
             <FaArrowLeft />
           </button>
 
@@ -80,11 +90,16 @@ const LoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <button type="submit" className="login-btn">Sign In</button>
+              <button type="submit" className="login-btn">
+                Sign In
+              </button>
             </form>
             <p className="register-link">
-              I don’t have an account?{' '}
-              <span onClick={() => navigate('/studentgraduate')} style={{ cursor: 'pointer', color: '#007bff' }}>
+              I don’t have an account?{" "}
+              <span
+                onClick={() => navigate("/studentgraduate")}
+                style={{ cursor: "pointer", color: "#007bff" }}
+              >
                 Register
               </span>
             </p>

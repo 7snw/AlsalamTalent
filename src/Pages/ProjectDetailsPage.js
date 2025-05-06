@@ -22,8 +22,12 @@ const ProjectDetailsPage = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+
+
   useEffect(() => {
-    const role = localStorage.getItem("role");
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const role = storedUser?.role;
     setUserRole(role);
     switch (role) {
       case "freelancer":
@@ -67,13 +71,8 @@ const ProjectDetailsPage = () => {
 
         <div className="details-layout">
           <div className="left">
-            {userRole === "admin" && project.authorId?.fullName && (
-              <>
-                <h4>Author:</h4>
-                <p>{project.authorId.fullName}</p>
-              </>
-            )}
-
+            <h4>Author:</h4>
+            <p>{project.authorId.fullName}</p>
             <h4>Project Brief:</h4>
             <p>{project.brief}</p>
 
@@ -114,7 +113,7 @@ const ProjectDetailsPage = () => {
 
             <br />
             {userRole === "client" &&
-              localStorage.getItem("userId") === project.authorId?._id && (
+              storedUser?._id === project.authorId?._id && (
                 <button
                   className="edit-btn"
                   onClick={() => navigate(`/edit-project/${project._id}`)}

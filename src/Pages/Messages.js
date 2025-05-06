@@ -18,7 +18,8 @@ const Messages = () => {
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const stored = storedUser?._id; 
     if (!stored) return;
 
     const parsed = JSON.parse(stored);

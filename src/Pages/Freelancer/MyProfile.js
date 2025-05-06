@@ -21,7 +21,8 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchFreelancerProfile = async () => {
       try {
-        const freelancerId = localStorage.getItem('userId');
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const freelancerId = storedUser?._id;
         if (!freelancerId) {
           console.error('No user ID found in localStorage.');
           return;

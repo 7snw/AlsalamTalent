@@ -1,3 +1,5 @@
+// src/Pages/Clients/EditProject.js
+
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../Style/Clients/PostProject.css";
@@ -21,8 +23,24 @@ const EditProject = () => {
 
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1);
 
+  const [projectTitle, setProjectTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [budget, setBudget] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [status, setStatus] = useState("");
+  const [projectFiles, setProjectFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
+  const [projectImage, setProjectImage] = useState(null);
+  const [existingImage, setExistingImage] = useState(null);
+
+  const projectFileInput = useRef();
+  const projectImageInput = useRef();
+
   useEffect(() => {
-    const role = localStorage.getItem("role");
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const role = storedUser?.role;
     switch (role) {
       case "freelancer":
         setNavbarConfig(NavConfig2);
@@ -41,7 +59,9 @@ const EditProject = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/projects/${id}`
+        );
         setProject(response.data);
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -52,53 +72,48 @@ const EditProject = () => {
     fetchProject();
   }, [id]);
 
-  const [projectTitle, setProjectTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [budget, setBudget] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState("");
-  const [projectFiles, setProjectFiles] = useState([]);
-  const [projectImage, setProjectImage] = useState(null);
-
-  const projectFileInput = useRef();
-  const projectImageInput = useRef();
-
   useEffect(() => {
     if (project) {
-      setProjectTitle(project.projectTitle || project.title || "");
-      setDescription(project.description || project.brief || "");
+      setProjectTitle(project.title || "");
+      setDescription(project.brief || "");
       setCategory(project.category || "");
       setBudget(project.budget || "");
       setStartDate(project.duration?.from?.split("T")[0] || "");
       setEndDate(project.duration?.to?.split("T")[0] || "");
       setStatus(project.status || "");
-      setProjectFiles(project.files || []);
-      setProjectImage(project.imageUrl || null);
+      setExistingFiles(project.files || []);
+      setExistingImage(project.imageUrl || null);
     }
   }, [project]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const updatedProject = {
-      title: projectTitle,
-      brief: description,
-      category,
-      budget,
-      status,
-      duration: {
-        from: startDate,
-        to: endDate,
-      },
-      files: projectFiles,
-      imageUrl: projectImage || "",
-    };
+    const formData = new FormData();
+    formData.append("title", projectTitle);
+    formData.append("brief", description);
+    formData.append("category", category);
+    formData.append("budget", budget);
+    formData.append("status", status);
+    formData.append("durationFrom", startDate);
+    formData.append("durationTo", endDate);
+
+    if (projectImage instanceof File) {
+      formData.append("projectImage", projectImage);
+    }
+
+    projectFiles.forEach((file) => {
+      if (file instanceof File) {
+        formData.append("projectFile", file);
+      }
+    });
 
     try {
-      await axios.put(`http://localhost:5000/api/projects/${id}`, updatedProject);
+      await axios.put(`http://localhost:5000/api/projects/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       alert("Project updated successfully!");
+      navigate(-1);
     } catch (error) {
       console.error("Update failed:", error);
       alert("Failed to update project.");
@@ -107,16 +122,16 @@ const EditProject = () => {
 
   const handleMultipleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setProjectFiles((prev) => [...prev, ...files.map(file => ({ name: file.name, url: `uploads/${file.name}` }))]);
-    e.target.value = '';
+    setProjectFiles((prev) => [...prev, ...files]);
+    e.target.value = "";
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProjectImage(file.name);
+      setProjectImage(file);
     }
-    e.target.value = '';
+    e.target.value = "";
   };
 
   if (loading) return <p>Loading project...</p>;
@@ -202,7 +217,11 @@ const EditProject = () => {
               onClick={() => projectFileInput.current.click()}
             >
               Attach File
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
+              <img
+                src={uploadIcon}
+                alt="upload"
+                className="post-project-upload-icon"
+              />
             </button>
             <input
               type="file"
@@ -211,8 +230,16 @@ const EditProject = () => {
               onChange={handleMultipleFileChange}
               hidden
             />
+            {existingFiles.map((file, idx) => (
+              <p key={idx} className="post-project-filename">
+                {file.name}
+              </p>
+            ))}
+
             {projectFiles.map((file, idx) => (
-              <p key={idx} className="post-project-filename">{file.name}</p>
+              <p key={idx} className="post-project-filename">
+                {file.name}
+              </p>
             ))}
           </div>
 
@@ -224,7 +251,11 @@ const EditProject = () => {
               onClick={() => projectImageInput.current.click()}
             >
               Attach Image
-              <img src={uploadIcon} alt="upload" className="post-project-upload-icon" />
+              <img
+                src={uploadIcon}
+                alt="upload"
+                className="post-project-upload-icon"
+              />
             </button>
             <input
               type="file"
@@ -233,7 +264,15 @@ const EditProject = () => {
               onChange={handleImageChange}
               hidden
             />
-            {projectImage && <p className="post-project-filename">{projectImage}</p>}
+            {projectImage ? (
+              <p className="post-project-filename">{projectImage.name}</p>
+            ) : (
+              existingImage && (
+                <p className="post-project-filename">
+                  {existingImage?.split("/").pop()}
+                </p>
+              )
+            )}
           </div>
 
           <div className="post-project-actions">

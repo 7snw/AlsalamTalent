@@ -123,24 +123,38 @@ router.put('/:id', upload.fields([
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const updates = { ...req.body };
 
+    // Parse numeric and date fields
+    updates.budget = Number(req.body.budget);
+    updates.duration = {
+      from: new Date(req.body.durationFrom),
+      to: new Date(req.body.durationTo)
+    };
+
+    // Fetch current project to preserve existing data if no new files provided
+    const currentProject = await Project.findById(req.params.id);
+    if (!currentProject) return res.status(404).json({ message: 'Project not found' });
+
+    // Handle image update or preserve existing
     if (req.files['projectImage']) {
       updates.imageUrl = `${baseUrl}/${req.files['projectImage'][0].path}`;
+    } else {
+      updates.imageUrl = currentProject.imageUrl;
     }
 
+    // Handle file uploads or preserve existing
     if (req.files['projectFile']) {
       updates.files = req.files['projectFile'].map(file => ({
         name: file.originalname,
         url: `${baseUrl}/${file.path}`
       }));
+    } else {
+      updates.files = currentProject.files;
     }
 
+    // Apply update
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, updates, {
       new: true
     });
-
-    if (!updatedProject) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
 
     res.json(updatedProject);
   } catch (error) {

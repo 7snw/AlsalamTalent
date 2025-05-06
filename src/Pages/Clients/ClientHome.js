@@ -15,6 +15,7 @@ const ClientHome = () => {
   const [allProjects, setAllProjects] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  
 
   const categories = ['All', 'Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'];
 

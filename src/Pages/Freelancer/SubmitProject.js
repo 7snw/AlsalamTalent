@@ -35,7 +35,8 @@ const SubmitProject = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const freelancerId = localStorage.getItem('userId');
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const freelancerId = storedUser?._id;
       const formData = new FormData();
   
       formData.append('projectTitle', projectTitle);

@@ -14,7 +14,8 @@ const SubmittedProjects = () => {
   const [search, setSearch] = useState("");
   const [submittedProjects, setSubmittedProjects] = useState([]);
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const userId = storedUser?._id;
 
   useEffect(() => {
     const fetchSubmittedProjects = async () => {

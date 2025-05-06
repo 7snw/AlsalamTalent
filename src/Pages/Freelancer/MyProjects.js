@@ -19,7 +19,8 @@ const MyProjects = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const freelancerId = localStorage.getItem('userId');
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const freelancerId = storedUser?._id;
         const response = await axios.get(`http://localhost:5000/api/freelancer/${freelancerId}/my-projects`);
         setProjects(response.data);
       } catch (error) {

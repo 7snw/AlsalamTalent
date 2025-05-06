@@ -1,12 +1,9 @@
-// src/Pages/Clients/ProjectDetails.js
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../Style/ProjectDetailsPage.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import axios from "axios";
-
 import {
   NavConfig1,
   NavConfig2,
@@ -21,11 +18,11 @@ const ProjectDetails = () => {
   const [loading, setLoading] = useState(true);
   const [applied, setApplied] = useState(false);
 
-
-  const role = localStorage.getItem('role');
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const userId = storedUser?._id;
+  const role = storedUser?.role;
 
   useEffect(() => {
-    const role = localStorage.getItem("role");
     switch (role) {
       case "freelancer":
         setNavbarConfig(NavConfig2);
@@ -44,9 +41,7 @@ const ProjectDetails = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/projects/${id}`
-        );
+        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
         setProject(response.data);
       } catch (error) {
         console.error("Error fetching project details:", error);
@@ -58,25 +53,44 @@ const ProjectDetails = () => {
     fetchProject();
   }, [id]);
 
+  useEffect(() => {
+    const checkIfApplied = async () => {
+      if (role === "freelancer") {
+        try {
+          const res = await axios.get(`http://localhost:5000/api/applications/check`, {
+            params: {
+              freelancerId: userId,
+              projectId: id,
+            },
+          });
+          if (res.data?.applied) {
+            setApplied(true);
+          }
+        } catch (err) {
+          console.error("Error checking application status:", err);
+        }
+      }
+    };
+
+    checkIfApplied();
+  }, [userId, id, role]);
+
   const handleApply = async () => {
-    const userId = localStorage.getItem('userId'); // move it here
-    const authorId = project.authorId; // the client ID
-  
     try {
-      await axios.post('http://localhost:5000/api/applications/create', {
+      await axios.post("http://localhost:5000/api/applications/create", {
         projectId: project._id,
         freelancerId: userId,
-        authorId: authorId
+        authorId: project.authorId,
       });
-  
-      alert('Successfully applied to this project!');
+
+      alert("Successfully applied to this project!");
       setApplied(true);
     } catch (error) {
-      console.error('Error applying to project:', error);
-      alert(error.response?.data?.message || 'Already applied or error occurred.');
+      console.error("Error applying to project:", error);
+      alert(error.response?.data?.message || "Already applied or error occurred.");
     }
   };
-  
+
   if (loading) return <p>Loading project...</p>;
   if (!project) return <p>Project not found.</p>;
 
@@ -85,7 +99,6 @@ const ProjectDetails = () => {
       <Navbar links={navbarConfig} />
       <div className="details-container">
         <h2>{project.title}</h2>
-
         <div className="details-layout">
           <div className="left">
             <h4>Author / Organization:</h4>
@@ -129,13 +142,13 @@ const ProjectDetails = () => {
               <p>No project files uploaded</p>
             )}
 
-            {role === 'freelancer' && (
+            {role === "freelancer" && (
               <button
                 className="apply-btn"
                 onClick={handleApply}
                 disabled={applied}
               >
-                {applied ? 'Applied' : 'Apply for this Project'}
+                {applied ? "Applied" : "Apply for this Project"}
               </button>
             )}
           </div>
@@ -149,7 +162,6 @@ const ProjectDetails = () => {
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );

@@ -15,8 +15,10 @@ const Navbar = ({ links = [] }) => {
   const hideSignIn = links.hideSignIn === true;
   const showSignIn = !hideSignIn;
 
-  const role = localStorage.getItem('role');
-  const userId = localStorage.getItem('userId');
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const userId = storedUser?._id;
+  const role = storedUser?.role;
+  
 
   useEffect(() => {
     const fetchProfileImage = async () => {

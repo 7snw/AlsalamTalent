@@ -19,8 +19,9 @@ const BrowseProjects = () => {
   });
   const [projects, setProjects] = useState([]);
 
-  const userId = localStorage.getItem('userId');
-
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const userId = storedUser?._id;
+  
   useEffect(() => {
     const fetchProjects = async () => {
       try {

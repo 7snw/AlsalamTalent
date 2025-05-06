@@ -16,8 +16,9 @@ const AssignedProject = () => {
   const [filters, setFilters] = useState({ status: [] });
   const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
-
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user?._id;
+  
   useEffect(() => {
     const fetchProjects = async () => {
       try {

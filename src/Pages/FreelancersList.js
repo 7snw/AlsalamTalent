@@ -27,7 +27,8 @@ const FreelancersList = () => {
   const [freelancers, setFreelancers] = useState([]);
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const role = storedUser?._id;
     switch (role) {
       case 'admin':
         setNavbarConfig(NavConfig4);

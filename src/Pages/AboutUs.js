@@ -10,7 +10,8 @@ const AboutUs = () => {
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const role = storedUser?._id;
     switch (role) {
       case 'freelancer':
         setNavbarConfig(NavConfig2);

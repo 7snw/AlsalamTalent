@@ -18,8 +18,9 @@ const ProfileSettingsClient = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  const clientId = localStorage.getItem('userId');
-
+  const user = JSON.parse(localStorage.getItem('user'));
+  const clientId = user?._id;
+  
   useEffect(() => {
     const fetchClient = async () => {
       try {

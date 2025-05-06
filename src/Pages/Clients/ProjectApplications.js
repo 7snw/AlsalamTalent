@@ -17,7 +17,8 @@ const ProjectApplications = () => {
   const [filters, setFilters] = useState({ status: [] });
 
   const navigate = useNavigate();
-  const clientId = localStorage.getItem('userId');
+  const user = JSON.parse(localStorage.getItem('user'));
+  const clientId = user?._id;
 
   useEffect(() => {
     const fetchApplications = async () => {
