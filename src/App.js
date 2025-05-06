@@ -12,7 +12,6 @@ import ProjectDetailsPage from './Pages/ProjectDetailsPage';
 import ProjectDetails from './Pages/ProjectDetails';
 import FreelancerProfile from './Pages/FreelancerProfile';
 import FreelancersList from './Pages/FreelancersList';
-import Messages from  './Pages/Messages';
 
 
 //Freelancer
@@ -71,8 +70,6 @@ const App = () => {
         <Route path="/freelancerprofile" element={<FreelancerProfile />} />
         <Route path="/freelancers" element={<FreelancersList />} /> 
         <Route path="/freelancer-home" element={<FreelancerHome />} />
-        <Route path="/messages" element={<Messages />} />
-
       
 
 

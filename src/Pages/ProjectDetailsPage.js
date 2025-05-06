@@ -47,9 +47,7 @@ const ProjectDetailsPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/projects/${id}`
-        );
+        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
         setProject(response.data);
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -71,8 +69,11 @@ const ProjectDetailsPage = () => {
 
         <div className="details-layout">
           <div className="left">
+<<<<<<< Updated upstream
             <h4>Author:</h4>
             <p>{project.authorId.fullName}</p>
+=======
+>>>>>>> Stashed changes
             <h4>Project Brief:</h4>
             <p>{project.brief}</p>
 
@@ -112,6 +113,7 @@ const ProjectDetailsPage = () => {
             )}
 
             <br />
+<<<<<<< Updated upstream
             {userRole === "client" &&
               storedUser?._id === project.authorId?._id && (
                 <button
@@ -121,6 +123,16 @@ const ProjectDetailsPage = () => {
                   Edit Project
                 </button>
               )}
+=======
+            {userRole === "client" && localStorage.getItem("userId") === project.authorId?._id && (
+              <button
+                className="edit-btn"
+                onClick={() => navigate(`/edit-project/${project._id}`)}
+              >
+                Edit Project
+              </button>
+            )}
+>>>>>>> Stashed changes
           </div>
 
           <div className="right">

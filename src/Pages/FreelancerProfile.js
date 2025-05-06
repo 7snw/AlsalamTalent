@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import '../Style/FreelancerProfile.css';
 import Navbar from '../Components/Navbar';
 import '../Style/Navbar.css';
-import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
+import { NavConfig2 } from '../Data/NavbarConfigs';
 import ViewPortfolioPopup from '../Pages/Freelancer/ViewPortfolioPopup';
 import userIcon from '../Assets/ProfileIcon.png';
 import Footer from '../Components/Footer';
@@ -17,8 +17,8 @@ const FreelancerProfile = () => {
   const [viewPopup, setViewPopup] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [portfolio, setPortfolio] = useState([]);
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default to freelancer
 
+<<<<<<< Updated upstream
 
 
   useEffect(() => {
@@ -36,6 +36,8 @@ const FreelancerProfile = () => {
         setNavbarConfig(NavConfig2);
     }
   }, []);
+=======
+>>>>>>> Stashed changes
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
@@ -63,7 +65,7 @@ const FreelancerProfile = () => {
 
   return (
     <div className="freelancer-profile">
-      <Navbar links={navbarConfig} />
+      <Navbar links={NavConfig2} />
       <div className="profile-container">
         <div className="profile-header">
           <div className="left-profile">
