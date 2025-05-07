@@ -14,53 +14,45 @@ import axios from 'axios';
 const AssignedProject = () => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ status: [] });
-  const [projects, setProjects] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user?._id;
-  
+  const clientId = user?._id;
+
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchAssignments = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/projects/all');
-        setProjects(response.data);
+        const res = await axios.get(`http://localhost:5000/api/assignments/by-author/${clientId}`);
+        setAssignments(res.data);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching assignments:', error);
       }
     };
+    fetchAssignments();
+  }, [clientId]);
 
-    fetchProjects();
-  }, []);
-
-  const assignedProjects = projects.filter(
-    (proj) => (proj.authorId?._id === userId || proj.authorId === userId )&&
-    proj.status !== 'Open'
-  );
-
-  const filteredProjects = assignedProjects.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase());
+  const filteredAssignments = assignments.filter((assignment) => {
+    const title = assignment.projectId?.title?.toLowerCase() || '';
+    const matchesSearch = title.includes(search.toLowerCase());
     const matchesStatus =
-      filters.status.length === 0 || filters.status.includes(project.status);
+      filters.status.length === 0 || filters.status.includes(assignment.status);
     return matchesSearch && matchesStatus;
   });
 
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
-      const isSelected = prev[category].includes(value);
-      return {
-        ...prev,
-        [category]: isSelected
-          ? prev[category].filter((v) => v !== value)
-          : [...prev[category], value],
-      };
+      const updated = prev[category].includes(value)
+        ? prev[category].filter((v) => v !== value)
+        : [...prev[category], value];
+      return { ...prev, [category]: updated };
     });
   };
 
-  const handleProjectClick = (proj) => {
-    if (proj.status === 'Submitted') {
-      navigate(`/submitted-project/${proj._id}`);
+  const handleProjectClick = (assignment) => {
+    if (assignment.status === 'Submitted') {
+      navigate(`/submitted-project/${assignment._id}`);
     } else {
-      navigate(`/assigned-project/${proj._id}`);
+      navigate(`/assigned-project/${assignment._id}`);
     }
   };
 
@@ -76,7 +68,7 @@ const AssignedProject = () => {
             <p className="hint">Filter your assigned projects by their status.</p>
             <div className="filter-group">
               <h4>Status</h4>
-              {['Assigned', 'Submitted', 'Completed'].map((status) => (
+              {['Assigned', 'Submitted','Completed', 'Rejected' ].map((status) => (
                 <label key={status}>
                   <input
                     type="checkbox"
@@ -103,10 +95,10 @@ const AssignedProject = () => {
 
           <div className="projects-grid">
             <AnimatePresence>
-              {filteredProjects.map((proj) => (
+              {filteredAssignments.map((assignment) => (
                 <motion.div
                   className="project-card"
-                  key={proj._id}
+                  key={assignment._id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
@@ -116,17 +108,17 @@ const AssignedProject = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => handleProjectClick(proj)}
+                  onClick={() => handleProjectClick(assignment)}
                   style={{ cursor: 'pointer' }}
                 >
-                  {proj.imageUrl ? (
-                    <img src={proj.imageUrl} alt={proj.title} />
+                  {assignment.projectId?.imageUrl ? (
+                    <img src={assignment.projectId.imageUrl} alt={assignment.projectId.title} />
                   ) : (
                     <p>No image available</p>
                   )}
-                  <h4>{proj.title}</h4>
-                  <p>{proj.freelancerId?.fullName || 'No Freelancer Assigned'}</p>
-                  <span className="progress-text2">{proj.status}</span>
+                  <h4>{assignment.projectId?.title || 'Untitled'}</h4>
+                  <p>{assignment.freelancerId?.fullName || 'Freelancer not found'}</p>
+                  <span className="progress-text2">{assignment.status}</span>
                 </motion.div>
               ))}
             </AnimatePresence>

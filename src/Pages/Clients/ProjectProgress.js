@@ -8,51 +8,52 @@ import { NavConfig3 } from "../../Data/NavbarConfigs";
 import axios from 'axios';
 
 const ProjectProgress = () => {
-  const { id } = useParams();
-  const [project, setProject] = useState(null);
+  const { id } = useParams(); // This is assignment ID
+  const [assignment, setAssignment] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchAssignment = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
-        setProject(response.data);
+        const response = await axios.get(`http://localhost:5000/api/assignments/${id}`);
+        setAssignment(response.data);
       } catch (error) {
-        console.error('Error fetching project:', error);
+        console.error('Error fetching assignment:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProject();
+    fetchAssignment();
   }, [id]);
 
   const getStatusClass = () => {
-    switch (project.status?.toLowerCase()) {
-      case 'open':
-        return 'open';
+    switch (assignment?.status?.toLowerCase()) {
       case 'assigned':
-      case 'in-progress':
+      case 'in progress':
         return 'inprogress';
       case 'submitted':
         return 'submitted';
       case 'completed':
+      case 'approved':
         return 'completed';
       default:
         return 'open';
     }
   };
 
-  if (loading) return <p>Loading project...</p>;
-  if (!project) return <p>Project not found</p>;
-
   const progressText = {
-    'open': 0,
-    'in-progress': 50,
     'assigned': 50,
+    'in progress': 50,
     'submitted': 75,
-    'completed': 100
-  }[project.status?.toLowerCase()] ?? 0;
+    'completed': 100,
+    'approved': 100
+  }[assignment?.status?.toLowerCase()] ?? 0;
+
+  if (loading) return <p>Loading project...</p>;
+  if (!assignment || !assignment.projectId) return <p>Project not found</p>;
+
+  const project = assignment.projectId;
 
   return (
     <div className="project-progress-page">
@@ -62,23 +63,43 @@ const ProjectProgress = () => {
 
         <div className="top-section">
           <div className="left-section">
-            <h4>Project Files:</h4>
-            {project.files && project.files.length > 0 ? (
-              project.files.map((file, idx) => (
-                <a
-                  key={idx}
-                  className="download-btn"
-                  href={file.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                >
-                  {file.name}
-                </a>
-              ))
-            ) : (
-              <p>No project files uploaded.</p>
-            )}
+          <h4>Project Files:</h4>
+{project.files && project.files.length > 0 ? (
+  <div className="project-files-section">
+    {project.files.map((file, idx) => (
+      <button
+        key={idx}
+        className="file-download-btn"
+        onClick={() => window.open(file.url, '_blank')}
+      >
+        {file.name}
+      </button>
+    ))}
+  </div>
+) : (
+  <p>No files uploaded by the client.</p>
+)}
+
+<h4>Freelancer Submitted Files:</h4>
+{assignment.docs && assignment.docs.length > 0 ? (
+  <div className="project-files-section">
+    {assignment.docs.map((file, idx) => (
+      <div key={idx} className="freelancer-file-item">
+        <a
+          href={file.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="freelancer-file-link"
+        >
+          {file.name}
+        </a>
+      </div>
+    ))}
+  </div>
+) : (
+  <p>No files submitted by the freelancer.</p>
+)}
+
           </div>
 
           <div className="right-section">
@@ -117,15 +138,8 @@ const ProjectProgress = () => {
             <h4>Budget/Price:</h4>
             <p>{project.budget} BHD</p>
 
-            <h4>Duration:</h4>
-            {project.duration?.from && project.duration?.to ? (
-              <p>{new Date(project.duration.from).toLocaleDateString()} - {new Date(project.duration.to).toLocaleDateString()}</p>
-            ) : (
-              <p>Duration not specified</p>
-            )}
-
             <h4>Status:</h4>
-            <p>{project.status}</p>
+            <p>{assignment.status}</p>
           </div>
 
           <div className="details-right">

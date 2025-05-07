@@ -43,21 +43,39 @@
     font-size: 16px;
   }
   
-  .download-btn {
-    background-color: #1B223C;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    margin-bottom: 15px;
+  .file-download-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    background-color: #1B223C;
+    border: 1px solid #ccc;
+    color: #ffffff;
+    width: fit-content;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
   }
   
-  .download-btn:hover {
-    background-color: #0f172a;
+  .file-download-btn:hover {
+    background-color: #2b2f48;
+  }
+  .freelancer-file-link {
+    font-size: 14px;
+    color: #1B223C;
+    text-decoration: underline;
+  }
+  
+  .freelancer-file-item {
+    margin-bottom: 8px;
+  }
+    
+  .project-files-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
   }
   
   

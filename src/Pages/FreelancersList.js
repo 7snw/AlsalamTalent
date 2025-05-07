@@ -11,14 +11,22 @@ import DefaultUserIcon from '../Assets/ProfileImage.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
-const renderStars = (count) => {
-  return Array.from({ length: count }, (_, i) => <span key={i}>★</span>);
+// Render full stars (1-5), always 5 stars total
+const renderStars = (rating) => {
+  const fullStars = Math.min(Math.max(parseInt(rating || 0), 1), 5);
+  const emptyStars = 5 - fullStars;
+  return (
+    <>
+      {Array.from({ length: fullStars }, (_, i) => <span key={`full-${i}`}>★</span>)}
+      {Array.from({ length: emptyStars }, (_, i) => <span key={`empty-${i}`}>☆</span>)}
+    </>
+  );
 };
 
 const FreelancersList = () => {
   const navigate = useNavigate();
 
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default freelancer navbar
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig2);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     expertise: [],
@@ -28,18 +36,10 @@ const FreelancersList = () => {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    const role = storedUser?._id;
-    switch (role) {
-      case 'admin':
-        setNavbarConfig(NavConfig4);
-        break;
-      case 'client':
-        setNavbarConfig(NavConfig3);
-        break;
-      case 'freelancer':
-      default:
-        setNavbarConfig(NavConfig2);
-    }
+    const role = storedUser?.role;
+    if (role === 'admin') setNavbarConfig(NavConfig4);
+    else if (role === 'client') setNavbarConfig(NavConfig3);
+    else setNavbarConfig(NavConfig2);
   }, []);
 
   useEffect(() => {
@@ -73,13 +73,11 @@ const FreelancersList = () => {
 
     const matchesExpertiseFilter =
       filters.expertise.length === 0 ||
-      freelancer.expertise?.some(exp =>
-        filters.expertise.includes(exp)
-      );
+      freelancer.expertise?.some(exp => filters.expertise.includes(exp));
 
+    const intRating = Math.round(freelancer.rating || 5);
     const matchesRatingFilter =
-      filters.rating.length === 0 ||
-      filters.rating.includes((freelancer.rating || 5).toString());
+      filters.rating.length === 0 || filters.rating.includes(intRating.toString());
 
     return matchesSearch && matchesExpertiseFilter && matchesRatingFilter;
   });
@@ -164,7 +162,7 @@ const FreelancersList = () => {
                     </div>
 
                     <div className="freelancer-meta">
-                      <div className="rating">{renderStars(freelancer.rating || 5)}</div>
+                      <div className="rating">{renderStars(freelancer.rating)}</div>
                       <button
                         className="contact-btn"
                         onClick={(e) => {

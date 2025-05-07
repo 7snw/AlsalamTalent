@@ -8,6 +8,12 @@ const freelancerSchema = new mongoose.Schema({
   password: String,
   major: String,
   phone: String,
+  rating: {
+    type: Number,
+    default: 1,
+    min: 1,
+    max: 5
+  },
   expertise: [String],
   cprImageUrl: { type: String, required: function () { return this.userType === 'graduate'; } },
   bio: String,

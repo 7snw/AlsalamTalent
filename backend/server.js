@@ -12,10 +12,11 @@ const clientRoutes = require('./routes/clients');
 const adminRoutes = require('./routes/admin');
 const analyticsClientRoutes = require('./routes/analyticsClient');
 const applicationRoutes = require('./routes/applications');
+const assignmentRoutes = require('./routes/assignments');
 const projectRoutes = require('./routes/projects');
 const analyticsAdminRoutes = require('./routes/analyticsAdmin');
 const auditLogRoutes = require('./routes/auditLogs');
-const messageRoutes = require('./routes/messages'); // ✅ new
+const messageRoutes = require('./routes/messages'); 
 
 // Express app
 const app = express();
@@ -61,6 +62,8 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/auditlogs', auditLogRoutes);
 app.use('/api/messages', messageRoutes); // ✅ add messages API
+app.use('/api/assignments', assignmentRoutes);
+
 
 // File upload endpoints
 app.post('/api/upload-image', uploadImage.single('image'), (req, res) => {
@@ -94,11 +97,11 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('🔌 A user connected:', socket.id);
+  //console.log('🔌 A user connected:', socket.id);
 
   socket.on('joinRoom', (roomId) => {
     socket.join(roomId);
-    console.log(`📦 User joined room: ${roomId}`);
+  //  console.log(`📦 User joined room: ${roomId}`);
   });
 
   socket.on('sendMessage', async (msgData) => {
@@ -122,7 +125,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('❌ User disconnected:', socket.id);
+    //console.log('❌ User disconnected:', socket.id);
   });
 });
 
