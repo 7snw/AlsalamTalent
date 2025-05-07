@@ -58,11 +58,12 @@ const AllProjects = () => {
     e.stopPropagation();
     try {
       const res = await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
-      setSavedProjects(res.data);
+      setSavedProjects(res.data.map(p => p._id));
     } catch (error) {
       console.error('Error updating saved projects:', error);
     }
   };
+  
 
   const filteredProjects = allProjects.filter((proj) => {
     const matchesSearch = proj.title?.toLowerCase().includes(search.toLowerCase());
