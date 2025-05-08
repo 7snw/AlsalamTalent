@@ -108,22 +108,21 @@ io.on('connection', (socket) => {
     try {
       const newMessage = new Message({
         senderId: msgData.senderId,
-        receiverId: msgData.senderId, // self-chat
+        receiverId: msgData.receiverId, // ✅ Corrected
         senderRole: msgData.senderRole,
-        receiverRole: msgData.senderRole,
+        receiverRole: msgData.receiverRole,
         content: msgData.content,
         roomId: msgData.roomId,
         attachments: msgData.attachments || []
-      
       });
-
+  
       await newMessage.save();
-      io.to(msgData.roomId).emit('receiveMessage', newMessage);
+      io.to(msgData.roomId).emit('receiveMessage', newMessage); // ✅ roomId now includes both users
     } catch (err) {
       console.error('Error saving message:', err.message);
     }
   });
-
+  
   socket.on('disconnect', () => {
     //console.log('❌ User disconnected:', socket.id);
   });
