@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
 // Get freelancer list (basic)
 router.get('/list', async (req, res) => {
   try {
-    const freelancers = await Freelancer.find({}, 'fullName expertise profileImageUrl');
+    const freelancers = await Freelancer.find({}, 'fullName expertise profileImageUrl rating');
     res.json(freelancers);
   } catch (err) {
     console.error('Error fetching freelancers:', err);

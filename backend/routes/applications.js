@@ -4,6 +4,7 @@ const router = express.Router();
 const Application = require('../models/Application');
 const Project = require('../models/Project');
 const Freelancer = require('../models/Freelancer');
+const Assignment = require('../models/Assignment');
 
 // GET all applications for a client (by authorId)
 router.get('/by-author/:authorId', async (req, res) => {
@@ -34,8 +35,7 @@ router.get('/by-author/:authorId', async (req, res) => {
     res.status(500).json({ message: 'Error fetching applications' });
   }
 });
-
-// Approve an application
+// Approve an application and create an assignment
 router.post('/:projectId/approve', async (req, res) => {
   try {
     const { freelancerId } = req.body;
@@ -55,13 +55,39 @@ router.post('/:projectId/approve', async (req, res) => {
       { $set: { "applications.$.status": "Assigned" } }
     );
 
-    res.json({ message: 'Application assigned successfully.', updatedApplication });
+    const exists = await Assignment.findOne({ projectId, freelancerId });
+
+    let assignment; // define here so it's accessible below
+
+    if (!exists) {
+      const application = await Application.findOne({ projectId, freelancerId });
+      if (!application) {
+        return res.status(404).json({ message: 'Application not found for assignment creation' });
+      }
+
+      assignment = new Assignment({
+        projectId,
+        freelancerId,
+        authorId: application.authorId,
+        status: 'Assigned' // ✅ use a valid enum value
+      });
+
+      await assignment.save();
+
+      // ✅ update project with assignment ID (only when assignment is created)
+      await Project.findByIdAndUpdate(projectId, { assignmentId: assignment._id });
+    }
+
+    res.json({ message: 'Application approved and assignment created.', updatedApplication });
   } catch (error) {
     console.error('Error assigning application:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
+
+
+// Reject an application
 router.post('/:projectId/reject', async (req, res) => {
   try {
     const { freelancerId } = req.body;
@@ -88,8 +114,7 @@ router.post('/:projectId/reject', async (req, res) => {
   }
 });
 
-
-// Create new application (called when freelancer applies)
+// Create a new application
 router.post('/create', async (req, res) => {
   try {
     const { projectId, freelancerId, authorId } = req.body;
