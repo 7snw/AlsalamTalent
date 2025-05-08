@@ -1,0 +1,134 @@
+/* src/Style/Login.css */
+
+.login-body {
+  background-color: #686d7b;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.login-wrapper {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  background-color: #d9d9d9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 50px;
+  border-radius: 25px;
+  width: 75%;
+  max-width: 1000px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.login-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  padding-right: 40px;
+}
+
+.login-left h2 {
+  text-align: center;
+  color: #1B223C;
+  margin-bottom: 25px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form label {
+  margin-bottom: 0px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1B223C;
+  line-height: 1; /* tighter spacing */
+}
+
+
+.login-form input {
+  padding: 12px;
+  border-radius: 15px;
+  border: 1px solid #ccc;
+  margin-top: -6px; /* Reduced space */
+}
+
+
+.login-btn {
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  background-color: #1B223C;
+  color: white;
+  cursor: pointer;
+  margin-top: 30px;
+  font-size: 16px;
+}
+
+
+.register-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #1B223C;
+}
+
+.register-link span {
+  color: #EE582B;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.divider {
+  width: 2px;
+background-color: #EE582B;
+height: 340px;
+}
+
+.login-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-right img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    padding: 30px 20px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .login-right {
+    margin-top: 30px;
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #f7fafd inset !important;
+  box-shadow: 0 0 0 1000px #f7fafd inset !important;
+  -webkit-text-fill-color: #1B223C !important;
+  transition: background-color 5000s ease-in-out 0s;
+}

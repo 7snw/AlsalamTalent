@@ -1,0 +1,142 @@
+.project-applications-page {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+  min-height: 100vh;
+  padding: 0 6%;
+  box-sizing: border-box;
+}
+
+.project-applications-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 6%;
+    display: flex;
+    gap: 40px;
+    margin-bottom: 5 00px;
+}
+
+.project-applications-layout {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.applications-left-panel {
+  width: 265px;
+}
+
+.applications-right-panel {
+  flex: 1;
+}
+
+
+.applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%; 
+}
+
+
+.application-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.application-card:hover{
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+
+}
+.application-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 15px;
+  object-fit: cover;
+}
+
+.application-info h4 {
+  font-size: 16px;
+  margin-top: -5px;
+  margin-bottom: 10px;
+  color: #1B223C;
+  
+}
+
+.application-info p {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0;
+}
+
+.freelancer-name {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #1B223C;
+  gap: 6px;
+}
+.application-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+}
+
+.application-actions button {
+  padding: 8px 18px;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  border: none;
+}
+
+.application-actions .assign {
+  background-color: #1B223C;
+  color: white;
+}
+
+.application-actions .cancel {
+  background-color: #EE582B;
+  color: #ffffff;
+}
+
+.application-actions .cancel:hover {
+  background-color: #ee592bce;
+  color: white;
+}
+
+.application-actions .assign:hover {
+  background-color: #1b223ce9;
+  color: white;
+}
+@media (max-width: 768px) {
+  .project-applications-layout {
+    flex-direction: column;
+  }
+
+  .search-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .applications-list {
+    align-items: center;
+  }
+}
+
+.freelancer-link {
+  text-decoration: underline;
+  color: #1B223C;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.freelancer-link:hover {
+  color: #EE582B;
+}

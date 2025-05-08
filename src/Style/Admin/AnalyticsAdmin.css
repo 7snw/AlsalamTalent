@@ -1,0 +1,91 @@
+.analytics-page2 {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+  min-height: 100vh;
+  padding: 0 6%;
+}
+
+.analytics-container2 {
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  min-height: 74vh;
+  box-sizing: border-box;
+  padding: 0 6% 100px;
+}
+
+.analytics-container2 h2 {
+  font-size: 28px;
+  color: #1B223C;
+  margin: 30px 0 20px;
+}
+
+.summary-cards2 {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.card22 {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 25px;
+  text-align: center;
+  min-width: 200px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.card22:hover {
+  transform: translateY(-5px);
+}
+
+.card22 h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #1B223C;
+}
+
+.big-number2 {
+  font-size: 38px;
+  font-weight: bold;
+  color: #000;
+}
+
+.details-section2 {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.card.progress2,
+.card.performance2 {
+  flex: 1;
+  min-width: 300px;
+  background: #fff;
+  border-radius: 25px;
+  padding: 20px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Pie Chart Customization */
+.performance2 svg text {
+  font-size: 12px;
+  fill: #1B223C;
+}
+
+@media (max-width: 768px) {
+  .summary-cards2,
+  .details-section2 {
+    flex-direction: column;
+  }
+
+  .circular-chart9 {
+    padding-left: 0;
+    margin: 0 auto;
+  }
+}

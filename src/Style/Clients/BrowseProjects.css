@@ -1,0 +1,24 @@
+/* src/Style/Clients/BrowseProjects.css */
+
+.browse-projects-page {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+  margin-left: 91px;
+  margin-right: 91px;
+}
+
+.browse-container {
+  display: flex;
+  gap: 40px;
+  padding: 0 6%;
+  margin-bottom: 100px;
+
+}
+
+.browse-left-panel {
+  width: 260px;
+}
+
+.browse-right-panel {
+  flex: 1;
+}

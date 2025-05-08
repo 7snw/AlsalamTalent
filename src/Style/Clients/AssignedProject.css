@@ -1,0 +1,52 @@
+/* src/Style/Clients/AssignedProject.css */
+
+.assigned-projects-page {
+  margin-left: 91px;
+  margin-right: 91px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+  
+}
+
+.assigned-projects-container {
+  display: flex;
+  gap: 40px;
+  padding: 0 6%;
+  margin-bottom: 330px;
+
+}
+
+.assigned-left-panel {
+  width: 260px;
+}
+
+.assigned-right-panel {
+  flex: 1;
+}
+
+
+
+.project-card {
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  
+}
+
+.project-card:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.progress-text2 {
+  position: absolute;
+  bottom: 14.5px;
+  right: 15px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #1B223C;
+  background-color: #e3e3e3;
+  padding: 1px 11px;
+  border-radius: 12px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}

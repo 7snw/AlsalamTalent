@@ -1,0 +1,136 @@
+.freelancer-page {
+  margin-left: 91px;
+  margin-right: 91px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+}
+
+.freelancer-container9 {
+  display: flex;
+    gap: 40px;
+    margin-left: 80px; 
+    margin-bottom: 90px;
+  
+}
+
+.freelancer-content {
+  display: flex;
+  gap: 40px;
+}
+
+.freelancer-left-panel {
+  width: 260px;
+}
+
+
+
+.freelancer-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 50px;
+  gap: 20px;
+}
+
+.freelancer-card {
+width: 145%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: -12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+
+.freelancer-card:hover {
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+transform: translateY(-2px);
+transition: all 0.2s ease;
+}
+
+
+.freelancer-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  
+}
+
+.freelancer-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.freelancer-info  {
+  width: 300px;
+  height: 63px;
+
+
+}
+
+.profile-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+}
+
+.freelancer-info h3 {
+  font-size: 18px;
+  margin: 0;
+  color: #1B223C;
+}
+
+.freelancer-info p {
+  font-size: 14px;
+  margin: 3px 0 0;
+  color: #444;
+}
+
+.rating span {
+  font-size: 16px;
+  color: #EE582B;
+  margin-right: 3px;
+}
+
+.contact-btn {
+  background-color: #1B223C;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+.search-wrapper9 {
+  display: flex;
+  align-items: center;
+  background: #D9D9D9;
+  padding: 12px 20px;
+  border-radius: 30px;
+  margin-bottom: 18px;
+  margin-top: 5px;
+  position: relative;
+  width: 145%;
+}
+
+.search-wrapper9 input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-wrapper9 .search-icon9 {
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  right: 20px;
+}

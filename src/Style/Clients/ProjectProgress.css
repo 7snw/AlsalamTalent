@@ -1,0 +1,145 @@
+/* src/Style/Clients/ProjectProgress.css */
+
+.project-progress-page {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #E6E7E8;
+    min-height: 100vh;
+    padding: 0 6%;
+    margin-top: 0;
+  }
+  
+  .progress-container {
+    max-width: 1200px;
+    margin-left: 80px;
+    margin-right: 80px;
+    padding-bottom: 40px;
+    margin-bottom: 100px;
+
+  }
+  
+  .progress-container h2 {
+    font-size: 28px;
+    color: #1B223C;
+    margin-bottom: 30px;
+    font-weight: 700;
+  }
+  
+  .top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .left-section {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .left-section h4 {
+    margin-bottom: 5px;
+    color: #1B223C;
+    font-size: 16px;
+  }
+  
+  .file-download-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    background-color: #1B223C;
+    border: 1px solid #ccc;
+    color: #ffffff;
+    width: fit-content;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .file-download-btn:hover {
+    background-color: #2b2f48;
+  }
+  .freelancer-file-link {
+    font-size: 14px;
+    color: #1B223C;
+    text-decoration: underline;
+  }
+  
+  .freelancer-file-item {
+    margin-bottom: 8px;
+  }
+    
+  .project-files-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  
+  
+  hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 40px 0 30px;
+  }
+  
+  .details-section {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background: #f5f4f4;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    gap: 30px;
+  }
+  
+  .details-leftt {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .details-leftt h2 {
+    font-size: 28px;
+    color: #1B223C;
+    margin-bottom: 0px;
+  }
+  .details-leftt h4 {
+    margin-bottom: 4px;
+    color: #1B223C;
+    font-size: 16px;
+  }
+  
+  .details-leftt p {
+    margin-top: 4px;    /* remove gap above */
+    margin-bottom: 10px !important; /* small consistent gap below */
+    font-size: 15px;
+    color: #333;
+  }
+  
+  
+  .details-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .project-image {
+    width: 70%;
+    height: 70%;
+    border-radius: 15px;
+    object-fit: cover;
+  
+  }
+  
+  @media (max-width: 768px) {
+    .top-section,
+    .details-section {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  } 
+  

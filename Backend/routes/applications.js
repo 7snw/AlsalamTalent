@@ -1,0 +1,171 @@
+const express = require('express');
+const router = express.Router();
+const Application = require('../models/Application');
+const Project = require('../models/Project');
+const Freelancer = require('../models/Freelancer');
+const Assignment = require('../models/Assignment');
+const logAction = require('../utils/logAction'); // ✅ Import logger
+
+// GET all applications for a client (by authorId)
+router.get('/by-author/:authorId', async (req, res) => {
+  try {
+    const applications = await Application.find({ authorId: req.params.authorId })
+      .populate({ path: 'projectId', select: 'title imageUrl' })
+      .populate({ path: 'freelancerId', select: 'fullName' });
+
+    const formatted = applications.map(app => ({
+      _id: app._id,
+      status: app.status,
+      appliedAt: app.appliedAt,
+      project: app.projectId ? {
+        id: app.projectId._id,
+        title: app.projectId.title,
+        imageUrl: app.projectId.imageUrl
+      } : null,
+      freelancer: app.freelancerId ? {
+        id: app.freelancerId._id,
+        name: app.freelancerId.fullName
+      } : null
+    }));
+
+    res.json(formatted);
+  } catch (error) {
+    console.error('Error fetching applications:', error);
+    res.status(500).json({ message: 'Error fetching applications' });
+  }
+});
+
+// ✅ Approve an application and create an assignment
+router.post('/:projectId/approve', async (req, res) => {
+  try {
+    const { freelancerId } = req.body;
+    const { projectId } = req.params;
+
+    const updatedApplication = await Application.findOneAndUpdate(
+      { projectId, freelancerId },
+      { status: 'Assigned' },
+      { new: true }
+    );
+
+    if (!updatedApplication) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    await Freelancer.updateOne(
+      { _id: freelancerId, 'applications.projectId': projectId },
+      { $set: { 'applications.$.status': 'Assigned' } }
+    );
+
+    const exists = await Assignment.findOne({ projectId, freelancerId });
+
+    let assignment;
+
+    if (!exists) {
+      const application = await Application.findOne({ projectId, freelancerId });
+      if (!application) {
+        return res.status(404).json({ message: 'Application not found for assignment creation' });
+      }
+
+      assignment = new Assignment({
+        projectId,
+        freelancerId,
+        authorId: application.authorId,
+        status: 'Assigned'
+      });
+
+      await assignment.save();
+      await Project.findByIdAndUpdate(projectId, { assignmentId: assignment._id });
+
+      // ✅ Log approval and assignment using projectId
+      await logAction({
+        userId: application.authorId,
+        action: 'Approved Application',
+        projectId
+      });
+    }
+
+    res.json({ message: 'Application approved and assignment created.', updatedApplication });
+  } catch (error) {
+    console.error('Error approving application:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// ✅ Reject an application
+router.post('/:projectId/reject', async (req, res) => {
+  try {
+    const { freelancerId } = req.body;
+    const { projectId } = req.params;
+
+    const updatedApplication = await Application.findOneAndUpdate(
+      { projectId, freelancerId },
+      { status: 'Cancelled' },
+      { new: true }
+    );
+
+    if (!updatedApplication) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    await Freelancer.updateOne(
+      { _id: freelancerId, 'applications.projectId': projectId },
+      { $set: { 'applications.$.status': 'Cancelled' } }
+    );
+
+    // ✅ Log rejection using projectId
+    await logAction({
+      userId: updatedApplication.authorId,
+      action: 'Rejected Application',
+      projectId
+    });
+
+    res.json({ message: 'Application cancelled successfully.', updatedApplication });
+  } catch (error) {
+    console.error('Error cancelling application:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// ✅ Create a new application
+router.post('/create', async (req, res) => {
+  try {
+    const { projectId, freelancerId, authorId } = req.body;
+
+    if (!projectId || !freelancerId || !authorId) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const existingApplication = await Application.findOne({ projectId, freelancerId });
+    if (existingApplication) {
+      return res.status(400).json({ message: 'You have already applied to this project.' });
+    }
+
+    const newApplication = new Application({
+      projectId,
+      freelancerId,
+      authorId,
+      status: 'Under Review'
+    });
+
+    await newApplication.save();
+
+    await Freelancer.updateOne(
+      { _id: freelancerId },
+      { $push: { applications: { projectId, status: 'Under Review' } } }
+    );
+
+    // ✅ Log application using projectId
+    await logAction({
+      userId: freelancerId,
+      action: 'Applied to Project',
+      projectId
+    });
+
+    res.status(201).json({ message: 'Application submitted successfully', application: newApplication });
+  } catch (error) {
+    console.error('Error creating application:', error);
+    res.status(500).json({ message: 'Error submitting application', error: error.message });
+  }
+});
+
+module.exports = router;
