@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "../Style/Messages.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
-import { NavConfig1, NavConfig2, NavConfig3 } from "../Data/NavbarConfigs";
+import { NavConfig2, NavConfig3, NavConfig4 } from "../Data/NavbarConfigs";
 import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
@@ -134,7 +134,7 @@ const Messages = () => {
     if (!user || !user.role) return [];
     switch (user.role.toLowerCase()) {
       case "admin":
-        return NavConfig1;
+        return NavConfig4;
       case "client":
         return NavConfig3;
       case "freelancer":
