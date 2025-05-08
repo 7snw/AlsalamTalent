@@ -44,11 +44,11 @@ const ProjectApplications = () => {
 
   const handleAction = async (projectId, freelancerId, action) => {
     try {
-      await axios.post(`http://localhost:5000/api/applications/${projectId}/${action}`, { freelancerId });
+      await axios.post(`http://localhost:5000/api/applications/${projectId}/${action}`, { freelancerId,clientId });
       setApplications((prev) =>
         prev.map((app) =>
-          app.project.id === projectId && app.freelancer.id === freelancerId
-            ? { ...app, status: action === 'approve' ? 'Assigned' : 'Cancelled' }
+          app.project?.id === projectId && app.freelancer?.id === freelancerId? 
+      { ...app, status: action === 'approve' ? 'Assigned' : 'Cancelled' }
             : app
         )
       );

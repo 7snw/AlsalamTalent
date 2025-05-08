@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import '../../Style/Admin/AuditLogs.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig4 } from '../../Data/NavbarConfigs';
-import Footer from '../../Components/Footer';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import "../../Style/Admin/AuditLogs.css";
+import Navbar from "../../Components/Navbar";
+import { NavConfig4 } from "../../Data/NavbarConfigs";
+import Footer from "../../Components/Footer";
+import axios from "axios";
 
 const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
@@ -12,11 +12,11 @@ const AuditLogs = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/auditlogs');
+        const response = await axios.get("http://localhost:5000/api/auditlogs");
         setLogs(response.data);
       } catch (err) {
-        console.error('Error fetching audit logs:', err);
-        alert('Failed to load audit logs.');
+        console.error("Error fetching audit logs:", err);
+        alert("Failed to load audit logs.");
       } finally {
         setLoading(false);
       }
@@ -43,6 +43,7 @@ const AuditLogs = () => {
                   <th>User</th>
                   <th>Role</th>
                   <th>Action</th>
+                  <th>Details</th>
                   <th>Timestamp</th>
                 </tr>
               </thead>
@@ -52,6 +53,7 @@ const AuditLogs = () => {
                     <td>{log.userName}</td>
                     <td>{log.role}</td>
                     <td>{log.action}</td>
+                    <td>{log.details}</td>
                     <td>{new Date(log.timestamp).toLocaleString()}</td>
                   </tr>
                 ))}
