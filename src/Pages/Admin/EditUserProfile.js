@@ -42,11 +42,19 @@ const EditUserProfile = () => {
       [e.target.name]: e.target.value
     }));
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/client/${userId}`, formData);
+      const admin = JSON.parse(localStorage.getItem("user")); // ✅ Get admin from localStorage
+  
+      const payload = {
+        ...formData,
+        authorId: admin?._id  // ✅ Add this to trigger logAction on backend
+      };
+  
+      await axios.put(`http://localhost:5000/api/client/${userId}`, payload);
+  
       alert('User updated successfully!');
       navigate('/clientlist');
     } catch (error) {
@@ -54,7 +62,7 @@ const EditUserProfile = () => {
       alert('Failed to update user.');
     }
   };
-
+  
   const handleCancel = () => {
     navigate('/clientlist');
   };

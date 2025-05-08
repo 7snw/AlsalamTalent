@@ -4,6 +4,7 @@ const Application = require('../models/Application');
 const Project = require('../models/Project');
 const Freelancer = require('../models/Freelancer');
 const Assignment = require('../models/Assignment');
+const logAction = require('../utils/logAction'); // ✅ Import logger
 
 // GET all applications for a client (by authorId)
 router.get('/by-author/:authorId', async (req, res) => {
@@ -33,7 +34,8 @@ router.get('/by-author/:authorId', async (req, res) => {
     res.status(500).json({ message: 'Error fetching applications' });
   }
 });
-// Approve an application and create an assignment
+
+// ✅ Approve an application and create an assignment
 router.post('/:projectId/approve', async (req, res) => {
   try {
     const { freelancerId } = req.body;
@@ -56,7 +58,7 @@ router.post('/:projectId/approve', async (req, res) => {
 
     const exists = await Assignment.findOne({ projectId, freelancerId });
 
-    let assignment; // define here so it's accessible below
+    let assignment;
 
     if (!exists) {
       const application = await Application.findOne({ projectId, freelancerId });
@@ -68,13 +70,18 @@ router.post('/:projectId/approve', async (req, res) => {
         projectId,
         freelancerId,
         authorId: application.authorId,
-        status: 'Assigned' // ✅ use a valid enum value
+        status: 'Assigned'
       });
 
       await assignment.save();
-
-      // ✅ update project with assignment ID (only when assignment is created)
       await Project.findByIdAndUpdate(projectId, { assignmentId: assignment._id });
+
+      // ✅ Log approval and assignment using projectId
+      await logAction({
+        userId: application.authorId,
+        action: 'Approved Application',
+        projectId
+      });
     }
 
     res.json({ message: 'Application approved and assignment created.', updatedApplication });
@@ -84,9 +91,7 @@ router.post('/:projectId/approve', async (req, res) => {
   }
 });
 
-
-
-// Reject an application
+// ✅ Reject an application
 router.post('/:projectId/reject', async (req, res) => {
   try {
     const { freelancerId } = req.body;
@@ -107,6 +112,13 @@ router.post('/:projectId/reject', async (req, res) => {
       { $set: { 'applications.$.status': 'Cancelled' } }
     );
 
+    // ✅ Log rejection using projectId
+    await logAction({
+      userId: updatedApplication.authorId,
+      action: 'Rejected Application',
+      projectId
+    });
+
     res.json({ message: 'Application cancelled successfully.', updatedApplication });
   } catch (error) {
     console.error('Error cancelling application:', error);
@@ -114,7 +126,7 @@ router.post('/:projectId/reject', async (req, res) => {
   }
 });
 
-// Create a new application
+// ✅ Create a new application
 router.post('/create', async (req, res) => {
   try {
     const { projectId, freelancerId, authorId } = req.body;
@@ -141,6 +153,13 @@ router.post('/create', async (req, res) => {
       { _id: freelancerId },
       { $push: { applications: { projectId, status: 'Under Review' } } }
     );
+
+    // ✅ Log application using projectId
+    await logAction({
+      userId: freelancerId,
+      action: 'Applied to Project',
+      projectId
+    });
 
     res.status(201).json({ message: 'Application submitted successfully', application: newApplication });
   } catch (error) {

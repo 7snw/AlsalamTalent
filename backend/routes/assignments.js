@@ -3,7 +3,7 @@ const multer = require('multer');
 const router = express.Router();
 const Assignment = require('../models/Assignment');
 const Freelancer = require('../models/Freelancer');
-
+const logAction = require('../utils/logAction'); // ✅ Logging utility
 
 // ✅ Get assignments by authorId (client)
 router.get('/by-author/:authorId', async (req, res) => {
@@ -17,12 +17,13 @@ router.get('/by-author/:authorId', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-// Get a single assignment by ID
+
+// ✅ Get a single assignment by ID
 router.get('/:id', async (req, res) => {
   try {
     const assignment = await Assignment.findById(req.params.id)
-      .populate('projectId') // ✅ Ensure projectId is fully populated
-      .populate('freelancerId'); // optional
+      .populate('projectId')
+      .populate('freelancerId');
 
     if (!assignment) {
       return res.status(404).json({ message: 'Assignment not found' });
@@ -35,6 +36,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// ✅ Utility to update average freelancer rating
 const updateFreelancerRating = async (freelancerId) => {
   const assignments = await Assignment.find({
     freelancerId,
@@ -49,7 +51,7 @@ const updateFreelancerRating = async (freelancerId) => {
   }
 };
 
-
+// ✅ Update assignment status + rating + feedback (with logging for rejection/completion)
 router.put('/:id/update-status', async (req, res) => {
   try {
     const { status, feedback } = req.body;
@@ -70,12 +72,25 @@ router.put('/:id/update-status', async (req, res) => {
       return res.status(404).json({ message: 'Assignment not found' });
     }
 
-    //get freelancerId from updated assignment
     const freelancerId = updated.freelancerId;
 
     if (status === 'Completed') {
       await Freelancer.findByIdAndUpdate(freelancerId, { rating });
     }
+
+    // ✅ Log based on status
+    let actionLabel = 'Updated Assignment Status';
+    if (status === 'Rejected') {
+      actionLabel = 'Rejected Submitted Work';
+    } else if (status === 'Completed') {
+      actionLabel = 'Approved Submitted Work';
+    }
+
+    await logAction({
+      userId: updated.authorId,
+      action: actionLabel,
+      projectId: updated.projectId
+    });
 
     res.json({ message: 'Assignment updated successfully', updated });
   } catch (error) {
@@ -84,8 +99,7 @@ router.put('/:id/update-status', async (req, res) => {
   }
 });
 
-
-// Define your storage for uploaded docs
+// ✅ File upload storage for docs
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
@@ -95,6 +109,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// ✅ Upload docs to assignment (freelancer)
 router.post('/:id/update-docs', upload.array('docs'), async (req, res) => {
   try {
     const files = req.files.map(file => ({
@@ -110,12 +125,18 @@ router.post('/:id/update-docs', upload.array('docs'), async (req, res) => {
 
     if (!updated) return res.status(404).json({ message: 'Assignment not found' });
 
+    // ✅ Log freelancer doc upload
+    await logAction({
+      userId: updated.freelancerId,
+      action: 'Submitted Work',
+      projectId: updated.projectId
+    });
+
     res.json({ message: 'Docs uploaded successfully', updated });
   } catch (err) {
     console.error('Error uploading docs:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 module.exports = router;
