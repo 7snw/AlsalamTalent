@@ -4,7 +4,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const Project = require('../models/Project');
-const logAction = require('../utils/logAction'); // ✅ Logging utility
 
 // Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -14,13 +13,18 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Multer Storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + file.originalname.replace(/\s+/g, '-');
     cb(null, uniqueSuffix);
   }
 });
+
 const upload = multer({ storage });
+
+// ========== ROUTES ==========
 
 // GET all projects (with author name)
 router.get('/all', async (req, res) => {
@@ -103,14 +107,6 @@ router.post('/upload', upload.fields([
     });
 
     await newProject.save();
-
-    // ✅ Centralized log with projectId
-    await logAction({
-      userId: authorId,
-      action: 'Added New Project',
-      projectId: newProject._id
-    });
-
     res.status(201).json(newProject);
   } catch (error) {
     console.error('Error saving project:', error.message);
@@ -127,21 +123,25 @@ router.put('/:id', upload.fields([
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const updates = { ...req.body };
 
+    // Parse numeric and date fields
     updates.budget = Number(req.body.budget);
     updates.duration = {
       from: new Date(req.body.durationFrom),
       to: new Date(req.body.durationTo)
     };
 
+    // Fetch current project to preserve existing data if no new files provided
     const currentProject = await Project.findById(req.params.id);
     if (!currentProject) return res.status(404).json({ message: 'Project not found' });
 
+    // Handle image update or preserve existing
     if (req.files['projectImage']) {
       updates.imageUrl = `${baseUrl}/${req.files['projectImage'][0].path}`;
     } else {
       updates.imageUrl = currentProject.imageUrl;
     }
 
+    // Handle file uploads or preserve existing
     if (req.files['projectFile']) {
       updates.files = req.files['projectFile'].map(file => ({
         name: file.originalname,
@@ -151,15 +151,9 @@ router.put('/:id', upload.fields([
       updates.files = currentProject.files;
     }
 
+    // Apply update
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, updates, {
       new: true
-    });
-
-    // ✅ Centralized log with projectId
-    await logAction({
-      userId: updates.authorId,
-      action: 'Edited Project',
-      projectId: updatedProject._id
     });
 
     res.json(updatedProject);

@@ -29,10 +29,7 @@ const AddUsers = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const admin = JSON.parse(localStorage.getItem('user')); 
-      const payload = { ...formData, authorId: admin?._id }; 
-  
-      const response = await axios.post('http://localhost:5000/api/client/register', payload);
+      const response = await axios.post('http://localhost:5000/api/client/register', formData);
       if (response.status === 201 || response.status === 200) {
         navigate('/clientlist');
       }
@@ -41,7 +38,6 @@ const AddUsers = () => {
       alert(err.response?.data?.message || 'Failed to create client.');
     }
   };
-  
 
   return (
     <div className="add-user-page">

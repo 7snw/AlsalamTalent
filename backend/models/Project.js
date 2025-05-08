@@ -20,11 +20,6 @@ const projectSchema = new mongoose.Schema({
     enum: ['Open', 'In Progress', 'Completed', 'Cancelled'],
     default: 'Open',
   },
-  assignmentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Assignment',
-    default: null
-  },  
   imageUrl: { type: String },
   files: [{ name: String, url: String }],
   docs: [{ name: String, url: String }]

@@ -5,6 +5,7 @@
   margin-left: 91px;
   margin-right: 91px;
   margin-bottom: 40px;
+
 }
 
 .details-container {
@@ -15,13 +16,15 @@
   padding: 0 6%;
   box-sizing: border-box;
   margin-bottom: 100px;
-}
 
+ 
+}
 .details-container h2 {
   font-size: 28px;
   color: #1B223C;
-  margin-top: -18px;
+  margin-top: -18px; /* try adjusting this value */
 }
+
 
 .submitted-layout {
   display: flex;
@@ -29,119 +32,31 @@
   gap: 30px;
   align-items: flex-start;
   margin-top: -30px;
+ 
 }
 
-.left {
+.review-section {
   flex: 1;
 }
 
-.left h4 {
+.review-section h4 {
   color: #1B223C;
   font-weight: bold;
-  margin-top: 18px;
+
 }
 
-/* ✅ CLIENT FILES - Button-style */
-.client-files {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
-  margin-bottom: 18px;
-}
 
-.client-download-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.review-section button {
   background-color: #1B223C;
   color: white;
-  border: 1px solid #ccc;
-  padding: 10px 15px;
-  border-radius: 12px;
-  font-size: 14px;
-  width: fit-content;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
   cursor: pointer;
-}
-
-.client-download-btn:hover {
-  background-color: #2c314d;
-}
-
-
-/* ✅ FREELANCER FILES */
-.uploaded-files-list4 {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  font-size: 14px;
   margin-top: 10px;
-  margin-bottom: 12px;
 }
 
-.uploaded-file4 {
-  background-color: #F4F4F4;
-  border-radius: 10px;
-  padding: 10px 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.file-link4 {
-  color: #1B223C;
-  font-size: 14px;
-  text-decoration: none;
-  word-break: break-word;
-}
-
-.file-link4:hover {
-  text-decoration: underline;
-}
-
-.icons-container4 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.download-icon4 {
-  color: #EE582B;
-  cursor: pointer;
-}
-
-.download-icon4:hover {
-  color: #FF7043;
-}
-
-.remove-icon4 {
-  color: #EE582B;
-  cursor: pointer;
-}
-
-.remove-icon4:hover {
-  color: #FF7043;
-}
-
-.submitted-no-files {
-  font-size: 14px;
-  color: #666;
-  margin-top: 6px;
-  margin-bottom: 16px;
-}
-
-/* Review stars */
-.stars span {
-  font-size: 24px;
-  color: #ccc;
-  margin-right: 5px;
-  cursor: pointer;
-}
-
-.stars .filled {
-  color: #EE582B;
-}
-
-/* Feedback box */
 textarea {
   width: 100%;
   height: 120px;
@@ -155,9 +70,19 @@ textarea {
   background-color: #f3f3f3;
 }
 
-/* Action buttons */
+.stars span {
+  font-size: 24px;
+  color: #ccc;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.stars .filled {
+  color: #EE582B;
+}
+
 .actions {
-  margin-top: 20px;
+  margin-top: 5px;
   display: flex;
   gap: 15px;
 }
@@ -182,25 +107,21 @@ textarea {
 }
 
 .actions .outline:hover {
-  background-color: #FF7043;
+  background-color: #EE582B;
+  color: white;
 }
 
 .actions .decline {
   background-color: #b30000;
+  transition: 0.3s ease;
 }
 
 .actions .decline:hover {
-  background-color: #cc0000;
+  background-color: #b30000;
   color: white;
 }
 
-/* Right section (circular progress) */
-.right-section {
-  width: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -208,12 +129,5 @@ textarea {
     flex-direction: column;
   }
 
-  .actions {
-    flex-direction: column;
-    gap: 10px;
-  }
 
-  .actions button {
-    width: 100%;
-  }
 }

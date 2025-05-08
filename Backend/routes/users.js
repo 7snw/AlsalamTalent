@@ -43,24 +43,4 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/all', async (req, res) => {
-  try {
-    const admins = await Admin.find({}, '_id fullName email').lean();
-    const clients = await Client.find({}, '_id fullName email').lean();
-    const freelancers = await Freelancer.find({}, '_id fullName email').lean();
-
-    const allUsers = [
-      ...admins.map(u => ({ ...u, role: 'admin' })),
-      ...clients.map(u => ({ ...u, role: 'client' })),
-      ...freelancers.map(u => ({ ...u, role: 'freelancer' }))
-    ];
-
-    res.json(allUsers);
-  } catch (err) {
-    console.error('Error fetching all users:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-
 module.exports = router;

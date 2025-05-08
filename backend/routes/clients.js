@@ -1,24 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Client = require('../models/Client');
-const logAction = require('../utils/logAction'); // ✅ Logging utility
 
-// ✅ Admin registers a new client
+// Register a new client
 router.post('/register', async (req, res) => {
   try {
-    const { authorId, ...clientData } = req.body;
-
-    const newClient = await Client.create(clientData);
-
-    // ✅ Log the action only if an Admin (authorId) is provided
-    if (authorId) {
-      await logAction({
-        userId: authorId,
-        action: 'Added New Client',
-        details: `Client: ${newClient.fullName}`
-      });
-    }
-
+    const newClient = await Client.create(req.body);
     res.status(201).json(newClient);
   } catch (err) {
     res.status(500).json({ message: 'Client registration failed', error: err });
@@ -46,42 +33,31 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ Update client profile by ID (with optional admin logging)
+// Update client profile by ID
 router.put('/:id', async (req, res) => {
   try {
-    const { authorId, ...updates } = req.body;
-
     const updatedClient = await Client.findByIdAndUpdate(
       req.params.id,
       {
-        fullName: updates.fullName,
-        email: updates.email,
-        occupation: updates.occupation,
-        phone: updates.phone,
-        companyName: updates.companyName,
-        dateOfBirth: updates.dateOfBirth ? new Date(updates.dateOfBirth) : undefined
+        fullName: req.body.fullName,
+        email: req.body.email,
+        occupation: req.body.occupation,
+        phone: req.body.phone,
+        companyName: req.body.companyName, // renamed field
+        dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : undefined
       },
       { new: true }
     );
 
     if (!updatedClient) return res.status(404).json({ message: 'Client not found' });
-
-    // ✅ Log only if performed by admin (authorId provided)
-    if (authorId) {
-      await logAction({
-        userId: authorId,
-        action: 'Edited Client Profile',
-        details: `Client: ${updatedClient.fullName}`
-      });
-    }
-
     res.status(200).json(updatedClient);
   } catch (err) {
     res.status(500).json({ message: 'Updating client failed', error: err });
   }
 });
 
-// Change client password
+
+// PUT: Change client password
 router.put('/changepassword/:id', async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
@@ -102,5 +78,6 @@ router.put('/changepassword/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
+
 
 module.exports = router;

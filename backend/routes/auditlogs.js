@@ -1,3 +1,4 @@
+// routes/auditLogs.js
 const express = require('express');
 const router = express.Router();
 const AuditLog = require('../models/AuditLog');
@@ -9,35 +10,33 @@ router.get('/', async (req, res) => {
   try {
     const logs = await AuditLog.find().sort({ timestamp: -1 });
 
-    // Get all unique userIds
-    const userIds = logs.map(log => log.userId.toString());
+    const enhancedLogs = await Promise.all(
+      logs.map(async (log) => {
+        let user = null;
+        let role = 'Unknown';
 
-    // Fetch all possible users in one batch per role
-    const [admins, clients, freelancers] = await Promise.all([
-      Admin.find({ _id: { $in: userIds } }),
-      Client.find({ _id: { $in: userIds } }),
-      Freelancer.find({ _id: { $in: userIds } })
-    ]);
+        user = await Admin.findById(log.userId);
+        if (user) role = 'Admin';
 
-    // Map userId to user info
-    const userMap = new Map();
+        if (!user) {
+          user = await Client.findById(log.userId);
+          if (user) role = 'Client';
+        }
 
-    admins.forEach(user => userMap.set(user._id.toString(), { name: user.fullName, role: 'Admin' }));
-    clients.forEach(user => userMap.set(user._id.toString(), { name: user.fullName, role: 'Client' }));
-    freelancers.forEach(user => userMap.set(user._id.toString(), { name: user.fullName, role: 'Freelancer' }));
+        if (!user) {
+          user = await Freelancer.findById(log.userId);
+          if (user) role = 'Freelancer';
+        }
 
-    // Attach userName, role, and optional details to each log
-    const enhancedLogs = logs.map(log => {
-      const userInfo = userMap.get(log.userId.toString()) || { name: 'Unknown User', role: 'Unknown' };
-      return {
-        _id: log._id,
-        action: log.action,
-        details: log.details || '',  // Support optional `details`
-        timestamp: log.timestamp,
-        userName: userInfo.name,
-        role: userInfo.role
-      };
-    });
+        return {
+          _id: log._id,
+          action: log.action,
+          timestamp: log.timestamp,
+          userName: user ? user.fullName : 'Unknown User',
+          role: role
+        };
+      })
+    );
 
     res.json(enhancedLogs);
   } catch (err) {
