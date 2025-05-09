@@ -24,9 +24,11 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 // File upload setup
 const storage = multer.diskStorage({

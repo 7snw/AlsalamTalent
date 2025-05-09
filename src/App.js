@@ -21,7 +21,6 @@ import AllProjects from './Pages/Freelancer/AllProjects';
 import MyProjects from './Pages/Freelancer/MyProjects';
 import SavedProjects from './Pages/Freelancer/SavedProjects';
 import MyApplications from './Pages/Freelancer/MyApplications';
-import SubmitProject from './Pages/Freelancer/SubmitProject';
 import MyProfile from './Pages//Freelancer/MyProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
 import FreelanceNotifications from './Pages/Freelancer/FreelancerNotifications';
@@ -80,14 +79,12 @@ const App = () => {
         <Route path="/myprojects" element={<MyProjects />} /> 
         <Route path="/savedprojects" element={<SavedProjects />} /> 
         <Route path="/myapplications" element={<MyApplications />} /> 
-        <Route path="/submitproject" element={<SubmitProject />} /> 
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/profilesettings" element={<ProfileSettings />} />
         <Route path="/freelancernotifications" element={<FreelanceNotifications />} />
         <Route path="/freelancermessages" element={<FreelancerMessages />} />
-        <Route path="/submit-project/:id" element={<SubmitProject />} />
         <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
-        <Route path="/project/:projectId" element={<MyProjectsDetails />} />
+        <Route path="my-project/:id" element={<MyProjectsDetails />} />
 
 
 

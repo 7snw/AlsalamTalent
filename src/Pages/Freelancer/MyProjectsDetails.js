@@ -1,197 +1,238 @@
 // src/Pages/Freelancer/MyProjectsDetails.js
-
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../../Components/Navbar';
-import Footer from '../../Components/Footer';
 import '../../Style/Freelancer/MyProjectsDetails.css';
+import Navbar from '../../Components/Navbar';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
+import Footer from '../../Components/Footer';
+import uploadIcon from '../../Assets/Upload.png';
 import axios from 'axios';
-import { FiDownload, FiTrash2, FiPaperclip } from 'react-icons/fi';
+import { FiDownload } from 'react-icons/fi';
+import { AiOutlineClose } from 'react-icons/ai';
 
 const MyProjectsDetails = () => {
-  const { projectId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const fileInputRef = useRef();
-  const imageInputRef = useRef();
-
-  const [project, setProject] = useState(null);
-  const [newTitle, setNewTitle] = useState('');
-  const [newStatus, setNewStatus] = useState('Assigned');
-  const [newProjectImage, setNewProjectImage] = useState(null);
-  const [newFiles, setNewFiles] = useState([]);
+  const [assignment, setAssignment] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchAssignment = async () => {
       try {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
-        const freelancerId = storedUser?._id;
-        const response = await axios.get(`http://localhost:5000/api/freelancer/${freelancerId}/my-projects`);
-        const projects = response.data;
-        const selectedProject = projects.find((proj) => proj._id === projectId);
-
-        if (!selectedProject) {
-          alert('Project not found!');
-          navigate('/myprojects');
-        } else {
-          setProject(selectedProject);
-          setNewTitle(selectedProject.projectTitle);
-          setNewStatus(selectedProject.projectStatus || 'Assigned');
-          setNewFiles(selectedProject.projectFiles || []);
-        }
+        const res = await axios.get(`http://localhost:5000/api/assignments/${id}`);
+        setAssignment(res.data);
       } catch (error) {
-        console.error('Error fetching project details:', error);
+        console.error('Error fetching assignment:', error);
       }
     };
-
-    fetchProject();
-  }, [projectId, navigate]);
+    fetchAssignment();
+  }, [id]);
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    setNewFiles(prevFiles => [...prevFiles, ...files]);
+    const newFiles = Array.from(e.target.files);
+    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
   };
 
-  const handleRemoveFile = (index) => {
-    setNewFiles(prev => prev.filter((_, i) => i !== index));
+  const handleRemoveFile = (indexToRemove) => {
+    setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleImageChange = (e) => {
-    setNewProjectImage(e.target.files[0]);
-  };
-
-  const handleSaveChanges = async () => {
+  const handleRemoveSubmittedFile = async (fileIndex) => {
     try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      const freelancerId = storedUser?._id;
-      const formData = new FormData();
+      const updatedDocs = [...assignment.docs];
+      updatedDocs.splice(fileIndex, 1);
 
-      formData.append('projectTitle', newTitle);
-      formData.append('projectStatus', newStatus);
-
-      if (newProjectImage) {
-        formData.append('projectImage', newProjectImage);
-      }
-
-      newFiles.forEach(file => {
-        if (typeof file === 'string') {
-          formData.append('existingFiles', file);
-        } else {
-          formData.append('projectFiles', file);
-        }
+      await axios.put(`http://localhost:5000/api/assignments/${id}/update-docs`, {
+        docs: updatedDocs,
       });
 
-      await axios.put(`http://localhost:5000/api/freelancer/${freelancerId}/update-project/${projectId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      alert('Project updated successfully!');
-      navigate('/myprojects');
+      setAssignment((prev) => ({
+        ...prev,
+        docs: updatedDocs,
+      }));
     } catch (error) {
-      console.error('Error saving project changes:', error);
-      alert('Failed to save changes.');
+      console.error('Failed to remove file:', error);
+      alert('Could not remove the file.');
     }
   };
 
-  if (!project) {
-    return <div>Loading...</div>;
-  }
+  const handleSubmitProject = async () => {
+    const formData = new FormData();
+    selectedFiles.forEach((file) => formData.append('docs', file));
+
+    try {
+      await axios.post(`http://localhost:5000/api/assignments/${id}/update-docs`, formData);
+      await axios.put(`http://localhost:5000/api/assignments/${id}/update-status`, {
+        status: 'Submitted',
+      });
+      alert('Project submitted successfully.');
+      setSelectedFiles([]);
+      navigate('/myprojects');
+    } catch (error) {
+      console.error('Submission failed:', error);
+      alert('Submission failed');
+    }
+  };
+
+  if (!assignment) return <p>Loading...</p>;
+
+  const { projectId, status, feedback, docs, rating } = assignment;
+
+
 
   return (
-    <div className="project-details-page4">
+    <div className="project-progress-page">
       <Navbar links={NavConfig2} />
+      <div className="progress-container">
+        <h2>{projectId?.title || 'Project Details'}</h2>
 
-      <div className="details-container4">
-        <h1 className="page-title">My Project Details</h1>
+       {(status === 'Declined' || status === 'Re-submit' || status === 'Completed') && (
 
-        <div className="submit-form-group4">
-          <label className="submit-label44">Project Title:</label>
-          <input
-            type="text"
-            className="submit-input-title44"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Enter your project title"
-            required
-          />
-        </div>
-
-        <div className="submit-form-group4">
-          <label className="submit-label4">Project Status:</label>
-          <select
-            className="submit-input-title4"
-            value={newStatus}
-            onChange={(e) => setNewStatus(e.target.value)}
-            required
-          >
-            <option value="Assigned">Assigned</option>
-            <option value="Submitted">Submitted</option>
-          </select>
-        </div>
-
-        <div className="submit-form-group4">
-          <label className="submit-label4">Project Image:</label>
-          <div className="project-image44">
-            <img src={newProjectImage ? URL.createObjectURL(newProjectImage) : project.projectImage} alt="Project" />
-          </div>
-          <button type="button" className="submit-file-btn44" onClick={() => imageInputRef.current.click()}>
-            Attach Image <FiPaperclip style={{ marginLeft: '8px' }} />
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            ref={imageInputRef}
-            onChange={handleImageChange}
-            hidden
-          />
-        </div>
-
-        <div className="submit-form-group4">
-          <label className="submit-Files">Project Files:</label>
-          <div className="uploaded-files-list4">
-            {newFiles.map((file, index) => (
-              <div key={index} className="uploaded-file4">
-                {typeof file === 'string' ? (
-                  <>
-                    <a href={file} target="_blank" rel="noopener noreferrer" className="file-link4">
-                      {file.split('/').pop()}
-                    </a>
-                  </>
-                ) : (
-                  <span className="file-link4">{file.name}</span>
-                )}
-                <div className="icons-container4">
-                  {typeof file === 'string' && (
-                    <a href={file} download className="download-icon4">
-                      <FiDownload size={18} />
-                    </a>
-                  )}
-                  <span className="remove-icon4" onClick={() => handleRemoveFile(index)}>
-                    <FiTrash2 size={18} />
+          <div className="feedback-box">
+            <h3>Client Feedback:</h3>
+            <p>{feedback || 'No feedback provided.'}</p>
+            
+              <div className="starss">
+                <strong>Rating:</strong>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={rating >= star ? 'filled' : ''}
+                  >
+                    ★
                   </span>
-                </div>
+                ))}
               </div>
-            ))}
+          
           </div>
-          <button type="button" className="submit-file-btn4" onClick={() => fileInputRef.current.click()}>
-            Attach Files <FiPaperclip style={{ marginLeft: '8px' }} />
-          </button>
-          <input
-            type="file"
-            id="projectFilesInput"
-            ref={fileInputRef}
-            multiple
-            hidden
-            onChange={handleFileChange}
-          />
+        )}
+
+        <div className="top-section">
+          <div className="left-section">
+            <h4>Project Files (from Client)</h4>
+            {projectId?.files?.length > 0 ? (
+              <ul className="attached-files-list9">
+                {projectId.files.map((file, idx) => (
+                  <li key={idx} className="attached-file-item9">
+                    {file.name}
+                    <button
+                      type="button"
+                      className="download-file-btn9"
+                      onClick={() => window.open(file.url, '_blank')}
+                    >
+                      <FiDownload size={18} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No files uploaded by client.</p>
+            )}
+
+            <h4>Your Submissions:</h4>
+            {docs?.length > 0 ? (
+              <ul className="attached-files-list9">
+                {docs.map((file, idx) => (
+                  <li key={idx} className="attached-file-item9">
+                    {file.name}
+                    <div className="file-actions">
+                      <button
+                        type="button"
+                        className="download-file-btn9"
+                        onClick={() => {
+                          window.location.href = file.url;
+                        }}
+                      >
+                        <FiDownload size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        className="file-remove-btn"
+                        onClick={() => handleRemoveSubmittedFile(idx)}
+                      >
+                        <AiOutlineClose size={18} />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>You haven’t submitted any files yet.</p>
+            )}
+
+            <div className="upload-section">
+              <h4>Project Files:</h4>
+              <button
+                type="button"
+                className="submit-file-btn9"
+                onClick={() => document.getElementById('fileInputCustom').click()}
+              >
+                {selectedFiles.length
+                  ? `${selectedFiles.length} Files Selected`
+                  : 'Attach Files'}
+                <img src={uploadIcon} alt="upload" className="submit-upload-icon" />
+              </button>
+              <input
+                id="fileInputCustom"
+                type="file"
+                multiple
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+              />
+
+              {selectedFiles.length > 0 && (
+                <ul className="attached-files-list9">
+                  {selectedFiles.map((file, index) => (
+                    <li key={index} className="attached-file-item9">
+                      {file.name}
+                      <button
+                        type="button"
+                        className="remove-file-btn9"
+                        onClick={() => handleRemoveFile(index)}
+                      >
+                        <AiOutlineClose size={18} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="submit-section">
+              <h3>Ready to {status === 'Declined' || status === 'Re-submit' ? 'resubmit' : 'submit'}?</h3>
+              <button className="submit-btn" onClick={handleSubmitProject}>
+                {status === 'Declined' || status === 'Re-submit' ? 'Re-submit Project' : 'Submit Project'}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="button-container4">
-          <button className="back-btn4" onClick={() => navigate('/myprojects')}>Back to My Projects</button>
-          <button className="save-btn4" onClick={handleSaveChanges}>Save Changes</button>
+        <hr />
+
+        <div className="details-section">
+          <div className="details-left">
+            <h2>Project Details</h2>
+            <h3>{projectId?.title}</h3>
+
+            <h4>Project Brief:</h4>
+            <p>{projectId?.brief || 'No brief provided.'}</p>
+
+            <h4>Budget/Price:</h4>
+            <p>{projectId?.budget} BHD</p>
+
+            <h4>Status:</h4>
+            <p>{status}</p>
+          </div>
+
+          <div className="details-right">
+            {projectId?.imageUrl ? (
+              <img src={projectId.imageUrl} alt={projectId.title} className="project-image" />
+            ) : (
+              <p>No image available</p>
+            )}
+          </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );

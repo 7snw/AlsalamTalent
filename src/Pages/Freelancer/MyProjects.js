@@ -1,3 +1,4 @@
+// src/Pages/Freelancer/MyProjects.js
 import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/MyProjects.css';
 import '../../Style/Navbar.css';
@@ -7,11 +8,11 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '../../Components/Footer';
-import { useNavigate } from 'react-router-dom'; // ✅ Added
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const MyProjects = () => {
-  const navigate = useNavigate(); // ✅ Added
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: [] });
   const [projects, setProjects] = useState([]);
@@ -21,7 +22,7 @@ const MyProjects = () => {
       try {
         const storedUser = JSON.parse(localStorage.getItem("user"));
         const freelancerId = storedUser?._id;
-        const response = await axios.get(`http://localhost:5000/api/freelancer/${freelancerId}/my-projects`);
+        const response = await axios.get(`http://localhost:5000/api/assignments/by-freelancer/${freelancerId}`);
         setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -42,12 +43,16 @@ const MyProjects = () => {
 
   const filteredProjects = projects.filter((proj) => {
     const matchesType =
-      filters.type.length === 0 || filters.type.includes(proj.projectStatus);
+      filters.type.length === 0 || filters.type.includes(proj.status);
 
-    const matchesSearch = proj.projectTitle.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = proj.projectId?.title?.toLowerCase().includes(search.toLowerCase());
 
     return matchesType && matchesSearch;
   });
+
+  const handleProjectClick = (assignmentId) => {
+    navigate(`/my-project/${assignmentId}`);
+  };
 
   return (
     <div className="my-projects-page">
@@ -59,8 +64,8 @@ const MyProjects = () => {
             <h3>Filter</h3>
             <p className="hint">Filter your projects according to their progress.</p>
             <div className="filter-group">
-              <h4>Type</h4>
-              {['Assigned', 'Submitted'].map((type) => (
+              <h4>Status</h4>
+              {['Assigned', 'Submitted', 'Completed', 'Re-submit', 'Declined'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
@@ -100,16 +105,14 @@ const MyProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/project/${project._id}`)} // ✅ On click go to project details
+                  onClick={() => handleProjectClick(project._id)}
                 >
                   <img
-                    src={project.projectImage || "path_to_default_image.jpg"}
-                    alt={project.projectTitle}
+                    src={project.projectId?.imageUrl || "path_to_default_image.jpg"}
+                    alt={project.projectId?.title}
                   />
-                  <h4>{project.projectTitle}</h4>
-                  {project.projectStatus && (
-                    <span className="progress-text">{project.projectStatus}</span>
-                  )}
+                  <h4>{project.projectId?.title}</h4>
+                  <span className="progress-text">{project.status}</span>
                 </motion.div>
               ))}
             </AnimatePresence>

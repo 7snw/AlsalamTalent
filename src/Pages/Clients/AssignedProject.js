@@ -1,5 +1,4 @@
 // src/Pages/Clients/AssignedProject.js
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -68,7 +67,8 @@ const AssignedProject = () => {
             <p className="hint">Filter your assigned projects by their status.</p>
             <div className="filter-group">
               <h4>Status</h4>
-              {['Assigned', 'Submitted','Completed', 'Rejected' ].map((status) => (
+              {['Assigned', 'Submitted', 'Completed', 'Re-submit', 'Declined'].map((status) => (
+
                 <label key={status}>
                   <input
                     type="checkbox"
