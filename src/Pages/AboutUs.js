@@ -7,11 +7,12 @@ import Footer from '../Components/Footer';
 
 
 const AboutUs = () => {
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig1); // default
+  const [navbarConfig, setNavbarConfig] = useState(); // default
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    const role = storedUser?._id;
+    const role = storedUser?.role; // ✅ FIX: use role, not _id
+  
     switch (role) {
       case 'freelancer':
         setNavbarConfig(NavConfig2);
@@ -26,7 +27,7 @@ const AboutUs = () => {
         setNavbarConfig(NavConfig1);
     }
   }, []);
-
+  
   return (
     <div className="about-body">
       <div className="about-container">
