@@ -11,7 +11,7 @@ const AboutUs = () => {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    const role = storedUser?.role; // ✅ FIX: use role, not _id
+    const role = storedUser?.role; 
   
     switch (role) {
       case 'freelancer':
@@ -47,8 +47,6 @@ const AboutUs = () => {
           to meaningful projects that contribute directly to business goals.
         </p>
         <br/>
-       <br/>
-       <br/>
        <br/>
        <br/>
        <br/>
