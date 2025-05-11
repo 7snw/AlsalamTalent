@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Client = require('../models/Client');
 const logAction = require('../utils/logAction'); // ✅ Logging utility
+const bcrypt = require('bcryptjs');
+
 
 // ✅ Admin registers a new client
 router.post('/register', async (req, res) => {
@@ -86,19 +88,16 @@ router.put('/changepassword/:id', async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
     const client = await Client.findById(req.params.id);
-
     if (!client) return res.status(404).json({ message: 'Client not found' });
 
-    if (client.password !== oldPassword) {
-      return res.status(400).json({ message: 'Old password is incorrect' });
-    }
+    const isMatch = await bcrypt.compare(oldPassword, client.password);
+    if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect' });
 
-    client.password = newPassword;
+    client.password = await bcrypt.hash(newPassword, 10);
     await client.save();
 
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (err) {
-    console.error('Error changing password:', err);
     res.status(500).json({ message: 'Server error', error: err });
   }
 });

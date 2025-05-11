@@ -6,6 +6,8 @@ const router = express.Router();
 const Freelancer = require('../models/Freelancer');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+
 
 // Create uploads folder if it doesn't exist
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -287,17 +289,18 @@ router.put('/changepassword/:id', async (req, res) => {
     const freelancer = await Freelancer.findById(req.params.id);
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    if (freelancer.password !== oldPassword) return res.status(400).json({ message: 'Old password is incorrect' });
+    const isMatch = await bcrypt.compare(oldPassword, freelancer.password);
+    if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect' });
 
-    freelancer.password = newPassword;
+    freelancer.password = await bcrypt.hash(newPassword, 10);
     await freelancer.save();
 
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
-    console.error('Error changing password:', err);
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
+
 
 // Add a project
 router.post('/:id/add-project', uploadAnyFile.fields([

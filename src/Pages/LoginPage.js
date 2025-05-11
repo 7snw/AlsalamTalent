@@ -13,24 +13,22 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("📤 Attempting login with:", { email, password }); // ✅ Debug output
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/users/login",
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
 
       const userData = response.data;
+      console.log("✅ Login response received:", userData); // ✅ Confirm response
 
-      // Confirm data format
       if (!userData || !userData.id || !userData.role) {
         alert("Invalid response from server.");
         return;
       }
 
-      // ✅ Save entire user object to localStorage
       const user = {
         _id: userData.id,
         fullName: userData.name,
@@ -38,11 +36,9 @@ const LoginPage = () => {
         role: userData.role,
       };
 
-      // ✅ Save to localStorage
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("userId", user._id); // ✅ added
-      localStorage.setItem("role", user.role); // ✅ added
-      console.log("User saved to localStorage:", user);
+      localStorage.setItem("userId", user._id);
+      localStorage.setItem("role", user.role);
 
       // 🔁 Redirect based on role
       if (user.role === "admin") {
@@ -55,10 +51,8 @@ const LoginPage = () => {
         alert("Unknown role detected");
       }
     } catch (err) {
-      console.error("Login error:", err.response?.data || err.message);
-      alert(
-        err.response?.data?.message || "Invalid credentials or server error"
-      );
+      console.error("❌ Login error:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Login failed. Try again.");
     }
   };
 
