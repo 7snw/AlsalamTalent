@@ -27,11 +27,26 @@ const GraduateSignUp = () => {
     expertise: []
   });
 
+  const [isPolyStudent, setIsPolyStudent] = useState(null);
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+    if (name === 'studentId') {
+      if (value === '') {
+        setIsPolyStudent(null);
+      } else {
+        const year = parseInt(value.substring(0, 4), 10);
+        const validFormat = /^\d{9}$/.test(value);
+        if (validFormat && year >= 2008 && year <= new Date().getFullYear()) {
+          setIsPolyStudent(true);
+        } else {
+          setIsPolyStudent(false);
+        }
+      }
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: name === 'cpr' ? files[0] : value
@@ -47,78 +62,39 @@ const GraduateSignUp = () => {
       return { ...prev, expertise: updated };
     });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Validate student ID (numbers only)
-    if (!/^\d+$/.test(formData.studentId)) {
-      alert('Student ID must contain numbers only.');
+
+    const year = parseInt(formData.studentId.substring(0, 4), 10);
+    if (year < 2008 || year > new Date().getFullYear()) {
+      alert('Invalid Student ID');
       return;
     }
 
-       // Validate full name
-       if (!formData.fullName.trim()) {
-        alert('Full Name is required.');
-        return;
-      }
-    
-      // Validate password length
-      if (formData.password.length < 8) {
-        alert('Password must be at least 8 characters long.');
-        return;
-      }
-    
-      // Validate major selection
-      if (!formData.major) {
-        alert('Please select your Major.');
-        return;
-      }
-    
-      // Validate phone number (must be 8 digits)
-      if (!/^\d{8}$/.test(formData.contactNumber)) {
-        alert('Phone number must be exactly 8 digits.');
-        return;
-      }
-    
-      // Validate expertise (at least 1 selected)
-      if (formData.expertise.length === 0) {
-        alert('Please select at least one area of expertise.');
-        return;
-      }
-
-    // Convert CPR file to base64 (you can replace this with file upload logic)
-    const toBase64 = file =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-      });
+    const form = new FormData();
+    form.append('userType', 'graduate');
+    form.append('studentId', formData.studentId);
+    form.append('fullName', formData.fullName);
+    form.append('email', formData.email);
+    form.append('password', formData.password);
+    form.append('major', formData.major);
+    form.append('phone', formData.contactNumber);
+    form.append('expertise', JSON.stringify(formData.expertise));
+    form.append('cpr', formData.cpr);
 
     try {
-      const cprImageBase64 = await toBase64(formData.cpr);
+      const response = await axios.post('http://localhost:5000/api/freelancer/graduate-register', form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
-      const graduate = {
-        userType: 'graduate',
-        studentId: formData.studentId,
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        major: formData.major,
-        phone: formData.contactNumber,
-        expertise: formData.expertise,
-        cprImageUrl: cprImageBase64 // this is optional, replace with upload URL if needed
-      };
-
-      const response = await axios.post('http://localhost:5000/api/freelancer/register', graduate);
-
-      if (response.status === 201 || response.status === 200) {
-        alert('Graduate account created successfully!');
+      if (response.status === 200 || response.status === 201) {
+        alert('Account Created! Waiting for admin verification.');
         navigate('/signin');
       }
     } catch (error) {
-      console.error('Graduate registration failed:', error);
-      alert(error.response?.data?.message || 'Failed to create account.');
+      console.error('Graduate signup failed:', error.response?.data || error.message);
+      alert(error.response?.data?.message || 'Signup failed.');
     }
   };
 
@@ -134,6 +110,10 @@ const GraduateSignUp = () => {
             <div>
               <label>Student ID</label>
               <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} required />
+              <div style={{ minHeight: '5px', marginTop: '0px' }}>
+                {isPolyStudent === true && <p style={{ color: 'green' }}></p>}
+                {isPolyStudent === false && <p style={{ color: 'red' }}></p>}
+              </div>
             </div>
             <div>
               <label>Full Name</label>
@@ -154,13 +134,7 @@ const GraduateSignUp = () => {
           <div className="graduate-right-fields">
             <div>
               <label>Major</label>
-              <select
-                name="major"
-                value={formData.major}
-                onChange={handleChange}
-                className="custom-major-dropdown"
-                required
-              >
+              <select name="major" value={formData.major} onChange={handleChange} required>
                 <option value="">Select Major</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Information Technology">Information Technology</option>
@@ -171,87 +145,47 @@ const GraduateSignUp = () => {
                 <option value="Design">Design</option>
               </select>
             </div>
-
             <div>
               <label>Contact Number</label>
-              <input
-                type="tel"
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                pattern="\d{8}"
-                minLength="8"
-                maxLength="8"
-                required
-              />
+              <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} pattern="\d{8}" required />
             </div>
 
-         
             <div className="expertiseer0">
-  <p>Expertise</p>
-  <div
-    className="expertise-display0"
-    onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
-  >
-    {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
-  </div>
-
-  {showExpertiseDropdown && (
-  <>
-    <div className="expertise-dropdown-list0">
-  {expertiseOptions.map((option, index) => (
-    <label key={index} className="expertise-checkbox-item0">
-      <input
-        type="checkbox"
-        checked={formData.expertise?.includes(option)}
-        onChange={() => handleExpertiseChange(option)}
-      />
-      <span>{option}</span>
-    </label>
-  ))}
-
-  <div className="expertise-dropdown-actions0">
-    <button
-      type="button"
-      className="close-expertise-dropdown0"
-      onClick={() => setShowExpertiseDropdown(false)}
-    >
-      Done
-    </button>
-    <button
-      type="button"
-      className="clear-expertise-dropdown0"
-      onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}
-    >
-      Clear
-    </button>
-  </div>
-</div>
-  </>
-)}
-
-</div>
+              <p>Expertise</p>
+              <div className="expertise-display0" onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}>
+                {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
+              </div>
+              {showExpertiseDropdown && (
+                <div className="expertise-dropdown-list0">
+                  {expertiseOptions.map((option, index) => (
+                    <label key={index} className="expertise-checkbox-item0">
+                      <input
+                        type="checkbox"
+                        checked={formData.expertise.includes(option)}
+                        onChange={() => handleExpertiseChange(option)}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                  <div className="expertise-dropdown-actions0">
+                    <button type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
+                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="graduate-file-upload-wrapper">
-              <label htmlFor="cpr-upload" className="graduate-file-upload-label">
-                Upload CPR <span className="graduate-upload-icon"></span>
-              </label>
-              <input
-                id="cpr-upload"
-                type="file"
-                name="cpr"
-                accept="image/*"
-                onChange={handleChange}
-                required
-                className="graduate-file-upload-input"
-              />
+              <label htmlFor="cpr-upload">Upload CPR</label>
+              <input id="cpr-upload" type="file" name="cpr" accept="image/*" onChange={handleChange} required />
             </div>
 
             <button type="submit" className="graduate-create-btn">Create</button>
           </div>
         </form>
-
-        <p className="graduate-signin-link">I have an account? <span onClick={() => navigate('/signin')}>Sign In</span></p>
+        <p className="graduate-signin-link">
+          I have an account? <span onClick={() => navigate('/signin')}>Sign In</span>
+        </p>
       </div>
     </div>
   );

@@ -1,0 +1,163 @@
+.graduates-page {
+  margin-left: 91px;
+  margin-right: 91px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #E6E7E8;
+}
+
+.graduates-container {
+  width: 90%;
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 6%;
+  margin-bottom: 100px;
+}
+
+.graduates-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search-add-wrapper3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.search-wrapper3 {
+    display: flex;
+    align-items: center;
+    background: #D9D9D9;
+    padding: 12px 20px;
+    border-radius: 30px;
+    margin-top: 5px;
+    margin-right: -10px;
+     margin-left: -30px;
+    position: relative;
+    width: 57%;
+}
+
+.search-wrapper3 input {
+   flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    outline: none;
+  }
+
+ .search-wrapper3 .search-icon3 {
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    right: 20px;
+  }
+
+.page-title3 {
+    font-size: 27px;
+    margin-top: -8px;
+    margin-left: 10px;
+    font-weight: bold;
+    color: #1B223C;
+    margin-bottom: -5px;
+
+  }
+.filter-wrapper3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: -20px;
+  margin-top: 3px;
+}
+
+
+.filter-wrapper3 select {
+    margin-left: -5px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+    appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color:  #262637;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%231B223C' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center; /* Adjust this to move arrow left/right */
+}
+
+.graduates-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.graduates-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  gap: 30px;
+}
+
+.graduates-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+.graduates-info h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1B223C;
+}
+
+.graduates-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.graduates-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.verify-btn {
+  background-color: #EE582B;
+  color: #ffffff;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.status {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 12px;
+}
+
+.status.verified {
+  background-color: #ffffff;
+  color: #1B223C;
+  font-size: 14px;
+  margin-right: -5px;
+    margin-bottom: -5px;
+}
+
+.status.not-verified {
+  background-color: #ffffff;
+  color: #1B223C;
+    font-size: 15px;
+    margin-right: -5px;
+    margin-bottom: -5px;
+}

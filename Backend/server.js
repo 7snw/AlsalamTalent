@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
 const path = require('path');
-require('dotenv').config();
 const multer = require('multer');
+require('dotenv').config();
 
 // Import routes
 const userRoutes = require('./routes/users');
@@ -17,6 +17,7 @@ const projectRoutes = require('./routes/projects');
 const analyticsAdminRoutes = require('./routes/analyticsAdmin');
 const auditLogRoutes = require('./routes/auditLogs');
 const messageRoutes = require('./routes/messages'); 
+const polytechRoutes = require('./routes/polytech');
 
 // Express app
 const app = express();
@@ -29,6 +30,10 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
+
+
+app.use('/api/polytech', polytechRoutes);
+
 
 // File upload setup
 const storage = multer.diskStorage({
@@ -79,6 +84,7 @@ app.post('/api/upload-file', uploadAnyFile.single('file'), (req, res) => {
   const fileUrl = `/uploads/${req.file.filename}`;
   res.json({ fileUrl });
 });
+
 
 // Health check
 app.get('/', (req, res) => {

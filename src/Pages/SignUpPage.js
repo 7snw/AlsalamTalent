@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../Style/SignUpPage.css';
-import { FaArrowLeft } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../Style/SignUpPage.css";
+import { FaArrowLeft } from "react-icons/fa";
+import axios from "axios";
 
 const expertiseOptions = [
   "Marketing Consultant",
@@ -10,35 +10,55 @@ const expertiseOptions = [
   "Illustrator",
   "Web Developer",
   "Content Creator",
-  "UX/UI Designer"
+  "UX/UI Designer",
 ];
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
-    studentId: '',
-    fullName: '',
-    email: '',
-    password: '',
-    major: '',
-    contactNumber: '',
-    expertise: []
+    studentId: "",
+    fullName: "",
+    email: "",
+    password: "",
+    major: "",
+    contactNumber: "",
+    expertise: [],
   });
 
+  const [isPolyStudent, setIsPolyStudent] = useState(null);
+  const [checkingId] = useState(false);
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData(prev => ({
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value,
     }));
+
+    if (name === "studentId") {
+      if (value === "") {
+        setIsPolyStudent(null);
+        return;
+      }
+
+      const year = parseInt(value.substring(0, 4), 10);
+      const validFormat = /^\d{9}$/.test(value);
+
+      if (validFormat && year >= 2008 && year <= new Date().getFullYear()) {
+        setIsPolyStudent(true); //  Accept any valid-format ID from 2008 onward
+      } else {
+        setIsPolyStudent(false);
+      }
+    }
   };
-  
+
   const handleExpertiseChange = (value) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const isSelected = prev.expertise.includes(value);
       const updated = isSelected
-        ? prev.expertise.filter(item => item !== value)
+        ? prev.expertise.filter((item) => item !== value)
         : [...prev.expertise, value];
       return { ...prev, expertise: updated };
     });
@@ -46,73 +66,69 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Validate student ID (numbers only)
+
     if (!/^\d+$/.test(formData.studentId)) {
-      alert('Student ID must contain numbers only.');
+      alert("Student ID must contain numbers only.");
       return;
     }
-  
-    // Validate full name
+
+    const year = parseInt(formData.studentId.substring(0, 4), 10);
+    if (year < 2008 || year > new Date().getFullYear()) {
+      alert("Invalid Student ID");
+      return;
+    }
+
     if (!formData.fullName.trim()) {
-      alert('Full Name is required.');
+      alert("Full Name is required.");
       return;
     }
-  
-    // Validate password length
+
     if (formData.password.length < 8) {
-      alert('Password must be at least 8 characters long.');
+      alert("Password must be at least 8 characters long.");
       return;
     }
-  
-    // Validate major selection
+
     if (!formData.major) {
-      alert('Please select your Major.');
+      alert("Please select your Major.");
       return;
     }
-  
-    // Validate phone number (must be 8 digits)
+
     if (!/^\d{8}$/.test(formData.contactNumber)) {
-      alert('Phone number must be exactly 8 digits.');
+      alert("Phone number must be exactly 8 digits.");
       return;
     }
-  
-    // Validate expertise (at least 1 selected)
+
     if (formData.expertise.length === 0) {
-      alert('Please select at least one area of expertise.');
+      alert("Please select at least one area of expertise.");
       return;
     }
-  
-    // Submit if all is valid
+
     try {
-      const newFreelancer = {
-        userType: 'student',
-        studentId: formData.studentId,
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        major: formData.major,
-        phone: formData.contactNumber,
-        expertise: formData.expertise
-      };
-  
-      const response = await axios.post('http://localhost:5000/api/freelancer/register', newFreelancer);
-  
-      if (response.status === 201 || response.status === 200) {
-        alert('Account Created!');
-        navigate('/signin');
+      const response = await axios.post(
+        "http://localhost:5000/api/freelancer/student-register",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        alert("Account Created! Waiting for admin verification.");
+        navigate("/signin");
       }
     } catch (error) {
-      console.error('Registration error:', error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Error creating account. Please try again.');
+      console.error("Signup failed:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Signup failed.");
     }
   };
-  
 
   return (
     <div className="signup-body">
       <div className="signup-container">
-        <button className="back-btn" onClick={() => navigate('/studentgraduate')}>
+        <button
+          className="back-btn"
+          onClick={() => navigate("/studentgraduate")}
+        >
           <FaArrowLeft />
         </button>
 
@@ -128,6 +144,15 @@ const SignUpPage = () => {
                 onChange={handleChange}
                 required
               />
+              <div style={{ minHeight: "5px", marginTop: "0px" }}>
+                {checkingId && <p style={{ color: "#888" }}>Checking ID...</p>}
+                {isPolyStudent === true && (
+                  <p style={{ color: "green" }}></p>
+                )}
+                {isPolyStudent === false && (
+                  <p style={{ color: "red" }}></p>
+                )}
+              </div>
             </div>
             <div>
               <label>Full Name</label>
@@ -171,12 +196,13 @@ const SignUpPage = () => {
                 name="major"
                 value={formData.major}
                 onChange={handleChange}
-                className="custom-major-dropdown"
                 required
               >
                 <option value="">Select Major</option>
                 <option value="Computer Science">Computer Science</option>
-                <option value="Information Technology">Information Technology</option>
+                <option value="Information Technology">
+                  Information Technology
+                </option>
                 <option value="Business">Business</option>
                 <option value="Marketing">Marketing</option>
                 <option value="Accounting">Accounting</option>
@@ -188,72 +214,67 @@ const SignUpPage = () => {
             <div>
               <label>Contact Number</label>
               <input
-  type="tel"
-  name="contactNumber"
-  value={formData.contactNumber}
-  onChange={handleChange}
-  pattern="\d{8}"
-  minLength="8"
-  maxLength="8"
-  title="Phone number must be exactly 8 digits"
-  required
-/>
-
+                type="tel"
+                name="contactNumber"
+                value={formData.contactNumber}
+                onChange={handleChange}
+                pattern="\d{8}"
+                required
+              />
             </div>
 
             <div className="expertiseer9">
-  <p>Expertise</p>
-  <div
-    className="expertise-display9"
-    onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
-  >
-    {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
-  </div>
+              <p>Expertise</p>
+              <div
+                className="expertise-display9"
+                onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}
+              >
+                {formData.expertise?.length
+                  ? formData.expertise.join(", ")
+                  : "Select Expertise"}
+              </div>
 
-  {showExpertiseDropdown && (
-  <>
-    <div className="expertise-dropdown-list9">
-  {expertiseOptions.map((option, index) => (
-    <label key={index} className="expertise-checkbox-item9">
-      <input
-        type="checkbox"
-        checked={formData.expertise?.includes(option)}
-        onChange={() => handleExpertiseChange(option)}
-      />
-      <span>{option}</span>
-    </label>
-  ))}
+              {showExpertiseDropdown && (
+                <div className="expertise-dropdown-list9">
+                  {expertiseOptions.map((option, index) => (
+                    <label key={index} className="expertise-checkbox-item9">
+                      <input
+                        type="checkbox"
+                        checked={formData.expertise?.includes(option)}
+                        onChange={() => handleExpertiseChange(option)}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                  <div className="expertise-dropdown-actions9">
+                    <button
+                      type="button"
+                      onClick={() => setShowExpertiseDropdown(false)}
+                    >
+                      Done
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, expertise: [] }))
+                      }
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
-  <div className="expertise-dropdown-actions9">
-    <button
-      type="button"
-      className="close-expertise-dropdown9"
-      onClick={() => setShowExpertiseDropdown(false)}
-    >
-      Done
-    </button>
-    <button
-      type="button"
-      className="clear-expertise-dropdown9"
-      onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}
-    >
-      Clear
-    </button>
-  </div>
-</div>
-  </>
-)}
-
-</div>
-
-
-            <button type="submit" className="create-btn">Create</button>
+            <button type="submit" className="create-btn">
+              Create
+            </button>
           </div>
         </form>
 
         <p className="signin-link">
-          I have an account?{' '}
-          <span onClick={() => navigate('/signin')}>Sign In</span>
+          I have an account?{" "}
+          <span onClick={() => navigate("/signin")}>Sign In</span>
         </p>
       </div>
     </div>

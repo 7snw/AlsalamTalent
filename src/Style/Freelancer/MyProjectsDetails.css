@@ -47,7 +47,7 @@
   background-color: #1B223C;
   color: #ffffff;
   border: none;
-  border-radius: 12px;
+  border-radius: 15px;
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -203,7 +203,7 @@ hr {
   color: #ffffff;
   border: none;
   padding: 10px 28px;
-  border-radius: 15px;
+  border-radius: 40px;
   cursor: pointer;
   font-size: 16px;
   margin-top: 5px;

@@ -54,7 +54,8 @@ export const NavConfig4 = Object.assign([
   { label: 'Home', path: '/analyticsadmin' },
   { label: 'Projects', path: '/adminallprojects' },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'Clients', path: '/clientlist' }
+  { label: 'Clients', path: '/clientlist' },
+   { label: 'Verifications', path: '/verificationslist' }
 ], {
   showIcons: true,
   hideSignIn: true

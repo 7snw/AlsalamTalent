@@ -37,14 +37,15 @@ const UsersList = () => {
       <Navbar links={NavConfig4} />
       <div className="users-container">
         <div className="users-content">
-          {/* LEFT - Filter */}
-          <div className="users-left-panel">
-            <h1 className="page-title">Clients</h1>
-          </div>
+    
+          
+        
 
           {/* RIGHT - Search & Results */}
-          <div className="users-results">
+          <div className="users-results"> 
+           
             <div className="search-add-wrapper">
+                <h1 className="page-title">Clients</h1>
               <div className="search-wrapper">
                 <input
                   type="text"

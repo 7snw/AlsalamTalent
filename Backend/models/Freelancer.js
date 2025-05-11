@@ -8,6 +8,7 @@ const freelancerSchema = new mongoose.Schema({
   password: String,
   major: String,
   phone: String,
+  isVerified: { type: Boolean, default: false },
   rating: {
     type: Number,
     default: 1,
