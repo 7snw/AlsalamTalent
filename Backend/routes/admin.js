@@ -2,8 +2,44 @@ const express = require('express');
 const router = express.Router();
 const Admin = require('../models/Admin');
 const Client = require('../models/Client'); // Client model for listing clients
+const Freelancer = require('../models/Freelancer');
+const nodemailer = require('nodemailer');
 
-// ADMIN PROFILE ROUTES
+
+// Verify student or graduate dynamically
+router.post('/verify', async (req, res) => {
+  const { freelancerId } = req.body;
+
+  try {
+    const freelancer = await Freelancer.findById(freelancerId);
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found.' });
+
+    freelancer.isVerified = true;
+    await freelancer.save();
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    const mailOptions = {
+      from: `"Al Salam Talents" <${process.env.EMAIL_USER}>`,
+      to: freelancer.email,
+      subject: 'Your Account Has Been Verified!',
+      text: `Dear ${freelancer.fullName},\n\nYour ${freelancer.userType} account has been verified. You can now sign in and start using Al Salam Talents.\n\nBest regards,\nAl Salam Team`
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: `${freelancer.userType.charAt(0).toUpperCase() + freelancer.userType.slice(1)} verified and email sent.` });
+  } catch (err) {
+    console.error('Verification error:', err);
+    res.status(500).json({ message: 'Verification failed.', error: err.message });
+  }
+});
 
 // Get admin profile by ID
 router.get('/:id', async (req, res) => {

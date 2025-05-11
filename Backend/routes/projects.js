@@ -6,6 +6,7 @@ const fs = require('fs');
 const Project = require('../models/Project');
 const logAction = require('../utils/logAction'); // ✅ Logging utility
 
+
 // Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -21,6 +22,7 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+
 
 // GET all projects (with author name)
 router.get('/all', async (req, res) => {

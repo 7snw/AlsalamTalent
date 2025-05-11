@@ -14,7 +14,6 @@ import FreelancerProfile from './Pages/FreelancerProfile';
 import FreelancersList from './Pages/FreelancersList';
 import Messages from  './Pages/Messages';
 
-
 //Freelancer
 import FreelancerHome from './Pages/Freelancer/FreelancerHome';
 import AllProjects from './Pages/Freelancer/AllProjects';
@@ -55,6 +54,7 @@ import AdminMessages from './Pages/Admin/AdminMessages';
 import AdminProjectDetails from './Pages/Admin/AdminProjectDetails';
 import EditUserProfile from './Pages/Admin/EditUserProfile';
 import AuditLogs from './Pages/Admin/AuditLogs';
+import VerificationsList from './Pages/Admin/VerificationsList';
 
 const App = () => {
   return (
@@ -71,8 +71,6 @@ const App = () => {
         <Route path="/freelancers" element={<FreelancersList />} /> 
         <Route path="/freelancer-home" element={<FreelancerHome />} />
         <Route path="/messages" element={<Messages />} />
-
-      
 
 
         <Route path="/allprojects" element={<AllProjects />} /> 
@@ -118,6 +116,7 @@ const App = () => {
         <Route path="/adminmessages" element={<AdminMessages />} />
         <Route path="/edituser/:userId" element={<EditUserProfile />} />
         <Route path="/auditlogs" element={<AuditLogs />} />
+        <Route path="/verificationslist" element={<VerificationsList />} />
       </Routes>
     </Router>
   );

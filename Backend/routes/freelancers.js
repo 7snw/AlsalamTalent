@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const router = express.Router();
 const Freelancer = require('../models/Freelancer');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 // Create uploads folder if it doesn't exist
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -26,6 +28,7 @@ const imageFileFilter = (req, file, cb) => {
   else cb(new Error('Only JPEG, PNG, JPG, or WEBP images are allowed.'));
 };
 
+
 const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 }, fileFilter: imageFileFilter });
 const uploadAnyFile = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 const uploadImage = multer({ storage, fileFilter: imageFileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
@@ -35,21 +38,83 @@ const BASE_URL = 'http://localhost:5000';
 // ---------------------------- ROUTES ----------------------------
 
 // Register new freelancer
-router.post('/register', async (req, res) => {
+router.post('/register', upload.single('cpr'), async (req, res) => {
   try {
-    const data = {
-      ...req.body,
-      cprImageUrl: req.body.userType === 'graduate' ? req.body.cprImageUrl : undefined,
-      dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : undefined,
-    };
+    const {
+      studentId, fullName, email, password, major,
+      phone, expertise, userType
+    } = req.body;
 
-    const newFreelancer = await Freelancer.create(data);
-    res.status(201).json(newFreelancer);
+    const parsedExpertise = Array.isArray(expertise) ? expertise : JSON.parse(expertise);
+    const cprImagePath = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
+
+    const newFreelancer = await Freelancer.create({
+      userType,
+      studentId,
+      fullName,
+      email,
+      password,
+      major,
+      phone,
+      expertise: parsedExpertise,
+      cprImageUrl: cprImagePath,
+      isVerified: userType === 'graduate' ? false : true,
+    });
+
+    if (userType === 'graduate') {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        }
+      });
+
+      await transporter.sendMail({
+        from: `"Al Salam Talents" <${process.env.EMAIL_USER}>`,
+        to: process.env.ADMIN_EMAIL,
+        subject: 'Graduate Verification Request - Al Salam Talents',
+        html: `
+          <p><strong>A new graduate needs verification:</strong></p>
+          <ul>
+            <li><strong>Name:</strong> ${fullName}</li>
+            <li><strong>Student ID:</strong> ${studentId}</li>
+            <li><strong>Email:</strong> ${email}</li>
+            <li><strong>Phone:</strong> ${phone}</li>
+            <li><strong>Major:</strong> ${major}</li>
+          </ul>
+          <p>CPR image attached below.</p>
+        `,
+        attachments: [
+          {
+            filename: req.file.originalname,
+            path: req.file.path,
+          }
+        ]
+      });
+    }
+
+    res.status(201).json({ message: 'Graduate registered and awaiting admin verification.' });
   } catch (err) {
-    console.error('Freelancer registration failed:', err);
-    res.status(500).json({ message: 'Registration failed', error: err });
+    console.error('Graduate signup error:', err);
+    res.status(500).json({ message: 'Registration failed', error: err.message });
   }
 });
+
+router.get('/pending', async (req, res) => {
+  try {
+    const freelancers = await Freelancer.find(
+      { isVerified: false },
+      'fullName studentId email cprImageUrl isVerified userType'
+    );
+    res.json(freelancers);
+  } catch (err) {
+    console.error('Error fetching freelancers:', err);
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
+
+
 
 // Get freelancer list (basic)
 router.get('/list', async (req, res) => {
@@ -62,16 +127,124 @@ router.get('/list', async (req, res) => {
   }
 });
 
-// Get only graduates list
-router.get('/graduates', async (req, res) => {
+
+
+// ----------------- Student Registration -----------------
+router.post('/student-register', async (req, res) => {
+  const {
+    studentId,
+    fullName,
+    email,
+    password,
+    major,
+    phone,
+    expertise
+  } = req.body;
+
   try {
-    const graduates = await Freelancer.find({ userType: 'graduate' }, 'fullName studentId cprImageUrl');
-    res.json(graduates);
+    const newFreelancer = await Freelancer.create({
+      userType: 'student',
+      studentId,
+      fullName,
+      email,
+      password,
+      major,
+      phone,
+      expertise,
+      isVerified: false
+    });
+
+    // Send verification email to admin
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: `"Al Salam Talents" <${process.env.EMAIL_USER}>`,
+      to: process.env.ADMIN_EMAIL,
+      subject: 'New Student Registration - Verification Needed',
+      html: `
+        <p><strong>A new student has registered:</strong></p>
+        <ul>
+          <li><strong>Name:</strong> ${fullName}</li>
+          <li><strong>Student ID:</strong> ${studentId}</li>
+          <li><strong>Email:</strong> ${email}</li>
+          <li><strong>Phone:</strong> ${phone}</li>
+          <li><strong>Major:</strong> ${major}</li>
+        </ul>
+        <p>Please log into the admin panel to verify this student.</p>
+      `
+    });
+
+    res.status(201).json({ message: 'Student registered and pending admin verification.' });
   } catch (err) {
-    console.error('Error fetching graduates:', err);
-    res.status(500).json({ message: 'Server error', error: err });
+    console.error('Student signup error:', err);
+    res.status(500).json({ message: 'Registration failed', error: err.message });
   }
 });
+
+
+// ----------------- Graduate Registration -----------------
+router.post('/graduate-register', upload.single('cpr'), async (req, res) => {
+  try {
+    const {
+      studentId,
+      fullName,
+      email,
+      password,
+      major,
+      phone
+    } = req.body;
+
+    const expertise = JSON.parse(req.body.expertise);
+    const imageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
+
+    const newFreelancer = await Freelancer.create({
+      userType: 'graduate',
+      studentId,
+      fullName,
+      email,
+      password,
+      major,
+      phone,
+      expertise,
+      cprImageUrl: imageUrl,
+      isVerified: false
+    });
+
+    // Send CPR to admin
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.ADMIN_EMAIL,
+      subject: 'New Graduate Registration - CPR Review Required',
+      text: `Graduate Registered:\n\nName: ${fullName}\nStudent ID: ${studentId}\nEmail: ${email}\n\nPlease verify their CPR.`,
+      attachments: [
+        {
+          filename: req.file.originalname,
+          path: req.file.path
+        }
+      ]
+    });
+
+    res.status(201).json({ message: 'Graduate registered and email sent to admin.' });
+  } catch (err) {
+    console.error('Graduate signup error:', err);
+    res.status(500).json({ message: 'Registration failed.', error: err });
+  }
+});
+
 
 // Get full freelancer profile
 router.get('/profile/:id', async (req, res) => {
