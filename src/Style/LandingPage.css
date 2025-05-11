@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
+  
 }
 
 .landing-container {
@@ -16,6 +17,8 @@
   padding: 0 6%;
   box-sizing: border-box;
   margin-bottom: 90px;
+  padding-top: 120px; 
+
 }
 
 .landing-content {

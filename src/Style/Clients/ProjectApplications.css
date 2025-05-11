@@ -4,6 +4,7 @@
   min-height: 100vh;
   padding: 0 6%;
   box-sizing: border-box;
+  padding-top: 120px; 
 }
 
 .project-applications-container {

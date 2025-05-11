@@ -6,7 +6,9 @@
   font-family: 'Segoe UI', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
-  margin-bottom: 100px;
+  padding-top: 120px; 
+  margin-bottom: 10px;
+  padding-top: 120px; 
 }
 
 .about-container {
@@ -42,49 +44,6 @@
   padding-right: 90px;
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 30px 2%; /* Consistent horizontal padding */
-  flex-wrap: nowrap; /* Prevent wrapping */
-  margin-bottom: 40px;
-}
-
-
-.logo-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 16px;
-}
-
-.logo-image {
-  height: 50px;
-  width: auto;
-}
-
-.site-name {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #1B223C;
-}
-
-.nav-links {
-  display: flex;
-  list-style: none;
-  gap: 40px;
-  font-size: 16px;
-  color: #1B223C;
-  margin-right: 30px;
-  padding: 0;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 90px; /* controls spacing between logo and links */
-}
 
 .sign-in-btn {
   background-color: #1B223C;
