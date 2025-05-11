@@ -110,24 +110,13 @@ const VerificationsList = () => {
                         </a>
                       </p>
                     )}
-                    {user.studentId && (
-                      <p>
-                        Polytechnic Status:{' '}
-                        {polytechStatusMap[user._id] === true ? (
-                          <span style={{ color: 'green' }}>✅ Valid</span>
-                        ) : polytechStatusMap[user._id] === false ? (
-                          <span style={{ color: 'red' }}>❌ Invalid</span>
-                        ) : (
-                          <span style={{ color: '#999' }}>Checking...</span>
-                        )}
-                      </p>
-                    )}
+                
                   </div>
                 </div>
                 <div className="graduates-meta">
-                  <span className={`status ${user.isVerified ? 'verified' : 'not-verified'}`}>
-                    {user.isVerified ? 'Verified' : 'Not Verified'}
-                  </span>
+                   
+                  
+                
                   {!user.isVerified && (
                     <button
                       className="verify-btn"

@@ -22,8 +22,6 @@ import SavedProjects from './Pages/Freelancer/SavedProjects';
 import MyApplications from './Pages/Freelancer/MyApplications';
 import MyProfile from './Pages//Freelancer/MyProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
-import FreelanceNotifications from './Pages/Freelancer/FreelancerNotifications';
-import FreelancerMessages from './Pages/Freelancer/FreelancerMessages';
 import MyProjectsDetails from './Pages/Freelancer/MyProjectsDetails';
 
 
@@ -49,8 +47,6 @@ import Clientlist from './Pages/Admin/UsersList';
 import AddUsers from './Pages/Admin/AddUsers';
 import AnalyticsAdmin from './Pages/Admin/AnalyticsAdmin';
 import AdminProfileSettings from './Pages/Admin/AdminProfileSettings';
-import AdminNotifications from './Pages/Admin/AdminNotifications';
-import AdminMessages from './Pages/Admin/AdminMessages';
 import AdminProjectDetails from './Pages/Admin/AdminProjectDetails';
 import EditUserProfile from './Pages/Admin/EditUserProfile';
 import AuditLogs from './Pages/Admin/AuditLogs';
@@ -79,8 +75,6 @@ const App = () => {
         <Route path="/myapplications" element={<MyApplications />} /> 
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/profilesettings" element={<ProfileSettings />} />
-        <Route path="/freelancernotifications" element={<FreelanceNotifications />} />
-        <Route path="/freelancermessages" element={<FreelancerMessages />} />
         <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
         <Route path="my-project/:id" element={<MyProjectsDetails />} />
 
@@ -112,8 +106,6 @@ const App = () => {
         <Route path="/adminallprojects" element={<AdminAllProjects />} />
         <Route path="/details" element={<AdminProjectDetails />} /> 
         <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
-        <Route path="/adminnotifications" element={<AdminNotifications />} />
-        <Route path="/adminmessages" element={<AdminMessages />} />
         <Route path="/edituser/:userId" element={<EditUserProfile />} />
         <Route path="/auditlogs" element={<AuditLogs />} />
         <Route path="/verificationslist" element={<VerificationsList />} />

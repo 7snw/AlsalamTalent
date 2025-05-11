@@ -11,11 +11,10 @@
 
 .profile-container {
   width: 80%;
-  margin-left: 91px;
+  margin-left: 130px;
   margin-right: 91px;
-  padding-top: 0px;
-  margin-top: 0;
-  margin-bottom: 190px;
+  margin-top: 30px;
+  margin-bottom: 1000px;
 }
 
 .profile-header {

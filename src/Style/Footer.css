@@ -30,8 +30,8 @@
 }
 
 .footer-logo {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 100px;
   margin-bottom: 10px;
   color: #EE582B;
 }
@@ -67,8 +67,9 @@
 }
 
 .footer-bottom {
-  text-align: center;
-  margin-top: 30px;
+  text-align: left;
+  margin-top: -43px;
   font-size: 14px;
+  margin-left: 140px;
   color: #bbbbbb;
 }

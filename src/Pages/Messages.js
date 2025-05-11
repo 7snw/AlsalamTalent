@@ -7,6 +7,8 @@ import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { FaTrash } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
+import { FiPaperclip } from "react-icons/fi";
 
 const socket = io("http://localhost:5000");
 
@@ -147,8 +149,9 @@ const Messages = () => {
   return (
     <div className="messages-page">
       <Navbar links={getNavbar()} />
-      <h2 className="page-title3">Messages</h2>
-
+      <div className="title">
+        <p> Messages</p>
+      </div>
       <div className="messages-container2">
         <aside className="chat-sidebar">
           <h3>{showAll ? "Start New Chat" : "Chats"}</h3>
@@ -184,35 +187,47 @@ const Messages = () => {
             </>
           ) : (
             <>
-<ul>
-  {contacts.map((c, i) => (
-    <li key={i} className="chat-item">
-      <div className="chat-info" onClick={() => setRecipient(c)}>
-        <div className="chat-name">{c.fullName || c.email || `User ${i + 1}`}</div>
-        <div className="last-msg">{c.preview?.slice(0, 25)}...</div>
-      </div>
-      <button
-        className="delete-chat-btn"
-        onClick={async (e) => {
-          e.stopPropagation();
-          const roomId = [user._id, c._id].sort().join("-");
-          if (window.confirm("Are you sure you want to delete this chat?")) {
-            try {
-              await axios.delete(`http://localhost:5000/api/messages/room/${roomId}`);
-              setContacts(prev => prev.filter(contact => contact._id !== c._id));
-              if (recipient?._id === c._id) setRecipient(null);
-            } catch (err) {
-              console.error("Delete failed:", err);
-              alert("Failed to delete chat.");
-            }
-          }
-        }}
-      >
-        <FaTrash />
-      </button>
-    </li>
-  ))}
-</ul>
+              <ul>
+                {contacts.map((c, i) => (
+                  <li key={i} className="chat-item">
+                    <div className="chat-info" onClick={() => setRecipient(c)}>
+                      <div className="chat-name">
+                        {c.fullName || c.email || `User ${i + 1}`}
+                      </div>
+                      <div className="last-msg">
+                        {c.preview?.slice(0, 25)}...
+                      </div>
+                    </div>
+                    <button
+                      className="delete-chat-btn"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const roomId = [user._id, c._id].sort().join("-");
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this chat?"
+                          )
+                        ) {
+                          try {
+                            await axios.delete(
+                              `http://localhost:5000/api/messages/room/${roomId}`
+                            );
+                            setContacts((prev) =>
+                              prev.filter((contact) => contact._id !== c._id)
+                            );
+                            if (recipient?._id === c._id) setRecipient(null);
+                          } catch (err) {
+                            console.error("Delete failed:", err);
+                            alert("Failed to delete chat.");
+                          }
+                        }
+                      }}
+                    >
+                      <FaTrash />
+                    </button>
+                  </li>
+                ))}
+              </ul>
 
               <button className="new-chat-btn" onClick={handleNewChat}>
                 New chat
@@ -221,18 +236,18 @@ const Messages = () => {
           )}
         </aside>
 
-        <div className="chat-window">
+        <div className="chat-window3">
           <div className="chat-header">
             {recipient
               ? `Chat with ${recipient.fullName || recipient.email}`
               : "Select a contact to start chatting"}
           </div>
 
-          <div className="chat-messages">
+          <div className="chat-messages3">
             {messages.map((msg, i) => (
               <p
                 key={i}
-                className={msg.senderId === user._id ? "msg-right" : "msg-left"}
+                className={msg.senderId === user._id ? "msg-right3" : "msg-left3"}
               >
                 {msg.content}
               </p>
@@ -242,7 +257,9 @@ const Messages = () => {
 
           {recipient && (
             <div className="chat-input">
-              <button className="plus-btn">+</button>
+              <button className="plus-btn">
+                <FiPaperclip />
+              </button>
               <input
                 type="text"
                 placeholder="Type a message..."
@@ -251,7 +268,7 @@ const Messages = () => {
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               />
               <button className="send-btn" onClick={sendMessage}>
-                Send
+                <FaPaperPlane />
               </button>
             </div>
           )}

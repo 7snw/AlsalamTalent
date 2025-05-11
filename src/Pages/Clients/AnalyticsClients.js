@@ -42,6 +42,7 @@ const AnalyticsClient = () => {
     <div className="analytics-page">
       <Navbar links={NavConfig3} />
       <div className="analytics-container">
+  <h2> Analytics</h2>
 
         {/* TOP CARDS */}
         <div className="summary-cards">

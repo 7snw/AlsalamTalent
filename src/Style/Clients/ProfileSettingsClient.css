@@ -5,7 +5,7 @@
     font-family: 'Segoe UI', sans-serif;
     min-height: 100vh;
     padding-bottom: 20px;
-    margin-left: 91px;
+    margin-left: 80px;
     margin-right: 91px;
     padding-top: 120px; 
 
@@ -16,7 +16,7 @@
     gap: 50px;
     margin: 0 auto;
     max-width: 900px;
-    margin-bottom: 100px;
+    margin-bottom: 1000px;
 
   }
   
@@ -24,7 +24,7 @@
     width: 200px;
     display: flex;
     flex-direction: column;
-    margin-top: 40px;
+  margin-top: 0px;
     align-items: flex-start;
   }
   
@@ -35,13 +35,15 @@
     margin-bottom: 10px;
   }
   
-  .client-settings-username {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1b223c;
-    margin-bottom: 20px;
+  .client-settings-username h3{
+   font-size: 24px;
+  font-weight: 200px;
+  color: #1b223c;
+  margin-bottom: 20px;
+
   }
   
+
   .client-settings-tabs {
     list-style: none;
     padding: 0;
@@ -65,7 +67,8 @@
   
   .client-settings-content {
     flex: 1;
-    padding-top: 40px;
+    
+     margin-top: 15px;
   }
   
   .client-section {

@@ -137,9 +137,7 @@ const BrowseProjects = () => {
                   <img src={proj.imageUrl} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.budget} BHD</p>
-                  <p style={{ fontSize: '13px', color: '#888' }}>
-                    {proj.authorName || 'No Name'}
-                  </p>
+                
                 </motion.div>
               ))}
             </AnimatePresence>

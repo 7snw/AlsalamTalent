@@ -10,7 +10,7 @@
   display: flex;
     gap: 40px;
     margin-left: 80px; 
-    margin-bottom: 90px;
+    margin-bottom: 1000px;
   
 }
 
@@ -93,7 +93,7 @@ transition: all 0.2s ease;
 }
 
 .rating span {
-  font-size: 16px;
+  font-size: 20px;
   color: #EE582B;
   margin-right: 3px;
 }

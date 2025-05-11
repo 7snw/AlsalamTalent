@@ -6,13 +6,16 @@
 }
 
 .graduates-container {
-  width: 90%;
+   width: 100%;
   min-height: 85vh;
   display: flex;
   flex-direction: column;
   padding: 0 6%;
-  margin-bottom: 100px;
+  box-sizing: border-box;
+  margin-bottom: 1000px;
+  padding-top: 120px; 
 }
+
 
 .graduates-content {
   display: flex;
@@ -56,9 +59,9 @@
   }
 
 .page-title3 {
-    font-size: 27px;
-    margin-top: -8px;
-    margin-left: 10px;
+    font-size: 28px;
+    margin-top: -7px;
+    margin-left: 0px;
     font-weight: bold;
     color: #1B223C;
     margin-bottom: -5px;

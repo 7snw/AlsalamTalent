@@ -54,7 +54,7 @@ const AnalyticsAdmin = () => {
     <div className="analytics-page2">
       <Navbar links={NavConfig4} />
       <div className="analytics-container2">
-        <h2>Admin Analytics</h2>
+        <h2> Analytics</h2>
 
         <div className="summary-cards2">
           <div className="card22 clickable" onClick={() => navigate('/clientlist')}>
