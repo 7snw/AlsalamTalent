@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
@@ -17,9 +17,15 @@ const AdminNotifications = () => {
       setUser(parsed);
 
       axios
-        .get(`/api/notifications/${parsed._id}/admin`)
-        .then((res) => setNotifications(res.data))
-        .catch((err) => console.error("Error fetching notifications:", err))
+        .get(`http://localhost:5000/api/notifications/${parsed._id}/admin`)
+        .then((res) => {
+          console.log("📥 Admin notifications:", res.data);
+          setNotifications(res.data);
+        })
+        .catch((err) => {
+          console.error("❌ Error fetching admin notifications:", err);
+          alert("Failed to fetch notifications.");
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -32,22 +38,29 @@ const AdminNotifications = () => {
     <div className="notifications-page">
       <Navbar links={NavConfig4} />
       <div className="notifications-container">
-      <h2>Welcome, {user?.fullName}</h2>
-
+        <h2>Welcome, {user?.fullName}</h2>
         {notifications.length === 0 ? (
-          <p className="no-notifications">No notifications to show.</p>
+          <>
+            <p className="no-notifications">No notifications to show.</p>
+            <pre className="debug-output">{JSON.stringify(notifications, null, 2)}</pre>
+          </>
         ) : (
-          <ul className="notification-list">
-            {notifications.map((note) => (
-              <li key={note._id} className={`notification-item ${note.type}`}>
-                <span className="bell-icon">🔔</span>
-                <div className="notification-content">
-                  <p>{note.message}</p>
-                  <small className="notification-time">{new Date(note.createdAt).toLocaleString()}</small>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="notification-list">
+              {notifications.map((note) => (
+                <li key={note._id} className={`notification-item ${note.type}`}>
+                  <span className="bell-icon">🔔</span>
+                  <div className="notification-content">
+                    <p><strong>{note.subject || 'No subject'}</strong></p>
+                    <p>{note.message || 'No message'}</p>
+                    <small className="notification-time">
+                      {note.createdAt ? new Date(note.createdAt).toLocaleString() : 'No timestamp'}
+                    </small>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
       <Footer />

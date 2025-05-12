@@ -22,6 +22,8 @@ const auditLogRoutes = require('./routes/auditLogs');
 const messageRoutes = require('./routes/messages'); 
 const polytechRoutes = require('./routes/polytech');
 const messageUploadsRoute = require('./routes/messageUploads');
+const notificationRoutes = require('./routes/notifications');
+
 
 
 // Express app
@@ -71,6 +73,7 @@ app.use('/api/auditlogs', auditLogRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/upload-message-files', messageUploadsRoute);
+app.use('/api/notifications', notificationRoutes);
 app.use(morgan('dev'));
 
 

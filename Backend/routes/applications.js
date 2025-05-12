@@ -4,7 +4,7 @@ const Application = require("../models/Application");
 const Project = require("../models/Project");
 const Freelancer = require("../models/Freelancer");
 const Assignment = require("../models/Assignment");
-const logAction = require("../utils/logAction"); // ✅ Import logger
+const logAction = require("../utils/logAction"); 
 const sendNotification = require("../utils/sendNotification");
 const Client = require('../models/Client');
 
@@ -15,7 +15,7 @@ router.get("/by-author/:authorId", async (req, res) => {
       authorId: req.params.authorId,
     })
       .populate({ path: "projectId", select: "title imageUrl" })
-      .populate({ path: "freelancerId", select: "fullName" });
+      .populate({ path: "freelancerId", select: "fullName email" });
 
     const formatted = applications.map((app) => ({
       _id: app._id,
@@ -32,6 +32,7 @@ router.get("/by-author/:authorId", async (req, res) => {
         ? {
             id: app.freelancerId._id,
             name: app.freelancerId.fullName,
+            email: app.freelancerId.email,
           }
         : null,
     }));
