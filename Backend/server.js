@@ -21,6 +21,8 @@ const analyticsAdminRoutes = require('./routes/analyticsAdmin');
 const auditLogRoutes = require('./routes/auditLogs');
 const messageRoutes = require('./routes/messages'); 
 const polytechRoutes = require('./routes/polytech');
+const messageUploadsRoute = require('./routes/messageUploads');
+
 
 // Express app
 const app = express();
@@ -52,6 +54,8 @@ const uploadAnyFile = multer({ storage, fileFilter: anyFileFilter });
 
 // Static file serving
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/messages', express.static('uploads/messages'));
+
 
 // API Routes
 app.use('/api/polytech', polytechRoutes);
@@ -66,6 +70,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/auditlogs', auditLogRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/upload-message-files', messageUploadsRoute);
 app.use(morgan('dev'));
 
 
