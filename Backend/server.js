@@ -18,6 +18,7 @@ const analyticsAdminRoutes = require('./routes/analyticsAdmin');
 const auditLogRoutes = require('./routes/auditLogs');
 const messageRoutes = require('./routes/messages'); 
 const polytechRoutes = require('./routes/polytech');
+const messageUploadsRoute = require("./routes/messageUploads");
 
 // Express app
 const app = express();
@@ -68,8 +69,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/auditlogs', auditLogRoutes);
-app.use('/api/messages', messageRoutes); // ✅ add messages API
+app.use('/api/messages', messageRoutes); 
 app.use('/api/assignments', assignmentRoutes);
+app.use("/api/upload-message-files", messageUploadsRoute);
+app.use("/uploads/messages", express.static("uploads/messages"));
+
 
 
 // File upload endpoints

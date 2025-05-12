@@ -140,8 +140,11 @@ margin-bottom: 10px;
     flex-direction: column;
     gap: 0px;
     
+    
   }
-  
+  .chat-messages3 p{
+    margin: 0;
+  }
   .msg-left3,
   .msg-right3 {
     max-width: 70%;
@@ -151,6 +154,8 @@ margin-bottom: 10px;
     line-height: 1.5;
     word-wrap: break-word;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 5px; 
+
   }
   
   .msg-left3 {
@@ -186,7 +191,7 @@ margin-bottom: 10px;
   }
   
   .plus-btn{
-    background-color: #EE582B;
+    background-color: #1b223c;
     color: white;
     border: none;
     padding: 9px 22px;
@@ -208,5 +213,28 @@ margin-bottom: 10px;
     cursor: pointer;
     margin-left: 10px;
   }
-  
+
+.message-wrapper {
+  margin-bottom: 12px;
+}
+
+.chat-attachment-image {
+  max-width: 150px;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+.chat-attachment-link {
+  color: white;
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.paperclip-icon {
+  margin-right: 6px;
+}
+
   
