@@ -135,20 +135,21 @@ const FreelancerHome = () => {
             skills.
           </p>
 
-          <div className="search-row">
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder="What are you looking for?"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <img src={SearchIcon} alt="Search" className="search-icon" />
-            </div>
-            <button className="match-btn" onClick={handleMatchClick}>
-              <FaBolt /> Matched Projects
-            </button>
-          </div>
+<div className="search-and-match">
+  <div className="search-bar">
+    <input
+      type="text"
+      placeholder="What are you looking for?"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+    <img src={SearchIcon} alt="Search" className="search-icon" />
+  </div>
+  <button className="match-btn" onClick={handleMatchClick}>
+    <FaBolt />
+  </button>
+</div>
+
           <br />
          {showModal && matchedProjects.length > 0 && selectedProject && (
   <div className="modal-overlay" onClick={closeModal}>
@@ -157,10 +158,6 @@ const FreelancerHome = () => {
       onClick={(e) => e.stopPropagation()}
     >
       <div key={selectedProject._id} className="modal-body">
-        <button className="nav-button left" onClick={prevProject}>
-          <FaChevronLeft />
-        </button>
-
         <img
           src={selectedProject.imageUrl}
           alt={selectedProject.title}
@@ -169,18 +166,21 @@ const FreelancerHome = () => {
         <p><strong>Budget:</strong> {selectedProject.budget} BHD</p>
         <p><strong>Category:</strong> {selectedProject.category}</p>
         <p><strong>Brief:</strong> {selectedProject.brief}</p>
-
-        <button className="nav-button right" onClick={nextProject}>
-          <FaChevronRight />
-        </button>
-
-        <span
+      </div>
+      <div className="modal-footer">
+  <button className="nav-button" onClick={prevProject}>
+    <FaChevronLeft />
+  </button>
+          <span
           className="bookmark modal-bookmark"
           onClick={(e) => handleBookmarkClick(e, selectedProject._id)}
         >
           {isProjectSaved(selectedProject._id) ? <FaBookmark /> : <FaRegBookmark />}
         </span>
-      </div>
+  <button className="nav-button" onClick={nextProject}>
+    <FaChevronRight />
+  </button>
+</div>
     </div>
   </div>
 )}
