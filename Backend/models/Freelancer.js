@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const freelancerSchema = new mongoose.Schema({
   userType: String,
@@ -9,12 +10,7 @@ const freelancerSchema = new mongoose.Schema({
   major: String,
   phone: String,
   isVerified: { type: Boolean, default: false },
-  rating: {
-    type: Number,
-    default: 1,
-    min: 1,
-    max: 5
-  },
+  rating: { type: Number, default: 1, min: 1, max: 5 },
   expertise: [String],
   cprImageUrl: { type: String, required: function () { return this.userType === 'graduate'; } },
   bio: String,
@@ -46,5 +42,12 @@ const freelancerSchema = new mongoose.Schema({
   ],
   role: { type: String, default: 'freelancer' }
 }, { timestamps: true });
+
+// Hash password before saving
+freelancerSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
 
 module.exports = mongoose.model('Freelancer', freelancerSchema);

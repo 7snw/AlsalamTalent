@@ -1,9 +1,13 @@
-const express = require('express');
+const express = require('express'); 
 const cors = require('cors');
 const connectDB = require('./db');
 const path = require('path');
 const multer = require('multer');
+const bcrypt = require('bcryptjs');
+const Admin = require('./models/Admin');
 require('dotenv').config();
+const morgan = require('morgan');
+
 
 // Import routes
 const userRoutes = require('./routes/users');
@@ -23,18 +27,10 @@ const messageUploadsRoute = require("./routes/messageUploads");
 // Express app
 const app = express();
 
-// Connect to MongoDB
-connectDB();
-
-
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
-
-
-app.use('/api/polytech', polytechRoutes);
-
 
 // File upload setup
 const storage = multer.diskStorage({
@@ -60,6 +56,7 @@ const uploadAnyFile = multer({ storage, fileFilter: anyFileFilter });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API Routes
+app.use('/api/polytech', polytechRoutes);
 app.use('/api/admin/analytics', analyticsAdminRoutes);
 app.use('/api/client/analytics', analyticsClientRoutes);
 app.use('/api/users', userRoutes);
@@ -73,6 +70,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use("/api/upload-message-files", messageUploadsRoute);
 app.use("/uploads/messages", express.static("uploads/messages"));
+app.use(morgan('dev'));
 
 
 
@@ -88,7 +86,6 @@ app.post('/api/upload-file', uploadAnyFile.single('file'), (req, res) => {
   const fileUrl = `/uploads/${req.file.filename}`;
   res.json({ fileUrl });
 });
-
 
 // Health check
 app.get('/', (req, res) => {
@@ -109,37 +106,57 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  //console.log('🔌 A user connected:', socket.id);
-
   socket.on('joinRoom', (roomId) => {
     socket.join(roomId);
-  //  console.log(`📦 User joined room: ${roomId}`);
   });
 
   socket.on('sendMessage', async (msgData) => {
     try {
       const newMessage = new Message({
         senderId: msgData.senderId,
-        receiverId: msgData.receiverId, // ✅ Corrected
+        receiverId: msgData.receiverId,
         senderRole: msgData.senderRole,
         receiverRole: msgData.receiverRole,
         content: msgData.content,
         roomId: msgData.roomId,
         attachments: msgData.attachments || []
       });
-  
+
       await newMessage.save();
-      io.to(msgData.roomId).emit('receiveMessage', newMessage); // ✅ roomId now includes both users
+      io.to(msgData.roomId).emit('receiveMessage', newMessage);
     } catch (err) {
       console.error('Error saving message:', err.message);
     }
   });
-  
-  socket.on('disconnect', () => {
-    //console.log('❌ User disconnected:', socket.id);
-  });
+
+  socket.on('disconnect', () => {});
 });
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`🚀 Server with Socket.IO running on port ${PORT}`));
+// ✅ Connect to DB and hash default admin password if needed
+connectDB().then(async () => {
+  try {
+    const admin = await Admin.findOne({ email: 'admin@alsalam.com' });
+    if (admin && admin.password === '12345678') {
+      admin.password = await bcrypt.hash(admin.password, 10);
+      await admin.save();
+      console.log('✅ Default admin password was hashed.');
+    }
+  } catch (err) {
+    console.error('Error hashing default admin password:', err.message);
+  }
+
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => console.log(`🚀 Server with Socket.IO running on port ${PORT}`));
+});
+// Add this to your server (temporarily)
+app.get('/fix-admin-password', async (req, res) => {
+  const admin = await Admin.findOne({ email: 'admin@alsalam.com' });
+  if (admin) {
+    admin.password = await bcrypt.hash('12345678', 10);
+    await admin.save();
+    return res.send('✅ Admin password updated');
+  }
+  res.send('❌ Admin not found');
+});
+
+

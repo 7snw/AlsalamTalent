@@ -2,25 +2,21 @@ const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 const Admin = require('../models/Admin');
 const Client = require('../models/Client');
 const Freelancer = require('../models/Freelancer');
 
-// Temporary storage (use DB in production)
+// Temporary email verification store
 let emailVerifications = {}; // { email: { code, expiresAt } }
 
-// Send verification code
+// ✅ Send email verification code
 router.post('/send-verification-code', async (req, res) => {
   const { email } = req.body;
 
-  // Optional: enforce Bahrain Polytechnic domain again
-  // if (!email.endsWith('@student.polytechnic.bh')) {
-  //   return res.status(400).json({ message: 'Only Bahrain Polytechnic student emails are allowed.' });
-  // }
-
   const code = crypto.randomInt(100000, 999999).toString();
-  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 mins from now
+  const expiresAt = Date.now() + 10 * 60 * 1000;
 
   emailVerifications[email] = { code, expiresAt };
 
@@ -39,9 +35,6 @@ router.post('/send-verification-code', async (req, res) => {
     text: `Your code is: ${code}`
   };
 
-  console.log('Sending mail to:', mailOptions.to);
-  console.log('Mail content:', mailOptions.text);
-
   try {
     await transporter.sendMail(mailOptions);
     res.json({ message: 'Verification code sent.' });
@@ -51,29 +44,23 @@ router.post('/send-verification-code', async (req, res) => {
   }
 });
 
-// Verify submitted code
+// ✅ Verify submitted code
 router.post('/verify-code', (req, res) => {
   const { email, code } = req.body;
   const record = emailVerifications[email];
 
-  if (!record) {
-    return res.status(400).json({ message: 'No verification code found for this email.' });
-  }
-
+  if (!record) return res.status(400).json({ message: 'No verification code found.' });
   if (Date.now() > record.expiresAt) {
     delete emailVerifications[email];
-    return res.status(400).json({ message: 'Verification code has expired. Please resend.' });
+    return res.status(400).json({ message: 'Verification code expired.' });
   }
-
-  if (record.code !== code) {
-    return res.status(400).json({ message: 'Incorrect verification code.' });
-  }
+  if (record.code !== code) return res.status(400).json({ message: 'Incorrect verification code.' });
 
   delete emailVerifications[email];
   return res.json({ verified: true });
 });
 
-// Manual test route
+// ✅ Test mail
 router.get('/test-mail', async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -91,17 +78,17 @@ router.get('/test-mail', async (req, res) => {
       text: '✅ This is a test email to verify Gmail SMTP config is working.'
     });
 
-    console.log('✅ Email sent:', info.response);
     res.send('Test email sent!');
   } catch (err) {
-    console.error('❌ Email test error:', err);
+    console.error('Test email error:', err);
     res.status(500).send('Email failed to send.');
   }
 });
 
-// Login route
+// ✅ LOGIN with bcrypt password check
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log("🧠 Login request:", email, password); // Log input
 
   try {
     let user = await Admin.findOne({ email });
@@ -115,7 +102,6 @@ router.post('/login', async (req, res) => {
     if (!user) {
       user = await Freelancer.findOne({ email });
       role = 'freelancer';
-
       if (user && !user.isVerified) {
         return res.status(403).json({ message: 'Please verify your email before logging in.' });
       }
@@ -125,24 +111,29 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    if (user.password !== password) {
+    console.log("🔐 Stored password hash:", user.password); // Log hashed value
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("✅ Password match:", isMatch); // Log result
+
+    if (!isMatch) {
       return res.status(400).json({ message: 'Invalid password' });
     }
 
     res.json({
       id: user._id,
       name: user.fullName,
-      role: role,
+      role,
       email: user.email
     });
-
   } catch (err) {
-    console.error(err);
+    console.error("❌ Login error:", err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Return all users
+
+// ✅ Return all users
 router.get('/all', async (req, res) => {
   try {
     const admins = await Admin.find({}, '_id fullName email').lean();

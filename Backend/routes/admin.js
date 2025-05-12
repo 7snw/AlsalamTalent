@@ -4,6 +4,9 @@ const Admin = require('../models/Admin');
 const Client = require('../models/Client'); // Client model for listing clients
 const Freelancer = require('../models/Freelancer');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcryptjs');
+
+
 
 
 // Verify student or graduate dynamically
@@ -77,18 +80,16 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Change admin password
 router.put('/changepassword/:id', async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
     const admin = await Admin.findById(req.params.id);
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
 
-    if (admin.password !== oldPassword) {
-      return res.status(400).json({ message: 'Old password is incorrect' });
-    }
+    const isMatch = await bcrypt.compare(oldPassword, admin.password);
+    if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect' });
 
-    admin.password = newPassword;
+    admin.password = await bcrypt.hash(newPassword, 10);
     await admin.save();
 
     res.json({ message: 'Password updated successfully' });
