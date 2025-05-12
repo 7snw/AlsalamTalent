@@ -77,14 +77,22 @@ const FreelancerProfile = () => {
             </div>
           </div>
           <button
-            className="contact-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate('/freelancermessages');
-            }}
-          >
-            Get in touch
-          </button>
+                        className="contact-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/messages", {
+                            state: {
+                              userToChat: {
+                                _id: freelancer._id,
+                                fullName: freelancer.fullName,
+                                role: "freelancer",
+                              },
+                            },
+                          });
+                        }}
+                      >
+                        Get in touch
+                      </button>
         </div>
 
         <div className="tab-buttons">
