@@ -1,6 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import RoleProtectedLayout from './Components/RoleProtectedLayout';
-
 
 //General
 import LandingPage from './Pages/LandingPage';
@@ -15,6 +13,8 @@ import ProjectDetails from './Pages/ProjectDetails';
 import FreelancerProfile from './Pages/FreelancerProfile';
 import FreelancersList from './Pages/FreelancersList';
 import Messages from  './Pages/Messages';
+import MyProjectsDetails from './Pages/Freelancer/MyProjectsDetails';
+import RedirectNotifications from './Components/RedirectNotifications';
 
 //Freelancer
 import FreelancerHome from './Pages/Freelancer/FreelancerHome';
@@ -24,7 +24,6 @@ import SavedProjects from './Pages/Freelancer/SavedProjects';
 import MyApplications from './Pages/Freelancer/MyApplications';
 import MyProfile from './Pages//Freelancer/MyProfile';
 import ProfileSettings from './Pages/Freelancer/ProfileSettings';
-import MyProjectsDetails from './Pages/Freelancer/MyProjectsDetails';
 
 
 //Client
@@ -54,73 +53,75 @@ import EditUserProfile from './Pages/Admin/EditUserProfile';
 import AuditLogs from './Pages/Admin/AuditLogs';
 import VerificationsList from './Pages/Admin/VerificationsList';
 
-//const user = JSON.parse(localStorage.getItem("user"));
+
+import AdminNotifications from './Pages/Admin/AdminNotifications';
+import ClientNotifications from './Pages/Clients/ClientNotifications';
+import FreelancerNotifications from './Pages/Freelancer/FreelancerNotifications';
 
 const App = () => {
   return (
     <Router>
       <Routes>
-  {/* Public Pages */}
-  <Route path="/" element={<LandingPage />} />
-  <Route path="/landingpage" element={<LandingPage />} />
-  <Route path="/studentgraduate" element={<StudentGraduate />} />
-  <Route path="/signin" element={<LoginPage />} />
-  <Route path="/signup" element={<SignUpPage />} />
-  <Route path="/graduatesignup" element={<GraduateSignUp />} />
-  <Route path="/aboutus" element={<AboutUs />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/landingpage" element={<LandingPage />} />
+        <Route path="/studentgraduate" element={<StudentGraduate />} />
+        <Route path="/signin" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/graduatesignup" element={<GraduateSignUp />} />
+        <Route path="/aboutus" element={<AboutUs />} /> 
+        <Route path="/freelancerprofile" element={<FreelancerProfile />} />
+        <Route path="/freelancers" element={<FreelancersList />} /> 
+        <Route path="/freelancer-home" element={<FreelancerHome />} />
+        <Route path="/messages" element={<Messages />} />   
+        <Route path="/notifications" element={<RedirectNotifications />} />
+    
 
-  {/* Shared Authenticated Pages */}
-  <Route element={<RoleProtectedLayout allowedRoles={["Freelancer", "Client", "Admin"]} />}>
-    <Route path="/messages" element={<Messages />} />
-    <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
-    <Route path="/freelancers" element={<FreelancersList />} />
+        <Route path="/allprojects" element={<AllProjects />} /> 
+        <Route path="/myprojects" element={<MyProjects />} /> 
+        <Route path="/savedprojects" element={<SavedProjects />} /> 
+        <Route path="/myapplications" element={<MyApplications />} /> 
+        <Route path="/myprofile" element={<MyProfile />} />
+        <Route path="/profilesettings" element={<ProfileSettings />} />
+        <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
+        <Route path="my-project/:id" element={<MyProjectsDetails />} />
+        <Route path="freelancer-notifications" element={<FreelancerNotifications />} />
+    
+
+
+
+        <Route path="/clienthome" element={<ClientHome />} /> 
+        <Route path="/browseprojects" element={<BrowseProjects />} />
+        <Route path="/postproject" element={<PostProject />} />  
+        <Route path="/assignedProject" element={<AssignedProject />} />  
+        <Route path="/submittedprojects" element={<SubmittedProjects />} />  
+        <Route path="/assigned-project/:id" element={<ProjectProgress />} />
         <Route path="/project-info/:id" element={<ProjectDetailsPage />} />
-            <Route path="/project-details/:id" element={<ProjectDetails />} />
+        <Route path="/submitted-project/:id" element={<SubmittedProjectDetailsPage />} />
+        <Route path="/project-applications" element={<ProjectApplications />} />
+        <Route path="/analyticsclient" element={<AnalyticsClient />} />
+        <Route path="/edit-project/:id" element={<EditProject />} />
+        <Route path="/project-details/:id" element={<ProjectDetails />} />
+        <Route path="/profilesettingsclint" element={<ProfileSettingsClient />} />
+        <Route path="/clientprojects" element={<ClientProjects />} />
+        <Route path="/client-notifications" element={<ClientNotifications />} />
 
 
-  </Route>
 
-  {/* Freelancer Pages */}
-  <Route element={<RoleProtectedLayout allowedRoles={["Freelancer"]} />}>
-    <Route path="/freelancer-home" element={<FreelancerHome />} />
-    <Route path="/allprojects" element={<AllProjects />} />
-    <Route path="/myprojects" element={<MyProjects />} />
-    <Route path="/savedprojects" element={<SavedProjects />} />
-    <Route path="/myapplications" element={<MyApplications />} />
-    <Route path="/myprofile" element={<MyProfile />} />
-    <Route path="/profilesettings" element={<ProfileSettings />} />
-    <Route path="/my-project/:id" element={<MyProjectsDetails />} />
-  </Route>
+        
 
-  {/*  Client Pages */}
-  <Route element={<RoleProtectedLayout allowedRoles={["Client"]} />}>
-    <Route path="/clienthome" element={<ClientHome />} />
-    <Route path="/browseprojects" element={<BrowseProjects />} />
-    <Route path="/postproject" element={<PostProject />} />
-    <Route path="/assignedProject" element={<AssignedProject />} />
-    <Route path="/submittedprojects" element={<SubmittedProjects />} />
-    <Route path="/assigned-project/:id" element={<ProjectProgress />} />
-    <Route path="/submitted-project/:id" element={<SubmittedProjectDetailsPage />} />
-    <Route path="/project-applications" element={<ProjectApplications />} />
-    <Route path="/analyticsclient" element={<AnalyticsClient />} />
-    <Route path="/edit-project/:id" element={<EditProject />} />
-    <Route path="/profilesettingsclint" element={<ProfileSettingsClient />} />
-    <Route path="/clientprojects" element={<ClientProjects />} />
-  </Route>
+ 
+        <Route path="/admin-notifications" element={<AdminNotifications />} />
+        <Route path="/clientlist" element={<Clientlist />} />
+        <Route path="/addusers" element={<AddUsers />} />
+        <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
+        <Route path="/adminallprojects" element={<AdminAllProjects />} />
+        <Route path="/details" element={<AdminProjectDetails />} /> 
+        <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
+        <Route path="/edituser/:userId" element={<EditUserProfile />} />
+        <Route path="/auditlogs" element={<AuditLogs />} />
+        <Route path="/verificationslist" element={<VerificationsList />} />
 
-  {/*  Admin Pages */}
-  <Route element={<RoleProtectedLayout allowedRoles={["Admin"]} />}>
-    <Route path="/clientlist" element={<Clientlist />} />
-    <Route path="/addusers" element={<AddUsers />} />
-    <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
-    <Route path="/adminallprojects" element={<AdminAllProjects />} />
-    <Route path="/details" element={<AdminProjectDetails />} />
-    <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
-    <Route path="/edituser/:userId" element={<EditUserProfile />} />
-    <Route path="/auditlogs" element={<AuditLogs />} />
-    <Route path="/verificationslist" element={<VerificationsList />} />
-  </Route>
-</Routes>
+      </Routes>
     </Router>
   );
 };

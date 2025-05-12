@@ -114,11 +114,22 @@ const Navbar = ({ links = [] }) => {
             onClick={() => navigate('/messages')}
           />
           <img
-            src={BellIcon}
-            alt="Bell"
-            className="nav-icon"
-            onClick={() => navigate('/freelancernotifications')}
-          />
+  src={BellIcon}
+  alt="Notifications"
+  className="nav-icon"
+  onClick={() => {
+    if (role === 'freelancer') {
+      navigate('/freelancer-notifications');
+    } else if (role === 'client') {
+      navigate('/client-notifications');
+    } else if (role === 'admin') {
+      navigate('/admin-notifications');
+    } else {
+      alert('Unknown role. Cannot open notifications.');
+    }
+  }}
+/>
+
 
           <div className="user-dropdown-wrapper">
             <img

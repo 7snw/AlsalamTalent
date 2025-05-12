@@ -4,8 +4,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const Project = require('../models/Project');
-const logAction = require('../utils/logAction'); // ✅ Logging utility
-
+const Admin = require('../models/Admin');
+const Freelancer = require('../models/Freelancer');
+const logAction = require('../utils/logAction');
+const sendNotification = require('../utils/sendNotification');
 
 // Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -22,7 +24,6 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
-
 
 // GET all projects (with author name)
 router.get('/all', async (req, res) => {
@@ -112,6 +113,22 @@ router.post('/upload', upload.fields([
       action: 'Added New Project',
       projectId: newProject._id
     });
+
+    // ✅ Send notification to all admins and freelancers
+    const freelancers = await Freelancer.find();
+    const admins = await Admin.find();
+    const allRecipients = [...freelancers, ...admins];
+
+    for (const user of allRecipients) {
+      await sendNotification({
+        userId: user._id,
+        userType: user.role || 'freelancer',
+        email: user.email,
+        subject: 'New Project Available!',
+        message: `A new project titled "${newProject.title}" has been posted.`,
+        type: 'info'
+      });
+    }
 
     res.status(201).json(newProject);
   } catch (error) {

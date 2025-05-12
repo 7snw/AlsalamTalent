@@ -44,6 +44,7 @@ router.post('/send-verification-code', async (req, res) => {
   }
 });
 
+
 // ✅ Verify submitted code
 router.post('/verify-code', (req, res) => {
   const { email, code } = req.body;
