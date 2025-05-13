@@ -42,14 +42,6 @@ font-family: 'TT Hoves', sans-serif;
 }
 
 
-/* Primary button */
-.left button {
-  background-color: #1B223C;
-  color: #e0e0e0;
-  margin-top: 6px;
-}
-
-
 .left button:disabled {
   cursor: not-allowed;
 }
@@ -70,21 +62,37 @@ font-family: 'TT Hoves', sans-serif;
   object-fit: cover;
   margin-top: -300px;
 }
-.download-btn2 {
-    display: inline-block;
-    background-color: #1b223c;
-    color: #ffffff;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-    padding: 10px 20px;
-    border: none;
-  border-radius: 12px;
+.attached-files-list6 {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.attached-file-item6 {
+    background-color: #F4F4F4;
+  border-radius: 10px;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #1B223C;
+}
+
+.download-btn6 {
+  background: none;
+  border: none;
+  color: #1B223C;
+  font-size: 18px;
   cursor: pointer;
-  }
-  
-  .download-btn2:hover {
-    background-color: #343c5c;
-  }
+  margin-left: 10px;
+}
+
+.download-btn6:hover {
+  color: #EE582B;
+}
+
 .edit-btn{
   padding: 10px 20px;
   border: none;

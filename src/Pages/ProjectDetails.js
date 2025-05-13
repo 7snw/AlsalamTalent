@@ -10,6 +10,7 @@ import {
   NavConfig3,
   NavConfig4,
 } from "../Data/NavbarConfigs";
+import { FiDownload } from 'react-icons/fi';
 import { showAlert } from '../utils/toastMessages';
 
 
@@ -144,22 +145,24 @@ const ProjectDetails = () => {
 
             <h4>Project Files:</h4>
             {project.files && project.files.length > 0 ? (
-              project.files.map((file, idx) => (
-                <div key={idx}>
-                  <a
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="download-btn2"
-                    download
-                  >
-                    {file.name}
-                  </a>
-                </div>
-              ))
-            ) : (
-              <p>No project files uploaded</p>
-            )}
+  <ul className="attached-files-list6">
+    {project.files.map((file, idx) => (
+      <li key={idx} className="attached-file-item6">
+        {file.name}
+        <button
+          type="button"
+          className="download-btn6"
+          onClick={() => window.open(file.url, '_blank')}
+        >
+          <FiDownload size={18} />
+        </button>
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>No files uploaded by client.</p>
+)}
+
             {role === "freelancer" && project.status === "Open" && (
               <button
                 className={`apply-btn ${applied ? "applied" : ""}`}
