@@ -141,3 +141,27 @@
 .freelancer-link:hover {
   color: #EE582B;
 }
+
+.status-label {
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  display: inline-block;
+  text-align: center;
+  min-width: 110px;
+  text-transform: capitalize;
+}
+
+/* Match "Assign" style */
+.status-label.assigned {
+  background-color: #1B223C;
+  color: #ffffff;
+}
+
+/* Match "Cancel" style */
+.status-label.cancelled {
+  background-color: #EE582B;
+  color: #ffffff;
+}
+

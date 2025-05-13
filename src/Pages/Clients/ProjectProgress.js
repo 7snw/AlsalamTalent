@@ -146,13 +146,15 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
         </button>
 
         {showChat && (
-          <ChatBox
-            userId={clientId}
-            otherUserId={freelancerId}
-            role="Client"
-            closeChat={() => setShowChat(false)}
-          />
-        )}
+  <ChatBox
+    userId={clientId}
+    otherUserId={freelancerId}
+    role="Client"
+    assignmentId={assignment._id}  // ✅ Add this
+    closeChat={() => setShowChat(false)}
+  />
+)}
+
       </div>
       <Footer />
     </div>

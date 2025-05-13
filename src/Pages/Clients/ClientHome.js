@@ -85,7 +85,7 @@ const ClientHome = () => {
                   boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                   transition: { duration: 0.2 },
                 }}
-                onClick={() => navigate(`/project-info/${project._id}`)}
+                onClick={() => navigate(`/project-details/${project._id}`)}
                 style={{ cursor: 'pointer' }}
               >
                 <img src={project.imageUrl} alt={project.title} />

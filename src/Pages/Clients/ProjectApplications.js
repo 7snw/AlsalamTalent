@@ -43,56 +43,59 @@ const ProjectApplications = () => {
       return { ...prev, [category]: newValues };
     });
   };
-const handleAction = async (projectId, freelancerId, action) => {
-  try {
-    await axios.post(
-      `http://localhost:5000/api/applications/${projectId}/${action}`,
-      { freelancerId, clientId }
-    );
 
-    // Find the matching application
-    const app = applications.find(
-      (a) => a.project?.id === projectId && a.freelancer?.id === freelancerId
-    );
+  const handleAction = async (projectId, freelancerId, action) => {
+    const actionLabel = action === "approve" ? "assign this freelancer" : "cancel this application";
+    const confirmed = window.confirm(`Are you sure you want to ${actionLabel}? This action cannot be undone.`);
 
-    // Send notification for both "approve" and "reject"
-    if (app && app.freelancer?.email && app.project?.title) {
-      const notification = {
-        userId: freelancerId,
-        userType: "freelancer",
-        email: app.freelancer.email,
-        type: "info"
-      };
+    if (!confirmed) return;
 
-      if (action === "approve") {
-        notification.subject = "You've been assigned!";
-        notification.message = `You have been assigned to the project "${app.project.title}".`;
-      } else if (action === "reject") {
-        notification.subject = "Application Cancelled";
-        notification.message = `Your application to "${app.project.title}" has been declined.`;
+    try {
+      await axios.post(
+        `http://localhost:5000/api/applications/${projectId}/${action}`,
+        { freelancerId, clientId }
+      );
+
+      const app = applications.find(
+        (a) => a.project?.id === projectId && a.freelancer?.id === freelancerId
+      );
+
+      if (app && app.freelancer?.email && app.project?.title) {
+        const notification = {
+          userId: freelancerId,
+          userType: "freelancer",
+          email: app.freelancer.email,
+          type: "info",
+          subject: "",
+          message: "",
+        };
+
+        if (action === "approve") {
+          notification.subject = "You've been assigned!";
+          notification.message = `You have been assigned to the project "${app.project.title}".`;
+        } else {
+          notification.subject = "Application Cancelled";
+          notification.message = `Your application to "${app.project.title}" has been declined.`;
+        }
+
+        await axios.post("http://localhost:5000/api/notifications", notification);
       }
 
-      // Send notification
-      await axios.post("http://localhost:5000/api/notifications", notification);
-    } else {
-      console.error("❌ Missing freelancer email or project title.");
+      // Update local state to reflect action
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.project?.id === projectId && app.freelancer?.id === freelancerId
+            ? {
+                ...app,
+                status: action === "approve" ? "Assigned" : "Cancelled",
+              }
+            : app
+        )
+      );
+    } catch (error) {
+      console.error(`Error on ${action}:`, error);
     }
-
-    // Update local state
-    setApplications((prev) =>
-      prev.map((app) =>
-        app.project?.id === projectId && app.freelancer?.id === freelancerId
-          ? {
-              ...app,
-              status: action === "approve" ? "Assigned" : "Cancelled",
-            }
-          : app
-      )
-    );
-  } catch (error) {
-    console.error(`Error on ${action}:`, error);
-  }
-};
+  };
 
   const filteredApps = applications.filter((app) => {
     const appStatus = app.status || "Under Review";
@@ -171,37 +174,42 @@ const handleAction = async (projectId, freelancerId, action) => {
                         {app.freelancer?.name}
                       </span>
                     </p>
-
                     <p>Status: {app.status || "Under Review"}</p>
                   </div>
 
                   <div className="application-actions">
-                    <button
-                      className="assign"
-                      disabled={app.status === "Assigned"}
-                      onClick={() =>
-                        handleAction(
-                          app.project.id,
-                          app.freelancer.id,
-                          "approve"
-                        )
-                      }
-                    >
-                      Assign
-                    </button>
-                    <button
-                      className="cancel"
-                      disabled={app.status === "Cancelled"}
-                      onClick={() =>
-                        handleAction(
-                          app.project.id,
-                          app.freelancer.id,
-                          "reject"
-                        )
-                      }
-                    >
-                      Cancel
-                    </button>
+                    {app.status === "Under Review" || !app.status ? (
+                      <>
+                        <button
+                          className="assign"
+                          onClick={() =>
+                            handleAction(
+                              app.project.id,
+                              app.freelancer.id,
+                              "approve"
+                            )
+                          }
+                        >
+                          Assign
+                        </button>
+                        <button
+                          className="cancel"
+                          onClick={() =>
+                            handleAction(
+                              app.project.id,
+                              app.freelancer.id,
+                              "reject"
+                            )
+                          }
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <p className={`status-label ${app.status.toLowerCase()}`}>
+                        {app.status}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               ))}

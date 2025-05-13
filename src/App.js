@@ -40,7 +40,6 @@ import ProfileSettingsClient from './Pages/Clients/ProfileSettingsClient';
 import ClientProjects from './Pages/Clients/ClientProjects';
 import ClientNotifications from './Pages/Clients/ClientNotifications';
 import EditProject from './Pages/EditProject';
-import ProjectDetailsPage from './Pages/ProjectDetailsPage';
 import ProjectDetails from './Pages/ProjectDetails';
 
 // Admin Pages
@@ -74,7 +73,6 @@ const App = () => {
           <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
           <Route path="/freelancers" element={<FreelancersList />} />
           <Route path="/notifications" element={<RedirectNotifications />} />
-                    <Route path="/project-info/:id" element={<ProjectDetailsPage />} />
                               <Route path="/project-details/:id" element={<ProjectDetails />} />
 
 

@@ -132,7 +132,7 @@ const BrowseProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/project-info/${proj._id}`)}
+                  onClick={() => navigate(`/project-details/${proj._id}`)}
                 >
                   <img src={proj.imageUrl} alt={proj.title} />
                   <h4>{proj.title}</h4>

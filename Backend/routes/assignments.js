@@ -3,7 +3,9 @@ const multer = require('multer');
 const router = express.Router();
 const Assignment = require('../models/Assignment');
 const Freelancer = require('../models/Freelancer');
-const logAction = require('../utils/logAction'); // ✅ Logging utility
+const logAction = require('../utils/logAction'); 
+  const Project = require('../models/Project');
+
 
 // ✅ Get assignments by authorId (client)
 router.get('/by-author/:authorId', async (req, res) => {
@@ -36,7 +38,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ Utility to update average freelancer rating
+//  Utility to update average freelancer rating
 const updateFreelancerRating = async (freelancerId) => {
   const assignments = await Assignment.find({
     freelancerId,
@@ -76,6 +78,9 @@ router.put('/:id/update-status', async (req, res) => {
 
     if (status === 'Completed') {
       await Freelancer.findByIdAndUpdate(freelancerId, { rating });
+
+      // ✅ Update project status to Completed
+      await Project.findByIdAndUpdate(updated.projectId, { status: "Completed" });
     }
 
     // ✅ Log based on status

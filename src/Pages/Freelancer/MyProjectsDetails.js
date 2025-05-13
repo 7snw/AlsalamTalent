@@ -204,11 +204,12 @@ const MyProjectsDetails = () => {
               <FiMessageCircle />
             </button>
 
-            {showChat && clientId && freelancerId && (
+            {showChat &&(
               <ChatBox
                 userId={freelancerId}
                 otherUserId={clientId}
                 role="Freelancer"
+                assignmentId={assignment._id}  // ✅ Add this
                 closeChat={() => setShowChat(false)}
               />
             )}

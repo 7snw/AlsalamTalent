@@ -32,13 +32,13 @@ const PostProject = () => {
     setProjectImage(e.target.files[0]);
     e.target.value = "";
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const authorId = storedUser?._id;
-        if (!authorId) {
+
+    if (!authorId) {
       alert("You must be logged in to post a project.");
       return;
     }
@@ -49,7 +49,7 @@ const PostProject = () => {
     formData.append("budget", budget);
     formData.append("category", category);
     formData.append("authorId", authorId);
-    formData.append("status", "Open"); // Fixed to "Open"
+    formData.append("status", "Open");
     formData.append("durationFrom", startDate);
     formData.append("durationTo", endDate);
 
@@ -61,19 +61,45 @@ const PostProject = () => {
       formData.append("projectFile", file);
     });
 
-      try {
-        await axios.post("http://localhost:5000/api/projects/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        alert("Project successfully posted!");
-        navigate("/browseprojects"); // 👈 Redirects to client’s specific browse page
-      } catch (error) {
-        console.error(
-          "Error posting project:",
-          error.response?.data || error.message
-        );
-        alert("Failed to post project.");
-      }
+    try {
+      // ✅ 1. Upload project first
+      await axios.post("http://localhost:5000/api/projects/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } catch (uploadError) {
+      console.error(
+        "❌ Project upload failed:",
+        uploadError.response?.data || uploadError.message
+      );
+      alert("Failed to post project.");
+      return; //  Don't continue to notifications
+    }
+
+    try {
+      await Promise.all([
+        axios.post("http://localhost:5000/api/notifications/send", {
+          userType: "admin",
+          subject: "New Project Posted",
+          message: `${storedUser.fullName} has just posted a new project: "${projectTitle}".`,
+          type: "info",
+        }),
+        axios.post("http://localhost:5000/api/notifications/broadcast", {
+          role: "freelancer",
+          subject: "New Project Posted",
+          message: `A new project has been posted: "${projectTitle}".`,
+          type: "info",
+        }),
+      ]);
+    } catch (notifyError) {
+      console.warn(
+        "⚠️ Project was posted, but notification failed:",
+        notifyError.response?.data || notifyError.message
+      );
+      // Optional: show a toast or silent fail
+    }
+
+    alert("Project successfully posted!");
+    navigate("/browseprojects");
   };
 
   return (

@@ -64,39 +64,56 @@ const GraduateSignUp = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const year = parseInt(formData.studentId.substring(0, 4), 10);
-    if (year < 2008 || year > new Date().getFullYear()) {
-      alert('Invalid Student ID');
-      return;
-    }
+  const year = parseInt(formData.studentId.substring(0, 4), 10);
+  if (year < 2008 || year > new Date().getFullYear()) {
+    alert('Invalid Student ID');
+    return;
+  }
 
-    const form = new FormData();
-    form.append('userType', 'graduate');
-    form.append('studentId', formData.studentId);
-    form.append('fullName', formData.fullName);
-    form.append('email', formData.email);
-    form.append('password', formData.password);
-    form.append('major', formData.major);
-    form.append('phone', formData.contactNumber);
-    form.append('expertise', JSON.stringify(formData.expertise));
-    form.append('cpr', formData.cpr);
+  const form = new FormData();
+  form.append('userType', 'graduate');
+  form.append('studentId', formData.studentId);
+  form.append('fullName', formData.fullName);
+  form.append('email', formData.email);
+  form.append('password', formData.password);
+  form.append('major', formData.major);
+  form.append('phone', formData.contactNumber);
+  form.append('expertise', JSON.stringify(formData.expertise));
+  form.append('cpr', formData.cpr);
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/freelancer/graduate-register', form, {
+  try {
+    const response = await axios.post(
+      'http://localhost:5000/api/freelancer/graduate-register',
+      form,
+      {
         headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('Account Created! Waiting for admin verification.');
-        navigate('/signin');
       }
-    } catch (error) {
-      console.error('Graduate signup failed:', error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Signup failed.');
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      alert('Account Created! Waiting for admin verification.');
+
+      //  Try sending notification to admin
+      try {
+        await axios.post("http://localhost:5000/api/notifications/send", {
+          userType: "admin",
+          subject: "New Graduate Freelancer Signup",
+          message: `${formData.fullName} has registered as a graduate freelancer and is awaiting approval.`,
+          type: "info"
+        });
+      } catch (notifyErr) {
+        console.warn("⚠️ Admin notification failed:", notifyErr.message);
+      }
+
+      navigate('/signin');
     }
-  };
+  } catch (error) {
+    console.error('Graduate signup failed:', error.response?.data || error.message);
+    alert(error.response?.data?.message || 'Signup failed.');
+  }
+};
 
   return (
     <div className="graduate-body">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../Style/ProjectDetailsPage.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
@@ -13,6 +13,7 @@ import {
 
 const ProjectDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1);
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,9 @@ const ProjectDetails = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/projects/${id}`
+        );
         setProject(response.data);
       } catch (error) {
         console.error("Error fetching project details:", error);
@@ -52,17 +55,20 @@ const ProjectDetails = () => {
 
     fetchProject();
   }, [id]);
-
   useEffect(() => {
     const checkIfApplied = async () => {
-      if (role === "freelancer") {
+      if (role === "freelancer" && userId && project?._id) {
         try {
-          const res = await axios.get(`http://localhost:5000/api/applications/check`, {
-            params: {
-              freelancerId: userId,
-              projectId: id,
-            },
-          });
+          const res = await axios.get(
+            `http://localhost:5000/api/applications/check`,
+            {
+              params: {
+                freelancerId: userId,
+                projectId: project._id,
+              },
+            }
+          );
+
           if (res.data?.applied) {
             setApplied(true);
           }
@@ -73,7 +79,7 @@ const ProjectDetails = () => {
     };
 
     checkIfApplied();
-  }, [userId, id, role]);
+  }, [role, userId, project]);
 
   const handleApply = async () => {
     try {
@@ -83,11 +89,20 @@ const ProjectDetails = () => {
         authorId: project.authorId,
       });
 
+      // If the application is accepted
       alert("Successfully applied to this project!");
       setApplied(true);
     } catch (error) {
-      console.error("Error applying to project:", error);
-      alert(error.response?.data?.message || "Already applied or error occurred.");
+      const message = error.response?.data?.message;
+
+      // If already applied (backend message)
+      if (message?.toLowerCase().includes("already")) {
+        alert("You have already applied to this project.");
+        setApplied(true); // Reflect immediately
+      } else {
+        console.error("Error applying to project:", error);
+        alert("An error occurred while applying.");
+      }
     }
   };
 
@@ -101,13 +116,15 @@ const ProjectDetails = () => {
         <h2>{project.title}</h2>
         <div className="details-layout">
           <div className="left">
-            <h4>Author / Organization:</h4>
-            <p>{project.authorName || "Unknown"}</p>
+            <h4>Author:</h4>
+            <p>
+              {project.authorId?.fullName || project.authorName || "Unknown"}
+            </p>
 
             <h4>Project Brief:</h4>
             <p>{project.brief}</p>
 
-            <h4>Budget/Price:</h4>
+            <h4>Budget:</h4>
             <p>{project.budget} BHD</p>
 
             <h4>Duration:</h4>
@@ -141,14 +158,22 @@ const ProjectDetails = () => {
             ) : (
               <p>No project files uploaded</p>
             )}
-
-            {role === "freelancer" && (
+            {role === "freelancer" && project.status === "Open" && (
               <button
-                className="apply-btn"
-                onClick={handleApply}
+                className={`apply-btn ${applied ? "applied" : ""}`}
+                onClick={!applied ? handleApply : undefined}
                 disabled={applied}
               >
-                {applied ? "Applied" : "Apply for this Project"}
+                {applied ? "Already Applied" : "Apply for this Project"}
+              </button>
+            )}
+
+            {role === "client" && storedUser?._id === project.authorId?._id && (
+              <button
+                className="edit-btn"
+                onClick={() => navigate(`/edit-project/${project._id}`)}
+              >
+                Edit Project
               </button>
             )}
           </div>

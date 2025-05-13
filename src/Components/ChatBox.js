@@ -5,12 +5,15 @@ import "../Style/ChatBox.css";
 
 const socket = io("http://localhost:5000");
 
-const ChatBox = ({ userId, otherUserId, role, closeChat }) => {
+const ChatBox = ({ userId, otherUserId, role, assignmentId, closeChat }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const roomId = [userId, otherUserId].sort().join("-");
+
+  const roomId = assignmentId ? `assignment-${assignmentId}` : null;
 
   useEffect(() => {
+    if (!roomId) return;
+
     socket.emit("joinRoom", roomId);
 
     const loadMessages = async () => {
@@ -35,8 +38,8 @@ const ChatBox = ({ userId, otherUserId, role, closeChat }) => {
 
   const sendMessage = () => {
     if (!input.trim()) return;
-    if (!userId || !otherUserId) {
-      console.error("❌ senderId or receiverId is missing!");
+    if (!userId || !otherUserId || !roomId) {
+      console.error("❌ senderId, receiverId, or roomId is missing!");
       return;
     }
 
@@ -49,8 +52,8 @@ const ChatBox = ({ userId, otherUserId, role, closeChat }) => {
       receiverRole: role === "Client" ? "Freelancer" : "Client"
     };
 
-    socket.emit("sendMessage", message); // backend will emit it back
-    setInput(""); // do not add to local messages to avoid duplication
+    socket.emit("sendMessage", message);
+    setInput("");
   };
 
   return (
