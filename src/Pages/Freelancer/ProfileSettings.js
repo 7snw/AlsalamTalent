@@ -175,7 +175,7 @@ const ProfileSettings = () => {
 
     const { data } = await axios.put(`http://localhost:5000/api/freelancer/deactivate/${freelancerId}`);
     
-    alert(data.message);
+    showAlert(data.message);
     
     setIsActive(data.isActive);
 
@@ -186,7 +186,7 @@ const ProfileSettings = () => {
 
   } catch (error) {
     console.error('Error deactivating account:', error);
-    alert('Failed to toggle account status.');
+    showAlert('Failed to toggle account status.');
   }
 };
 

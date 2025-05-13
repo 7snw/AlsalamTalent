@@ -12,7 +12,6 @@ import GraduateSignUp from './Pages/GraduateSignUp';
 import LoginPage from './Pages/LoginPage';
 import AboutUs from './Pages/AboutUs';
 import EditProject from './Pages/EditProject';
-import ProjectDetailsPage from './Pages/ProjectDetailsPage';
 import ProjectDetails from './Pages/ProjectDetails';
 import FreelancerProfile from './Pages/FreelancerProfile';
 import FreelancersList from './Pages/FreelancersList';
@@ -41,9 +40,8 @@ import BrowseProjects from './Pages/Clients/BrowseProjects';
 import ProjectProgress from './Pages/Clients/ProjectProgress';
 import ProfileSettingsClient from './Pages/Clients/ProfileSettingsClient';
 import ClientProjects from './Pages/Clients/ClientProjects';
-import ClientNotifications from './Pages/Clients/ClientNotifications';
-import EditProject from './Pages/EditProject';
-import ProjectDetails from './Pages/ProjectDetails';
+//import ClientNotifications from './Pages/Clients/ClientNotifications';
+
 
 
 
@@ -58,6 +56,7 @@ import AdminProjectDetails from './Pages/Admin/AdminProjectDetails';
 import EditUserProfile from './Pages/Admin/EditUserProfile';
 import AuditLogs from './Pages/Admin/AuditLogs';
 import VerificationsList from './Pages/Admin/VerificationsList';
+import AdminNotifications from './Pages/Admin/AdminNotifications'
 
 //const user = JSON.parse(localStorage.getItem("user"));
 
@@ -81,7 +80,6 @@ const App = () => {
           <Route path="/messages" element={<Messages />} />
           <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
           <Route path="/freelancers" element={<FreelancersList />} />
-          <Route path="/notifications" element={<RedirectNotifications />} />
           <Route path="/project-details/:id" element={<ProjectDetails />} />
 
 

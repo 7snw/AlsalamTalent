@@ -38,32 +38,31 @@ const SubmittedProjectDetailsPage = () => {
   }, [id]);
 
   const handleAction = async (actionType) => {
-    if (!assignment) return;
-    try {
-      const statusUpdate =
-        actionType === 'approve'
-          ? 'Completed'
-          : actionType === 'revise'
-          ? 'Re-submit'
-          : 'Declined';
+  if (!assignment) return;
+  try {
+    const statusUpdate =
+      actionType === 'approve'
+        ? 'Completed'
+        : actionType === 'revise'
+        ? 'Re-submit'
+        : 'Declined';
 
-      await axios.put(`http://localhost:5000/api/assignments/${assignment._id}/update-status`, {
-        status: statusUpdate,
-        rating: actionType === 'approve' ? rating : undefined,
-        feedback,
-      });
+    await axios.put(`http://localhost:5000/api/assignments/${assignment._id}/update-status`, {
+      status: statusUpdate,
+      rating: actionType === 'approve' ? rating : undefined,
+      feedback,
+    });
 
-      showAlert('Action submitted successfully.');
-      setSubmitted(true);
-      if (actionType === 'approve') {
-        setPaymentEnabled(true);
-      }
-    } catch (err) {
-      console.error('Error submitting action:', err);
-      showAlert('Something went wrong.');
+    showAlert('Action submitted successfully.');
+    setSubmitted(true);
+    if (actionType === 'approve') {
+      setPaymentEnabled(true);
     }
-    }
-  };
+  } catch (err) {
+    console.error('Error submitting action:', err);
+    showAlert('Something went wrong.');
+  }
+}; 
 
   const handleMockPayment = (method) => {
     setPaymentMethod(method);
@@ -190,6 +189,7 @@ const SubmittedProjectDetailsPage = () => {
       <Footer />
     </div>
   );
+};
 
 
 export default SubmittedProjectDetailsPage;

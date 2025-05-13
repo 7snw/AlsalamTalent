@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import "../Style/ChatBox.css";
@@ -8,8 +8,9 @@ const socket = io("http://localhost:5000");
 const ChatBox = ({ userId, otherUserId, role, assignmentId, closeChat }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const messagesEndRef = useRef(null);
 
-  const roomId = assignmentId ? `assignment-${assignmentId}` : null;
+  const roomId = assignmentId ? `assignment-${assignmentId}` : [userId, otherUserId].sort().join("-");
 
   useEffect(() => {
     if (!roomId) return;
@@ -32,12 +33,18 @@ const ChatBox = ({ userId, otherUserId, role, assignmentId, closeChat }) => {
     });
 
     return () => {
+      socket.emit("leaveRoom", roomId);
       socket.off("receiveMessage");
     };
   }, [roomId]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const sendMessage = () => {
     if (!input.trim()) return;
+
     if (!userId || !otherUserId || !roomId) {
       console.error("❌ senderId, receiverId, or roomId is missing!");
       return;
@@ -53,7 +60,7 @@ const ChatBox = ({ userId, otherUserId, role, assignmentId, closeChat }) => {
     };
 
     socket.emit("sendMessage", message);
-    setInput("");
+    setInput(""); // input cleared, socket will push the message back
   };
 
   return (
@@ -72,6 +79,7 @@ const ChatBox = ({ userId, otherUserId, role, assignmentId, closeChat }) => {
             {m.content}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="chat-input">

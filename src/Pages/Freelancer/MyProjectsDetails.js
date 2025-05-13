@@ -7,7 +7,7 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import uploadIcon from '../../Assets/Upload.png';
 import axios from 'axios';
-import { FiDownload } from 'react-icons/fi';
+import { FiDownload ,FiMessageCircle} from 'react-icons/fi';
 import { AiOutlineClose } from 'react-icons/ai';
 import ChatBox from '../../Components/ChatBox';
 import { showAlert } from '../../utils/toastMessages';
@@ -18,6 +18,8 @@ const MyProjectsDetails = () => {
   const navigate = useNavigate();
   const [assignment, setAssignment] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showChat, setShowChat] = useState(false);
+
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -82,6 +84,8 @@ const MyProjectsDetails = () => {
   const { projectId, status, feedback, docs, rating } = assignment;
 
 
+  const clientId = projectId?.authorId;
+  const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
 
   return (
     <div className="project-progress-page">

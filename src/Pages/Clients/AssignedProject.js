@@ -10,6 +10,7 @@ import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
 
+
 const AssignedProject = () => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ status: [] });
