@@ -43,7 +43,6 @@ router.get("/by-author/:authorId", async (req, res) => {
   }
 });
 
-// ✅ Approve an application and create an assignment
 router.post("/:projectId/approve", async (req, res) => {
   try {
     const { freelancerId } = req.body;
@@ -65,7 +64,6 @@ router.post("/:projectId/approve", async (req, res) => {
     );
 
     const exists = await Assignment.findOne({ projectId, freelancerId });
-
     let assignment;
 
     if (!exists) {
@@ -87,12 +85,14 @@ router.post("/:projectId/approve", async (req, res) => {
       });
 
       await assignment.save();
+
+      // ✅ Update project: link assignmentId and set status to Assigned
       await Project.findByIdAndUpdate(projectId, {
         assignmentId: assignment._id,
+        status: "Assigned"
       });
 
-
-      // ✅ Log approval and assignment using projectId
+      // ✅ Log approval
       await logAction({
         userId: application.authorId,
         action: "Approved Application",
@@ -101,7 +101,7 @@ router.post("/:projectId/approve", async (req, res) => {
     }
 
     res.json({
-      message: "Application approved and assignment created.",
+      message: "Application approved, assignment created, and project marked as Assigned.",
       updatedApplication,
     });
   } catch (error) {
@@ -191,6 +191,24 @@ router.post("/create", async (req, res) => {
   } catch (error) {
     console.error("Error creating application:", error);
     res.status(500).json({ message: "Error submitting application", error: error.message });
+  }
+});
+
+//  Check if a freelancer has already applied to a project
+router.get("/check", async (req, res) => {
+  try {
+    const { freelancerId, projectId } = req.query;
+
+    if (!freelancerId || !projectId) {
+      return res.status(400).json({ message: "Missing freelancerId or projectId" });
+    }
+
+    const application = await Application.findOne({ projectId, freelancerId });
+
+    res.json({ applied: !!application });
+  } catch (error) {
+    console.error("Error checking application status:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 

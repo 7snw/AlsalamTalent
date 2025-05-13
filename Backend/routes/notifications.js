@@ -5,6 +5,7 @@ const Notification = require('../models/Notification');
 const Admin = require('../models/Admin');
 const Client = require('../models/Client');
 const Freelancer = require('../models/Freelancer');
+const sendNotification = require('../utils/sendNotification');
 
 // ✅ Utility to get user details from their role
 async function getUserDetails(userId, role) {
@@ -59,6 +60,67 @@ router.get('/:userId/:userType', async (req, res) => {
   } catch (err) {
     console.error('❌ Backend error in /notifications:', err);
     res.status(500).json({ message: 'Internal server error', error: err.message });
+  }
+});
+
+
+
+router.post('/send', async (req, res) => {
+  try {
+    let { userId, userType, subject, message, type } = req.body;
+
+    if (userType === 'admin' && !userId) {
+      const admin = await Admin.findOne();
+      if (!admin) {
+        return res.status(404).json({ message: 'No admin found' });
+      }
+      userId = admin._id;
+    }
+
+    if (!userId || !userType || !subject || !message) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    await sendNotification({
+      userId,
+      userType,
+      subject,
+      message,
+      type: type || 'info'
+    });
+
+    res.status(200).json({ message: 'Notification sent successfully' });
+  } catch (err) {
+    console.error('❌ Error in /send:', err.message);
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+router.post('/broadcast', async (req, res) => {
+  const { role, subject, message, type } = req.body;
+
+  if (!role || !subject || !message) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    if (role === "freelancer") {
+      const freelancers = await Freelancer.find({}, "_id");
+      for (const freelancer of freelancers) {
+        await sendNotification({
+          userId: freelancer._id,
+          userType: "freelancer",
+          subject,
+          message,
+          type: type || "info"
+        });
+      }
+    }
+
+    res.status(200).json({ message: "Broadcast notifications sent successfully." });
+  } catch (error) {
+    console.error("❌ Broadcast error:", error);
+    res.status(500).json({ message: "Failed to broadcast notification." });
   }
 });
 

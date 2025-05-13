@@ -135,6 +135,21 @@ const ProjectProgress = () => {
             )}
           </div>
         </div>
+
+        <button onClick={() => setShowChat(true)} className="open-chat-btn">
+          <FiMessageCircle />
+        </button>
+
+        {showChat && (
+  <ChatBox
+    userId={clientId}
+    otherUserId={freelancerId}
+    role="Client"
+    assignmentId={assignment._id}  // ✅ Add this
+    closeChat={() => setShowChat(false)}
+  />
+)}
+
       </div>
       <Footer />
     </div>

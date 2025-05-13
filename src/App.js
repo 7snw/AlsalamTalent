@@ -39,6 +39,9 @@ import BrowseProjects from './Pages/Clients/BrowseProjects';
 import ProjectProgress from './Pages/Clients/ProjectProgress';
 import ProfileSettingsClient from './Pages/Clients/ProfileSettingsClient';
 import ClientProjects from './Pages/Clients/ClientProjects';
+import ClientNotifications from './Pages/Clients/ClientNotifications';
+import EditProject from './Pages/EditProject';
+import ProjectDetails from './Pages/ProjectDetails';
 
 
 
@@ -69,13 +72,13 @@ const App = () => {
   <Route path="/graduatesignup" element={<GraduateSignUp />} />
   <Route path="/aboutus" element={<AboutUs />} />
 
-  {/* Shared Authenticated Pages */}
-  <Route element={<RoleProtectedLayout allowedRoles={["Freelancer", "Client", "Admin"]} />}>
-    <Route path="/messages" element={<Messages />} />
-    <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
-    <Route path="/freelancers" element={<FreelancersList />} />
-        <Route path="/project-info/:id" element={<ProjectDetailsPage />} />
-            <Route path="/project-details/:id" element={<ProjectDetails />} />
+        {/* Shared Protected */}
+        <Route element={<RoleProtectedLayout allowedRoles={["Freelancer", "Client", "Admin"]} />}>
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
+          <Route path="/freelancers" element={<FreelancersList />} />
+          <Route path="/notifications" element={<RedirectNotifications />} />
+                              <Route path="/project-details/:id" element={<ProjectDetails />} />
 
 
   </Route>

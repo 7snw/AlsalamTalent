@@ -204,6 +204,20 @@ const MyProjectsDetails = () => {
                 {status === 'Declined' || status === 'Re-submit' ? 'Re-submit Project' : 'Submit Project'}
               </button>
             </div>
+
+            <button onClick={() => setShowChat(true)} className="open-chat-btn">
+              <FiMessageCircle />
+            </button>
+
+            {showChat &&(
+              <ChatBox
+                userId={freelancerId}
+                otherUserId={clientId}
+                role="Freelancer"
+                assignmentId={assignment._id}  // ✅ Add this
+                closeChat={() => setShowChat(false)}
+              />
+            )}
           </div>
         </div>
 
