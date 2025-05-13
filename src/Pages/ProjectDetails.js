@@ -175,7 +175,7 @@ const ProjectDetails = () => {
 
             {role === "client" && storedUser?._id === project.authorId?._id && (
               <button
-                className="edit-btn"
+                className="mod-btn5"
                 onClick={() => navigate(`/edit-project/${project._id}`)}
               >
                 Edit Project

@@ -72,7 +72,7 @@ const UsersList = () => {
 
                 <div className="users-meta">
                   <button
-                    className="edit-btn"
+                    className="edit-btn1"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/edituser/${user._id}`);
