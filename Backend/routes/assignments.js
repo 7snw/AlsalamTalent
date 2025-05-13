@@ -76,12 +76,15 @@ router.put('/:id/update-status', async (req, res) => {
 
     const freelancerId = updated.freelancerId;
 
-    if (status === 'Completed') {
-      await Freelancer.findByIdAndUpdate(freelancerId, { rating });
+if (status === 'Completed') {
+  await Freelancer.findByIdAndUpdate(freelancerId, { rating });
+  await Project.findByIdAndUpdate(updated.projectId, { status: "Completed" });
+}
 
-      // ✅ Update project status to Completed
-      await Project.findByIdAndUpdate(updated.projectId, { status: "Completed" });
-    }
+if (status === 'Submitted') {
+  await Project.findByIdAndUpdate(updated.projectId, { status: "Submitted" });
+}
+
 
     // ✅ Log based on status
     let actionLabel = 'Updated Assignment Status';

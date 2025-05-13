@@ -41,21 +41,6 @@
   margin: 0 0 10px;
 }
 
-/* ✅ Unified button style */
-.left button,
-.edit-btn9 {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 18px; /* consistent */
-  padding: 10px 24px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  min-width: 160px;
-  width: fit-content;
-}
 
 /* Primary button */
 .left button {
@@ -64,12 +49,6 @@
   margin-top: 6px;
 }
 
-/* Orange edit button */
-.edit-btn9 {
-  margin-top: 25px;
-  background-color: #EE582B;
-  color: white;
-}
 
 .left button:disabled {
   cursor: not-allowed;
@@ -91,9 +70,42 @@
   object-fit: cover;
   margin-top: -300px;
 }
-.download-btn{
-  border-radius: 18px;
-}
+.download-btn2 {
+    display: inline-block;
+    background-color: #1b223c;
+    color: #ffffff;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    padding: 10px 20px;
+    border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  }
+  
+  .download-btn2:hover {
+    background-color: #343c5c;
+  }
 .edit-btn{
-  border-radius: 18px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.edit-btn:hover{
+      background-color: #343c5c;
+}
+.apply-btn{
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  min-width: 160px;
+  width: fit-content;
+  font-size: 14px;
+  font-weight: 500;
+
+}
+.apply-btn:hover{
+      background-color: #343c5c;
+
 }

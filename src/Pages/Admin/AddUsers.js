@@ -42,7 +42,7 @@ const handleSubmit = async (e) => {
     }
   } catch (err) {
     logError('Failed to create client: ' + (err.response?.data?.message || err.message));
-    alert(err.response?.data?.message || 'Failed to create client.');
+    showAlert(err.response?.data?.message || 'Failed to create client.');
   }
 };
 

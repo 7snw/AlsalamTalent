@@ -15,6 +15,8 @@ import { NavConfig2 } from "../../Data/NavbarConfigs";
 import SearchIcon from "../../Assets/search.png";
 import Footer from "../../Components/Footer";
 import axios from "axios";
+import { showAlert } from '../../utils/toastMessages';
+
 
 const FreelancerHome = () => {
   const navigate = useNavigate();
@@ -88,7 +90,7 @@ const FreelancerHome = () => {
     console.log("Matched Projects:", res.data);
     
     if (res.data.length === 0) {
-      alert("No matched projects found.");
+      showAlert("No matched projects found.");
       return;
     }
 

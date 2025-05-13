@@ -6,7 +6,8 @@ import ChatIcon from '../Assets/Chat.png';
 import BellIcon from '../Assets/Bell.png';
 import DefaultUserIcon from '../Assets/User.png';
 import axios from 'axios';
-import { showError, showInfo } from '../utils/toastMessages'; // adjust path
+import { showError, showInfo, showAlert } from '../utils/toastMessages'; // adjust path
+
 
 
 const Navbar = ({ links = [] }) => {
@@ -129,7 +130,7 @@ const handleSignOut = () => {
     } else if (role === 'admin') {
       navigate('/admin-notifications');
     } else {
-      alert('Unknown role. Cannot open notifications.');
+      showAlert('Unknown role. Cannot open notifications.');
     }
   }}
 />

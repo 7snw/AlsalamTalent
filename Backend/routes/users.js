@@ -3,7 +3,6 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-
 const Admin = require('../models/Admin');
 const Client = require('../models/Client');
 const Freelancer = require('../models/Freelancer');

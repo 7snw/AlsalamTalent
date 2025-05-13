@@ -4,6 +4,8 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import '../../Style/Notifications.css';
 import { NavConfig4 } from "../../Data/NavbarConfigs";
+import { showAlert } from '../../utils/toastMessages';
+
 
 const AdminNotifications = () => {
   const [user, setUser] = useState(null);
@@ -24,7 +26,7 @@ const AdminNotifications = () => {
         })
         .catch((err) => {
           console.error("❌ Error fetching admin notifications:", err);
-          alert("Failed to fetch notifications.");
+          showAlert("Failed to fetch notifications.");
         })
         .finally(() => setLoading(false));
     } else {

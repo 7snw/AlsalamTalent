@@ -10,6 +10,8 @@ import {
   NavConfig3,
   NavConfig4,
 } from "../Data/NavbarConfigs";
+import { showAlert } from '../utils/toastMessages';
+
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -90,18 +92,18 @@ const ProjectDetails = () => {
       });
 
       // If the application is accepted
-      alert("Successfully applied to this project!");
+      showAlert("Successfully applied to this project!");
       setApplied(true);
     } catch (error) {
       const message = error.response?.data?.message;
 
       // If already applied (backend message)
       if (message?.toLowerCase().includes("already")) {
-        alert("You have already applied to this project.");
+        showAlert("You have already applied to this project.");
         setApplied(true); // Reflect immediately
       } else {
         console.error("Error applying to project:", error);
-        alert("An error occurred while applying.");
+        showAlert("An error occurred while applying.");
       }
     }
   };
@@ -148,7 +150,7 @@ const ProjectDetails = () => {
                     href={file.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="download-btn"
+                    className="download-btn2"
                     download
                   >
                     {file.name}

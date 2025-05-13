@@ -5,23 +5,21 @@
   background-color: #E6E7E8;
   min-height: 100vh;
   padding: 0 6%;
-  padding-top: 120px; 
-
+  padding-top: 120px;
 }
 
 .post-project-container {
   max-width: 750px;
-  margin: 5px auto 50px; /* ⬅️ reduce top space */
+  margin: 5px auto 50px;
   padding: 1px 40px 30px;
   background-color: transparent;
   margin-bottom: 100px;
-
 }
 
 .post-project-container h2 {
   font-size: 30px;
   color: #1B223C;
-  margin: 10px 0 25px; /* ⬅️ reduce top spacing */
+  margin: 10px 0 25px;
 }
 
 .post-project-form label {
@@ -69,7 +67,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;  
+  gap: 20px;
   background-color: #1B223C;
   color: #e0e0e0;
   padding: 10px 24px;
@@ -81,9 +79,7 @@
   border: none;
   width: fit-content;
   min-width: 160px;
-  
 }
-
 
 .post-project-upload-icon {
   width: 18px;
@@ -91,15 +87,8 @@
   object-fit: contain;
 }
 
-
 .post-project-file-input {
   display: none;
-}
-
-.post-project-filename {
-  font-size: 13px;
-  color: #1B223C;
-  margin-top: 6px;
 }
 
 .post-project-actions {
@@ -111,15 +100,16 @@
 .post-project-button {
   padding: 12px 24px;
   font-size: 16px;
-  border-radius: 18px;
-  cursor: pointer;
   font-weight: 500;
   min-width: 160px;
   text-align: center;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
 }
 
 /* Reuse same class for post and attach buttons */
@@ -128,11 +118,47 @@
   color: #e0e0e0;
 }
 
-
 .post-project-button.cancel {
   background-color: #EE582B;
   color: #ffffff;
-
 }
 
+/* ✅ NEW STYLES for file list display */
+
+.post-project-filename-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.post-project-filename-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f4f4f4;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1B223C;
+}
+
+.post-project-remove-btn {
+  background: none;
+  border: none;
+  color: #b30000;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.post-project-remove-btn:hover {
+  color: #fa7979;
+}
+.post-project-image-preview {
+  margin-top: 10px;
+  margin-bottom: 20px; /* ⬅️ Add more space below image preview */
+}
 

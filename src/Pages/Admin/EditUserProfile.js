@@ -6,6 +6,7 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
+import { showAlert } from '../../utils/toastMessages';
 
 const EditUserProfile = () => {
   const { userId } = useParams();
@@ -55,11 +56,11 @@ const EditUserProfile = () => {
   
       await axios.put(`http://localhost:5000/api/client/${userId}`, payload);
   
-      alert('User updated successfully!');
+      showAlert('User updated successfully!');
       navigate('/clientlist');
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('Failed to update user.');
+      showAlert('Failed to update user.');
     }
   };
   

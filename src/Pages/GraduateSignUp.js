@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import '../Style/GraduateSignUp.css';
 import { FaArrowLeft } from 'react-icons/fa';
 import axios from 'axios';
+import { showAlert } from '../utils/toastMessages';
+
 
 const expertiseOptions = [
   "Marketing Consultant",
@@ -68,7 +70,7 @@ const GraduateSignUp = () => {
 
   const year = parseInt(formData.studentId.substring(0, 4), 10);
   if (year < 2008 || year > new Date().getFullYear()) {
-    alert('Invalid Student ID');
+    showAlert('Invalid Student ID');
     return;
   }
 
@@ -93,7 +95,7 @@ const GraduateSignUp = () => {
     );
 
     if (response.status === 200 || response.status === 201) {
-      alert('Account Created! Waiting for admin verification.');
+      showAlert('Account Created! Waiting for admin verification.');
 
       //  Try sending notification to admin
       try {
@@ -111,7 +113,7 @@ const GraduateSignUp = () => {
     }
   } catch (error) {
     console.error('Graduate signup failed:', error.response?.data || error.message);
-    alert(error.response?.data?.message || 'Signup failed.');
+    showAlert(error.response?.data?.message || 'Signup failed.');
   }
 };
 

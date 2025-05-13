@@ -4,6 +4,8 @@ import "../Style/Login.css";
 import LoginPhoto from "../Assets/LoginPhoto.png";
 import axios from "axios";
 import { FaArrowLeft } from "react-icons/fa";
+import { showAlert } from '../utils/toastMessages';
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -25,7 +27,7 @@ const LoginPage = () => {
       console.log("✅ Login response received:", userData); // ✅ Confirm response
 
       if (!userData || !userData.id || !userData.role) {
-        alert("Invalid response from server.");
+        showAlert("Invalid response from server.");
         return;
       }
 
@@ -48,11 +50,11 @@ const LoginPage = () => {
       } else if (user.role === "freelancer") {
         navigate("/freelancer-home");
       } else {
-        alert("Unknown role detected");
+        showAlert("Unknown role detected");
       }
     } catch (err) {
       console.error("❌ Login error:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Login failed. Try again.");
+      showAlert(err.response?.data?.message || "Login failed. Try again.");
     }
   };
 

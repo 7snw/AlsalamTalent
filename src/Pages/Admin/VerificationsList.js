@@ -7,6 +7,8 @@ import '../../Style/PageContents.css';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import Navbar from '../../Components/Navbar';
+import { showAlert } from '../../utils/toastMessages';
+
 
 const VerificationsList = () => {
   const [allFreelancers, setAllFreelancers] = useState([]);
@@ -51,11 +53,11 @@ const VerificationsList = () => {
     if (!window.confirm('Verify this freelancer?')) return;
     try {
       const res = await axios.post('http://localhost:5000/api/admin/verify', { freelancerId });
-      alert(res.data.message);
+      showAlert(res.data.message);
       fetchFreelancers(); // Refresh list
     } catch (err) {
       console.error('Verification error:', err);
-      alert(err.response?.data?.message || 'Verification failed.');
+      showAlert(err.response?.data?.message || 'Verification failed.');
     }
   };
 

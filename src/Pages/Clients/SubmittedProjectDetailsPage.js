@@ -8,6 +8,8 @@ import Footer from '../../Components/Footer';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import axios from 'axios';
 import { FiDownload } from 'react-icons/fi';
+import { showAlert } from '../../utils/toastMessages';
+
 
 const SubmittedProjectDetailsPage = () => {
   const { id } = useParams();
@@ -52,12 +54,12 @@ const SubmittedProjectDetailsPage = () => {
         }
       );
 
-      alert('Action submitted successfully.');
+      showAlert('Action submitted successfully.');
       setSubmitted(true);
       navigate(-1);
     } catch (err) {
       console.error('Error submitting action:', err);
-      alert('Something went wrong.');
+      showAlert('Something went wrong.');
     }
   };
 
