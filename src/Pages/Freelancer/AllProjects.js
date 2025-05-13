@@ -92,8 +92,10 @@ const AllProjects = () => {
           <div className="filter-section">
             <h3>Filter</h3>
             <div className="filter-group">
+               <p className="hint">Filter the projects according to their type and budget range.</p>
               <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
+
+              {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
@@ -106,7 +108,7 @@ const AllProjects = () => {
             </div>
             <div className="filter-group">
               <h4>Budget</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
+              {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
                 <label key={range}>
                   <input
                     type="checkbox"

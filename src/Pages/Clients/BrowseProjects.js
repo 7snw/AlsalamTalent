@@ -74,11 +74,11 @@ const BrowseProjects = () => {
           <h1 className="page-title">My Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their type and budget range.</p>
-
             <div className="filter-group">
+               <p className="hint">Filter the projects according to their type and budget range.</p>
               <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'].map((type) => (
+
+              {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
@@ -89,17 +89,16 @@ const BrowseProjects = () => {
                 </label>
               ))}
             </div>
-
             <div className="filter-group">
               <h4>Budget</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((budget) => (
-                <label key={budget}>
+              {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
+                <label key={range}>
                   <input
                     type="checkbox"
-                    checked={filters.budget.includes(budget)}
-                    onChange={() => handleCheckbox('budget', budget)}
+                    checked={filters.budget.includes(range)}
+                    onChange={() => handleCheckbox('budget', range)}
                   />{' '}
-                  {budget}
+                  {range}
                 </label>
               ))}
             </div>

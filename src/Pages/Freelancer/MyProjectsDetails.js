@@ -7,22 +7,19 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import uploadIcon from '../../Assets/Upload.png';
 import axios from 'axios';
-import { FiDownload,FiMessageCircle  } from 'react-icons/fi';
+import { FiDownload } from 'react-icons/fi';
 import { AiOutlineClose } from 'react-icons/ai';
-import ChatBox from '../../Components/ChatBox';
 
 const MyProjectsDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [assignment, setAssignment] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     const fetchAssignment = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/api/assignments/${id}`);
-        console.log("📦 assignment:", res.data);
         setAssignment(res.data);
       } catch (error) {
         console.error('Error fetching assignment:', error);
@@ -80,8 +77,8 @@ const MyProjectsDetails = () => {
   if (!assignment) return <p>Loading...</p>;
 
   const { projectId, status, feedback, docs, rating } = assignment;
-  const clientId = projectId?.authorId;
-  const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
+
+
 
   return (
     <div className="project-progress-page">
@@ -89,16 +86,24 @@ const MyProjectsDetails = () => {
       <div className="progress-container">
         <h2>{projectId?.title || 'Project Details'}</h2>
 
-        {(status === 'Declined' || status === 'Re-submit' || status === 'Completed') && (
+       {(status === 'Declined' || status === 'Re-submit' || status === 'Completed') && (
+
           <div className="feedback-box">
             <h3>Client Feedback:</h3>
             <p>{feedback || 'No feedback provided.'}</p>
-            <div className="starss">
-              <strong>Rating:</strong>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span key={star} className={rating >= star ? 'filled' : ''}>★</span>
-              ))}
-            </div>
+            
+              <div className="starss">
+                <strong>Rating:</strong>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={rating >= star ? 'filled' : ''}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+          
           </div>
         )}
 
@@ -199,19 +204,6 @@ const MyProjectsDetails = () => {
                 {status === 'Declined' || status === 'Re-submit' ? 'Re-submit Project' : 'Submit Project'}
               </button>
             </div>
-
-            <button onClick={() => setShowChat(true)} className="open-chat-btn">
-              <FiMessageCircle />
-            </button>
-
-            {showChat && clientId && freelancerId && (
-              <ChatBox
-                userId={freelancerId}
-                otherUserId={clientId}
-                role="Freelancer"
-                closeChat={() => setShowChat(false)}
-              />
-            )}
           </div>
         </div>
 

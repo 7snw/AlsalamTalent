@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Style/Navbar.css';
-import Logo from '../Assets/Logo.jpg';
+import Logo from '../Assets/Logo.png';
 import ChatIcon from '../Assets/Chat.png';
 import BellIcon from '../Assets/Bell.png';
 import DefaultUserIcon from '../Assets/User.png';
@@ -74,7 +74,7 @@ const Navbar = ({ links = [] }) => {
       <div className="nav-left">
         <div className="logo-title" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
           <img src={Logo} alt="Logo" className="logo-image" />
-          <span className="site-name">Al Salam Talents</span>
+         
         </div>
 
         <ul className="nav-links">
@@ -155,7 +155,7 @@ const Navbar = ({ links = [] }) => {
       )}
 
       {showSignIn && (
-        <button className="sign-in-btn" onClick={() => navigate('/signin')}>
+        <button className="sign-in-btn2" onClick={() => navigate('/signin')}>
           Sign In
         </button>
       )}

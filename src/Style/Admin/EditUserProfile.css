@@ -1,8 +1,8 @@
 .settings-page {
   background-color: #E6E7E8;
-  font-family: 'Segoe UI', sans-serif;
+font-family: 'TT Hoves', sans-serif;
   min-height: 100vh;
-  padding-bottom: 20px;
+  padding-bottom: 0px;
   margin-left: 130px;
   margin-right: 91px;
   padding-top: 120px; 
@@ -101,7 +101,7 @@
 .settings-upload-pic-btn,
 .settings-delete-btn {
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 18px;
   border: none;
   font-size: 14px;
   margin-right: 10px;
@@ -124,7 +124,7 @@
   font-size: 16px;
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 18px;
   cursor: pointer;
   
 }

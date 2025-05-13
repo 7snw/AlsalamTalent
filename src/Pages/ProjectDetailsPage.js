@@ -76,7 +76,7 @@ const ProjectDetailsPage = () => {
             <h4>Project Brief:</h4>
             <p>{project.brief}</p>
 
-            <h4>Budget/Price:</h4>
+            <h4>Budget:</h4>
             <p>{project.budget} BHD</p>
 
             <h4>Duration:</h4>

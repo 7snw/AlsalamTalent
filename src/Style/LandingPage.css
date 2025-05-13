@@ -3,7 +3,7 @@
 .landing-body, html {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'TT Hoves', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
   
@@ -17,7 +17,7 @@
   padding: 0 6%;
   box-sizing: border-box;
   margin-bottom: 90px;
-  margin-top: 150px; 
+  margin-top: 160px; 
 
 }
 
@@ -38,20 +38,23 @@
   flex: 3;
 }
 
+.text-section p {
+margin-left: 0px;
+}
+
 .subheading {
-  letter-spacing: 4px;
-  color: #1B223C;
-  margin-bottom: 26px;
-  font-size: 14px;
-  margin-left: 5px;
-  margin-top: -0px;
+  font-style: italic;
+  color: #1b223cd7;
+  font-size: 19px;
+  margin-bottom: 20px;
 }
 
 h1 {
   font-size: 75px;
   color: #1B223C;
-  margin: 5px 0;
+  margin: 0px;
   line-height: 1.1;
+
 }
 
 .highlight {
@@ -79,7 +82,7 @@ h1 {
   color: white;
   border: none;
   padding: 12px 25px;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 16px;
   cursor: pointer;
  
@@ -90,7 +93,7 @@ h1 {
   border: 2px solid #EE582B;
   color: #1B223C;
   padding: 10px 25px;
-  border-radius: 20px;
+  border-radius: 18px;
   font-size: 16px;
   cursor: pointer;
   margin-left: -8px;
@@ -108,7 +111,7 @@ h1 {
   max-width: 500px;
   height: auto;
   object-fit: contain;
-  margin-top: 10px;
+  margin-top: 0px;
 
 }
 
@@ -122,6 +125,7 @@ h1 {
 
 .cards-heading {
   font-size: 36px;
+  margin-top: 100px;
   font-weight: bold;
   color: #1B223C;
   margin-bottom: 100px;

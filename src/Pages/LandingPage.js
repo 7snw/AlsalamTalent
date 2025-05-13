@@ -30,13 +30,14 @@ const LandingPage = () => {
 
         <div className="landing-content">
           <div className="text-section">
-            <p className="subheading">BUILD &nbsp; YOUR &nbsp; CAREER</p>
+            <p className="subheading">"Undo limits, redo possibilities"</p>
             <h1>
             Your   <span className="highlight">Freelancing</span><br />
             Journey Starts <br /> Here.
             </h1>
             <p className="description">
-            Gain real-world experience through  impactful,<br/> hands-on projects from Al Salam Bank.
+          Ctrl-Z connects Bahrain Polytechnic students and graduates <br/>
+          with exciting freelance opportunities. Swipe, match, and collaborate!
             </p>
             <div className="button-group">
               <button className="primary-btn" onClick={() => navigate('/studentgraduate')}>

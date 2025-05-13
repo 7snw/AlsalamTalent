@@ -1,9 +1,9 @@
 
 .admin-settings-page {
   background-color: #E6E7E8;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'TT Hoves', sans-serif;
   min-height: 100vh;
-  padding-bottom: 20px;
+  padding-bottom: 0px;
   margin-left: 91px;
   margin-right: 91px;
   padding-top: 120px; 
@@ -99,7 +99,7 @@
 .admin-delete-btn,
 .admin-save-btn {
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 18px;
   border: none;
   font-size: 14px;
   margin-right: 10px;

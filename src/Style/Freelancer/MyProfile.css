@@ -1,11 +1,11 @@
 
 .freelancer-profile2 {
   background-color: #E6E7E8;
-  font-family: 'Segoe UI', sans-serif;
+font-family: 'TT Hoves', sans-serif;
   min-height: 100vh;
   margin-left: 91px;
   margin-right: 91px;
-  padding-bottom: 20%;
+  padding-bottom: 0%;
   padding-top: 150px; 
   
 }
@@ -16,7 +16,7 @@
   margin-right: 91px;
   padding-top: 0px;
   margin-top: 0;
-  margin-bottom: 1000px;
+  margin-bottom: 500px;
 }
 
 .profile-header2 {
@@ -83,7 +83,7 @@
 .about-section2 {
   color: #1b223c;
   font-size: 14px;
-  line-height: 1.6;
+
 }
 
 .about-section2 h4 {
@@ -93,37 +93,32 @@
   
 }
 
-.about-section2 p {
-  margin-top: 0;
-  margin-bottom: 6px;
-}
-
-.basic-info2 {
-  margin-bottom: 10px;
 
 
+.basic-info2 p {
+  margin-bottom: 0px;
+ font-size: 14px;
+  line-height: 1;
 }
 
 
 .bio-info2,
 .skills-info2,
 .specialties-info2 {
-  margin-bottom: 3px;
-  
+  margin-top: 30px;
+    line-height: 1.4;
+    
 }
 
-.basic-info2 p {
-  font-size: 14px;
-  margin: 10;
-  font-weight: 600;
-}
+
 
 .bio-info2 p,
 .skills-info2 p,
 .specialties-info2 p {
   font-size: 14px;
-  margin: 10;
+ margin-top: 0px;
 }
+
 
 .portfolio-section2 {
   margin-top: 20px;

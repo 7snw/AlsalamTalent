@@ -3,7 +3,7 @@
 .about-body {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'TT Hoves', sans-serif;
   height: 100%;
   background-color: #E6E7E8;
   padding-top: 120px; 
@@ -24,7 +24,8 @@
 .about-container h1 {
   font-size: 40px;
   font-weight: bold;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+  margin-top: 30px;
   margin-left: -2px;
   color: #1B223C;
   padding-left: 90px;
@@ -37,19 +38,45 @@
 
 .about-container p {
   font-size: 17px;
-  line-height: 1.8;
-  margin-bottom: 25px;
+  line-height: 1.4;
+  margin-bottom: 0px;
   color: #4B4B4B;
   padding-left: 90px;
   padding-right: 90px;
 }
 
-
-.sign-in-btn {
-  background-color: #1B223C;
-  color: #fff;
-  padding: 10px 22px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.ctrl p {
+    font-style: italic;
+  color: #1b223cd7;
+  font-size: 17px;
+  margin-bottom: 20px;
 }
+
+.ctrl h4 {
+  color: #1B223C;
+  margin-left: 90px;
+   margin-bottom: -10px;
+      margin-top: 0px;
+       font-style: italic;
+  font-size: 17px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 28px;
+  margin-top: 40px;
+  margin-bottom: 2px;
+  color: #1B223C;
+  padding-left: 90px;
+  padding-right: 90px;
+}
+
+.value-list {
+  list-style-type: disc;
+  padding-left: 110px;
+  padding-right: 90px;
+  color: #4B4B4B;
+  font-size: 17px;
+  line-height: 1.8;
+}
+

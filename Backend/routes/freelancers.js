@@ -60,10 +60,10 @@ router.post('/register', upload.single('cpr'), async (req, res) => {
       phone,
       expertise: parsedExpertise,
       cprImageUrl: cprImagePath,
-      isVerified: userType === 'graduate' ? false : true,
+      isVerified: userType === 'Graduate' ? false : true,
     });
 
-    if (userType === 'graduate') {
+    if (userType === 'Graduate') {
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -73,11 +73,11 @@ router.post('/register', upload.single('cpr'), async (req, res) => {
       });
 
       await transporter.sendMail({
-        from: `"Al Salam Talents" <${process.env.EMAIL_USER}>`,
+        from: `"AlSalam Bank | Ctrl-Z" <${process.env.EMAIL_USER}>`,
         to: process.env.ADMIN_EMAIL,
-        subject: 'Graduate Verification Request - Al Salam Talents',
+        subject: 'Graduate Verification Request - AlSalam Bank | Ctrl-Z',
         html: `
-          <p><strong>A new graduate needs verification:</strong></p>
+          <p><strong>A new Graduate needs verification:</strong></p>
           <ul>
             <li><strong>Name:</strong> ${fullName}</li>
             <li><strong>Student ID:</strong> ${studentId}</li>
@@ -145,7 +145,7 @@ router.post('/student-register', async (req, res) => {
 
   try {
     const newFreelancer = await Freelancer.create({
-      userType: 'student',
+      userType: 'Student',
       studentId,
       fullName,
       email,
@@ -166,7 +166,7 @@ router.post('/student-register', async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: `"Al Salam Talents" <${process.env.EMAIL_USER}>`,
+      from: `"AlSalam Bank | Ctrl-Z" <${process.env.EMAIL_USER}>`,
       to: process.env.ADMIN_EMAIL,
       subject: 'New Student Registration - Verification Needed',
       html: `
@@ -206,7 +206,7 @@ router.post('/graduate-register', upload.single('cpr'), async (req, res) => {
     const imageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
 
     const newFreelancer = await Freelancer.create({
-      userType: 'graduate',
+      userType: 'Graduate',
       studentId,
       fullName,
       email,
@@ -252,7 +252,7 @@ router.post('/graduate-register', upload.single('cpr'), async (req, res) => {
 router.get('/profile/:id', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.id).select(
-      'fullName email studentId major phone dateOfBirth bio skills specialties expertise portfolio role cprImageUrl profileImageUrl projects'
+      'fullName email studentId major userType phone dateOfBirth bio skills specialties expertise portfolio role cprImageUrl profileImageUrl projects'
     );
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
     res.json(freelancer);
@@ -481,5 +481,19 @@ router.get('/portfolio/:freelancerId', async (req, res) => {
   }
 });
 
+// PUT /api/freelancer/deactivate/:id
+router.put('/deactivate/:id', async (req, res) => {
+  try {
+    const freelancer = await Freelancer.findById(req.params.id);
+    if (!freelancer) return res.status(404).send('Freelancer not found');
+
+    freelancer.isActive = !freelancer.isActive;
+    await freelancer.save();
+
+    res.status(200).json({ message: `Account ${freelancer.isActive ? 'reactivated' : 'deactivated'}.`, isActive: freelancer.isActive });
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+});
 
 module.exports = router;

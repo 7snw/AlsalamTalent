@@ -34,14 +34,6 @@ const MyApplications = () => {
     fetchApplications();
   }, [userId]);
 
-  const toggleFilter = (category, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [category]: prev[category].includes(value)
-        ? prev[category].filter((v) => v !== value)
-        : [...prev[category], value],
-    }));
-  };
 
   const filteredApplications = applications.filter((app) => {
     const matchesSearch = app.project?.title?.toLowerCase().includes(search.toLowerCase());
@@ -82,6 +74,18 @@ const MyApplications = () => {
     }
   };
   
+  const handleCheckbox = (category, value) => {
+    setFilters((prev) => {
+      const updated = { ...prev };
+      const alreadySelected = updated[category]?.includes(value);
+
+      updated[category] = alreadySelected
+        ? updated[category].filter((v) => v !== value)
+        : [...(updated[category] || []), value];
+
+      return { ...updated };
+    });
+  };
 
   return (
     <div className="my-applications-page">
@@ -90,33 +94,32 @@ const MyApplications = () => {
         <aside className="my-applications-left-panel">
           <h1 className="page-title">My Applications</h1>
 
-          <div className="filter-section">
+           <div className="filter-section">
             <h3>Filter</h3>
-            <p className="hint">Filter your applications by type, level, and budget.</p>
-
             <div className="filter-group">
+               <p className="hint">Filter the projects according to their type and budget range.</p>
               <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'].map((type) => (
+
+              {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
                     checked={filters.type.includes(type)}
-                    onChange={() => toggleFilter('type', type)}
-                  />
+                    onChange={() => handleCheckbox('type', type)}
+                  />{' '}
                   {type}
                 </label>
               ))}
             </div>
-
             <div className="filter-group">
               <h4>Budget</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
+              {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
                 <label key={range}>
                   <input
                     type="checkbox"
                     checked={filters.budget.includes(range)}
-                    onChange={() => toggleFilter('budget', range)}
-                  />
+                    onChange={() => handleCheckbox('budget', range)}
+                  />{' '}
                   {range}
                 </label>
               ))}

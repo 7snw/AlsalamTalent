@@ -4,28 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import '../Style/StudentGraduate.css';
 import Graduate from '../Assets/Graduate.png'; 
 import Student from '../Assets/Student.png';
-import Logo from '../Assets/Logo.jpg';
 import Footer from '../Components/Footer';
-
+import Navbar from '../Components/Navbar';
+import { NavConfig1 } from '../Data/NavbarConfigs';
 
 const StudentGraduate = () => {
   const navigate = useNavigate();
 
+  
+  const handleSignIn = () => {
+    navigate('/freelancer-home');
+  };
+
   return (
     <div className="container">
-      <nav className="navbar">
-        <div className="nav-left">
-          <div className="logo-title">
-            <img src={Logo} alt="Logo" className="logo-image" />
-            <span className="site-name">Al Salam Talents</span>
-          </div>
-          <ul className="nav-links">
-            <li onClick={() => navigate('/')}>Home</li>
-            <li onClick={() => navigate('/aboutus')}>About us</li>
-          </ul>
-        </div>
-        <button className="sign-in-btn" onClick={() => navigate('/signin')}>Sign In</button>
-      </nav>
+       <Navbar links={NavConfig1} onSignIn={handleSignIn} /> {/* ← pass the handler */}
 
       <main className="main">
         <h1>Are you a Student or a Graduate?</h1>

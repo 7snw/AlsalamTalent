@@ -31,9 +31,13 @@ const PortfolioPopup = ({ onClose, onSubmit }) => {
 
           <label>Project Title:</label>
           <input
+          type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+          <br/>
+          
+        
           
           <label>Upload Project Image:</label>
           <input
@@ -57,7 +61,7 @@ const PortfolioPopup = ({ onClose, onSubmit }) => {
             <option value="">Select Category</option>
             <option value="Illustration">Illustration</option>
             <option value="Branding">Branding</option>
-            <option value="Video Editing">Video Editing</option>
+            <option value="Video Editing">Content Creation</option>
             <option value="UI/UX Design">UI/UX Design</option>
           </select>
 

@@ -1,5 +1,5 @@
 // src/Pages/Freelancer/ProfileSettings.js
-
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/ProfileSettings.css';
 import Navbar from '../../Components/Navbar';
@@ -9,15 +9,17 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import axios from 'axios';
 
 const expertiseOptions = [
-  "Marketing Consultant",
+  "Marketing",
   "Graphic Designer",
   "Illustrator",
   "Web Developer",
-  "Content Creator",
-  "UX/UI Designer"
+    "UX/UI Designer",
+  "Content Creator"
+
 ];
 
 const ProfileSettings = () => {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('general');
   const [freelancerData, setFreelancerData] = useState(null);
   const [formData, setFormData] = useState({});
@@ -26,6 +28,8 @@ const ProfileSettings = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
+    const [showMajorDropdown, setShowMajorDropdown] = useState(false);
+  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
     const fetchFreelancer = async () => {
@@ -39,12 +43,14 @@ const ProfileSettings = () => {
           skills: data.skills?.join(', ') || '',
           dateOfBirth: data.dateOfBirth ? data.dateOfBirth.substring(0, 10) : '',
         });
+        setIsActive(data.isActive);
       } catch (error) {
         console.error('Error fetching freelancer data:', error);
       }
     };
     fetchFreelancer();
   }, []);
+
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -161,6 +167,29 @@ const ProfileSettings = () => {
     }
   };
 
+  const handleDeactivateAccount = async () => {
+  try {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const freelancerId = storedUser?._id;
+
+    const { data } = await axios.put(`http://localhost:5000/api/freelancer/deactivate/${freelancerId}`);
+    
+    alert(data.message);
+    
+    setIsActive(data.isActive);
+
+    if (!data.isActive) {
+      // Redirect only if account is deactivated
+      navigate('/');
+    }
+
+  } catch (error) {
+    console.error('Error deactivating account:', error);
+    alert('Failed to toggle account status.');
+  }
+};
+
+
   return (
     <div className="settings-page9">
       <Navbar links={NavConfig2} />
@@ -182,7 +211,9 @@ const ProfileSettings = () => {
             <li className={activeSection === 'password' ? 'active' : ''} onClick={() => setActiveSection('password')}>Password</li>
           </ul>
 
-          <button className="delete-account9">Delete account</button>
+          <button className="delete-account9" onClick={handleDeactivateAccount}>
+            {isActive ? 'Deactivate Account' : 'Reactivate Account'}
+          </button>
         </div>
 
         <div className="settings-content9">
@@ -226,16 +257,39 @@ const ProfileSettings = () => {
               <h4>Email</h4>
               <input type="text" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
 
-              <div className="majorr">
-                <p>Major</p>
-                <select value={formData.major} onChange={(e) => handleChange('major', e.target.value)}>
-                  <option value="">Select Major</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Information Technology">Information Technology</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Business">Business</option>
-                </select>
-              </div>
+                   <div className="major-field">
+  <p>Major</p>
+  <div
+    className="major-display8"
+    onClick={() => setShowMajorDropdown((prev) => !prev)}
+  >
+    {formData.major || "Select Major"}
+  </div>
+
+  {showMajorDropdown && (
+    <div className="major-dropdown-list8">
+      {[
+        "School of ICT",
+        "School of Creative Media",
+        "School of Business",
+        "School of Logistics & Maritime Studies",
+        "School of Engineering",
+        "School of Foundation",
+      ].map((option, index) => (
+        <div
+          key={index}
+          className="major-option8"
+          onClick={() => {
+            setFormData((prev) => ({ ...prev, major: option }));
+            setShowMajorDropdown(false);
+          }}
+        >
+          {option}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
               <div className="expertiseer">
                 <p>Expertise</p>
@@ -259,8 +313,8 @@ const ProfileSettings = () => {
                     </div>
 
                     <div className="expertise-dropdown-actions">
-                      <button type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
-                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
+                      <button className="close-expertise-dropdown"type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
+                      <button className="clear-expertise-dropdown"type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
                     </div>
                   </>
                 )}
@@ -277,7 +331,7 @@ const ProfileSettings = () => {
 
               <h4>Skills</h4>
 <div className="checkboxes-grid9">
-  {['Animation', 'Illustration', 'Mobile Design', 'Product Design', 'Brand / Graphic Design', 'Leadership', 'UI / Visual Design', 'UX Design / Research'].map((skill, index) => (
+  {['Animation','Marketing', 'Illustration', 'Web Development', 'Branding', 'Graphic Design','UI/UX Design', 'Content Creation'].map((skill, index) => (
     <div key={index} className="checkbox-item9">
       <input
         type="checkbox"

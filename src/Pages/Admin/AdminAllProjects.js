@@ -77,7 +77,7 @@ const AdminAllProjects = () => {
 
             <div className="filter-group">
               <h4>Status</h4>
-              {['Open', 'Outgoing', 'Submitted', 'Completed'].map((status) => (
+              {['Open', 'Assigned', 'Submitted', 'Completed'].map((status) => (
                 <label key={status}>
                   <input
                     type="checkbox"
@@ -90,32 +90,34 @@ const AdminAllProjects = () => {
             </div>
 
             <div className="filter-group">
+              
               <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Development'].map((type) => (
+
+              {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
                     checked={filters.type.includes(type)}
                     onChange={() => handleCheckbox('type', type)}
-                  />
+                  />{' '}
                   {type}
                 </label>
               ))}
             </div>
-
             <div className="filter-group">
               <h4>Budget</h4>
-              {['20 - 50 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((budget) => (
-                <label key={budget}>
+              {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
+                <label key={range}>
                   <input
                     type="checkbox"
-                    checked={filters.budget.includes(budget)}
-                    onChange={() => handleCheckbox('budget', budget)}
-                  />
-                  {budget}
+                    checked={filters.budget.includes(range)}
+                    onChange={() => handleCheckbox('budget', range)}
+                  />{' '}
+                  {range}
                 </label>
               ))}
             </div>
+         
           </div>
         </aside>
 

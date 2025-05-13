@@ -3,7 +3,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'TT Hoves', sans-serif;
 }
 
 .signup-body {
@@ -60,6 +60,7 @@ body {
 
 
 .right-fields {
+   margin-top: 8px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -80,18 +81,66 @@ body {
   margin-top: 5px; /* add this line */
 }
 
-.custom-major-dropdown {
+.major-field {
+  position: relative;
+  margin-top: -13px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.major-field p {
+  margin-bottom: 8px;
+  color: #1b223c;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.major-display {
+  width: 100%;
+
+  padding: 11px 14px;
+  border: none;
+  border-radius: 15px;
+  background-color: #f7fafd;
+  font-size: 14px;
+  box-sizing: border-box;
   appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  color:  #262637;
+  color: #262637;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%231B223C' stroke-width='2'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 24px center; /* Adjust this to move arrow left/right */
-  background-size: 12px;
-  padding-right: 40px;
-  
+  background-position: right 24px center;
 }
+
+.major-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #f7f7f7;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  width: 96%;
+  z-index: 999;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.major-option {
+  padding: 10px;
+  background-color: #efefef;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1b223c;
+  cursor: pointer;
+}
+
+.major-option:hover {
+  background-color: #e0e0e0;
+}
+
+
 
 .signup-form label {
   margin-bottom: 0px;  /* 👈 Small spacing between label and field */
@@ -101,10 +150,10 @@ body {
 }
 
 .create-btn {
-  margin-top: 17px; /* Optional spacing */
+  margin-top: 14px; /* Optional spacing */
   padding: 12px;
   border: none;
-  border-radius: 25px;
+  border-radius: 18px;
   background-color: #1B223C;
   color: white;
   font-size: 16px;
@@ -114,7 +163,7 @@ body {
 .student-divider {
   width: 2px;
   background-color: #EE582B;
-  height: 310px;
+  height: 350px;
 }
 
 .signin-link {
@@ -135,6 +184,7 @@ body {
   position: relative;
   margin-top: -13px;
   margin-bottom: 5px;
+  cursor: pointer;
 }
 .expertiseer9 p {
   margin-bottom: 8px;
@@ -206,7 +256,7 @@ body {
 
 
 
-.expertise-dropdown-actions9 {
+.expertise-dropdown-actions99 {
   display: flex;
   justify-content: flex-start;
   gap: 10px;
@@ -215,45 +265,30 @@ body {
 }
 
 
-.close-expertise-dropdown9{
+.close-expertise-dropdown99{
   background-color: #1b223c;
   color: white;
   border: none;
   padding: 8px 20px;
-  border-radius: 8px;
+  border-radius: 18px;
   font-size: 12px;
   cursor: pointer;
 
 }
 
 
-.clear-expertise-dropdown9 {
+.clear-expertise-dropdown99 {
   background-color: #bdbdbd;
   color: rgb(0, 0, 0);
   border: none;
   padding: 8px 20px;
-  border-radius: 8px;
+  border-radius: 18px;
   margin-left: -4px;
   font-size: 12px;
   cursor: pointer;
 }
 
 
-.ok-btn {
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #1b223c;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  width: 100%;
-  font-size: 14px;
-}
-
-.ok-btn:hover {
-  background-color: #343c5c;
-}
 
 
 .back-btn {

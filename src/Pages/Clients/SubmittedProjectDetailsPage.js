@@ -1,13 +1,13 @@
-// src/Pages/Clients/SubmittedProjectDetailsPage.js
+// Payment design modal with PaymentMockModal component
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import '../../Style/Clients/SubmittedProjectDetailsPage.css';
-import '../../Style/CircularProgress.css';
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import axios from 'axios';
 import { FiDownload } from 'react-icons/fi';
+import PaymentMockModal from '../../Components/PaymentMockModal';
 
 const SubmittedProjectDetailsPage = () => {
   const { id } = useParams();
@@ -16,7 +16,10 @@ const SubmittedProjectDetailsPage = () => {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const navigate = useNavigate();
+  const [paymentEnabled, setPaymentEnabled] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showMockPaymentUI, setShowMockPaymentUI] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('');
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -29,7 +32,6 @@ const SubmittedProjectDetailsPage = () => {
         setLoading(false);
       }
     };
-
     fetchAssignment();
   }, [id]);
 
@@ -43,23 +45,33 @@ const SubmittedProjectDetailsPage = () => {
           ? 'Re-submit'
           : 'Declined';
 
-      await axios.put(
-        `http://localhost:5000/api/assignments/${assignment._id}/update-status`,
-        {
-          status: statusUpdate,
-          rating: actionType === 'approve' ? rating : undefined,
-          feedback,
-        }
-      );
+      await axios.put(`http://localhost:5000/api/assignments/${assignment._id}/update-status`, {
+        status: statusUpdate,
+        rating: actionType === 'approve' ? rating : undefined,
+        feedback,
+      });
 
       alert('Action submitted successfully.');
       setSubmitted(true);
-      navigate(-1);
+      if (actionType === 'approve') {
+        setPaymentEnabled(true);
+      }
     } catch (err) {
       console.error('Error submitting action:', err);
-      alert('Something went wrong.');
     }
   };
+
+  const handleMockPayment = (method) => {
+    setPaymentMethod(method);
+    setShowModal(true);
+  };
+
+  const confirmMockPayment = () => {
+    setShowModal(false);
+    setShowMockPaymentUI(true);
+  };
+
+  const closeMockUI = () => setShowMockPaymentUI(false);
 
   if (loading) return <p>Loading project...</p>;
   if (!assignment || !assignment.projectId) return <p>Project not found</p>;
@@ -78,18 +90,14 @@ const SubmittedProjectDetailsPage = () => {
                 {assignment.projectId.files.map((file, idx) => (
                   <li key={idx} className="attached-file-item3">
                     {file.name}
-                    <button
-                      type="button"
-                      className="download-file-btn3"
-                      onClick={() => window.open(file.url, '_blank')}
-                    >
+                    <button onClick={() => window.open(file.url, '_blank')}>
                       <FiDownload size={18} />
                     </button>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="submitted-no-files">No project files provided by the client.</p>
+              <p>No project files provided by the client.</p>
             )}
 
             <h4>Freelancer Submitted Files:</h4>
@@ -98,18 +106,14 @@ const SubmittedProjectDetailsPage = () => {
                 {assignment.docs.map((file, idx) => (
                   <li key={idx} className="attached-file-item3">
                     {file.name}
-                    <button
-                      type="button"
-                      className="download-file-btn3"
-                      onClick={() => window.location.href = file.url}
-                    >
+                    <button onClick={() => window.open(file.url, '_blank')}>
                       <FiDownload size={18} />
                     </button>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="submitted-no-files">No files submitted by the freelancer.</p>
+              <p>No files submitted by the freelancer.</p>
             )}
 
             <h4>Review:*</h4>
@@ -119,7 +123,6 @@ const SubmittedProjectDetailsPage = () => {
                   key={star}
                   onClick={() => setRating(star)}
                   className={rating >= star ? 'filled' : ''}
-                  style={{ cursor: 'pointer' }}
                 >
                   ★
                 </span>
@@ -144,10 +147,42 @@ const SubmittedProjectDetailsPage = () => {
                 Decline
               </button>
             </div>
-          </div>
 
+            {paymentEnabled && (
+              <div className="payment-section">
+                <h4>Proceed to Payment</h4>
+                <p>Select a payment method:</p>
+                <div className="payment-buttons">
+                  <button className="alsalam-pay-btn" onClick={() => handleMockPayment("AlSalam Bank")}>Pay via AlSalam Bank</button>
+                  <button className="benefit-pay-btn" onClick={() => handleMockPayment("BENEFIT Gateway")}>Pay via BENEFIT Gateway</button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Confirm Payment</h3>
+            <p>Proceed with <strong>{paymentMethod}</strong> mock payment?</p>
+            <div className="modal-buttons">
+              <button className="confirm-btn" onClick={confirmMockPayment}>Confirm</button>
+              <button className="cancel-btn4" onClick={() => setShowModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showMockPaymentUI && (
+        <PaymentMockModal
+          method={paymentMethod}
+          onClose={closeMockUI}
+          amount={assignment.projectId.budget}
+        />
+      )}
+
       <Footer />
     </div>
   );

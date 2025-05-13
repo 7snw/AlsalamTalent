@@ -97,7 +97,7 @@ const PostProject = () => {
             required
           ></textarea>
 
-          <label>Budget/Price*</label>
+          <label>Budget*</label>
           <input
             type="number"
             value={budget}
@@ -115,6 +115,7 @@ const PostProject = () => {
             <option value="Marketing">Marketing</option>
             <option value="Graphic Design">Graphic Design</option>
             <option value="Illustration">Illustration</option>
+             <option value="Illustration">Content Creation</option>
             <option value="Product Design">Product Design</option>
             <option value="Web Design">Web Design</option>
           </select>

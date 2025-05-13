@@ -23,14 +23,15 @@ const ClientNotifications = () => {
 
       if (userId && role === 'client') {
         axios
-          .get(`http://localhost:5000/api/notifications/${userId}/client`)
+          .get(`/api/notifications/${userId}/client`)
           .then((res) => {
             console.log("📥 Notifications response:", res.data);
             setNotifications(res.data);
           })
           .catch((err) => {
-            console.error("❌ Full Axios error:", err);
-            alert("Failed to fetch notifications.");
+  console.error("❌ Full Axios error:", err);
+  alert("Failed to fetch notifications.");
+
           })
           .finally(() => setLoading(false));
       } else {
@@ -51,27 +52,22 @@ const ClientNotifications = () => {
       <div className="notifications-container">
         <h2>Welcome, {user?.fullName}</h2>
         {notifications.length === 0 ? (
-          <>
-            <p className="no-notifications">No notifications to show.</p>
-            <pre className="debug-output">{JSON.stringify(notifications, null, 2)}</pre>
-          </>
+          <p className="no-notifications">No notifications to show.</p>
         ) : (
-          <>
-            <ul className="notification-list">
-              {notifications.map((note) => (
-                <li key={note._id} className={`notification-item ${note.type}`}>
-                  <span className="bell-icon">🔔</span>
-                  <div className="notification-content">
-                    <p><strong>{note.subject || 'No subject'}</strong></p>
-                    <p>{note.message || 'No message'}</p>
-                    <small className="notification-time">
-                      {note.createdAt ? new Date(note.createdAt).toLocaleString() : 'No timestamp'}
-                    </small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </>
+          <ul className="notification-list">
+            {notifications.map((note) => (
+              <li key={note._id} className={`notification-item ${note.type}`}>
+                <span className="bell-icon">🔔</span>
+                <div className="notification-content">
+                  <strong>{note.subject}</strong>
+                  <p>{note.message}</p>
+                  <small className="notification-time">
+                    {new Date(note.createdAt).toLocaleString()}
+                  </small>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       <Footer />

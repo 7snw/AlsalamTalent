@@ -75,27 +75,11 @@ useEffect(() => {
       .catch((err) => console.error("Failed to load messages:", err));
   }, [user, recipient]);
 
-useEffect(() => {
-  const handleReceive = (msg) => {
-    // Prevent duplicates by checking the message ID and timestamp
-    setMessages((prev) => {
-      const isDuplicate = prev.some(
-        (m) =>
-          m.senderId === msg.senderId &&
-          m.receiverId === msg.receiverId &&
-          m.timestamp === msg.timestamp &&
-          m.content === msg.content
-      );
-      return isDuplicate ? prev : [...prev, msg];
-    });
-  };
-
-  socket.on("receiveMessage", handleReceive);
-
-  return () => {
-    socket.off("receiveMessage", handleReceive);
-  };
-}, []);
+  useEffect(() => {
+    const handleReceive = (msg) => setMessages((prev) => [...prev, msg]);
+    socket.on("receiveMessage", handleReceive);
+    return () => socket.off("receiveMessage", handleReceive);
+  }, []);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -104,55 +88,8 @@ useEffect(() => {
   }, [messages]);
 
   const sendMessage = () => {
-  if (!messageInput.trim() || !user || !recipient) return;
+    if (!messageInput.trim() || !user || !recipient) return;
 
-  const roomId = [user._id, recipient._id].sort().join("-");
-  const timestamp = new Date().toISOString();
-
-  const msgData = {
-    senderId: user._id,
-    receiverId: recipient._id,
-    senderRole: capitalize(user.role),
-    receiverRole: capitalize(recipient.role || "freelancer"),
-    senderName: user.fullName,
-    receiverName: recipient.fullName,
-    content: messageInput.trim(),
-    roomId,
-    attachments: [],
-    timestamp,
-  };
-
-  socket.emit("sendMessage", msgData);
-
-  setContacts((prev) => {
-    const updated = {
-      _id: recipient._id,
-      fullName: recipient.fullName,
-      role: recipient.role,
-      preview: msgData.content,
-      timestamp,
-    };
-    const others = prev.filter((c) => c._id !== recipient._id);
-    return [updated, ...others];
-  });
-
-  setMessageInput("");
-};
-
-
-const handleAttachmentUpload = async (e) => {
-  const files = Array.from(e.target.files);
-  if (!files.length || !user || !recipient) return;
-
-  const formData = new FormData();
-  files.forEach((file) => formData.append("attachments", file));
-
-  try {
-    const res = await axios.post("http://localhost:5000/api/upload-message-files", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    const uploaded = res.data.files;
     const roomId = [user._id, recipient._id].sort().join("-");
     const timestamp = new Date().toISOString();
 
@@ -163,18 +100,66 @@ const handleAttachmentUpload = async (e) => {
       receiverRole: capitalize(recipient.role || "freelancer"),
       senderName: user.fullName,
       receiverName: recipient.fullName,
-      content: "[Attachment]",
+      content: messageInput.trim(),
       roomId,
-      attachments: uploaded,
+      attachments: [],
       timestamp,
     };
 
-    socket.emit("sendMessage", msgData); // No direct setMessages
-  } catch (err) {
-    console.error("Attachment upload failed:", err);
-    alert("Failed to upload file.");
-  }
-};
+    socket.emit("sendMessage", msgData);
+
+    setContacts((prev) => {
+      const updated = {
+        _id: recipient._id,
+        fullName: recipient.fullName,
+        role: recipient.role,
+        preview: msgData.content,
+        timestamp,
+      };
+      const others = prev.filter((c) => c._id !== recipient._id);
+      return [updated, ...others];
+    });
+
+    setMessages((prev) => [...prev, msgData]);
+    setMessageInput("");
+  };
+
+  const handleAttachmentUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length || !user || !recipient) return;
+
+    const formData = new FormData();
+    files.forEach((file) => formData.append("attachments", file));
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/upload-message-files", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const uploaded = res.data.files;
+      const roomId = [user._id, recipient._id].sort().join("-");
+      const timestamp = new Date().toISOString();
+
+      const msgData = {
+        senderId: user._id,
+        receiverId: recipient._id,
+        senderRole: capitalize(user.role),
+        receiverRole: capitalize(recipient.role || "freelancer"),
+        senderName: user.fullName,
+        receiverName: recipient.fullName,
+        content: "[Attachment]",
+        roomId,
+        attachments: uploaded,
+        timestamp,
+      };
+
+      socket.emit("sendMessage", msgData);
+      setMessages((prev) => [...prev, msgData]);
+    } catch (err) {
+      console.error("Attachment upload failed:", err);
+      alert("Failed to upload file.");
+    }
+  };
 
   const handleNewChat = async () => {
     try {

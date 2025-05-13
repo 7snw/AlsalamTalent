@@ -5,6 +5,7 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import userIcon from '../../Assets/ProfileIcon.png';
 import PortfolioPopup from './PortfolioPopup';
 import ViewPortfolioPopup from './ViewPortfolioPopup';
+import Footer from '../../Components/Footer';
 import '../../Style/Freelancer/MyProfile.css';
 import '../../Style/Navbar.css';
 import '../../Style/Freelancer/PortfolioPopup.css';
@@ -51,6 +52,20 @@ const MyProfile = () => {
 
     fetchFreelancerProfile();
   }, []);
+
+  
+  useEffect(() => {
+  if (showPopup || viewPopup) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'auto';
+  }
+
+  return () => {
+    document.body.style.overflow = 'auto'; // Reset on unmount
+  };
+}, [showPopup, viewPopup]);
+
 
   const handlePopupSave = (formData) => {
     axios.post(`http://localhost:5000/api/freelancer/portfolio/${freelancerData._id}`, formData, {
@@ -107,9 +122,11 @@ const MyProfile = () => {
         {activeTab === 'about' ? (
           <div className="about-section2">
             <div className="basic-info2">
-              <p><strong>Name:</strong> {freelancerData?.fullName || 'Not provided'}</p>
-              <p><strong>ID:</strong> {freelancerData?.studentId || 'Not provided'}</p>
-              <p><strong>Major:</strong> {freelancerData?.major || 'Not provided'}</p>
+
+              <p><strong>Name:</strong> {freelancerData?.fullName }</p>
+              <p><strong>ID:</strong> {freelancerData?.studentId }</p>
+              <p><strong>Major:</strong> {freelancerData?.major }</p>
+               <p><strong>Freelancer Type: </strong> {freelancerData?.userType }</p>
             </div>
 
             <div className="bio-info2">
@@ -156,6 +173,7 @@ const MyProfile = () => {
           onClose={() => setViewPopup(false)}
         />
       )}
+       <Footer />
     </div>
   );
 };

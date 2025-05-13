@@ -54,7 +54,7 @@
     border: 1px solid #ccc;
     color: #ffffff;
     width: fit-content;
-    border-radius: 12px;
+    border-radius: 18px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s ease;
@@ -169,38 +169,7 @@
   .download-file-btn9:hover {
     color: #EE582B;
   }
-.open-chat-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  background-color: #1B223C;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 25px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
-  will-change: transform;
-}
-
-.open-chat-btn:hover {
-  transform: scale(1.1); 
-}
-
-.open-chat-btn svg {
-  transform: scaleX(-1);           
-  will-change: transform;
-  pointer-events: none;
-}
-
-
+  
   
   @media (max-width: 768px) {
     .top-section,

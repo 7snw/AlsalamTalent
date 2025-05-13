@@ -6,6 +6,7 @@ import { NavConfig4 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
 
+
 const AddUsers = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -92,6 +93,7 @@ const AddUsers = () => {
       </div>
       <Footer />
     </div>
+  
   );
 };
 

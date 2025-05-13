@@ -108,10 +108,11 @@ const FreelancersList = () => {
               <div className="filter-group">
                 <h4>Expertise</h4>
                 {[
-                  "Marketing Consultant",
+                  "Marketing",
                   "Graphic Designer",
                   "Illustrator",
-                  "Video Editor",
+                   "UX/UI Designer",
+                  "Content Creator",
                   "Web Developer",
                 ].map((type) => (
                   <label key={type}>

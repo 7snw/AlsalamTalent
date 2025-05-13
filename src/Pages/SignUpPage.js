@@ -5,12 +5,13 @@ import { FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
 
 const expertiseOptions = [
-  "Marketing Consultant",
+  "Marketing",
   "Graphic Designer",
   "Illustrator",
   "Web Developer",
-  "Content Creator",
-  "UX/UI Designer",
+   "UX/UI Designer",
+  "Content Creator"
+ 
 ];
 
 const SignUpPage = () => {
@@ -27,6 +28,8 @@ const SignUpPage = () => {
   const [isPolyStudent, setIsPolyStudent] = useState(null);
   const [checkingId] = useState(false);
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
+  const [showMajorDropdown, setShowMajorDropdown] = useState(false);
+
   const navigate = useNavigate();
 
   const handleChange = async (e) => {
@@ -190,26 +193,41 @@ const SignUpPage = () => {
           <div className="student-divider"></div>
 
           <div className="right-fields">
-            <div>
-              <label>Major</label>
-              <select
-                name="major"
-                value={formData.major}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Major</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Information Technology">
-                  Information Technology
-                </option>
-                <option value="Business">Business</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Accounting">Accounting</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Design">Design</option>
-              </select>
-            </div>
+           
+              <div className="major-field">
+  <p>Major</p>
+  <div
+    className="major-display"
+    onClick={() => setShowMajorDropdown((prev) => !prev)}
+  >
+    {formData.major || "Select Major"}
+  </div>
+
+  {showMajorDropdown && (
+    <div className="major-dropdown-list">
+      {[
+        "School of ICT",
+        "School of Creative Media",
+        "School of Business",
+        "School of Logistics & Maritime Studies",
+        "School of Engineering",
+        "School of Foundation",
+      ].map((option, index) => (
+        <div
+          key={index}
+          className="major-option"
+          onClick={() => {
+            setFormData((prev) => ({ ...prev, major: option }));
+            setShowMajorDropdown(false);
+          }}
+        >
+          {option}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
 
             <div>
               <label>Contact Number</label>
@@ -246,14 +264,16 @@ const SignUpPage = () => {
                       <span>{option}</span>
                     </label>
                   ))}
-                  <div className="expertise-dropdown-actions9">
+                  <div className="expertise-dropdown-actions99">
                     <button
+                    className="close-expertise-dropdown99"
                       type="button"
                       onClick={() => setShowExpertiseDropdown(false)}
                     >
                       Done
                     </button>
                     <button
+                    className="clear-expertise-dropdown99 "
                       type="button"
                       onClick={() =>
                         setFormData((prev) => ({ ...prev, expertise: [] }))

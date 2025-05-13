@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-left">
-          <h3 className="footer-logo">Al Salam Talents</h3>
+          <h3 className="footer-logo">Ctrl-Z | AlSalam Bank</h3>
           <p>Empowering Bahrain Polytechnic students with real-world experiences.</p>
         </div>
 
@@ -22,7 +22,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        <p>© {new Date().getFullYear()} Al Salam Talents. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Ctrl-Z. All rights reserved.</p>
       </div>
     </footer>
   );

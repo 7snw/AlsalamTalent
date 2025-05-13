@@ -173,9 +173,8 @@ router.put('/:id', upload.fields([
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, updates, {
       new: true
     });
-    
-    
-    // Centralized log with projectId
+
+    // ✅ Centralized log with projectId
     await logAction({
       userId: updates.authorId,
       action: 'Edited Project',
@@ -188,45 +187,5 @@ router.put('/:id', upload.fields([
     res.status(500).json({ message: 'Failed to update project' });
   }
 });
-
-router.get('/match/:freelancerId', async (req, res) => {
-  try {
-    const freelancer = await Freelancer.findById(req.params.freelancerId);
-    if (!freelancer) {
-      return res.status(404).json({ message: 'Freelancer not found' });
-    }
-
-    const combined = [
-      ...(freelancer.expertise || []),
-      ...(freelancer.skills || [])
-    ];
-    const normalizedExpertise = combined.map(e => e.trim().toLowerCase());
-
-    // Map project category to expertise title
-    const categoryMap = {
-      "Marketing": "Marketing Consultant",
-      "Graphic Design": "Graphic Designer",
-      "Illustration": "Illustrator",
-      "Product Design": "UX/UI Designer",
-      "Web Design": "Web Developer"
-    };
-
-    const allProjects = await Project.find({ status: 'Open' });
-
-    const matched = allProjects.filter((proj) => {
-      const rawCategory = proj.category?.trim();
-      const mapped = categoryMap[rawCategory] || rawCategory;
-      const normalizedCategory = mapped.toLowerCase();
-      return normalizedExpertise.includes(normalizedCategory);
-    });
-
-
-    res.json(matched);
-  } catch (err) {
-    console.error('Match route error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 
 module.exports = router;

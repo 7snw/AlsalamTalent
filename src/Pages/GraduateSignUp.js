@@ -29,6 +29,7 @@ const GraduateSignUp = () => {
 
   const [isPolyStudent, setIsPolyStudent] = useState(null);
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
+    const [showMajorDropdown, setShowMajorDropdown] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -132,19 +133,44 @@ const GraduateSignUp = () => {
           <div className="graduate-divider"></div>
 
           <div className="graduate-right-fields">
-            <div>
-              <label>Major</label>
-              <select name="major" value={formData.major} onChange={handleChange} required>
-                <option value="">Select Major</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Information Technology">Information Technology</option>
-                <option value="Business">Business</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Accounting">Accounting</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Design">Design</option>
-              </select>
-            </div>
+            
+            
+              <div className="major-field">
+  <p>Major</p>
+  <div
+    className="major-display"
+    onClick={() => setShowMajorDropdown((prev) => !prev)}
+  >
+    {formData.major || "Select Major"}
+  </div>
+
+  {showMajorDropdown && (
+    <div className="major-dropdown-list">
+      {[
+        "School of ICT",
+        "School of Creative Media",
+        "School of Business",
+        "School of Logistics & Maritime Studies",
+        "School of Engineering",
+        "School of Foundation",
+      ].map((option, index) => (
+        <div
+          key={index}
+          className="major-option"
+          onClick={() => {
+            setFormData((prev) => ({ ...prev, major: option }));
+            setShowMajorDropdown(false);
+          }}
+        >
+          {option}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+            
+        
+
             <div>
               <label>Contact Number</label>
               <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} pattern="\d{8}" required />
@@ -168,8 +194,8 @@ const GraduateSignUp = () => {
                     </label>
                   ))}
                   <div className="expertise-dropdown-actions0">
-                    <button type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
-                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
+                    <button className="close-expertise-dropdown0" type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
+                    <button className="clear-expertise-dropdown0" type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
                   </div>
                 </div>
               )}

@@ -75,7 +75,7 @@ router.get('/test-mail', async (req, res) => {
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: '1maryiem363@gmail.com',
-      subject: 'Test Email from Al Salam Talents',
+      subject: 'Test Email from AlSalam Bank | Ctrl-Z',
       text: '✅ This is a test email to verify Gmail SMTP config is working.'
     });
 

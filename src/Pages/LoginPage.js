@@ -11,15 +11,15 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    console.log("📤 Attempting login with:", { email, password }); // ✅ Debug output
+  console.log("📤 Attempting login with:", { email, password });
 
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/users/login",
-        { email, password }
-      );
+  try {
+    const response = await axios.post(
+      "http://localhost:5000/api/users/login",
+      { email: email.toLowerCase(), password }
+    );
 
       const userData = response.data;
       console.log("✅ Login response received:", userData); // ✅ Confirm response

@@ -2,12 +2,12 @@
   position: relative;
   left: 0;
   right: 0;
-  width: 100vw; /* Full screen width */
+  width: 99vw; /* Full screen width */
   margin-left: calc(-50vw + 50%); /* ✅ Offsets container padding */
   background-color: #0d1b2a;
   color: #ffffff;
   padding: 30px 2%;
-  font-family: 'Segoe UI', sans-serif;
+ font-family: 'TT Hoves', sans-serif;
   margin-top: 60px;
   box-sizing: border-box;
   overflow-x: clip;
@@ -68,8 +68,8 @@
 
 .footer-bottom {
   text-align: left;
-  margin-top: -43px;
+  margin-top: -45px;
   font-size: 14px;
-  margin-left: 140px;
+  margin-left: 137px;
   color: #bbbbbb;
 }

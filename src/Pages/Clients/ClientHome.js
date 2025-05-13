@@ -17,7 +17,7 @@ const ClientHome = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
 
-  const categories = ['All', 'Marketing', 'Graphic Design', 'Illustration', 'Product Design', 'Web Design'];
+  const categories = ['All', 'Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'];
 
   useEffect(() => {
     const fetchProjects = async () => {

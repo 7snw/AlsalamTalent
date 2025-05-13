@@ -6,7 +6,7 @@ const Admin = require('../models/Admin');
 const Client = require('../models/Client');
 const Freelancer = require('../models/Freelancer');
 
-//  Utility to get user details from their role
+// ✅ Utility to get user details from their role
 async function getUserDetails(userId, role) {
   switch (role.toLowerCase()) {
     case 'admin':
@@ -19,7 +19,6 @@ async function getUserDetails(userId, role) {
       return null;
   }
 }
-
 router.get('/:userId/:userType', async (req, res) => { 
   const { userId, userType } = req.params;
   console.log("📩 [GET /notifications] Params:", { userId, userType });
@@ -60,17 +59,6 @@ router.get('/:userId/:userType', async (req, res) => {
   } catch (err) {
     console.error('❌ Backend error in /notifications:', err);
     res.status(500).json({ message: 'Internal server error', error: err.message });
-  }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    const notification = new Notification(req.body);
-    await notification.save();
-    res.status(201).json(notification);
-  } catch (err) {
-    console.error('❌ Failed to save notification:', err.message);
-    res.status(500).json({ error: 'Failed to create notification' });
   }
 });
 
