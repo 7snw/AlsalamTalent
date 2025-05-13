@@ -6,12 +6,14 @@ import Navbar from "../../Components/Navbar";
 import Footer from '../../Components/Footer';
 import { NavConfig3 } from "../../Data/NavbarConfigs";
 import axios from 'axios';
-import { FiDownload } from 'react-icons/fi';
+import { FiDownload,FiMessageCircle  } from 'react-icons/fi';
+import ChatBox from "../../Components/ChatBox";
 
 const ProjectProgress = () => {
   const { id } = useParams();
   const [assignment, setAssignment] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -42,6 +44,9 @@ const ProjectProgress = () => {
     }
   };
 
+const clientId = assignment?.authorId || assignment?.projectId?.authorId;
+const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
+
   const progressText = {
     'assigned': 50,
     'in progress': 50,
@@ -59,7 +64,7 @@ const ProjectProgress = () => {
     <div className="project-progress-page">
       <Navbar links={NavConfig3} />
       <div className="progress-container">
-          <h2>{assignment.projectId?.title || 'Submitted Project'}</h2>
+        <h2>{assignment.projectId?.title || 'Submitted Project'}</h2>
         <div className="top-section">
           <div className="left-section">
             <h4>Project Files (from Client)</h4>
@@ -135,6 +140,19 @@ const ProjectProgress = () => {
             )}
           </div>
         </div>
+
+        <button onClick={() => setShowChat(true)} className="open-chat-btn">
+          <FiMessageCircle />
+        </button>
+
+        {showChat && (
+          <ChatBox
+            userId={clientId}
+            otherUserId={freelancerId}
+            role="Client"
+            closeChat={() => setShowChat(false)}
+          />
+        )}
       </div>
       <Footer />
     </div>

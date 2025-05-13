@@ -1,37 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import '../Style/FreelancerProfile.css';
-import Navbar from '../Components/Navbar';
-import '../Style/Navbar.css';
-import { NavConfig2, NavConfig3, NavConfig4 } from '../Data/NavbarConfigs';
-import ViewPortfolioPopup from '../Pages/Freelancer/ViewPortfolioPopup';
-import userIcon from '../Assets/ProfileIcon.png';
-import Footer from '../Components/Footer';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "../Style/FreelancerProfile.css";
+import Navbar from "../Components/Navbar";
+import "../Style/Navbar.css";
+import { NavConfig2, NavConfig3, NavConfig4 } from "../Data/NavbarConfigs";
+import ViewPortfolioPopup from "../Pages/Freelancer/ViewPortfolioPopup";
+import userIcon from "../Assets/ProfileIcon.png";
+import Footer from "../Components/Footer";
+import axios from "axios";
 
 const FreelancerProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [freelancer, setFreelancer] = useState(null);
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = useState("about");
   const [viewPopup, setViewPopup] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [portfolio, setPortfolio] = useState([]);
   const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default to freelancer
 
-
-
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    const role =storedUser?._id;
+    const role = storedUser?._id;
     switch (role) {
-      case 'admin':
+      case "admin":
         setNavbarConfig(NavConfig4);
         break;
-      case 'client':
+      case "client":
         setNavbarConfig(NavConfig3);
         break;
-      case 'freelancer':
+      case "freelancer":
       default:
         setNavbarConfig(NavConfig2);
     }
@@ -39,19 +37,23 @@ const FreelancerProfile = () => {
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${id}`);
+        const { data } = await axios.get(
+          `http://localhost:5000/api/freelancer/profile/${id}`
+        );
         setFreelancer(data);
       } catch (error) {
-        console.error('Error fetching freelancer profile:', error);
+        console.error("Error fetching freelancer profile:", error);
       }
     };
 
     const fetchPortfolio = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/freelancer/portfolio/${id}`);
+        const { data } = await axios.get(
+          `http://localhost:5000/api/freelancer/portfolio/${id}`
+        );
         setPortfolio(data);
       } catch (error) {
-        console.error('Error fetching portfolio:', error);
+        console.error("Error fetching portfolio:", error);
       }
     };
 
@@ -77,56 +79,62 @@ const FreelancerProfile = () => {
             </div>
           </div>
           <button
-                        className="contact-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate("/messages", {
-                            state: {
-                              userToChat: {
-                                _id: freelancer._id,
-                                fullName: freelancer.fullName,
-                                role: "freelancer",
-                              },
-                            },
-                          });
-                        }}
-                      >
-                        Get in touch
-                      </button>
+            className="contact-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/messages", {
+                state: {
+                  userToChat: {
+                    _id: freelancer._id,
+                    fullName: freelancer.fullName,
+                    role: "freelancer",
+                  },
+                },
+              });
+            }}
+          >
+            Get in touch
+          </button>
         </div>
 
         <div className="tab-buttons">
           <button
-            className={activeTab === 'about' ? 'active' : ''}
-            onClick={() => setActiveTab('about')}
+            className={activeTab === "about" ? "active" : ""}
+            onClick={() => setActiveTab("about")}
           >
             About
           </button>
           <button
-            className={activeTab === 'portfolio' ? 'active' : ''}
-            onClick={() => setActiveTab('portfolio')}
+            className={activeTab === "portfolio" ? "active" : ""}
+            onClick={() => setActiveTab("portfolio")}
           >
             Portfolio
           </button>
         </div>
         <hr />
 
-        {activeTab === 'about' ? (
+        {activeTab === "about" ? (
           <div className="about-section">
             <div className="basic-info">
-              <p><strong>Name:</strong> {freelancer.fullName}</p>
-              <p><strong>ID:</strong> {freelancer.studentId}</p>
-              <p><strong>Major:</strong> {freelancer.major}</p>
+              <p>
+                <strong>Name:</strong> {freelancer.fullName}
+              </p>
+              <p>
+                <strong>ID:</strong> {freelancer.studentId}
+              </p>
+              <p>
+                <strong>Major:</strong> {freelancer.major}
+              </p>
             </div>
 
             <div className="bio-info">
               <h4>Biography</h4>
-              <p>{freelancer.bio || 'No biography provided yet.'}</p>
+              <p>{freelancer.bio || "No biography provided yet."}</p>
             </div>
 
             <div className="skills-info">
               <h4>Skills</h4>
-              <p>{freelancer.skills?.join(', ') || 'No skills added yet.'}</p>
+              <p>{freelancer.skills?.join(", ") || "No skills added yet."}</p>
             </div>
           </div>
         ) : (
