@@ -4,6 +4,8 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
+import { showAlert } from '../../utils/toastMessages';
+
 
 const ProfileSettingsClient = () => {
   const [activeSection, setActiveSection] = useState('edit');
@@ -36,7 +38,7 @@ const ProfileSettingsClient = () => {
         });
       } catch (err) {
         console.error('Error fetching client profile:', err);
-        alert('Failed to load profile.');
+        showAlert('Failed to load profile.');
       }
     };
 
@@ -50,10 +52,10 @@ const ProfileSettingsClient = () => {
   const handleSave = async () => {
     try {
       await axios.put(`http://localhost:5000/api/client/${clientId}`, formData);
-      alert('Profile updated successfully!');
+      showAlert('Profile updated successfully!');
     } catch (err) {
       console.error('Error updating profile:', err);
-      alert('Failed to update profile.');
+      showAlert('Failed to update profile.');
     }
   };
 
@@ -63,12 +65,12 @@ const ProfileSettingsClient = () => {
         oldPassword,
         newPassword
       });
-      alert('Password updated successfully!');
+      showAlert('Password updated successfully!');
       setOldPassword('');
       setNewPassword('');
     } catch (err) {
       console.error('Password update failed:', err);
-      alert(err.response?.data?.message || 'Failed to update password.');
+      showAlert(err.response?.data?.message || 'Failed to update password.');
     }
   };
 

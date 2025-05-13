@@ -4,6 +4,8 @@ import Navbar from "../../Components/Navbar";
 import { NavConfig4 } from "../../Data/NavbarConfigs";
 import Footer from "../../Components/Footer";
 import axios from "axios";
+import { showAlert } from '../../utils/toastMessages';
+
 
 const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
@@ -16,7 +18,7 @@ const AuditLogs = () => {
         setLogs(response.data);
       } catch (err) {
         console.error("Error fetching audit logs:", err);
-        alert("Failed to load audit logs.");
+        showAlert("Failed to load audit logs.");
       } finally {
         setLoading(false);
       }

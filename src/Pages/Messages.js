@@ -8,6 +8,8 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { FaTrash, FaPaperPlane } from "react-icons/fa";
 import { FiPaperclip } from "react-icons/fi";
+import { showAlert } from '../utils/toastMessages';
+
 
 const socket = io("http://localhost:5000");
 
@@ -153,13 +155,12 @@ useEffect(() => {
         timestamp,
       };
 
-      socket.emit("sendMessage", msgData);
-      setMessages((prev) => [...prev, msgData]);
-    } catch (err) {
-      console.error("Attachment upload failed:", err);
-      alert("Failed to upload file.");
-    }
-  };
+    socket.emit("sendMessage", msgData); // No direct setMessages
+  } catch (err) {
+    console.error("Attachment upload failed:", err);
+    showAlert("Failed to upload file.");
+  }
+};
 
   const handleNewChat = async () => {
     try {
@@ -231,7 +232,7 @@ useEffect(() => {
                           setContacts((prev) => prev.filter((contact) => contact._id !== c._id));
                           if (recipient?._id === c._id) setRecipient(null);
                         } catch (err) {
-                          alert("Failed to delete chat.");
+                          showAlert("Failed to delete chat.");
                         }
                       }
                     }}>

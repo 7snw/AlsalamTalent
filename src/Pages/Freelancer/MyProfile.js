@@ -10,6 +10,7 @@ import '../../Style/Freelancer/MyProfile.css';
 import '../../Style/Navbar.css';
 import '../../Style/Freelancer/PortfolioPopup.css';
 import axios from 'axios';
+import { showError } from '../../utils/toastMessages';
 
 const MyProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
@@ -79,7 +80,7 @@ const MyProfile = () => {
       setShowPopup(false);  // Close the popup
     })
     .catch(error => {
-      console.error("Error adding portfolio:", error);
+      showError(error);
     });
   };
 

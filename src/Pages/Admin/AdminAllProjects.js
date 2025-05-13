@@ -78,15 +78,16 @@ const AdminAllProjects = () => {
             <div className="filter-group">
               <h4>Status</h4>
               {['Open', 'Assigned', 'Submitted', 'Completed'].map((status) => (
-                <label key={status}>
-                  <input
-                    type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={() => handleCheckbox('status', status)}
-                  />
-                  {status}
-                </label>
-              ))}
+  <label key={status}>
+    <input
+      type="checkbox"
+      checked={filters.status.includes(status)}
+      onChange={() => handleCheckbox('status', status)}
+    />
+    {status}
+  </label>
+))}
+
             </div>
 
             <div className="filter-group">

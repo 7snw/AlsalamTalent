@@ -9,6 +9,9 @@ import uploadIcon from '../../Assets/Upload.png';
 import axios from 'axios';
 import { FiDownload } from 'react-icons/fi';
 import { AiOutlineClose } from 'react-icons/ai';
+import ChatBox from '../../Components/ChatBox';
+import { showAlert } from '../../utils/toastMessages';
+
 
 const MyProjectsDetails = () => {
   const { id } = useParams();
@@ -52,7 +55,7 @@ const MyProjectsDetails = () => {
       }));
     } catch (error) {
       console.error('Failed to remove file:', error);
-      alert('Could not remove the file.');
+      showAlert('Could not remove the file.');
     }
   };
 
@@ -65,12 +68,12 @@ const MyProjectsDetails = () => {
       await axios.put(`http://localhost:5000/api/assignments/${id}/update-status`, {
         status: 'Submitted',
       });
-      alert('Project submitted successfully.');
+      showAlert('Project submitted successfully.');
       setSelectedFiles([]);
       navigate('/myprojects');
     } catch (error) {
       console.error('Submission failed:', error);
-      alert('Submission failed');
+      showAlert('Submission failed');
     }
   };
 

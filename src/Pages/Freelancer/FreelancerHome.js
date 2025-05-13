@@ -11,6 +11,8 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
+import { showAlert } from '../../utils/toastMessages';
+
 
 const FreelancerHome = () => {
   const navigate = useNavigate();

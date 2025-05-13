@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import RoleProtectedLayout from './Components/RoleProtectedLayout';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 //General
@@ -62,6 +64,8 @@ import VerificationsList from './Pages/Admin/VerificationsList';
 const App = () => {
   return (
     <Router>
+            <>
+              <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
   {/* Public Pages */}
   <Route path="/" element={<LandingPage />} />
@@ -78,7 +82,7 @@ const App = () => {
           <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
           <Route path="/freelancers" element={<FreelancersList />} />
           <Route path="/notifications" element={<RedirectNotifications />} />
-                              <Route path="/project-details/:id" element={<ProjectDetails />} />
+          <Route path="/project-details/:id" element={<ProjectDetails />} />
 
 
   </Route>
@@ -111,19 +115,21 @@ const App = () => {
     <Route path="/clientprojects" element={<ClientProjects />} />
   </Route>
 
-  {/*  Admin Pages */}
-  <Route element={<RoleProtectedLayout allowedRoles={["Admin"]} />}>
-    <Route path="/clientlist" element={<Clientlist />} />
-    <Route path="/addusers" element={<AddUsers />} />
-    <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
-    <Route path="/adminallprojects" element={<AdminAllProjects />} />
-    <Route path="/details" element={<AdminProjectDetails />} />
-    <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
-    <Route path="/edituser/:userId" element={<EditUserProfile />} />
-    <Route path="/auditlogs" element={<AuditLogs />} />
-    <Route path="/verificationslist" element={<VerificationsList />} />
-  </Route>
-</Routes>
+        {/* Admin */}
+        <Route element={<RoleProtectedLayout allowedRoles={["Admin"]} />}>
+          <Route path="/clientlist" element={<Clientlist />} />
+          <Route path="/addusers" element={<AddUsers />} />
+          <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
+          <Route path="/adminallprojects" element={<AdminAllProjects />} />
+          <Route path="/details" element={<AdminProjectDetails />} />
+          <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
+          <Route path="/edituser/:userId" element={<EditUserProfile />} />
+          <Route path="/auditlogs" element={<AuditLogs />} />
+          <Route path="/verificationslist" element={<VerificationsList />} />
+          <Route path="/admin-notifications" element={<AdminNotifications />} />
+        </Route>
+      </Routes>
+            </>
     </Router>
   );
 };

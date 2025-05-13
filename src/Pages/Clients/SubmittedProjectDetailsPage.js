@@ -7,6 +7,8 @@ import Footer from '../../Components/Footer';
 import { NavConfig3 } from '../../Data/NavbarConfigs';
 import axios from 'axios';
 import { FiDownload } from 'react-icons/fi';
+import { showAlert } from '../../utils/toastMessages';
+
 import PaymentMockModal from '../../Components/PaymentMockModal';
 
 const SubmittedProjectDetailsPage = () => {
@@ -51,13 +53,15 @@ const SubmittedProjectDetailsPage = () => {
         feedback,
       });
 
-      alert('Action submitted successfully.');
+      showAlert('Action submitted successfully.');
       setSubmitted(true);
       if (actionType === 'approve') {
         setPaymentEnabled(true);
       }
     } catch (err) {
       console.error('Error submitting action:', err);
+      showAlert('Something went wrong.');
+    }
     }
   };
 

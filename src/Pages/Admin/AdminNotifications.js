@@ -4,6 +4,8 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import '../../Style/Notifications.css';
 import { NavConfig4 } from "../../Data/NavbarConfigs";
+import { showAlert } from '../../utils/toastMessages';
+
 
 const AdminNotifications = () => {
   const [user, setUser] = useState(null);
@@ -17,9 +19,15 @@ const AdminNotifications = () => {
       setUser(parsed);
 
       axios
-        .get(`/api/notifications/${parsed._id}/admin`)
-        .then((res) => setNotifications(res.data))
-        .catch((err) => console.error("Error fetching notifications:", err))
+        .get(`http://localhost:5000/api/notifications/${parsed._id}/admin`)
+        .then((res) => {
+          console.log("📥 Admin notifications:", res.data);
+          setNotifications(res.data);
+        })
+        .catch((err) => {
+          console.error("❌ Error fetching admin notifications:", err);
+          showAlert("Failed to fetch notifications.");
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);

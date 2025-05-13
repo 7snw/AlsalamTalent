@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../Style/SignUpPage.css";
 import { FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
+import { showAlert } from '../utils/toastMessages';
+
 
 const expertiseOptions = [
   "Marketing",
@@ -71,38 +73,38 @@ const SignUpPage = () => {
   e.preventDefault();
 
   if (!/^\d+$/.test(formData.studentId)) {
-    alert("Student ID must contain numbers only.");
+    showAlert("Student ID must contain numbers only.");
     return;
   }
 
   const year = parseInt(formData.studentId.substring(0, 4), 10);
   if (year < 2008 || year > new Date().getFullYear()) {
-    alert("Invalid Student ID");
+    showAlert("Invalid Student ID");
     return;
   }
 
   if (!formData.fullName.trim()) {
-    alert("Full Name is required.");
+    showAlert("Full Name is required.");
     return;
   }
 
   if (formData.password.length < 8) {
-    alert("Password must be at least 8 characters long.");
+    showAlert("Password must be at least 8 characters long.");
     return;
   }
 
   if (!formData.major) {
-    alert("Please select your Major.");
+    showAlert("Please select your Major.");
     return;
   }
 
   if (!/^\d{8}$/.test(formData.contactNumber)) {
-    alert("Phone number must be exactly 8 digits.");
+    showAlert("Phone number must be exactly 8 digits.");
     return;
   }
 
   if (formData.expertise.length === 0) {
-    alert("Please select at least one area of expertise.");
+    showAlert("Please select at least one area of expertise.");
     return;
   }
 
@@ -116,7 +118,7 @@ const SignUpPage = () => {
     );
 
     if (response.status === 200 || response.status === 201) {
-      alert("Account Created! Waiting for admin verification.");
+      showAlert("Account Created! Waiting for admin verification.");
 
       //  Try sending notification to admin
       try {
@@ -134,7 +136,7 @@ const SignUpPage = () => {
     }
   } catch (error) {
     console.error("Signup failed:", error.response?.data || error.message);
-    alert(error.response?.data?.message || "Signup failed.");
+    showAlert(error.response?.data?.message || "Signup failed.");
   }
 };
 

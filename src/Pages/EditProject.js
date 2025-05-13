@@ -1,5 +1,3 @@
-// src/Pages/Clients/EditProject.js
-
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../Style/Clients/PostProject.css";
@@ -12,8 +10,8 @@ import {
   NavConfig3,
   NavConfig4,
 } from "../Data/NavbarConfigs";
-import uploadIcon from "../Assets/Upload.png";
 import axios from "axios";
+import { FiPaperclip } from "react-icons/fi";
 
 const EditProject = () => {
   const { id } = useParams();
@@ -112,11 +110,11 @@ const EditProject = () => {
       await axios.put(`http://localhost:5000/api/projects/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Project updated successfully!");
+      showAlert("Project updated successfully!");
       navigate(-1);
     } catch (error) {
       console.error("Update failed:", error);
-      alert("Failed to update project.");
+      showAlert("Failed to update project.");
     }
   };
 
@@ -209,71 +207,86 @@ const EditProject = () => {
             <option value="Completed">Completed</option>
           </select>
 
-          <div className="post-project-upload-group">
-            <label>Project Files*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => projectFileInput.current.click()}
-            >
-              Attach File
-              <img
-                src={uploadIcon}
-                alt="upload"
-                className="post-project-upload-icon"
-              />
-            </button>
-            <input
-              type="file"
-              multiple
-              ref={projectFileInput}
-              onChange={handleMultipleFileChange}
-              hidden
-            />
-            {existingFiles.map((file, idx) => (
-              <p key={idx} className="post-project-filename">
-                {file.name}
-              </p>
-            ))}
+<div className="post-project-upload-group">
+  <label>Project Files*</label>
+  <button
+    type="button"
+    className="post-project-button post-project-submit-btn"
+    onClick={() => projectFileInput.current.click()}
+  >
+    <FiPaperclip />
+    Attach Files
+  </button>
 
-            {projectFiles.map((file, idx) => (
-              <p key={idx} className="post-project-filename">
-                {file.name}
-              </p>
-            ))}
-          </div>
+  <input
+    type="file"
+    multiple
+    ref={projectFileInput}
+    onChange={handleMultipleFileChange}
+    hidden
+  />
 
-          <div className="post-project-upload-group">
-            <label>Project Image*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => projectImageInput.current.click()}
-            >
-              Attach Image
-              <img
-                src={uploadIcon}
-                alt="upload"
-                className="post-project-upload-icon"
-              />
-            </button>
-            <input
-              type="file"
-              accept="image/*"
-              ref={projectImageInput}
-              onChange={handleImageChange}
-              hidden
-            />
-            {projectImage ? (
-              <p className="post-project-filename">{projectImage.name}</p>
-            ) : (
-              existingImage && (
-                <p className="post-project-filename">
-                  {existingImage?.split("/").pop()}
-                </p>
-              )
-            )}
-          </div>
+  <div className="post-project-filename-list">
+    {existingFiles.map((file, idx) => (
+      <div key={`existing-${idx}`} className="post-project-filename-item">
+        {file.name}
+      </div>
+    ))}
+
+    {projectFiles.map((file, idx) => (
+      <div key={`new-${idx}`} className="post-project-filename-item">
+        {file.name}
+        <button
+          type="button"
+          className="post-project-remove-btn"
+          onClick={() =>
+            setProjectFiles((prev) => prev.filter((_, i) => i !== idx))
+          }
+        >
+          ×
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
+<div className="post-project-upload-group">
+  <label>Project Image*</label>
+  <button
+    type="button"
+    className="post-project-button post-project-submit-btn"
+    onClick={() => projectImageInput.current.click()}
+  >
+    <FiPaperclip  />
+    Attach Image
+  </button>
+
+  <input
+    type="file"
+    accept="image/*"
+    ref={projectImageInput}
+    onChange={handleImageChange}
+    hidden
+  />
+
+  {projectImage ? (
+    <div className="post-project-filename-item post-project-image-preview">
+      {projectImage.name}
+      <button
+        type="button"
+        className="post-project-remove-btn"
+        onClick={() => setProjectImage(null)}
+      >
+        ×
+      </button>
+    </div>
+  ) : (
+    existingImage && (
+      <div className="post-project-filename-item post-project-image-preview">
+        {existingImage.split("/").pop()}
+      </div>
+    )
+  )}
+</div>
 
           <div className="post-project-actions">
             <button type="submit" className="post-project-button post">

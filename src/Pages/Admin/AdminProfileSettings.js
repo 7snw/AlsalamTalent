@@ -5,6 +5,7 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
+import { showAlert } from '../../utils/toastMessages';
 
 const AdminProfileSettings = () => {
   const [activeSection, setActiveSection] = useState('edit');
@@ -38,7 +39,7 @@ const AdminProfileSettings = () => {
         });
       } catch (err) {
         console.error('Error fetching admin profile:', err);
-        alert('Failed to load profile.');
+        showAlert('Failed to load profile.');
       }
     };
 
@@ -52,10 +53,10 @@ const AdminProfileSettings = () => {
   const handleSave = async () => {
     try {
       await axios.put(`http://localhost:5000/api/admin/${adminId}`, formData);
-      alert('Profile updated successfully!');
+      showAlert('Profile updated successfully!');
     } catch (err) {
       console.error('Error updating profile:', err);
-      alert('Failed to update profile.');
+      showAlert('Failed to update profile.');
     }
   };
 
@@ -65,12 +66,12 @@ const AdminProfileSettings = () => {
         oldPassword,
         newPassword
       });
-      alert('Password updated successfully!');
+      showAlert('Password updated successfully!');
       setOldPassword('');
       setNewPassword('');
     } catch (error) {
       console.error('Error changing password:', error);
-      alert(error.response?.data?.message || 'Failed to update password.');
+      showAlert(error.response?.data?.message || 'Failed to update password.');
     }
   };
 

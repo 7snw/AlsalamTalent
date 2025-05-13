@@ -4,6 +4,8 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import '../../Style/Notifications.css';
 import { NavConfig3 } from "../../Data/NavbarConfigs";
+import { showAlert } from '../../utils/toastMessages';
+
 
 const ClientNotifications = () => {
   const [user, setUser] = useState(null);
@@ -29,9 +31,8 @@ const ClientNotifications = () => {
             setNotifications(res.data);
           })
           .catch((err) => {
-  console.error("❌ Full Axios error:", err);
-  alert("Failed to fetch notifications.");
-
+            console.error("❌ Full Axios error:", err);
+            showAlert("Failed to fetch notifications.");
           })
           .finally(() => setLoading(false));
       } else {
