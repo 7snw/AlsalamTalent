@@ -190,6 +190,6 @@ const SubmittedProjectDetailsPage = () => {
       <Footer />
     </div>
   );
-};
+
 
 export default SubmittedProjectDetailsPage;
