@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import RoleProtectedLayout from './Components/RoleProtectedLayout';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Public Pages
 import LandingPage from './Pages/LandingPage';
@@ -57,6 +59,8 @@ import AdminNotifications from './Pages/Admin/AdminNotifications';
 const App = () => {
   return (
     <Router>
+            <>
+              <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
@@ -73,7 +77,7 @@ const App = () => {
           <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
           <Route path="/freelancers" element={<FreelancersList />} />
           <Route path="/notifications" element={<RedirectNotifications />} />
-                              <Route path="/project-details/:id" element={<ProjectDetails />} />
+          <Route path="/project-details/:id" element={<ProjectDetails />} />
 
 
         </Route>
@@ -122,6 +126,7 @@ const App = () => {
           <Route path="/admin-notifications" element={<AdminNotifications />} />
         </Route>
       </Routes>
+            </>
     </Router>
   );
 };

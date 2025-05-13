@@ -6,6 +6,8 @@ import ChatIcon from '../Assets/Chat.png';
 import BellIcon from '../Assets/Bell.png';
 import DefaultUserIcon from '../Assets/User.png';
 import axios from 'axios';
+import { showError, showInfo } from '../utils/toastMessages'; // adjust path
+
 
 const Navbar = ({ links = [] }) => {
   const navigate = useNavigate();
@@ -33,11 +35,12 @@ const Navbar = ({ links = [] }) => {
           if (apiUrl) {
             const { data } = await axios.get(apiUrl);
             if (data?.profileImageUrl) {
-              setProfileImage(data.profileImageUrl); // No need to add http://localhost:5000 manually
+              setProfileImage(data.profileImageUrl); 
             }
           }
         } catch (error) {
-          console.error('Error fetching profile image:', error);
+
+         showError(error)
           setProfileImage(DefaultUserIcon);
         }
       }
@@ -63,11 +66,12 @@ const Navbar = ({ links = [] }) => {
     auditProfilePath = '/AuditLogs';
   }
 
-  const handleSignOut = () => {
-    localStorage.clear();
-    alert('Signed out');
-    navigate('/landingpage');
-  };
+
+const handleSignOut = () => {
+  localStorage.clear();
+  showInfo(' Signed out successfully!');
+  navigate('/landingpage');
+};
 
   return (
     <nav className="navbar">

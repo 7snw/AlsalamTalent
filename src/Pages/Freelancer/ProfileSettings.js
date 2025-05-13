@@ -7,6 +7,7 @@ import Footer from '../../Components/Footer';
 import userIcon from '../../Assets/ProfileIcon.png';
 import { NavConfig2 } from '../../Data/NavbarConfigs';
 import axios from 'axios';
+import { showAlert } from '../../utils/toastMessages';
 
 const expertiseOptions = [
   "Marketing Consultant",
@@ -78,7 +79,7 @@ const ProfileSettings = () => {
 
     const maxSizeMB = 2;
     if (file.size > maxSizeMB * 1024 * 1024) {
-      alert(`Image must be less than ${maxSizeMB} MB.`);
+      showAlert(`Image must be less than ${maxSizeMB} MB.`);
       return;
     }
 
@@ -108,7 +109,7 @@ const ProfileSettings = () => {
   
       const { data: res } = await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, form);
   
-      alert('Profile updated successfully!');
+      showAlert('Profile updated successfully!');
       
       // Update the image preview immediately
       if (res.profileImageUrl) {
@@ -121,7 +122,7 @@ const ProfileSettings = () => {
       setImageFile(null);  // Reset the file input
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile.');
+      showAlert('Failed to update profile.');
     }
   };
   
@@ -134,13 +135,13 @@ const ProfileSettings = () => {
       await axios.put(`http://localhost:5000/api/freelancer/profile/${freelancerId}`, {
         profileImageUrl: '',
       });
-      alert('Profile picture removed.');
+      showAlert('Profile picture removed.');
       setPreview(null);
       setFreelancerData(prev => ({ ...prev, profileImageUrl: '' }));
       window.location.reload();
     } catch (error) {
       console.error('Error deleting profile picture:', error);
-      alert('Failed to remove picture.');
+      showAlert('Failed to remove picture.');
     }
   };
 
@@ -152,12 +153,12 @@ const ProfileSettings = () => {
         oldPassword,
         newPassword,
       });
-      alert('Password updated successfully!');
+      showAlert('Password updated successfully!');
       setOldPassword('');
       setNewPassword('');
     } catch (error) {
       console.error('Error changing password:', error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Failed to change password.');
+      showAlert(error.response?.data?.message || 'Failed to change password.');
     }
   };
 

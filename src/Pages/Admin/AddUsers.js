@@ -5,6 +5,9 @@ import Navbar from '../../Components/Navbar';
 import { NavConfig4 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
+import { logError, logSuccess } from '../../utils/consoleMessages'; 
+
+
 
 const AddUsers = () => {
   const navigate = useNavigate();
@@ -19,29 +22,29 @@ const AddUsers = () => {
     role: 'client'
   });
 
-  const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+const handleChange = (e) => {
+  setFormData(prev => ({
+    ...prev,
+    [e.target.name]: e.target.value
+  }));
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const admin = JSON.parse(localStorage.getItem('user')); 
-      const payload = { ...formData, authorId: admin?._id }; 
-  
-      const response = await axios.post('http://localhost:5000/api/client/register', payload);
-      if (response.status === 201 || response.status === 200) {
-        navigate('/clientlist');
-      }
-    } catch (err) {
-      console.error('Error creating client:', err);
-      alert(err.response?.data?.message || 'Failed to create client.');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const admin = JSON.parse(localStorage.getItem('user')); 
+    const payload = { ...formData, authorId: admin?._id }; 
+
+    const response = await axios.post('http://localhost:5000/api/client/register', payload);
+    if (response.status === 201 || response.status === 200) {
+      logSuccess('Client created successfully.');
+      navigate('/clientlist');
     }
-  };
-  
+  } catch (err) {
+    logError('Failed to create client: ' + (err.response?.data?.message || err.message));
+    alert(err.response?.data?.message || 'Failed to create client.');
+  }
+};
 
   return (
     <div className="add-user-page">
