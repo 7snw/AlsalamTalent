@@ -47,9 +47,6 @@ const FreelancerNotifications = () => {
         {notifications.length === 0 ? (
           <>
             <p className="no-notifications">No notifications to show.</p>
-            <pre className="debug-output">
-              {JSON.stringify(notifications, null, 2)}
-            </pre>
           </>
         ) : (
           <ul className="notification-list">
