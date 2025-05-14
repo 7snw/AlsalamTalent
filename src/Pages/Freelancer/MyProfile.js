@@ -14,10 +14,11 @@ import { showError } from '../../utils/toastMessages';
 
 const MyProfile = () => {
   const [activeTab, setActiveTab] = useState('about');
-  const [uploadedFiles, setUploadedFiles] = useState([]);  // Portfolio items
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [viewPopup, setViewPopup] = useState(false);
-  const [freelancerData, setFreelancerData] = useState(null); // Freelancer profile data
+  const [selectedProject, setSelectedProject] = useState(null); // ✅ Track selected project
+  const [freelancerData, setFreelancerData] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,11 +31,8 @@ const MyProfile = () => {
           return;
         }
 
-        // Fetch freelancer profile data
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
         setFreelancerData(data);
-
-        // Fetch freelancer portfolio data
         fetchPortfolio(freelancerId);
       } catch (error) {
         console.error('Failed to fetch freelancer profile:', error);
@@ -44,29 +42,21 @@ const MyProfile = () => {
     const fetchPortfolio = async (freelancerId) => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
-        setUploadedFiles(data.portfolio);  
+        setUploadedFiles(data.portfolio);
       } catch (error) {
         console.error('Failed to fetch portfolio:', error);
       }
     };
-    
 
     fetchFreelancerProfile();
   }, []);
 
-  
   useEffect(() => {
-  if (showPopup || viewPopup) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = 'auto';
-  }
-
-  return () => {
-    document.body.style.overflow = 'auto'; // Reset on unmount
-  };
-}, [showPopup, viewPopup]);
-
+    document.body.style.overflow = (showPopup || viewPopup) ? 'hidden' : 'auto';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showPopup, viewPopup]);
 
   const handlePopupSave = (formData) => {
     axios.post(`http://localhost:5000/api/freelancer/portfolio/${freelancerData._id}`, formData, {
@@ -75,9 +65,8 @@ const MyProfile = () => {
       },
     })
     .then(response => {
-      // Once the portfolio is added, update the state
-      setUploadedFiles([...uploadedFiles, response.data]);  // Add the new portfolio to state
-      setShowPopup(false);  // Close the popup
+      setUploadedFiles([...uploadedFiles, response.data]);
+      setShowPopup(false);
     })
     .catch(error => {
       showError(error);
@@ -91,7 +80,7 @@ const MyProfile = () => {
         <div className="profile-header2">
           <div className="left-profile2">
             <img
-               src={freelancerData?.profileImageUrl ? freelancerData.profileImageUrl : userIcon}
+              src={freelancerData?.profileImageUrl ? freelancerData.profileImageUrl : userIcon}
               alt="User Icon"
               className="profile-image2"
             />
@@ -105,16 +94,10 @@ const MyProfile = () => {
         </div>
 
         <div className="tab-buttons22">
-          <button
-            className={activeTab === 'about' ? 'active' : ''}
-            onClick={() => setActiveTab('about')}
-          >
+          <button className={activeTab === 'about' ? 'active' : ''} onClick={() => setActiveTab('about')}>
             About
           </button>
-          <button
-            className={activeTab === 'portfolio' ? 'active' : ''}
-            onClick={() => setActiveTab('portfolio')}
-          >
+          <button className={activeTab === 'portfolio' ? 'active' : ''} onClick={() => setActiveTab('portfolio')}>
             Portfolio
           </button>
         </div>
@@ -123,18 +106,15 @@ const MyProfile = () => {
         {activeTab === 'about' ? (
           <div className="about-section2">
             <div className="basic-info2">
-
-              <p><strong>Name:</strong> {freelancerData?.fullName }</p>
-              <p><strong>ID:</strong> {freelancerData?.studentId }</p>
-              <p><strong>Major:</strong> {freelancerData?.major }</p>
-               <p><strong>Freelancer Type: </strong> {freelancerData?.userType }</p>
+              <p><strong>Name:</strong> {freelancerData?.fullName}</p>
+              <p><strong>ID:</strong> {freelancerData?.studentId}</p>
+              <p><strong>Major:</strong> {freelancerData?.major}</p>
+              <p><strong>Freelancer Type:</strong> {freelancerData?.userType}</p>
             </div>
-
             <div className="bio-info2">
               <h4>Biography</h4>
               <p>{freelancerData?.bio || 'No biography provided yet.'}</p>
             </div>
-
             <div className="skills-info2">
               <h4>Skills</h4>
               <p>{freelancerData?.skills?.join(', ') || 'No skills added yet.'}</p>
@@ -147,11 +127,14 @@ const MyProfile = () => {
                 <div
                   key={`uploaded-${i}`}
                   className="project-card"
-                  onClick={() => setViewPopup(true)} // Opens the project details popup
+                  onClick={() => {
+                    setSelectedProject(proj);   // ✅ Set the clicked project
+                    setViewPopup(true);
+                  }}
                 >
                   <img src={proj.imageUrl} alt={`portfolio-${i}`} />
                   <h4>{proj.title}</h4>
-                  <p>{proj.category}</p>  {/* Adjusted "type" to "category" */}
+                  <p>{proj.category}</p>
                 </div>
               ))}
               <div className="add-portfolio-card" onClick={() => setShowPopup(true)}>
@@ -168,13 +151,17 @@ const MyProfile = () => {
       )}
 
       {/* View portfolio popup */}
-      {viewPopup && (
+      {viewPopup && selectedProject && (
         <ViewPortfolioPopup
-          project={uploadedFiles.find((p) => p)}  // Use the first project as an example for viewing
-          onClose={() => setViewPopup(false)}
+          project={selectedProject} // ✅ Show correct project
+          onClose={() => {
+            setViewPopup(false);
+            setSelectedProject(null); // ✅ Reset selected project
+          }}
         />
       )}
-       <Footer />
+
+      <Footer />
     </div>
   );
 };

@@ -11,7 +11,7 @@ import Footer from '../../Components/Footer';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const MyProjects = () => {
+const AssignedProjects = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: [] });
@@ -59,7 +59,7 @@ const MyProjects = () => {
       <Navbar links={NavConfig2} />
       <div className="my-projects-container">
         <div className="my-left-panel">
-          <h1 className="page-title">My Projects</h1>
+          <h1 className="page-title">Assigned Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
             <p className="hint">Filter your projects according to their progress.</p>
@@ -124,4 +124,4 @@ const MyProjects = () => {
   );
 };
 
-export default MyProjects;
+export default AssignedProjects;

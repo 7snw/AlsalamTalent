@@ -72,7 +72,7 @@ const MyProjectsDetails = () => {
       });
       showAlert('Project submitted successfully.');
       setSelectedFiles([]);
-      navigate('/myprojects');
+      navigate('/Assignedprojects');
     } catch (error) {
       console.error('Submission failed:', error);
       showAlert('Submission failed');

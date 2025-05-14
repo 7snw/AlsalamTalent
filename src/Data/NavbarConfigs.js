@@ -15,7 +15,7 @@ export const NavConfig2 = Object.assign([
     //path: '/all-projects',
     dropdown: [
       { label: 'Browse Projects', path: '/allprojects' },
-       { label: 'My Projects', path: '/myprojects' }, 
+       { label: 'Assigned Projects', path: '/Assignedprojects' }, 
        { label: 'My Applications', path: '/myapplications' },
       { label: 'Saved Projects', path: '/savedprojects' },
      

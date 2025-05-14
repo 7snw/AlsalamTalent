@@ -35,7 +35,7 @@ import FreelancerHome from "./Pages/Freelancer/FreelancerHome";
 
 import AllProjects from "./Pages/Freelancer/AllProjects";
 
-import MyProjects from "./Pages/Freelancer/MyProjects";
+import AssignedProjects from "./Pages/Freelancer/AssignedProjects";
 
 import SavedProjects from "./Pages/Freelancer/SavedProjects";
 
@@ -139,7 +139,7 @@ const App = () => {
           >
             <Route path="/freelancer-home" element={<FreelancerHome />} />
             <Route path="/allprojects" element={<AllProjects />} />
-            <Route path="/myprojects" element={<MyProjects />} />
+            <Route path="/Assignedprojects" element={<AssignedProjects />} />
             <Route path="/savedprojects" element={<SavedProjects />} />
             <Route path="/myapplications" element={<MyApplications />} />
             <Route path="/myprofile" element={<MyProfile />} />

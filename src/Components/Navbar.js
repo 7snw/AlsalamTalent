@@ -4,15 +4,16 @@ import '../Style/Navbar.css';
 import Logo from '../Assets/Logo.png';
 import ChatIcon from '../Assets/Chat.png';
 import BellIcon from '../Assets/Bell.png';
+import BellIconNew from '../Assets/Bell2.png';
 import DefaultUserIcon from '../Assets/User.png';
 import axios from 'axios';
-import { showError, showInfo, showAlert } from '../utils/toastMessages'; // adjust path
-
-
+import { showError, showInfo, showAlert } from '../utils/toastMessages';
 
 const Navbar = ({ links = [] }) => {
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState(DefaultUserIcon);
+  const [redirectPath, setRedirectPath] = useState('/');
+  const [hasNotifications, setHasNotifications] = useState(false);
 
   const showIcons = links.showIcons === true;
   const hideSignIn = links.hideSignIn === true;
@@ -21,7 +22,15 @@ const Navbar = ({ links = [] }) => {
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const userId = storedUser?._id;
   const role = storedUser?.role;
-  
+
+  useEffect(() => {
+    if (role) {
+      const normalizedRole = role.toLowerCase();
+      if (normalizedRole === 'admin') setRedirectPath('/adminallprojects');
+      else if (normalizedRole === 'client') setRedirectPath('/clienthome');
+      else if (normalizedRole === 'freelancer') setRedirectPath('/freelancer-home');
+    }
+  }, [role]);
 
   useEffect(() => {
     const fetchProfileImage = async () => {
@@ -31,23 +40,34 @@ const Navbar = ({ links = [] }) => {
           if (role === 'freelancer') {
             apiUrl = `http://localhost:5000/api/freelancer/profile/${userId}`;
           }
-          // You can add for client/admin if needed.
 
           if (apiUrl) {
             const { data } = await axios.get(apiUrl);
             if (data?.profileImageUrl) {
-              setProfileImage(data.profileImageUrl); 
+              setProfileImage(data.profileImageUrl);
             }
           }
         } catch (error) {
-
-         showError(error)
+          showError(error);
           setProfileImage(DefaultUserIcon);
         }
       }
     };
 
+    const fetchNotifications = async () => {
+      if (!userId || !role) return;
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/notifications/${userId}/${role.toLowerCase()}`
+        );
+        setHasNotifications(res.data.length > 0);
+      } catch (err) {
+        console.warn('🔔 Failed to load notifications icon state:', err);
+      }
+    };
+
     fetchProfileImage();
+    fetchNotifications();
   }, [role, userId]);
 
   // Paths depending on user role
@@ -67,19 +87,21 @@ const Navbar = ({ links = [] }) => {
     auditProfilePath = '/AuditLogs';
   }
 
-
-const handleSignOut = () => {
-  localStorage.clear();
-  showInfo(' Signed out successfully!');
-  navigate('/landingpage');
-};
+  const handleSignOut = () => {
+    localStorage.clear();
+    showInfo('Signed out successfully!');
+    navigate('/landingpage');
+  };
 
   return (
     <nav className="navbar">
       <div className="nav-left">
-        <div className="logo-title" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+        <div
+          className="logo-title"
+          onClick={() => navigate(redirectPath)}
+          style={{ cursor: 'pointer' }}
+        >
           <img src={Logo} alt="Logo" className="logo-image" />
-         
         </div>
 
         <ul className="nav-links">
@@ -119,23 +141,16 @@ const handleSignOut = () => {
             onClick={() => navigate('/messages')}
           />
           <img
-  src={BellIcon}
-  alt="Notifications"
-  className="nav-icon"
-  onClick={() => {
-    if (role === 'freelancer') {
-      navigate('/freelancer-notifications');
-    } else if (role === 'client') {
-      navigate('/client-notifications');
-    } else if (role === 'admin') {
-      navigate('/admin-notifications');
-    } else {
-      showAlert('Unknown role. Cannot open notifications.');
-    }
-  }}
-/>
-
-
+            src={hasNotifications ? BellIconNew : BellIcon}
+            alt="Notifications"
+            className="nav-icon"
+            onClick={() => {
+              if (role === 'freelancer') navigate('/freelancer-notifications');
+              else if (role === 'client') navigate('/client-notifications');
+              else if (role === 'admin') navigate('/admin-notifications');
+              else showAlert('Unknown role. Cannot open notifications.');
+            }}
+          />
           <div className="user-dropdown-wrapper">
             <img
               src={profileImage || DefaultUserIcon}

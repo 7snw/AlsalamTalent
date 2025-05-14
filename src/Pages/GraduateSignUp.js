@@ -5,7 +5,6 @@ import { FaArrowLeft } from 'react-icons/fa';
 import axios from 'axios';
 import { showAlert } from '../utils/toastMessages';
 
-
 const expertiseOptions = [
   "Marketing Consultant",
   "Graphic Designer",
@@ -29,9 +28,10 @@ const GraduateSignUp = () => {
     expertise: []
   });
 
+  const [cprFileName, setCprFileName] = useState('');
   const [isPolyStudent, setIsPolyStudent] = useState(null);
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
-    const [showMajorDropdown, setShowMajorDropdown] = useState(false);
+  const [showMajorDropdown, setShowMajorDropdown] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -42,12 +42,12 @@ const GraduateSignUp = () => {
       } else {
         const year = parseInt(value.substring(0, 4), 10);
         const validFormat = /^\d{9}$/.test(value);
-        if (validFormat && year >= 2008 && year <= new Date().getFullYear()) {
-          setIsPolyStudent(true);
-        } else {
-          setIsPolyStudent(false);
-        }
+        setIsPolyStudent(validFormat && year >= 2008 && year <= new Date().getFullYear());
       }
+    }
+
+    if (name === 'cpr' && files.length) {
+      setCprFileName(files[0].name);
     }
 
     setFormData(prev => ({
@@ -67,56 +67,55 @@ const GraduateSignUp = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const year = parseInt(formData.studentId.substring(0, 4), 10);
-  if (year < 2008 || year > new Date().getFullYear()) {
-    showAlert('Invalid Student ID');
-    return;
-  }
-
-  const form = new FormData();
-  form.append('userType', 'graduate');
-  form.append('studentId', formData.studentId);
-  form.append('fullName', formData.fullName);
-  form.append('email', formData.email);
-  form.append('password', formData.password);
-  form.append('major', formData.major);
-  form.append('phone', formData.contactNumber);
-  form.append('expertise', JSON.stringify(formData.expertise));
-  form.append('cpr', formData.cpr);
-
-  try {
-    const response = await axios.post(
-      'http://localhost:5000/api/freelancer/graduate-register',
-      form,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      }
-    );
-
-    if (response.status === 200 || response.status === 201) {
-      showAlert('Account Created! Waiting for admin verification.');
-
-      //  Try sending notification to admin
-      try {
-        await axios.post("http://localhost:5000/api/notifications/send", {
-          userType: "admin",
-          subject: "New Graduate Freelancer Signup",
-          message: `${formData.fullName} has registered as a graduate freelancer and is awaiting approval.`,
-          type: "info"
-        });
-      } catch (notifyErr) {
-        console.warn("⚠️ Admin notification failed:", notifyErr.message);
-      }
-
-      navigate('/signin');
+    const year = parseInt(formData.studentId.substring(0, 4), 10);
+    if (year < 2008 || year > new Date().getFullYear()) {
+      showAlert('Invalid Student ID');
+      return;
     }
-  } catch (error) {
-    console.error('Graduate signup failed:', error.response?.data || error.message);
-    showAlert(error.response?.data?.message || 'Signup failed.');
-  }
-};
+
+    const form = new FormData();
+    form.append('userType', 'Graduate');
+    form.append('studentId', formData.studentId);
+    form.append('fullName', formData.fullName);
+    form.append('email', formData.email);
+    form.append('password', formData.password);
+    form.append('major', formData.major);
+    form.append('phone', formData.contactNumber);
+    form.append('expertise', JSON.stringify(formData.expertise));
+    form.append('cpr', formData.cpr);
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/freelancer/graduate-register',
+        form,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        showAlert('Account Created! Waiting for admin verification.');
+
+        try {
+          await axios.post("http://localhost:5000/api/notifications/send", {
+            userType: "admin",
+            subject: "New Graduate Freelancer Signup",
+            message: `${formData.fullName} has registered as a graduate freelancer and is awaiting approval.`,
+            type: "info"
+          });
+        } catch (notifyErr) {
+          console.warn("⚠️ Admin notification failed:", notifyErr.message);
+        }
+
+        navigate('/signin');
+      }
+    } catch (error) {
+      console.error('Graduate signup failed:', error.response?.data || error.message);
+      showAlert(error.response?.data?.message || 'Signup failed.');
+    }
+  };
 
   return (
     <div className="graduate-body">
@@ -130,10 +129,9 @@ const GraduateSignUp = () => {
             <div>
               <label>Student ID</label>
               <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} required />
-              <div style={{ minHeight: '5px', marginTop: '0px' }}>
-                {isPolyStudent === true && <p style={{ color: 'green' }}></p>}
-                {isPolyStudent === false && <p style={{ color: 'red' }}></p>}
-              </div>
+              {isPolyStudent === false && (
+                <p style={{ color: 'red', marginTop: '4px' }}>Invalid Bahrain Polytechnic ID</p>
+              )}
             </div>
             <div>
               <label>Full Name</label>
@@ -152,47 +150,46 @@ const GraduateSignUp = () => {
           <div className="graduate-divider"></div>
 
           <div className="graduate-right-fields">
-            
-            
-              <div className="major-field">
-  <p>Major</p>
-  <div
-    className="major-display"
-    onClick={() => setShowMajorDropdown((prev) => !prev)}
-  >
-    {formData.major || "Select Major"}
-  </div>
-
-  {showMajorDropdown && (
-    <div className="major-dropdown-list">
-      {[
-        "School of ICT",
-        "School of Creative Media",
-        "School of Business",
-        "School of Logistics & Maritime Studies",
-        "School of Engineering",
-        "School of Foundation",
-      ].map((option, index) => (
-        <div
-          key={index}
-          className="major-option"
-          onClick={() => {
-            setFormData((prev) => ({ ...prev, major: option }));
-            setShowMajorDropdown(false);
-          }}
-        >
-          {option}
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-            
-        
+            <div className="major-field">
+              <p>Major</p>
+              <div className="major-display" onClick={() => setShowMajorDropdown(!showMajorDropdown)}>
+                {formData.major || "Select Major"}
+              </div>
+              {showMajorDropdown && (
+                <div className="major-dropdown-list">
+                  {[
+                    "School of ICT",
+                    "School of Creative Media",
+                    "School of Business",
+                    "School of Logistics & Maritime Studies",
+                    "School of Engineering",
+                    "School of Foundation",
+                  ].map((option, index) => (
+                    <div
+                      key={index}
+                      className="major-option"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, major: option }));
+                        setShowMajorDropdown(false);
+                      }}
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div>
               <label>Contact Number</label>
-              <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} pattern="\d{8}" required />
+              <input
+                type="tel"
+                name="contactNumber"
+                value={formData.contactNumber}
+                onChange={handleChange}
+                pattern="\d{8}"
+                required
+              />
             </div>
 
             <div className="expertiseer0">
@@ -223,6 +220,7 @@ const GraduateSignUp = () => {
             <div className="graduate-file-upload-wrapper">
               <label htmlFor="cpr-upload">Upload CPR</label>
               <input id="cpr-upload" type="file" name="cpr" accept="image/*" onChange={handleChange} required />
+              {cprFileName && <p style={{ fontSize: '12px', color: '#555' }}>Uploaded: {cprFileName}</p>}
             </div>
 
             <button type="submit" className="graduate-create-btn">Create</button>

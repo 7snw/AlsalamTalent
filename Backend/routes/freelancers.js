@@ -105,11 +105,8 @@ router.post('/register', upload.single('cpr'), async (req, res) => {
 
 router.get('/pending', async (req, res) => {
   try {
-    const freelancers = await Freelancer.find(
-      { isVerified: false },
-      'fullName studentId email cprImageUrl isVerified userType'
-    );
-    res.json(freelancers);
+    const pendingFreelancers = await Freelancer.find({ isVerified: false }).select('fullName userType email studentId cprImageUrl');
+    res.json(pendingFreelancers);
   } catch (err) {
     console.error('Error fetching freelancers:', err);
     res.status(500).json({ message: 'Server error', error: err });

@@ -112,16 +112,23 @@
   transition: all 0.2s ease;
 }
 
-.graduates-info h3 {
+.graduates-info9 h3 {
   margin: 0;
   font-size: 18px;
   color: #1B223C;
 }
 
-.graduates-info p {
+.graduates-info9 p {
   margin: 4px 0;
   font-size: 14px;
   color: #444;
+}
+
+
+.graduates-info9 a {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #1B223C;
 }
 
 .graduates-meta {

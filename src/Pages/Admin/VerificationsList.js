@@ -99,13 +99,13 @@ const VerificationsList = () => {
           <div className="graduates-results">
             {filteredList.map((user) => (
               <div className="graduates-card" key={user._id}>
-                <div className="graduates-info">
+                <div className="graduates-info9">
                   <div>
                     <h3>{user.fullName}</h3>
                     <p>{user.userType}</p>
                     <p>{user.email}</p>
                     <p>{user.studentId && `Student ID: ${user.studentId}`}</p>
-                    {user.userType === 'graduate' && user.cprImageUrl && (
+                    {user.userType === 'Graduate' && user.cprImageUrl && (
                       <p>
                         <a href={user.cprImageUrl} target="_blank" rel="noopener noreferrer">
                           View CPR

@@ -157,11 +157,14 @@
 .status-label.assigned {
   background-color: #1B223C;
   color: #ffffff;
+  padding: 10px 5px;
+
 }
 
 /* Match "Cancel" style */
 .status-label.cancelled {
   background-color: #EE582B;
   color: #ffffff;
+    padding: 10px 5px;
 }
 

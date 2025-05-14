@@ -1,20 +1,12 @@
 import { useEffect, useState } from "react";
-
 import axios from "axios";
-
 import Navbar from "../../Components/Navbar";
-
 import Footer from "../../Components/Footer";
-
 import "../../Style/Notifications.css";
-
 import { NavConfig2 } from "../../Data/NavbarConfigs";
 
 const FreelancerNotifications = () => {
-  const [user, setUser] = useState(null);
-
   const [notifications, setNotifications] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,24 +14,23 @@ const FreelancerNotifications = () => {
 
     if (stored) {
       const parsed = JSON.parse(stored);
+      const userId = parsed._id;
+      const role = (parsed.role || parsed.userType || "").toLowerCase();
 
-      setUser(parsed);
-
-      axios
-
-        .get(
-          `http://localhost:5000/api/notifications/${parsed._id}/${parsed.role}`
-        )
-
-        .then((res) => {
-          console.log("🔔 Notifications response:", res.data);
-
-          setNotifications(res.data);
-        })
-
-        .catch((err) => console.error("❌ Error fetching notifications:", err))
-
-        .finally(() => setLoading(false));
+      if (userId && role === "freelancer") {
+        axios
+          .get(`http://localhost:5000/api/notifications/${userId}/${role}`)
+          .then((res) => {
+            console.log("🔔 Notifications response:", res.data);
+            setNotifications(res.data);
+          })
+          .catch((err) =>
+            console.error("❌ Error fetching notifications:", err)
+          )
+          .finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
     } else {
       setLoading(false);
     }
@@ -51,7 +42,7 @@ const FreelancerNotifications = () => {
     <div className="notifications-page">
       <Navbar links={NavConfig2} />
       <div className="notifications-container">
-        <h2>Welcome, {user?.fullName}</h2>
+        <h2>Notifications</h2>
 
         {notifications.length === 0 ? (
           <>
@@ -61,26 +52,24 @@ const FreelancerNotifications = () => {
             </pre>
           </>
         ) : (
-          <>
-            <ul className="notification-list">
-              {notifications.map((note) => (
-                <li key={note._id} className={`notification-item ${note.type}`}>
-                  <span className="bell-icon">🔔</span>
-                  <div className="notification-content">
-                    <p className="notification-subject">
-                      <strong>{note.subject || "No subject"}</strong>
-                    </p>
-                    <p>{note.message || "No message"}</p>
-                    <small className="notification-time">
-                      {note.createdAt
-                        ? new Date(note.createdAt).toLocaleString()
-                        : "No timestamp"}
-                    </small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </>
+          <ul className="notification-list">
+            {notifications.map((note) => (
+              <li key={note._id} className={`notification-item ${note.type}`}>
+                <span className="bell-icon">🔔</span>
+                <div className="notification-content">
+                  <p className="notification-subject">
+                    <strong>{note.subject || "No subject"}</strong>
+                  </p>
+                  <p>{note.message || "No message"}</p>
+                  <small className="notification-time">
+                    {note.createdAt
+                      ? new Date(note.createdAt).toLocaleString()
+                      : "No timestamp"}
+                  </small>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       <Footer />

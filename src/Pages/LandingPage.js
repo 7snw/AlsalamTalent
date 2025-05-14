@@ -37,7 +37,7 @@ const LandingPage = () => {
             </h1>
             <p className="description">
           Ctrl-Z connects Bahrain Polytechnic students and graduates <br/>
-          with exciting freelance opportunities. Swipe, match, and collaborate!
+          with exciting freelance opportunities. Find your match, and collaborate!
             </p>
             <div className="button-group">
               <button className="primary-btn" onClick={() => navigate('/studentgraduate')}>

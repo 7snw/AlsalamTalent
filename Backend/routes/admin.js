@@ -29,10 +29,10 @@ router.post('/verify', async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"Alsalam Bank | CTRL-Z" <${process.env.EMAIL_USER}>`,
+      from: `"Ctrl-Z | AlSalam Bank" <${process.env.EMAIL_USER}>`,
       to: freelancer.email,
       subject: 'Your Account Has Been Verified!',
-      text: `Dear ${freelancer.fullName},\n\nYour ${freelancer.userType} account has been verified. You can now sign in and start using CTRL-Z.\n\nBest regards,\nAlsalam Bank Team`
+      text: `Dear ${freelancer.fullName},\n\nYour ${freelancer.userType} account has been verified. You can now sign in and start using Ctrl-Z.\n\nBest regards,\nCtrl-Z Team`
     };
 
     await transporter.sendMail(mailOptions);
