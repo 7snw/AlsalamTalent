@@ -72,7 +72,7 @@ const LoginPage = () => {
           <div className="login-left">
             <h2>Sign in to your Account</h2>
             <form onSubmit={handleSubmit} className="login-form">
-              <label>Email</label>
+              <label>Personal Email</label>
               <input
                 type="email"
                 value={email}

@@ -110,7 +110,7 @@ const MyProjectsDetails = () => {
                   </span>
                 ))}
               </div>
-                <h4> you will be paid soon </h4>
+              
           
           </div>
         )}

@@ -213,7 +213,7 @@ const ProfileSettings = () => {
           </ul>
 
           <button className="delete-account9" onClick={handleDeactivateAccount}>
-            {isActive ? 'Deactivate Account' : 'Reactivate Account'}
+            {isActive ? 'Deactivate Account' : 'Deactivate Account'}
           </button>
         </div>
 

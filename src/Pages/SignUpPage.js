@@ -183,7 +183,7 @@ const SignUpPage = () => {
               />
             </div>
             <div>
-              <label>Email</label>
+              <label>Personal Email</label>
               <input
                 type="email"
                 name="email"
