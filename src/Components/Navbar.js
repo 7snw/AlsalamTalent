@@ -162,7 +162,7 @@ const Navbar = ({ links = [] }) => {
               {editProfilePath && (
                 <div className="dropdown-item" onClick={() => navigate(editProfilePath)}>Edit Profile</div>
               )}
-                {/* 📌 Show Payment History only for freelancer */}
+                {/*Mock Show Payment History only for freelancer */}
   {role === 'freelancer' && (
     <div className="dropdown-item" onClick={() => navigate('/PaymentHistory')}>
       Payment History
