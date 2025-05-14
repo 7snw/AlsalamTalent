@@ -101,6 +101,9 @@ import VerificationsList from "./Pages/Admin/VerificationsList";
 
 import AdminNotifications from "./Pages/Admin/AdminNotifications";
 
+//Mock
+import PaymentHistoryM from "./Components/PaymentHistoryMock"
+
 const App = () => {
   return (
     <Router>
@@ -115,6 +118,8 @@ const App = () => {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/graduatesignup" element={<GraduateSignUp />} />
           <Route path="/aboutus" element={<AboutUs />} />
+                      <Route path="/PaymentHistory" element={<PaymentHistoryM/>}/>
+
 
           {/* Shared Protected */}
           <Route
