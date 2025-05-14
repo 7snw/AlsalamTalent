@@ -77,30 +77,6 @@ const PostProject = () => {
       showAlert("Failed to post project.");
       return; //  Don't continue to notifications
     }
-
-    try {
-      await Promise.all([
-        axios.post("http://localhost:5000/api/notifications/send", {
-          userType: "admin",
-          subject: "New Project Posted",
-          message: `${storedUser.fullName} has just posted a new project: "${projectTitle}".`,
-          type: "info",
-        }),
-        axios.post("http://localhost:5000/api/notifications/broadcast", {
-          role: "freelancer",
-          subject: "New Project Posted",
-          message: `A new project has been posted: "${projectTitle}".`,
-          type: "info",
-        }),
-      ]);
-    } catch (notifyError) {
-      console.warn(
-        "⚠️ Project was posted, but notification failed:",
-        notifyError.response?.data || notifyError.message
-      );
-      // Optional: show a toast or silent fail
-    }
-
     showAlert("Project successfully posted!");
     navigate("/browseprojects");
   };

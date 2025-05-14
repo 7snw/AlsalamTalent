@@ -77,16 +77,17 @@ const ProjectApplications = () => {
       await axios.post("http://localhost:5000/api/notifications", notification);
     }
 
-    setApplications((prev) =>
-      prev.map((app) =>
-        app.project?.id === projectId && app.freelancer?.id === freelancerId
-          ? {
-              ...app,
-              status: action === "approve" ? "Assigned" : "Cancelled",
-            }
-          : app
-      )
-    );
+setApplications((prev) =>
+  prev.map((app) => {
+    const pid = app.project?.id || app.projectId?._id;
+    const fid = app.freelancer?.id || app.freelancerId?._id;
+    if (pid === projectId && fid === freelancerId) {
+      return { ...app, status: action === "approve" ? "Assigned" : "Cancelled" };
+    }
+    return app;
+  })
+);
+
   } catch (error) {
     console.error(`Error on ${action}:`, error);
   }
