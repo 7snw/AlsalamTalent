@@ -60,6 +60,10 @@ const FreelancerHome = () => {
     fetchData();
   }, [userId]);
 
+  useEffect(() => {
+  document.body.classList.toggle('modal-open', showModal);
+}, [showModal]);
+
   const isProjectSaved = (projectId) =>
     savedProjects.some((p) => p._id === projectId);
 
@@ -79,24 +83,28 @@ const FreelancerHome = () => {
     }
   };
 
+  
+
   const handleMatchClick = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/api/projects/match/${userId}`
-      );
-
-      if (res.data.length === 0) {
-        showAlert("No matched projects found.");
-        return;
-      }
-
-      setMatchedProjects(res.data);
-      setSelectedIndex(0);
-      setShowModal(true);
-    } catch (err) {
-      console.error("Error fetching matched projects:", err);
+  console.log("Match button clicked");
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/projects/match/${userId}`
+    );
+    console.log("Matched Projects:", res.data);
+    
+    if (res.data.length === 0) {
+      showAlert("No matched projects found.");
+      return;
     }
-  };
+
+    setMatchedProjects(res.data);
+    setSelectedIndex(0);
+    setShowModal(true);
+  } catch (err) {
+    console.error(" Error fetching matched projects:", err);
+  }
+};
 
   const selectedProject = matchedProjects[selectedIndex];
   const closeModal = () => setShowModal(false);
@@ -137,9 +145,9 @@ const FreelancerHome = () => {
 
           <br />
           {showModal && matchedProjects.length > 0 && selectedProject && (
-            <div className="modal-overlay" onClick={closeModal}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <div key={selectedProject._id} className="modal-body">
+            <div className="modal-overlay4" onClick={closeModal}>
+              <div className="modal-content4" onClick={(e) => e.stopPropagation()}>
+                <div key={selectedProject._id} className="modal-body4">
                   <img
                     src={selectedProject.imageUrl || selectedProject.image || selectedProject.coverImage}
                     alt={selectedProject.title}
@@ -149,17 +157,17 @@ const FreelancerHome = () => {
                   <p><strong>Category:</strong> {selectedProject.category}</p>
                   <p><strong>Brief:</strong> {selectedProject.brief}</p>
                 </div>
-                <div className="modal-footer">
-                  <button className="nav-button" onClick={prevProject}>
+                <div className="modal-footer4">
+                  <button className="nav-button4" onClick={prevProject}>
                     <FaChevronLeft />
                   </button>
                   <span
-                    className="bookmark modal-bookmark"
+                    className="bookmark4 modal-bookmark4"
                     onClick={(e) => handleBookmarkClick(e, selectedProject._id)}
                   >
                     {isProjectSaved(selectedProject._id) ? <FaBookmark /> : <FaRegBookmark />}
                   </span>
-                  <button className="nav-button" onClick={nextProject}>
+                  <button className="nav-button4" onClick={nextProject}>
                     <FaChevronRight />
                   </button>
                 </div>

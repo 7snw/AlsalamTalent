@@ -1,5 +1,3 @@
-// src/Pages/Clients/AnalyticsClient.js
-
 import React, { useEffect, useState } from 'react';
 import '../../Style/Clients/AnalyticsClient.css';
 import Navbar from '../../Components/Navbar';
@@ -25,24 +23,29 @@ const AnalyticsClient = () => {
     allProjects: []
   });
 
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const clientId = storedUser?._id;
+
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/client/analytics');
+        const response = await axios.get(`http://localhost:5000/api/client/analytics/${clientId}`);
         setAnalytics(response.data);
       } catch (error) {
         console.error('Error fetching analytics:', error);
       }
     };
 
-    fetchAnalytics();
-  }, []);
+    if (clientId) {
+      fetchAnalytics();
+    }
+  }, [clientId]);
 
   return (
     <div className="analytics-page">
       <Navbar links={NavConfig3} />
       <div className="analytics-container">
-  <h2> Analytics</h2>
+        <h2> Analytics</h2>
 
         {/* TOP CARDS */}
         <div className="summary-cards">
@@ -62,8 +65,6 @@ const AnalyticsClient = () => {
 
         {/* CHART + LIST */}
         <div className="details-section9">
-
-          {/* Left - Recharts Bar Chart */}
           <div className="card progress9">
             <h4>Projects by Month</h4>
             <ResponsiveContainer width="100%" height={250}>
@@ -77,7 +78,6 @@ const AnalyticsClient = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Right - List of All Projects */}
           <div className="card project-list9">
             <h4>All Projects</h4>
             <div className="project-scroll">
@@ -94,7 +94,6 @@ const AnalyticsClient = () => {
               )}
             </div>
           </div>
-
         </div>
       </div>
       <Footer />

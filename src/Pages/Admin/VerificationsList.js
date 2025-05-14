@@ -8,15 +8,15 @@ import { NavConfig4 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import Navbar from '../../Components/Navbar';
 import { showAlert } from '../../utils/toastMessages';
-
+import ConfirmationModal from '../../Components/ConfirmationModal';
 
 const VerificationsList = () => {
   const [allFreelancers, setAllFreelancers] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [polytechStatusMap, setPolytechStatusMap] = useState({});
+  const [confirmData, setConfirmData] = useState(null);
 
-  // Check all student IDs against the Polytechnic API
   const checkAllStudentIds = async (freelancers) => {
     const map = {};
     for (const user of freelancers) {
@@ -33,7 +33,6 @@ const VerificationsList = () => {
     setPolytechStatusMap(map);
   };
 
-  // Fetch all freelancers (memoized for useEffect and reuse)
   const fetchFreelancers = useCallback(async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/freelancer/pending');
@@ -48,20 +47,22 @@ const VerificationsList = () => {
     fetchFreelancers();
   }, [fetchFreelancers]);
 
-  // Handle verification
-  const handleVerify = async (freelancerId) => {
-    if (!window.confirm('Verify this freelancer?')) return;
+  const confirmVerify = async () => {
+    if (!confirmData) return;
     try {
-      const res = await axios.post('http://localhost:5000/api/admin/verify', { freelancerId });
+      const res = await axios.post('http://localhost:5000/api/admin/verify', {
+        freelancerId: confirmData.freelancerId,
+      });
       showAlert(res.data.message);
-      fetchFreelancers(); // Refresh list
+      fetchFreelancers();
     } catch (err) {
       console.error('Verification error:', err);
       showAlert(err.response?.data?.message || 'Verification failed.');
+    } finally {
+      setConfirmData(null);
     }
   };
 
-  // Filter freelancers
   const filteredList = allFreelancers.filter((user) => {
     const matchFilter = filter === 'all' || user.userType === filter;
     const matchSearch = user.fullName.toLowerCase().includes(search.toLowerCase());
@@ -112,17 +113,18 @@ const VerificationsList = () => {
                         </a>
                       </p>
                     )}
-                
                   </div>
                 </div>
                 <div className="graduates-meta">
-                   
-                  
-                
                   {!user.isVerified && (
                     <button
                       className="verify-btn"
-                      onClick={() => handleVerify(user._id)}
+                      onClick={() =>
+                        setConfirmData({
+                          freelancerId: user._id,
+                          message: 'Are you sure you want to verify this freelancer?',
+                        })
+                      }
                       disabled={polytechStatusMap[user._id] === false}
                       style={{
                         opacity: polytechStatusMap[user._id] === false ? 0.6 : 1,
@@ -138,6 +140,15 @@ const VerificationsList = () => {
           </div>
         </div>
       </div>
+
+      {confirmData && (
+        <ConfirmationModal
+          message={confirmData.message}
+          onConfirm={confirmVerify}
+          onCancel={() => setConfirmData(null)}
+        />
+      )}
+
       <Footer />
     </div>
   );
