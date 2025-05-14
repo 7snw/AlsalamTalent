@@ -55,14 +55,21 @@ const AllProjects = () => {
   const isProjectSaved = (projectId) => savedProjects.includes(projectId);
 
   const handleBookmarkClick = async (e, projectId) => {
-    e.stopPropagation();
-    try {
-      const res = await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
-      setSavedProjects(res.data.map(p => p._id));
-    } catch (error) {
-      console.error('Error updating saved projects:', error);
-    }
-  };
+  e.stopPropagation();
+  try {
+    await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
+
+    // Optimistically update local state
+    setSavedProjects((prev) => {
+      return prev.includes(projectId)
+        ? prev.filter((id) => id !== projectId)
+        : [...prev, projectId];
+    });
+  } catch (error) {
+    console.error('Error updating saved projects:', error);
+  }
+};
+
   
 
   const filteredProjects = allProjects.filter((proj) => {

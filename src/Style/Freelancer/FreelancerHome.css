@@ -172,7 +172,8 @@
 }
 
 /* Modal for Matched Project */
-.modal-overlay {
+
+ .modal-overlay4 {
   position: fixed;
   top: 0;
   left: 0;
@@ -185,7 +186,7 @@
   z-index: 9999;
 }
 
-.modal-content {
+.modal-content4 {
   position: relative;
   background: #fff;
   padding: 30px 40px;
@@ -199,7 +200,8 @@
   align-items: center;
 }
 
-.modal-body img {
+
+.modal-body4 img {
   width: 100%;
   max-height: 250px;
   object-fit: cover;
@@ -207,19 +209,18 @@
   margin-bottom: 16px;
 }
 
-.modal-body h2 {
+.modal-body4 h2 {
   font-size: 24px;
   margin-bottom: 12px;
   color: #1b223c;
 }
 
-.modal-body p {
+.modal-body4 p {
   font-size: 16px;
   color: #333;
   margin: 6px 0;
 }
-
-.modal-footer {
+.modal-footer4 {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -227,7 +228,9 @@
   margin-top: 20px;
 }
 
-.modal-footer .nav-button {
+.modal-footer4 .nav-button4 {
+  position: static;
+  transform: none;
   font-size: 20px;
   background-color: #ffffff;
   border: 2px solid #ccc;
@@ -242,18 +245,18 @@
   transition: all 0.2s ease;
 }
 
-.modal-footer .nav-button:hover {
+.modal-footer4 .nav-button4:hover {
   background-color: #f1f1f1;
   border-color: #999;
 }
 
-.modal-bookmark {
+.modal-bookmark4 {
   font-size: 24px;
   cursor: pointer;
   color: #1B223C;
   transition: color 0.2s;
 }
 
-.modal-bookmark:hover {
+.modal-bookmark4:hover {
   color: #EE582B;
 }

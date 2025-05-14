@@ -10,11 +10,14 @@ import { NavConfig3 } from '../../Data/NavbarConfigs';
 import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
+import ConfirmationModal from '../../Components/ConfirmationModal';
 
 const ProjectApplications = () => {
   const [search, setSearch] = useState('');
   const [applications, setApplications] = useState([]);
   const [filters, setFilters] = useState({ status: [] });
+  const [confirmData, setConfirmData] = useState(null);
+
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
@@ -43,57 +46,51 @@ const ProjectApplications = () => {
   };
 
   const handleAction = async (projectId, freelancerId, action) => {
-    const actionLabel = action === "approve" ? "assign this freelancer" : "cancel this application";
-    const confirmed = window.confirm(`Are you sure you want to ${actionLabel}? This action cannot be undone.`);
+  try {
+    await axios.post(
+      `http://localhost:5000/api/applications/${projectId}/${action}`,
+      { freelancerId, clientId }
+    );
 
-    if (!confirmed) return;
+    const app = applications.find(
+      (a) => a.project?.id === projectId && a.freelancer?.id === freelancerId
+    );
 
-    try {
-      await axios.post(
-        `http://localhost:5000/api/applications/${projectId}/${action}`,
-        { freelancerId, clientId }
-      );
+    if (app && app.freelancer?.email && app.project?.title) {
+      const notification = {
+        userId: freelancerId,
+        userType: "freelancer",
+        email: app.freelancer.email,
+        type: "info",
+        subject: "",
+        message: "",
+      };
 
-      const app = applications.find(
-        (a) => a.project?.id === projectId && a.freelancer?.id === freelancerId
-      );
-
-      if (app && app.freelancer?.email && app.project?.title) {
-        const notification = {
-          userId: freelancerId,
-          userType: "freelancer",
-          email: app.freelancer.email,
-          type: "info",
-          subject: "",
-          message: "",
-        };
-
-        if (action === "approve") {
-          notification.subject = "You've been assigned!";
-          notification.message = `You have been assigned to the project "${app.project.title}".`;
-        } else {
-          notification.subject = "Application Cancelled";
-          notification.message = `Your application to "${app.project.title}" has been declined.`;
-        }
-
-        await axios.post("http://localhost:5000/api/notifications", notification);
+      if (action === "approve") {
+        notification.subject = "You've been assigned!";
+        notification.message = `You have been assigned to the project "${app.project.title}".`;
+      } else {
+        notification.subject = "Application Cancelled";
+        notification.message = `Your application to "${app.project.title}" has been declined.`;
       }
 
-      // Update local state to reflect action
-      setApplications((prev) =>
-        prev.map((app) =>
-          app.project?.id === projectId && app.freelancer?.id === freelancerId
-            ? {
-                ...app,
-                status: action === "approve" ? "Assigned" : "Cancelled",
-              }
-            : app
-        )
-      );
-    } catch (error) {
-      console.error(`Error on ${action}:`, error);
+      await axios.post("http://localhost:5000/api/notifications", notification);
     }
-  };
+
+    setApplications((prev) =>
+      prev.map((app) =>
+        app.project?.id === projectId && app.freelancer?.id === freelancerId
+          ? {
+              ...app,
+              status: action === "approve" ? "Assigned" : "Cancelled",
+            }
+          : app
+      )
+    );
+  } catch (error) {
+    console.error(`Error on ${action}:`, error);
+  }
+};
 
   const filteredApps = applications.filter((app) => {
     const appStatus = app.status || 'Under Review'; 
@@ -173,44 +170,58 @@ const ProjectApplications = () => {
                     <p>Status: {app.status || "Under Review"}</p>
                   </div>
 
-                  <div className="application-actions">
-                    {app.status === "Under Review" || !app.status ? (
-                      <>
-                        <button
-                          className="assign"
-                          onClick={() =>
-                            handleAction(
-                              app.project.id,
-                              app.freelancer.id,
-                              "approve"
-                            )
-                          }
-                        >
-                          Assign
-                        </button>
-                        <button
-                          className="cancel"
-                          onClick={() =>
-                            handleAction(
-                              app.project.id,
-                              app.freelancer.id,
-                              "reject"
-                            )
-                          }
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <p className={`status-label ${app.status.toLowerCase()}`}>
-                        {app.status}
-                      </p>
-                    )}
-                  </div>
+                 <div className="application-actions">
+  {app.status === "Under Review" || !app.status ? (
+    <>
+      <button
+        className="assign"
+        onClick={() =>
+          setConfirmData({
+            projectId: app.project.id,
+            freelancerId: app.freelancer.id,
+            action: 'approve',
+            message: "Are you sure you want to assign this freelancer?",
+          })
+        }
+      >
+        Assign
+      </button>
+      <button
+        className="cancel"
+        onClick={() =>
+          setConfirmData({
+            projectId: app.project.id,
+            freelancerId: app.freelancer.id,
+            action: 'reject',
+            message: "Are you sure you want to cancel this application?",
+          })
+        }
+      >
+        Cancel
+      </button>
+    </>
+  ) : (
+    <p className={`status-label ${app.status.toLowerCase()}`}>
+      {app.status}
+    </p>
+  )}
+</div>
+
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
+          {confirmData && (
+  <ConfirmationModal
+    message={confirmData.message}
+    onConfirm={async () => {
+      await handleAction(confirmData.projectId, confirmData.freelancerId, confirmData.action);
+      setConfirmData(null);
+    }}
+    onCancel={() => setConfirmData(null)}
+  />
+)}
+
         </main>
       </div>
       <Footer />

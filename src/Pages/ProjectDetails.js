@@ -163,15 +163,28 @@ const ProjectDetails = () => {
   <p>No files uploaded by client.</p>
 )}
 
-            {role === "freelancer" && project.status === "Open" && (
-              <button
-                className={`apply-btn ${applied ? "applied" : ""}`}
-                onClick={!applied ? handleApply : undefined}
-                disabled={applied}
-              >
-                {applied ? "Already Applied" : "Apply for this Project"}
-              </button>
-            )}
+            {role === "freelancer" && (
+  <button
+    className={`apply-btn ${applied ? "applied" : ""}`}
+    onClick={
+      !applied && project.status === "Open"
+        ? handleApply
+        : undefined
+    }
+    disabled={project.status !== "Open" || applied}
+  >
+    {project.status === "Assigned"
+      ? "Already Assigned"
+      : project.status === "Submitted"
+      ? "Submitted"
+      : project.status === "Completed"
+      ? "Project Completed"
+      : applied
+      ? "Already Applied"
+      : "Apply for this Project"}
+  </button>
+)}
+
 
             {role === "client" && storedUser?._id === project.authorId?._id && (
               <button

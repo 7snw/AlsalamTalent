@@ -12,8 +12,7 @@ import {
 } from "../Data/NavbarConfigs";
 import axios from "axios";
 import { FiPaperclip } from "react-icons/fi";
-import { showAlert } from '../utils/toastMessages';
-
+import { showAlert } from "../utils/toastMessages";
 
 const EditProject = () => {
   const { id } = useParams();

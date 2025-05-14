@@ -2,16 +2,16 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
-const Freelancer = require('../models/Freelancer');
 
-router.get('/', async (req, res) => {
+router.get('/:clientId', async (req, res) => {
   try {
-    // Count by status
-    const openCount = await Project.countDocuments({ status: 'Open' });
-    const assignedCount = await Project.countDocuments({ status: 'Assigned' });
-    const completedCount = await Project.countDocuments({ status: 'Completed' });
+    const clientId = req.params.clientId;
 
-    // Sample projectsProgress (replace with real aggregation if needed)
+    const openCount = await Project.countDocuments({ authorId: clientId, status: 'Open' });
+    const inProgressStatuses = ['Assigned', 'Submitted', 'Re-submit'];
+    const assignedCount = await Project.countDocuments({ authorId: clientId, status: { $in: inProgressStatuses } });
+    const completedCount = await Project.countDocuments({ authorId: clientId, status: 'Completed' });
+
     const projectsProgress = [
       { month: 'Jan', progress: 50 },
       { month: 'Feb', progress: 60 },
@@ -19,8 +19,7 @@ router.get('/', async (req, res) => {
       { month: 'Apr', progress: 80 }
     ];
 
-    // List of all client projects (simplified version)
-    const allProjects = await Project.find({}, 'title status budget');
+    const allProjects = await Project.find({ authorId: clientId }, 'title status budget');
 
     res.json({
       openCount,
