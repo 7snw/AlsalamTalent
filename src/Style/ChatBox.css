@@ -50,15 +50,17 @@
 }
 
 .chat-message.own {
-  background-color: #d9f0ff;
+  background-color: #1B223C;
   align-self: flex-end;
   text-align: right;
+  color: #ffffff;
 }
 
 .chat-message.other {
-  background-color: #eeeeee;
+  background-color: #f1633a;
   align-self: flex-start;
   text-align: left;
+  color: #ffffff;
 }
 
 .chat-input {

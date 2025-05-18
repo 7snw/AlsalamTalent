@@ -5,6 +5,8 @@ import Footer from "../../Components/Footer";
 import "../../Style/Notifications.css";
 import { NavConfig3 } from "../../Data/NavbarConfigs";
 import { showAlert } from "../../utils/toastMessages";
+import BellIcon from '../../Assets/Bell3.png';
+
 
 const ClientNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -57,7 +59,7 @@ const ClientNotifications = () => {
           <ul className="notification-list">
             {notifications.map((note) => (
               <li key={note._id} className={`notification-item ${note.type}`}>
-                <span className="bell-icon">🔔</span>
+               <img src={BellIcon} alt="Bell Icon" className="bell-icon1" />
                 <div className="notification-content">
                   <p><strong>{note.subject || "No subject"}</strong></p>
                   <p>{note.message || "No message"}</p>

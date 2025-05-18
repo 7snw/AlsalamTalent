@@ -42,7 +42,7 @@
 }
 
 .nav-links li:hover {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 .nav-left {
@@ -116,7 +116,7 @@
 
 .dropdown li:hover {
   background-color: #2a3152;
-  color: #EE582B;
+  color: #f1633a;
   cursor: pointer;
 }
 
@@ -155,6 +155,6 @@
 
 .user-dropdown .dropdown-item:hover {
   background-color: #2a3152;
-  color: #EE582B;
+  color: #f1633a;
   cursor: pointer;
 }

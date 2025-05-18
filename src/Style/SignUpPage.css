@@ -162,7 +162,7 @@ body {
 
 .student-divider {
   width: 2px;
-  background-color: #EE582B;
+  background-color: #f1633a;
   height: 350px;
 }
 
@@ -174,7 +174,7 @@ body {
 }
 
 .signin-link span {
-  color: #EE582B;
+  color: #f1633a;
   font-weight: 600;
   cursor: pointer;
 }
@@ -246,7 +246,7 @@ body {
 }
 
 .expertise-checkbox-item9 input {
-  accent-color: #EE582B;
+  accent-color: #f1633a;
   cursor: pointer;
   margin-left: -90px;
   margin-right: -91px;
@@ -304,7 +304,7 @@ body {
 }
 
 .back-btn:hover {
-  color: #ee582b;
+  color: #f1633a;
 }
 
 

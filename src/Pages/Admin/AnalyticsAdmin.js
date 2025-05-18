@@ -42,7 +42,7 @@ const AnalyticsAdmin = () => {
     fetchAnalytics();
   }, []);
 
-  const COLORS = ['#EE582B', '#1B223C', '#8884d8'];
+  const COLORS = ['#f1633a', '#1B223C', '#8884d8'];
 
   const pieData = [
     { name: 'Clients', value: analytics.totalClients },
@@ -80,7 +80,7 @@ const AnalyticsAdmin = () => {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="progress" fill="#EE582B" barSize={40} />
+                <Bar dataKey="progress" fill="#f1633a" barSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </div>

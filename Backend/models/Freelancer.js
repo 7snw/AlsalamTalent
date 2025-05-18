@@ -34,7 +34,9 @@ const freelancerSchema = new mongoose.Schema({
       projectTitle: String,
       projectStatus: { type: String, default: 'Assigned' },
       projectFiles: { type: [String], default: [] },
-      projectImage: { type: String, default: '' }
+      projectImage: { type: String, default: '' },
+      details: String,
+      assignedBy: String
     }
   ],
   savedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],

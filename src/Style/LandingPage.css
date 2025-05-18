@@ -58,7 +58,7 @@ h1 {
 }
 
 .highlight {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 .description {
@@ -90,7 +90,7 @@ h1 {
 
 .secondary-btn {
   background-color: transparent;
-  border: 2px solid #EE582B;
+  border: 2px solid #f1633a;
   color: #1B223C;
   padding: 10px 25px;
   border-radius: 18px;

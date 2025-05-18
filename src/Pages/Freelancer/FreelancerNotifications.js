@@ -4,6 +4,7 @@ import Navbar from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
 import "../../Style/Notifications.css";
 import { NavConfig2 } from "../../Data/NavbarConfigs";
+import BellIcon from '../../Assets/Bell3.png';
 
 const FreelancerNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -21,7 +22,7 @@ const FreelancerNotifications = () => {
         axios
           .get(`http://localhost:5000/api/notifications/${userId}/${role}`)
           .then((res) => {
-            console.log("🔔 Notifications response:", res.data);
+            console.log(" Notifications response:", res.data);
             setNotifications(res.data);
           })
           .catch((err) =>
@@ -52,7 +53,8 @@ const FreelancerNotifications = () => {
           <ul className="notification-list">
             {notifications.map((note) => (
               <li key={note._id} className={`notification-item ${note.type}`}>
-                <span className="bell-icon">🔔</span>
+              <img src={BellIcon} alt="Bell Icon" className="bell-icon1" />
+
                 <div className="notification-content">
                   <p className="notification-subject">
                     <strong>{note.subject || "No subject"}</strong>

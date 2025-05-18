@@ -141,7 +141,7 @@
 }
 
 .submit-btn {
-  background-color: #EE582B;
+  background-color: #f1633a;
   color: #fff;
   padding: 10px 20px;
   border: none;
@@ -165,7 +165,7 @@ hr {
 }
 
 .download-file-btn9:hover {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 
@@ -199,7 +199,7 @@ hr {
 
 
 .submit-project-btn {
-  background-color: #EE582B;
+  background-color: #f1633a;
   color: #ffffff;
   border: none;
   padding: 10px 28px;
@@ -302,7 +302,7 @@ hr {
 
 .circle2 {
   fill: none;
-  stroke: #EE582B;
+  stroke: #f1633a;
   stroke-width: 3.8;
   stroke-linecap: round;
   animation: progress 1s ease-out forwards;
@@ -378,7 +378,7 @@ color: #fa7979;
 }
 
 .starss .filled {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 

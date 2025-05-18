@@ -103,7 +103,7 @@
 }
 
 .application-actions .cancel {
-  background-color: #EE582B;
+  background-color: #f1633a;
   color: #ffffff;
 }
 
@@ -139,7 +139,7 @@
 }
 
 .freelancer-link:hover {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 .status-label {
@@ -163,7 +163,7 @@
 
 /* Match "Cancel" style */
 .status-label.cancelled {
-  background-color: #EE582B;
+  background-color: #f1633a;
   color: #ffffff;
     padding: 10px 5px;
 }

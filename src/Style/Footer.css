@@ -33,7 +33,7 @@
   font-size: 20px;
   font-weight: 100px;
   margin-bottom: 10px;
-  color: #EE582B;
+  color: #f1633a;
 }
 
 .footer-links {
@@ -63,7 +63,7 @@
 }
 
 .footer-links ul li a:hover {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 .footer-bottom {

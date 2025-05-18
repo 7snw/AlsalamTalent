@@ -78,7 +78,7 @@ margin-bottom: 10px;
   .delete-chat-btn {
     background: none;
     border: none;
-    color: #EE582B;
+    color: #f1633a;
     font-size: 15px;
     cursor: pointer;
     padding: 4px;
@@ -97,7 +97,7 @@ margin-bottom: 10px;
    
   .new-chat-btn {
     margin-top: 10px;
-    background-color: #EE582B;
+    background-color: #f1633a;
     border: none;
     color: white;
     padding: 10px;
@@ -160,7 +160,7 @@ margin-bottom: 10px;
   
   .msg-left3 {
     align-self: flex-start;
-    background-color: #EE582B;
+    background-color: #f1633a;
     color: #ffffff;
     border-bottom-left-radius: 4px;
   }
@@ -204,7 +204,7 @@ margin-bottom: 10px;
 
 
   .send-btn {
-    background-color: #EE582B;
+    background-color: #f1633a;
     color: white;
     border: none;
     padding: 9px 22px;

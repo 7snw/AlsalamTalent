@@ -7,6 +7,7 @@ const Freelancer = require('../models/Freelancer');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const sendNotification = require("../utils/sendNotification");
 
 
 // Create uploads folder if it doesn't exist
@@ -131,13 +132,7 @@ router.get('/list', async (req, res) => {
 // ----------------- Student Registration -----------------
 router.post('/student-register', async (req, res) => {
   const {
-    studentId,
-    fullName,
-    email,
-    password,
-    major,
-    phone,
-    expertise
+    studentId, fullName, email, password, major, phone, expertise
   } = req.body;
 
   try {
@@ -153,7 +148,7 @@ router.post('/student-register', async (req, res) => {
       isVerified: false
     });
 
-    // Send verification email to admin
+    // Send admin email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -179,6 +174,16 @@ router.post('/student-register', async (req, res) => {
       `
     });
 
+    // Send notification to student
+    await sendNotification({
+      userId: newFreelancer._id,
+      userType: "freelancer",
+      email,
+      subject: "Welcome to Ctrl-Z!",
+      message: "Your student account has been created and is pending admin verification.",
+      type: "info"
+    });
+
     res.status(201).json({ message: 'Student registered and pending admin verification.' });
   } catch (err) {
     console.error('Student signup error:', err);
@@ -187,16 +192,12 @@ router.post('/student-register', async (req, res) => {
 });
 
 
+
 // ----------------- Graduate Registration -----------------
 router.post('/graduate-register', upload.single('cpr'), async (req, res) => {
   try {
     const {
-      studentId,
-      fullName,
-      email,
-      password,
-      major,
-      phone
+      studentId, fullName, email, password, major, phone
     } = req.body;
 
     const expertise = JSON.parse(req.body.expertise);
@@ -237,13 +238,22 @@ router.post('/graduate-register', upload.single('cpr'), async (req, res) => {
       ]
     });
 
+    // Send notification to graduate
+    await sendNotification({
+      userId: newFreelancer._id,
+      userType: "freelancer",
+      email,
+      subject: "Welcome to Ctrl-Z | AlSalam Bank!",
+      message: "Your graduate account has been created and is pending admin verification.",
+      type: "info"
+    });
+
     res.status(201).json({ message: 'Graduate registered and email sent to admin.' });
   } catch (err) {
     console.error('Graduate signup error:', err);
-    res.status(500).json({ message: 'Registration failed.', error: err });
+    res.status(500).json({ message: 'Registration failed.', error: err.message });
   }
 });
-
 
 // Get full freelancer profile
 router.get('/profile/:id', async (req, res) => {
@@ -378,7 +388,17 @@ router.put('/:id/apply-project', async (req, res) => {
     freelancer.applications.push({ projectId });
     await freelancer.save();
 
-    res.json({ message: 'Applied successfully', applications: freelancer.applications });
+
+  await sendNotification({
+    userId: freelancer._id,
+    userType: "freelancer",
+    email: freelancer.email,
+    subject: "Project Application Submitted",
+    message: "You have successfully applied to a project. Please wait for further updates.",
+    type: "info"
+  });
+
+
   } catch (err) {
     console.error('Error applying to project:', err);
     res.status(500).json({ message: 'Server error', error: err.message });

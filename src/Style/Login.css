@@ -83,14 +83,14 @@
 }
 
 .register-link span {
-  color: #EE582B;
+  color: #f1633a;
   font-weight: bold;
   cursor: pointer;
 }
 
 .divider {
   width: 2px;
-background-color: #EE582B;
+background-color: #f1633a;
 height: 340px;
 }
 

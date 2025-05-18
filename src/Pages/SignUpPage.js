@@ -7,11 +7,11 @@ import { showAlert } from '../utils/toastMessages';
 
 
 const expertiseOptions = [
-  "Marketing",
+ "Marketing",
   "Graphic Designer",
   "Illustrator",
   "Web Developer",
-   "UX/UI Designer",
+    "UX/UI Designer",
   "Content Creator"
  
 ];
@@ -23,7 +23,7 @@ const SignUpPage = () => {
     email: "",
     password: "",
     major: "",
-    contactNumber: "",
+    phone: "",
     expertise: [],
   });
 
@@ -98,7 +98,7 @@ const SignUpPage = () => {
     return;
   }
 
-  if (!/^\d{8}$/.test(formData.contactNumber)) {
+  if (!/^\d{8}$/.test(formData.phone)) {
     showAlert("Phone number must be exactly 8 digits.");
     return;
   }
@@ -248,8 +248,8 @@ const SignUpPage = () => {
               <label>Contact Number</label>
               <input
                 type="tel"
-                name="contactNumber"
-                value={formData.contactNumber}
+                name="phone"
+                value={formData.phone}
                 onChange={handleChange}
                 pattern="\d{8}"
                 required

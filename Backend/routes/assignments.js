@@ -6,6 +6,47 @@ const Freelancer = require('../models/Freelancer');
 const logAction = require('../utils/logAction'); 
   const Project = require('../models/Project');
 
+// ✅ Assign project to freelancer + notify
+router.post('/assign', async (req, res) => {
+  try {
+    const { projectId, freelancerId, authorId } = req.body;
+
+    if (!projectId || !freelancerId || !authorId) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const assignment = await Assignment.create({
+      projectId,
+      freelancerId,
+      authorId,
+      status: 'Assigned',
+      assignedAt: new Date()
+    });
+
+    const freelancer = await Freelancer.findById(freelancerId).select('fullName email');
+
+    // ✅ Notify the freelancer
+    await sendNotification({
+      userId: freelancerId,
+      userType: 'freelancer',
+      subject: 'New Project Assigned',
+      message: `Hi ${freelancer.fullName}, you have been assigned a new project. Please check your dashboard for details.`,
+      type: 'info'
+    });
+
+    // ✅ Log the action
+    await logAction({
+      userId: authorId,
+      action: 'Assigned Project to Freelancer',
+      projectId
+    });
+
+    res.status(201).json({ message: 'Assignment created and freelancer notified.', assignment });
+  } catch (error) {
+    console.error('Error assigning project:', error);
+    res.status(500).json({ message: 'Failed to assign project', error: error.message });
+  }
+});
 
 // ✅ Get assignments by authorId (client)
 router.get('/by-author/:authorId', async (req, res) => {

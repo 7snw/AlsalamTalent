@@ -7,23 +7,24 @@ const Freelancer = require('../models/Freelancer');
 
 // 🔁 Utility to resolve user email by ID and role
 async function resolveUser(userId, role) {
-  let user;
-  switch (role.toLowerCase()) {
-    case 'freelancer':
-      user = await Freelancer.findById(userId);
-      break;
-    case 'client':
-      user = await Client.findById(userId);
-      break;
-    case 'admin':
-      user = await Admin.findById(userId);
-      break;
-    default:
-      user = null;
+  try {
+    switch (role.toLowerCase()) {
+      case 'freelancer':
+        return await Freelancer.findById(userId);
+      case 'client':
+        return await Client.findById(userId);
+      case 'admin':
+        return await Admin.findById(userId);
+      default:
+        return null;
+    }
+  } catch (error) {
+    console.error('❌ Failed to resolve user:', error);
+    return null;
   }
-  return user;
 }
 
+// 📧 Nodemailer config
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -32,33 +33,44 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+/**
+ * Send and save notification
+ * @param {Object} options
+ * @param {ObjectId} options.userId - Mongoose user ID
+ * @param {string} options.userType - 'freelancer' | 'admin' | 'client'
+ * @param {string} options.subject - Notification subject
+ * @param {string} options.message - Notification content
+ * @param {string} [options.type='info'] - Type: 'info' | 'warning' | 'reminder'
+ */
 const sendNotification = async ({ userId, userType, subject, message, type = 'info' }) => {
   try {
     const user = await resolveUser(userId, userType);
     const email = user?.email || null;
 
-    // Save in DB
- await Notification.create({
-  userId,
-  userType: userType.toLowerCase(), // ✅ Ensure this is lowercase
-  email,
-  subject,
-  message,
-  type,
-});
+    // ✅ Save in MongoDB
+    await Notification.create({
+      userId,
+      userType: userType.toLowerCase(),
+      email,
+      subject,
+      message,
+      type,
+      isRead: false,
+      createdAt: new Date()
+    });
 
-
-    // Send email
+    // ✅ Optional: Send Email
     if (email) {
       await transporter.sendMail({
-        from: `"Al Salam Talents" <${process.env.EMAIL_USER}>`,
+        from: `"Ctrl-Z | AlSalam Bank" <${process.env.EMAIL_USER}>`,
         to: email,
         subject,
-        text: message,
+        text: message
       });
     }
+
   } catch (err) {
-    console.error('❌ Notification error:', err);
+    console.error('❌ sendNotification error:', err.message || err);
   }
 };
 

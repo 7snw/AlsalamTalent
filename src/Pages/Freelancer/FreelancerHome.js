@@ -125,7 +125,7 @@ const FreelancerHome = () => {
         <Navbar links={NavConfig2} />
 
         <header className="hero">
-          <h1><span className="highlight">Explore</span> Real-World Projects</h1>
+          <h1><span className="highlight1">Explore</span> Real-World Projects</h1>
           <p>Take on your next project, build your portfolio, and develop your skills.</p>
 
           <div className="search-and-match">

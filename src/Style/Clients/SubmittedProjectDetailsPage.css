@@ -62,7 +62,7 @@
 }
 
 .download-icon4 {
-  color: #EE582B;
+  color: #f1633a;
   cursor: pointer;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .remove-icon4 {
-  color: #EE582B;
+  color: #f1633a;
   cursor: pointer;
 }
 
@@ -97,7 +97,7 @@
 }
 
 .stars .filled {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 /* Feedback box */
@@ -150,7 +150,7 @@ textarea {
 
 
 .actions .revise {
-  background-color: #EE582B;
+  background-color: #f1633a;
   color: #ffffff;
 }
 
@@ -205,7 +205,7 @@ textarea {
 }
 
 .download-file-btn3:hover {
-  color: #EE582B;
+  color: #f1633a;
 }
 
 

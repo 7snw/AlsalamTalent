@@ -28,7 +28,7 @@ router.post('/send-verification-code', async (req, res) => {
   });
 
   const mailOptions = {
-    from: `Al Salam Talents <${process.env.EMAIL_USER}>`,
+    from: `Ctrl-Z | AlSalam Bank<${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Your Verification Code',
     text: `Your code is: ${code}`
@@ -73,8 +73,8 @@ router.get('/test-mail', async (req, res) => {
 
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: '1maryiem363@gmail.com',
-      subject: 'Test Email from AlSalam Bank | Ctrl-Z',
+      to: 'ctrlzplatform@gmail.com',
+      subject: 'Test Email from  Ctrl-Z | AlSalam Bank',
       text: '✅ This is a test email to verify Gmail SMTP config is working.'
     });
 

@@ -6,14 +6,12 @@ import axios from 'axios';
 import { showAlert } from '../utils/toastMessages';
 
 const expertiseOptions = [
-  "Marketing Consultant",
+  "Marketing",
   "Graphic Designer",
   "Illustrator",
-  "Video Editor",
   "Web Developer",
-  "Content Creator",
-  "Brand Strategist",
-  "UX/UI Designer"
+    "UX/UI Designer",
+  "Content Creator"
 ];
 
 const GraduateSignUp = () => {
@@ -23,7 +21,7 @@ const GraduateSignUp = () => {
     email: '',
     password: '',
     major: '',
-    contactNumber: '',
+    phone: '',
     cpr: null,
     expertise: []
   });
@@ -82,7 +80,7 @@ const GraduateSignUp = () => {
     form.append('email', formData.email);
     form.append('password', formData.password);
     form.append('major', formData.major);
-    form.append('phone', formData.contactNumber);
+    form.append('phone', formData.phone);
     form.append('expertise', JSON.stringify(formData.expertise));
     form.append('cpr', formData.cpr);
 
@@ -130,7 +128,7 @@ const GraduateSignUp = () => {
               <label>Student ID</label>
               <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} required />
               {isPolyStudent === false && (
-                <p style={{ color: 'red', marginTop: '4px' }}>Invalid Bahrain Polytechnic ID</p>
+                <p style={{ color: 'red', marginTop: '4px' }}></p>
               )}
             </div>
             <div>
@@ -184,8 +182,8 @@ const GraduateSignUp = () => {
               <label>Contact Number</label>
               <input
                 type="tel"
-                name="contactNumber"
-                value={formData.contactNumber}
+                name="phone"
+                value={formData.phone}
                 onChange={handleChange}
                 pattern="\d{8}"
                 required
@@ -220,7 +218,7 @@ const GraduateSignUp = () => {
             <div className="graduate-file-upload-wrapper">
               <label htmlFor="cpr-upload">Upload CPR</label>
               <input id="cpr-upload" type="file" name="cpr" accept="image/*" onChange={handleChange} required />
-              {cprFileName && <p style={{ fontSize: '12px', color: '#555' }}>Uploaded: {cprFileName}</p>}
+              {cprFileName && <p style={{ fontSize: '12px', color: '#555' }}></p>}
             </div>
 
             <button type="submit" className="graduate-create-btn">Create</button>
