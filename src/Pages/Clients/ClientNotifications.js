@@ -20,29 +20,29 @@ const ClientNotifications = () => {
       const userId = parsed._id;
       const role = (parsed.role || parsed.userType || "").toLowerCase();
 
-      console.log("📤 Requesting notifications for:", userId, role);
+      console.log("Requesting notifications for:", userId, role);
 
       if (userId && role === "client") {
         axios
           .get(`http://localhost:5000/api/notifications/${userId}/client`)
           .then((res) => {
-            console.log("📥 Notifications response:", res.data);
+            console.log("Notifications response:", res.data);
             setNotifications(res.data);
           })
           .catch((err) => {
-            console.error("❌ Full Axios error:", err);
+            console.error("Full Axios error:", err);
             showAlert("Failed to fetch notifications.");
           })
           .finally(() => setLoading(false));
       } else {
-        console.warn("⚠️ Invalid role or missing userId.");
+        console.warn("Invalid role or missing userId.");
         setLoading(false);
       }
     } else {
-      console.warn("⚠️ No user found in localStorage.");
+      console.warn("No user found in localStorage.");
       setLoading(false);
     }
-  }, []); // ✅ no setUser dependency warning anymore
+  }, []);
 
   if (loading) return <div>Loading notifications...</div>;
 

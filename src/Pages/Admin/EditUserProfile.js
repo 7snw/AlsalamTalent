@@ -47,11 +47,11 @@ const EditUserProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const admin = JSON.parse(localStorage.getItem("user")); // ✅ Get admin from localStorage
+      const admin = JSON.parse(localStorage.getItem("user")); // Get admin from localStorage
   
       const payload = {
         ...formData,
-        authorId: admin?._id  // ✅ Add this to trigger logAction on backend
+        authorId: admin?._id  //trigger logAction on backend
       };
   
       await axios.put(`http://localhost:5000/api/client/${userId}`, payload);

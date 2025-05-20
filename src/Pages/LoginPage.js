@@ -15,7 +15,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
   e.preventDefault();
 
-  console.log("📤 Attempting login with:", { email, password });
+  console.log("Attempting login with:", { email, password });
 
   try {
     const response = await axios.post(
@@ -24,7 +24,7 @@ const LoginPage = () => {
     );
 
       const userData = response.data;
-      console.log("✅ Login response received:", userData); // ✅ Confirm response
+      console.log("Login response received:", userData); // Confirm response
 
       if (!userData || !userData.id || !userData.role) {
         showAlert("Invalid response from server.");
@@ -42,7 +42,7 @@ const LoginPage = () => {
       localStorage.setItem("userId", user._id);
       localStorage.setItem("role", user.role);
 
-      // 🔁 Redirect based on role
+      // Redirect based on role
       if (user.role === "admin") {
         navigate("/analyticsadmin");
       } else if (user.role === "client") {
@@ -53,7 +53,7 @@ const LoginPage = () => {
         showAlert("Unknown role detected");
       }
     } catch (err) {
-      console.error("❌ Login error:", err.response?.data || err.message);
+      console.error("Login error:", err.response?.data || err.message);
       showAlert(err.response?.data?.message || "Login failed. Try again.");
     }
   };

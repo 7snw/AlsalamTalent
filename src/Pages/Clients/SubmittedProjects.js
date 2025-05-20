@@ -23,7 +23,7 @@ const SubmittedProjects = () => {
         const response = await axios.get('http://localhost:5000/api/projects/all');
         const allProjects = response.data;
 
-        // ✅ Only projects submitted by this user and Completed
+        // Only projects submitted by this user and Completed
         const filtered = allProjects.filter(
           (proj) => proj.authorId === userId && proj.status === 'Completed'
         );
@@ -73,7 +73,7 @@ const SubmittedProjects = () => {
                   boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                   transition: { duration: 0.2 },
                 }}
-                onClick={() => navigate(`/submitted-project/${proj._id}`)} // ✅ navigate correctly
+                onClick={() => navigate(`/submitted-project/${proj._id}`)} 
               >
                 {proj.imageUrl ? (
                   <img src={proj.imageUrl} alt={proj.title} />

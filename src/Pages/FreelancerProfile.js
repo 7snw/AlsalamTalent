@@ -64,7 +64,7 @@ useEffect(() => {
   }, [id]);
   
  
-// ✅ Move this useEffect OUTSIDE
+// Move this useEffect OUTSIDE
 useEffect(() => {
   if (viewPopup) {
     document.body.style.overflow = 'hidden';

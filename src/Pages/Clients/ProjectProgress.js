@@ -150,7 +150,7 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
     userId={clientId}
     otherUserId={freelancerId}
     role="Client"
-    assignmentId={assignment._id}  // ✅ Add this
+    assignmentId={assignment._id} 
     closeChat={() => setShowChat(false)}
   />
 )}

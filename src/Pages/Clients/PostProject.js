@@ -65,13 +65,13 @@ const PostProject = () => {
     });
 
     try {
-      // ✅ 1. Upload project first
+      // Upload project first
       await axios.post("http://localhost:5000/api/projects/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
     } catch (uploadError) {
       console.error(
-        "❌ Project upload failed:",
+        "Project upload failed:",
         uploadError.response?.data || uploadError.message
       );
       showAlert("Failed to post project.");

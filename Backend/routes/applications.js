@@ -4,7 +4,7 @@ const Application = require("../models/Application");
 const Project = require("../models/Project");
 const Freelancer = require("../models/Freelancer");
 const Assignment = require("../models/Assignment");
-const logAction = require("../utils/logAction"); // ✅ Import logger
+const logAction = require("../utils/logAction"); 
 const sendNotification = require("../utils/sendNotification");
 const Client = require("../models/Client");
 
@@ -86,13 +86,13 @@ router.post("/:projectId/approve", async (req, res) => {
 
   await assignment.save();
 
-  // ✅ Update project
+  // Update project
   await Project.findByIdAndUpdate(projectId, {
     assignmentId: assignment._id,
     status: "Assigned"
   });
 
-  // ✅ Notify freelancer
+  // Notify freelancer
   const freelancer = await Freelancer.findById(freelancerId);
   const project = await Project.findById(projectId);
 
@@ -107,7 +107,7 @@ router.post("/:projectId/approve", async (req, res) => {
     });
   }
 
-  // ✅ Log approval
+  // Log approval
   await logAction({
     userId: application.authorId,
     action: "Approved Application",
@@ -125,7 +125,7 @@ router.post("/:projectId/approve", async (req, res) => {
   }
 });
 
-// ✅ Reject an application + notify freelancer
+// Reject an application + notify freelancer
 router.post("/:projectId/reject", async (req, res) => {
   try {
     const { freelancerId } = req.body;
@@ -146,12 +146,12 @@ router.post("/:projectId/reject", async (req, res) => {
       { $set: { "applications.$.status": "Cancelled" } }
     );
 
-    // ✅ Fetch freelancer and project info
+    //Fetch freelancer and project info
     const freelancer = await Freelancer.findById(freelancerId);
     const project = await Project.findById(projectId);
 
     if (freelancer && project) {
-      // ✅ Send notification to freelancer
+      // Send notification to freelancer
       await sendNotification({
         userId: freelancer._id,
         userType: 'freelancer',
@@ -162,7 +162,7 @@ router.post("/:projectId/reject", async (req, res) => {
       });
     }
 
-    // ✅ Log rejection using projectId
+    // Log rejection using projectId
     await logAction({
       userId: updatedApplication.authorId,
       action: "Rejected Application",
@@ -179,7 +179,6 @@ router.post("/:projectId/reject", async (req, res) => {
   }
 });
 
-// Create a new application
 // Create a new application
 router.post("/create", async (req, res) => {
   try {
@@ -210,7 +209,7 @@ router.post("/create", async (req, res) => {
     const project = await Project.findById(projectId);
     const client = await Client.findById(authorId);
 
-    // ✅ Notify client about the new application
+    //Notify client about the new application
     if (client && freelancer && project) {
       await sendNotification({
         userId: client._id,
@@ -222,7 +221,7 @@ router.post("/create", async (req, res) => {
       });
     }
 
-    // ✅ Notify freelancer that their application was submitted
+    // Notify freelancer that their application was submitted
     if (freelancer && project) {
       await sendNotification({
         userId: freelancer._id,

@@ -3,7 +3,7 @@
   left: 0;
   right: 0;
   width: 99vw; /* Full screen width */
-  margin-left: calc(-50vw + 50%); /* ✅ Offsets container padding */
+  margin-left: calc(-50vw + 50%); /* Offsets container padding */
   background-color: #0d1b2a;
   color: #ffffff;
   padding: 30px 2%;

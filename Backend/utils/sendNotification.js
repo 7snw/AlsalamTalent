@@ -47,7 +47,7 @@ const sendNotification = async ({ userId, userType, subject, message, type = 'in
     const user = await resolveUser(userId, userType);
     const email = user?.email || null;
 
-    // ✅ Save in MongoDB
+    // Save in MongoDB
     await Notification.create({
       userId,
       userType: userType.toLowerCase(),
@@ -59,7 +59,7 @@ const sendNotification = async ({ userId, userType, subject, message, type = 'in
       createdAt: new Date()
     });
 
-    // ✅ Optional: Send Email
+    // Optional: Send Email
     if (email) {
       await transporter.sendMail({
         from: `"Ctrl-Z | AlSalam Bank" <${process.env.EMAIL_USER}>`,
@@ -70,7 +70,7 @@ const sendNotification = async ({ userId, userType, subject, message, type = 'in
     }
 
   } catch (err) {
-    console.error('❌ sendNotification error:', err.message || err);
+    console.error('sendNotification error:', err.message || err);
   }
 };
 

@@ -10,7 +10,7 @@ const Freelancer = require('../models/Freelancer');
 // Temporary email verification store
 let emailVerifications = {}; // { email: { code, expiresAt } }
 
-// ✅ Send email verification code
+// Send email verification code
 router.post('/send-verification-code', async (req, res) => {
   const { email } = req.body;
 
@@ -44,7 +44,7 @@ router.post('/send-verification-code', async (req, res) => {
 });
 
 
-// ✅ Verify submitted code
+// Verify submitted code
 router.post('/verify-code', (req, res) => {
   const { email, code } = req.body;
   const record = emailVerifications[email];
@@ -60,7 +60,7 @@ router.post('/verify-code', (req, res) => {
   return res.json({ verified: true });
 });
 
-// ✅ Test mail
+// Test mail
 router.get('/test-mail', async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -85,10 +85,10 @@ router.get('/test-mail', async (req, res) => {
   }
 });
 
-// ✅ LOGIN with bcrypt password check
+// LOGIN with bcrypt password check
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log("🧠 Login request:", email, password); // Log input
+  console.log("Login request:", email, password); // Log input
 
   try {
     let user = await Admin.findOne({ email });
@@ -111,10 +111,10 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    console.log("🔐 Stored password hash:", user.password); // Log hashed value
+    console.log("Stored password hash:", user.password); // Log hashed value
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("✅ Password match:", isMatch); // Log result
+    console.log("Password match:", isMatch); // Log result
 
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid password' });
@@ -127,13 +127,13 @@ router.post('/login', async (req, res) => {
       email: user.email
     });
   } catch (err) {
-    console.error("❌ Login error:", err);
+    console.error("Login error:", err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 
-// ✅ Return all users
+// Return all users
 router.get('/all', async (req, res) => {
   try {
     const admins = await Admin.find({}, '_id fullName email').lean();

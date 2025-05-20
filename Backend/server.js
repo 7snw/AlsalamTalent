@@ -95,7 +95,7 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// ✅ Socket.IO Setup
+// Socket.IO Setup
 const http = require('http');
 const { Server } = require('socket.io');
 const Message = require('./models/Message');
@@ -135,21 +135,21 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {});
 });
 
-// ✅ Connect to DB and hash default admin password if needed
+// Connect to DB and hash default admin password if needed
 connectDB().then(async () => {
   try {
     const admin = await Admin.findOne({ email: 'admin@alsalam.com' });
     if (admin && admin.password === '12345678') {
       admin.password = await bcrypt.hash(admin.password, 10);
       await admin.save();
-      console.log('✅ Default admin password was hashed.');
+      console.log('Default admin password was hashed.');
     }
   } catch (err) {
     console.error('Error hashing default admin password:', err.message);
   }
 
   const PORT = process.env.PORT || 5000;
-  server.listen(PORT, () => console.log(`🚀 Server with Socket.IO running on port ${PORT}`));
+  server.listen(PORT, () => console.log(`Server with Socket.IO running on port ${PORT}`));
 });
 // Add this to your server (temporarily)
 app.get('/fix-admin-password', async (req, res) => {
@@ -157,7 +157,7 @@ app.get('/fix-admin-password', async (req, res) => {
   if (admin) {
     admin.password = await bcrypt.hash('12345678', 10);
     await admin.save();
-    return res.send('✅ Admin password updated');
+    return res.send('Admin password updated');
   }
-  res.send('❌ Admin not found');
+  res.send('Admin not found');
 });

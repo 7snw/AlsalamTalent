@@ -12,7 +12,7 @@ const ViewPortfolioPopup = ({ project, onClose }) => {
         <div className="popup-content0">
           <p><strong>Project Image:</strong></p>
 
-          {/* ✅ Make the image clickable to open in new tab */}
+          {/* Make the image clickable to open in new tab */}
           <a href={project.imageUrl || project.image} target="_blank" rel="noopener noreferrer">
             <img
               src={project.imageUrl || project.image}

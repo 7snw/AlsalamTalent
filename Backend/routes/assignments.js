@@ -6,7 +6,7 @@ const Freelancer = require('../models/Freelancer');
 const logAction = require('../utils/logAction'); 
   const Project = require('../models/Project');
 
-// ✅ Assign project to freelancer + notify
+// Assign project to freelancer + notify
 router.post('/assign', async (req, res) => {
   try {
     const { projectId, freelancerId, authorId } = req.body;
@@ -25,7 +25,7 @@ router.post('/assign', async (req, res) => {
 
     const freelancer = await Freelancer.findById(freelancerId).select('fullName email');
 
-    // ✅ Notify the freelancer
+    // Notify the freelancer
     await sendNotification({
       userId: freelancerId,
       userType: 'freelancer',
@@ -34,7 +34,7 @@ router.post('/assign', async (req, res) => {
       type: 'info'
     });
 
-    // ✅ Log the action
+    // Log the action
     await logAction({
       userId: authorId,
       action: 'Assigned Project to Freelancer',
@@ -48,7 +48,7 @@ router.post('/assign', async (req, res) => {
   }
 });
 
-// ✅ Get assignments by authorId (client)
+// Get assignments by authorId (client)
 router.get('/by-author/:authorId', async (req, res) => {
   try {
     const assignments = await Assignment.find({ authorId: req.params.authorId })
@@ -61,7 +61,7 @@ router.get('/by-author/:authorId', async (req, res) => {
   }
 });
 
-// ✅ Get a single assignment by ID
+// Get a single assignment by ID
 router.get('/:id', async (req, res) => {
   try {
     const assignment = await Assignment.findById(req.params.id)
@@ -94,7 +94,7 @@ const updateFreelancerRating = async (freelancerId) => {
   }
 };
 
-// ✅ Update assignment status + rating + feedback (with logging for rejection/completion)
+// Update assignment status + rating + feedback (with logging for rejection/completion)
 router.put('/:id/update-status', async (req, res) => {
   try {
     const { status, feedback } = req.body;
@@ -127,7 +127,7 @@ if (status === 'Submitted') {
 }
 
 
-    // ✅ Log based on status
+    // Log based on status
     let actionLabel = 'Updated Assignment Status';
     if (status === 'Rejected') {
       actionLabel = 'Rejected Submitted Work';
@@ -148,7 +148,7 @@ if (status === 'Submitted') {
   }
 });
 
-// ✅ File upload storage for docs
+// File upload storage for docs
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
@@ -221,7 +221,7 @@ router.post('/:id/update-docs', upload.array('docs'), async (req, res) => {
   }
 });
 
-// ✅ Replace assignment docs (used to remove a file)
+// Replace assignment docs (used to remove a file)
 router.put('/:id/update-docs', async (req, res) => {
   try {
     const { docs } = req.body; // Expecting an array of { name, url }
@@ -236,7 +236,7 @@ router.put('/:id/update-docs', async (req, res) => {
       return res.status(404).json({ message: 'Assignment not found' });
     }
 
-    // ✅ Update freelancer's corresponding project
+    // Update freelancer's corresponding project
     const freelancer = await Freelancer.findById(updated.freelancerId);
     if (!freelancer) {
       return res.status(404).json({ message: 'Freelancer not found' });
@@ -260,7 +260,7 @@ router.put('/:id/update-docs', async (req, res) => {
 });
 
 
-// ✅ Get assignments by freelancerId (for MyProjects.js)
+// Get assignments by freelancerId (for MyProjects.js)
 router.get('/by-freelancer/:freelancerId', async (req, res) => {
   try {
     const assignments = await Assignment.find({ freelancerId: req.params.freelancerId })

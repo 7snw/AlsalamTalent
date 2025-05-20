@@ -222,7 +222,7 @@ const MyProjectsDetails = () => {
                 userId={freelancerId}
                 otherUserId={clientId}
                 role="Freelancer"
-                assignmentId={assignment._id}  // ✅ Add this
+                assignmentId={assignment._id}
                 closeChat={() => setShowChat(false)}
               />
             )}

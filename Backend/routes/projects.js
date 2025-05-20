@@ -107,14 +107,14 @@ router.post('/upload', upload.fields([
 
     await newProject.save();
 
-    // ✅ Centralized log with projectId
+    // Centralized log with projectId
     await logAction({
       userId: authorId,
       action: 'Added New Project',
       projectId: newProject._id
     });
 
-    // ✅ Send notification to all admins and freelancers
+    //Send notification to all admins and freelancers
     const freelancers = await Freelancer.find();
     const admins = await Admin.find();
     const allRecipients = [...freelancers, ...admins];

@@ -22,7 +22,7 @@ mongoose.connect(MONGO_URI)
       role: 'admin'
     });
 
-    console.log('✅ Fresh admin created:', newAdmin.email);
+    console.log('Fresh admin created:', newAdmin.email);
     mongoose.disconnect();
   })
-  .catch(err => console.error('❌ Seeding error:', err));
+  .catch(err => console.error('Seeding error:', err));

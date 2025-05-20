@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const Client = require('../models/Client');
-const logAction = require('../utils/logAction'); // ✅ Logging utility
+const logAction = require('../utils/logAction'); 
 const bcrypt = require('bcryptjs');
 
 
-// ✅ Admin registers a new client
+// Admin registers a new client
 router.post('/register', async (req, res) => {
   try {
     const { authorId, ...clientData } = req.body;
 
     const newClient = await Client.create(clientData);
 
-    // ✅ Log the action only if an Admin (authorId) is provided
+    // Log the action only if an Admin (authorId) is provided
     if (authorId) {
       await logAction({
         userId: authorId,
@@ -48,7 +48,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ Update client profile by ID (with optional admin logging)
+// Update client profile by ID (with optional admin logging)
 router.put('/:id', async (req, res) => {
   try {
     const { authorId, ...updates } = req.body;
@@ -68,7 +68,7 @@ router.put('/:id', async (req, res) => {
 
     if (!updatedClient) return res.status(404).json({ message: 'Client not found' });
 
-    // ✅ Log only if performed by admin (authorId provided)
+    // Log only if performed by admin (authorId provided)
     if (authorId) {
       await logAction({
         userId: authorId,
@@ -105,7 +105,7 @@ router.put('/changepassword/:id', async (req, res) => {
 const Freelancer = require('../models/Freelancer');
 const sendNotification = require('../utils/sendNotification');
 
-// ✅ Assign a freelancer to a project
+// Assign a freelancer to a project
 router.post('/assign-project', async (req, res) => {
   try {
     const { freelancerId, projectTitle, projectDetails, assignedBy } = req.body;
@@ -131,7 +131,7 @@ router.post('/assign-project', async (req, res) => {
 
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    // ✅ Send notification to freelancer
+    // Send notification to freelancer
     await sendNotification({
       userId: freelancer._id,
       userType: 'freelancer',
@@ -142,7 +142,7 @@ router.post('/assign-project', async (req, res) => {
 
     res.status(200).json({ message: 'Freelancer assigned and notified.', freelancer });
   } catch (err) {
-    console.error('❌ Error assigning project:', err);
+    console.error('Error assigning project:', err);
     res.status(500).json({ message: 'Failed to assign project', error: err.message });
   }
 });

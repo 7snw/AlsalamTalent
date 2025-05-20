@@ -17,7 +17,7 @@ const MyProfile = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [viewPopup, setViewPopup] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null); // ✅ Track selected project
+  const [selectedProject, setSelectedProject] = useState(null);
   const [freelancerData, setFreelancerData] = useState(null);
   const navigate = useNavigate();
 
@@ -128,7 +128,7 @@ const MyProfile = () => {
                   key={`uploaded-${i}`}
                   className="project-card"
                   onClick={() => {
-                    setSelectedProject(proj);   // ✅ Set the clicked project
+                    setSelectedProject(proj);
                     setViewPopup(true);
                   }}
                 >
@@ -153,10 +153,10 @@ const MyProfile = () => {
       {/* View portfolio popup */}
       {viewPopup && selectedProject && (
         <ViewPortfolioPopup
-          project={selectedProject} // ✅ Show correct project
+          project={selectedProject} 
           onClose={() => {
             setViewPopup(false);
-            setSelectedProject(null); // ✅ Reset selected project
+            setSelectedProject(null); //Reset selected project
           }}
         />
       )}
