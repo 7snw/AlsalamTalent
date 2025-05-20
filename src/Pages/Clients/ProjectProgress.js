@@ -6,15 +6,23 @@ import Navbar from "../../Components/Navbar";
 import Footer from '../../Components/Footer';
 import { NavConfig3 } from "../../Data/NavbarConfigs";
 import axios from 'axios';
-import { FiDownload,FiMessageCircle  } from 'react-icons/fi';
+import { FiDownload, FiMessageCircle } from 'react-icons/fi';
 import ChatBox from "../../Components/ChatBox";
 
 const ProjectProgress = () => {
+  // Get assignment ID from URL
   const { id } = useParams();
+
+  // State to store assignment data
   const [assignment, setAssignment] = useState(null);
+
+  // Show loading indicator while fetching data
   const [loading, setLoading] = useState(true);
+
+  // Toggle chatbox visibility
   const [showChat, setShowChat] = useState(false);
 
+  // Fetch assignment details on mount
   useEffect(() => {
     const fetchAssignment = async () => {
       try {
@@ -29,6 +37,7 @@ const ProjectProgress = () => {
     fetchAssignment();
   }, [id]);
 
+  // Determine circle color class based on status
   const getStatusClass = () => {
     switch (assignment?.status?.toLowerCase()) {
       case 'assigned':
@@ -44,9 +53,11 @@ const ProjectProgress = () => {
     }
   };
 
-const clientId = assignment?.authorId || assignment?.projectId?.authorId;
-const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
+  // Extract IDs for chat
+  const clientId = assignment?.authorId || assignment?.projectId?.authorId;
+  const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
 
+  // Match progress percentage to status
   const progressText = {
     'assigned': 50,
     'in progress': 50,
@@ -55,6 +66,7 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
     'approved': 100
   }[assignment?.status?.toLowerCase()] ?? 0;
 
+  // Handle loading and error states
   if (loading) return <p>Loading project...</p>;
   if (!assignment || !assignment.projectId) return <p>Project not found</p>;
 
@@ -62,9 +74,13 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
 
   return (
     <div className="project-progress-page">
+      {/* Top Navbar */}
       <Navbar links={NavConfig3} />
+
       <div className="progress-container">
         <h2>{assignment.projectId?.title || 'Submitted Project'}</h2>
+
+        {/* Top Section with files and progress circle */}
         <div className="top-section">
           <div className="left-section">
             <h4>Project Files (from Client)</h4>
@@ -108,6 +124,7 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
             )}
           </div>
 
+          {/* Circular Progress Indicator */}
           <div className="right-section">
             <div className="circular-chart">
               <svg viewBox="0 0 36 36" className="circular">
@@ -121,6 +138,7 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
 
         <hr />
 
+        {/* Details Section */}
         <div className="details-section">
           <div className="details-left">
             <h2>Project Details</h2>
@@ -132,6 +150,8 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
             <h4>Status:</h4>
             <p>{assignment.status}</p>
           </div>
+
+          {/* Project Image */}
           <div className="details-right">
             {project.imageUrl ? (
               <img src={project.imageUrl} alt={project.title} className="project-image" />
@@ -141,21 +161,24 @@ const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
           </div>
         </div>
 
+        {/* Open Chat Button */}
         <button onClick={() => setShowChat(true)} className="open-chat-btn">
           <FiMessageCircle />
         </button>
 
+        {/* Chat box component */}
         {showChat && (
-  <ChatBox
-    userId={clientId}
-    otherUserId={freelancerId}
-    role="Client"
-    assignmentId={assignment._id} 
-    closeChat={() => setShowChat(false)}
-  />
-)}
-
+          <ChatBox
+            userId={clientId}
+            otherUserId={freelancerId}
+            role="Client"
+            assignmentId={assignment._id}
+            closeChat={() => setShowChat(false)}
+          />
+        )}
       </div>
+
+      {/* Footer */}
       <Footer />
     </div>
   );

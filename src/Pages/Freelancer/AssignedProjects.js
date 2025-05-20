@@ -1,4 +1,4 @@
-// src/Pages/Freelancer/MyProjects.js
+// React imports and hooks
 import React, { useState, useEffect } from 'react';
 import '../../Style/Freelancer/MyProjects.css';
 import '../../Style/Navbar.css';
@@ -11,19 +11,27 @@ import Footer from '../../Components/Footer';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Component for displaying assigned freelancer projects
 const AssignedProjects = () => {
   const navigate = useNavigate();
+
+  // State for search input
   const [search, setSearch] = useState('');
+
+  // State for filtering projects by status type
   const [filters, setFilters] = useState({ type: [] });
+
+  // State for holding all assigned projects
   const [projects, setProjects] = useState([]);
 
+  // Fetch freelancer's assigned projects on component mount
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const storedUser = JSON.parse(localStorage.getItem("user")); // Get current user
         const freelancerId = storedUser?._id;
         const response = await axios.get(`http://localhost:5000/api/assignments/by-freelancer/${freelancerId}`);
-        setProjects(response.data);
+        setProjects(response.data); // Store fetched assignments
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
@@ -32,6 +40,7 @@ const AssignedProjects = () => {
     fetchProjects();
   }, []);
 
+  // Toggle filter status types
   const handleCheckbox = (value) => {
     setFilters((prev) => {
       const updatedType = prev.type.includes(value)
@@ -41,15 +50,15 @@ const AssignedProjects = () => {
     });
   };
 
+  // Apply filters and search logic
   const filteredProjects = projects.filter((proj) => {
     const matchesType =
       filters.type.length === 0 || filters.type.includes(proj.status);
-
     const matchesSearch = proj.projectId?.title?.toLowerCase().includes(search.toLowerCase());
-
     return matchesType && matchesSearch;
   });
 
+  // Navigate to detailed view of selected project
   const handleProjectClick = (assignmentId) => {
     navigate(`/my-project/${assignmentId}`);
   };
@@ -57,7 +66,9 @@ const AssignedProjects = () => {
   return (
     <div className="my-projects-page">
       <Navbar links={NavConfig2} />
+
       <div className="my-projects-container">
+        {/* Sidebar with filters */}
         <div className="my-left-panel">
           <h1 className="page-title">Assigned Projects</h1>
           <div className="filter-section">
@@ -65,6 +76,7 @@ const AssignedProjects = () => {
             <p className="hint">Filter your projects according to their progress.</p>
             <div className="filter-group">
               <h4>Status</h4>
+              {/* Status filter checkboxes */}
               {['Assigned', 'Submitted', 'Completed', 'Re-submit', 'Declined'].map((type) => (
                 <label key={type}>
                   <input
@@ -79,6 +91,7 @@ const AssignedProjects = () => {
           </div>
         </div>
 
+        {/* Right side project list and search */}
         <div className="my-right-panel">
           <div className="search-wrapper">
             <input
@@ -92,6 +105,7 @@ const AssignedProjects = () => {
 
           <div className="my-projects-grid">
             <AnimatePresence>
+              {/* Render filtered project cards */}
               {filteredProjects.map((project, i) => (
                 <motion.div
                   className="my-project-card"
@@ -107,6 +121,7 @@ const AssignedProjects = () => {
                   }}
                   onClick={() => handleProjectClick(project._id)}
                 >
+                  {/* Project card content */}
                   <img
                     src={project.projectId?.imageUrl || "path_to_default_image.jpg"}
                     alt={project.projectId?.title}
@@ -119,6 +134,7 @@ const AssignedProjects = () => {
           </div>
         </div>
       </div>
+
       <Footer />
     </div>
   );

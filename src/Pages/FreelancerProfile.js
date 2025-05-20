@@ -10,34 +10,36 @@ import Footer from '../Components/Footer';
 import axios from 'axios';
 
 const FreelancerProfile = () => {
+  // Get freelancer ID from URL
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // State variables for freelancer data, tabs, popup, etc.
   const [freelancer, setFreelancer] = useState(null);
   const [activeTab, setActiveTab] = useState('about');
   const [viewPopup, setViewPopup] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [portfolio, setPortfolio] = useState([]);
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default to freelancer
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default navbar for freelancer
 
+  // Set navbar links based on logged-in role
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const role = storedUser?.role;
+    switch (role) {
+      case 'admin':
+        setNavbarConfig(NavConfig4);
+        break;
+      case 'client':
+        setNavbarConfig(NavConfig3);
+        break;
+      case 'freelancer':
+      default:
+        setNavbarConfig(NavConfig2);
+    }
+  }, []);
 
-useEffect(() => {
-  const storedUser = JSON.parse(localStorage.getItem("user"));
-  const role = storedUser?.role;
-  switch (role) {
-    case 'admin':
-      setNavbarConfig(NavConfig4);
-      break;
-    case 'client':
-      setNavbarConfig(NavConfig3);
-      break;
-    case 'freelancer':
-    default:
-      setNavbarConfig(NavConfig2);
-  }
-}, []);
-
-
-
+  // Fetch freelancer profile and portfolio data
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
@@ -47,8 +49,6 @@ useEffect(() => {
         console.error('Error fetching freelancer profile:', error);
       }
     };
-
-    
 
     const fetchPortfolio = async () => {
       try {
@@ -62,28 +62,28 @@ useEffect(() => {
     fetchFreelancer();
     fetchPortfolio();
   }, [id]);
-  
- 
-// Move this useEffect OUTSIDE
-useEffect(() => {
-  if (viewPopup) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = 'auto';
-  }
 
-  return () => {
-    document.body.style.overflow = 'auto'; // Reset on unmount
-  };
-}, [viewPopup]);
+  // Prevent background scroll when viewing popup
+  useEffect(() => {
+    if (viewPopup) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
 
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [viewPopup]);
 
   if (!freelancer) return <div>Loading...</div>;
 
   return (
     <div className="freelancer-profile">
+      {/* Navbar */}
       <Navbar links={navbarConfig} />
       <div className="profile-container">
+        {/* Header section */}
         <div className="profile-header">
           <div className="left-profile">
             <img
@@ -95,25 +95,28 @@ useEffect(() => {
               <h2>{freelancer.fullName}</h2>
             </div>
           </div>
+
+          {/* Contact button navigates to Messages */}
           <button
-                        className="contact-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate("/messages", {
-                            state: {
-                              userToChat: {
-                                _id: freelancer._id,
-                                fullName: freelancer.fullName,
-                                role: "freelancer",
-                              },
-                            },
-                          });
-                        }}
-                      >
-                        Get in touch
-                      </button>
+            className="contact-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/messages", {
+                state: {
+                  userToChat: {
+                    _id: freelancer._id,
+                    fullName: freelancer.fullName,
+                    role: "freelancer",
+                  },
+                },
+              });
+            }}
+          >
+            Get in touch
+          </button>
         </div>
 
+        {/* Tab toggle buttons */}
         <div className="tab-buttons">
           <button
             className={activeTab === 'about' ? 'active' : ''}
@@ -130,13 +133,14 @@ useEffect(() => {
         </div>
         <hr />
 
+        {/* About tab content */}
         {activeTab === 'about' ? (
           <div className="about-section">
             <div className="basic-info">
               <p><strong>Name: </strong> {freelancer.fullName}</p>
               <p><strong>ID: </strong>{freelancer.studentId}</p>
-              <p> <strong>Major: </strong> {freelancer.major}</p>
-               <p><strong> Freelancer Type: </strong> {freelancer.userType}</p>
+              <p><strong>Major: </strong> {freelancer.major}</p>
+              <p><strong>Freelancer Type: </strong> {freelancer.userType}</p>
             </div>
 
             <div className="bio-info">
@@ -150,6 +154,7 @@ useEffect(() => {
             </div>
           </div>
         ) : (
+          // Portfolio tab content
           <div className="portfolio-section9">
             <div className="portfolio-grid99">
               {portfolio.length > 0 ? (
@@ -175,12 +180,15 @@ useEffect(() => {
         )}
       </div>
 
+      {/* Portfolio modal popup */}
       {viewPopup && (
         <ViewPortfolioPopup
           project={selectedProject}
           onClose={() => setViewPopup(false)}
         />
       )}
+
+      {/* Footer */}
       <Footer />
     </div>
   );

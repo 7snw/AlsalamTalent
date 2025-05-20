@@ -13,19 +13,27 @@ import {
 import { FiDownload } from 'react-icons/fi';
 import { showAlert } from '../utils/toastMessages';
 
-
 const ProjectDetails = () => {
+  // Get the project ID from the URL
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // State for navbar config based on role
   const [navbarConfig, setNavbarConfig] = useState(NavConfig1);
+
+  // Project data
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Application status (for freelancer)
   const [applied, setApplied] = useState(false);
 
+  // User info from localStorage
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
   const role = storedUser?.role;
 
+  // Set navbar based on user role
   useEffect(() => {
     switch (role) {
       case "freelancer":
@@ -42,12 +50,11 @@ const ProjectDetails = () => {
     }
   }, [role]);
 
+  // Fetch project details from the backend
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/projects/${id}`
-        );
+        const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
         setProject(response.data);
       } catch (error) {
         console.error("Error fetching project details:", error);
@@ -55,22 +62,20 @@ const ProjectDetails = () => {
         setLoading(false);
       }
     };
-
     fetchProject();
   }, [id]);
+
+  // Check if freelancer already applied
   useEffect(() => {
     const checkIfApplied = async () => {
       if (role === "freelancer" && userId && project?._id) {
         try {
-          const res = await axios.get(
-            `http://localhost:5000/api/applications/check`,
-            {
-              params: {
-                freelancerId: userId,
-                projectId: project._id,
-              },
-            }
-          );
+          const res = await axios.get(`http://localhost:5000/api/applications/check`, {
+            params: {
+              freelancerId: userId,
+              projectId: project._id,
+            },
+          });
 
           if (res.data?.applied) {
             setApplied(true);
@@ -84,6 +89,7 @@ const ProjectDetails = () => {
     checkIfApplied();
   }, [role, userId, project]);
 
+  // Handle Apply button for freelancers
   const handleApply = async () => {
     try {
       await axios.post("http://localhost:5000/api/applications/create", {
@@ -92,16 +98,13 @@ const ProjectDetails = () => {
         authorId: project.authorId,
       });
 
-      // If the application is accepted
       showAlert("Successfully applied to this project!");
       setApplied(true);
     } catch (error) {
       const message = error.response?.data?.message;
-
-      // If already applied (backend message)
       if (message?.toLowerCase().includes("already")) {
         showAlert("You have already applied to this project.");
-        setApplied(true); // Reflect immediately
+        setApplied(true);
       } else {
         console.error("Error applying to project:", error);
         showAlert("An error occurred while applying.");
@@ -109,6 +112,7 @@ const ProjectDetails = () => {
     }
   };
 
+  // Loading and error fallback
   if (loading) return <p>Loading project...</p>;
   if (!project) return <p>Project not found.</p>;
 
@@ -117,12 +121,12 @@ const ProjectDetails = () => {
       <Navbar links={navbarConfig} />
       <div className="details-container">
         <h2>{project.title}</h2>
+
         <div className="details-layout">
+          {/* LEFT SECTION */}
           <div className="left">
             <h4>Author:</h4>
-            <p>
-              {project.authorId?.fullName || project.authorName || "Unknown"}
-            </p>
+            <p>{project.authorId?.fullName || project.authorName || "Unknown"}</p>
 
             <h4>Project Brief:</h4>
             <p>{project.brief}</p>
@@ -145,47 +149,44 @@ const ProjectDetails = () => {
 
             <h4>Project Files:</h4>
             {project.files && project.files.length > 0 ? (
-  <ul className="attached-files-list6">
-    {project.files.map((file, idx) => (
-      <li key={idx} className="attached-file-item6">
-        {file.name}
-        <button
-          type="button"
-          className="download-btn6"
-          onClick={() => window.open(file.url, '_blank')}
-        >
-          <FiDownload size={18} />
-        </button>
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>No files uploaded by client.</p>
-)}
+              <ul className="attached-files-list6">
+                {project.files.map((file, idx) => (
+                  <li key={idx} className="attached-file-item6">
+                    {file.name}
+                    <button
+                      type="button"
+                      className="download-btn6"
+                      onClick={() => window.open(file.url, '_blank')}
+                    >
+                      <FiDownload size={18} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No files uploaded by client.</p>
+            )}
 
+            {/* APPLY BUTTON for freelancers */}
             {role === "freelancer" && (
-  <button
-    className={`apply-btn ${applied ? "applied" : ""}`}
-    onClick={
-      !applied && project.status === "Open"
-        ? handleApply
-        : undefined
-    }
-    disabled={project.status !== "Open" || applied}
-  >
-    {project.status === "Assigned"
-      ? "Already Assigned"
-      : project.status === "Submitted"
-      ? "Submitted"
-      : project.status === "Completed"
-      ? "Project Completed"
-      : applied
-      ? "Already Applied"
-      : "Apply for this Project"}
-  </button>
-)}
+              <button
+                className={`apply-btn ${applied ? "applied" : ""}`}
+                onClick={!applied && project.status === "Open" ? handleApply : undefined}
+                disabled={project.status !== "Open" || applied}
+              >
+                {project.status === "Assigned"
+                  ? "Already Assigned"
+                  : project.status === "Submitted"
+                  ? "Submitted"
+                  : project.status === "Completed"
+                  ? "Project Completed"
+                  : applied
+                  ? "Already Applied"
+                  : "Apply for this Project"}
+              </button>
+            )}
 
-
+            {/* EDIT BUTTON for project author */}
             {role === "client" && storedUser?._id === project.authorId?._id && (
               <button
                 className="mod-btn5"
@@ -196,6 +197,7 @@ const ProjectDetails = () => {
             )}
           </div>
 
+          {/* RIGHT SECTION - Project image */}
           <div className="right">
             {project.imageUrl ? (
               <img src={project.imageUrl} alt={project.title} />

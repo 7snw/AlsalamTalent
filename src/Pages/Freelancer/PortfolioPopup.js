@@ -1,44 +1,47 @@
+// src/Pages/Freelancer/PortfolioPopup.js
+
 import React, { useState } from 'react';
 import '../../Style/Freelancer/PortfolioPopup.css';
 
 const PortfolioPopup = ({ onClose, onSubmit }) => {
-  const [image, setImage] = useState(null);  // Now handling the file as an object
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [projectType, setProjectType] = useState('');
+  // State for the form fields
+  const [image, setImage] = useState(null);         // File object for the project image
+  const [title, setTitle] = useState('');           // Project title
+  const [description, setDescription] = useState(''); // Project description
+  const [projectType, setProjectType] = useState(''); // Selected category
 
+  // Handle image file selection
   const handleImageChange = (e) => {
-    setImage(e.target.files[0]);  // Store the selected image file
+    setImage(e.target.files[0]);  // Save file object to state
   };
 
+  // Handle form submission
   const handleSubmit = () => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
     formData.append('projectType', projectType);
-    formData.append('image', image);  // Send the image file
-  
-    onSubmit(formData);  // Pass the FormData to the parent component (MyProfile)
-    onClose();  // Close the popup
+    formData.append('image', image); // Attach image file
+
+    onSubmit(formData);  // Send form data back to parent (MyProfile.js)
+    onClose();           // Close popup after submission
   };
-  
-  
+
   return (
     <div className="popup-overlay">
       <div className="popup-container">
         <div className="popup-content">
           <h2 className="view-title">Add Project Details</h2>
 
+          {/* Project Title */}
           <label>Project Title:</label>
           <input
-          type="text"
+            type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          <br/>
-          
-        
-          
+
+          {/* Image Upload */}
           <label>Upload Project Image:</label>
           <input
             type="file"
@@ -46,6 +49,7 @@ const PortfolioPopup = ({ onClose, onSubmit }) => {
             onChange={handleImageChange}
           />
 
+          {/* Project Description */}
           <label>Add Description:</label>
           <textarea
             value={description}
@@ -53,6 +57,7 @@ const PortfolioPopup = ({ onClose, onSubmit }) => {
             placeholder="Brief about this project"
           />
 
+          {/* Project Category */}
           <label>Project Category:</label>
           <select
             value={projectType}
@@ -65,6 +70,7 @@ const PortfolioPopup = ({ onClose, onSubmit }) => {
             <option value="UI/UX Design">UI/UX Design</option>
           </select>
 
+          {/* Form Action Buttons */}
           <div className="popup-buttons">
             <button className="submit-btn" onClick={handleSubmit}>Submit</button>
             <button className="cancel-btn" onClick={onClose}>Cancel</button>

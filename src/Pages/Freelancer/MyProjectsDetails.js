@@ -1,4 +1,5 @@
 // src/Pages/Freelancer/MyProjectsDetails.js
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../../Style/Freelancer/MyProjectsDetails.css';
@@ -7,20 +8,21 @@ import { NavConfig2 } from '../../Data/NavbarConfigs';
 import Footer from '../../Components/Footer';
 import uploadIcon from '../../Assets/Upload.png';
 import axios from 'axios';
-import { FiDownload ,FiMessageCircle} from 'react-icons/fi';
+import { FiDownload, FiMessageCircle } from 'react-icons/fi';
 import { AiOutlineClose } from 'react-icons/ai';
 import ChatBox from '../../Components/ChatBox';
 import { showAlert } from '../../utils/toastMessages';
 
-
 const MyProjectsDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // assignmentId from URL
   const navigate = useNavigate();
+
+  // Local states
   const [assignment, setAssignment] = useState(null);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-    const [showChat, setShowChat] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]); // new files to submit
+  const [showChat, setShowChat] = useState(false); // toggle chat box
 
-
+  // Fetch assignment data on mount
   useEffect(() => {
     const fetchAssignment = async () => {
       try {
@@ -33,15 +35,18 @@ const MyProjectsDetails = () => {
     fetchAssignment();
   }, [id]);
 
+  // Add new files to state
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
     setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
   };
 
+  // Remove unsubmitted file from list
   const handleRemoveFile = (indexToRemove) => {
     setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
+  // Remove previously submitted file from backend
   const handleRemoveSubmittedFile = async (fileIndex) => {
     try {
       const updatedDocs = [...assignment.docs];
@@ -61,6 +66,7 @@ const MyProjectsDetails = () => {
     }
   };
 
+  // Submit project with attached files
   const handleSubmitProject = async () => {
     const formData = new FormData();
     selectedFiles.forEach((file) => formData.append('docs', file));
@@ -82,8 +88,6 @@ const MyProjectsDetails = () => {
   if (!assignment) return <p>Loading...</p>;
 
   const { projectId, status, feedback, docs, rating } = assignment;
-
-
   const clientId = projectId?.authorId;
   const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
 
@@ -93,28 +97,21 @@ const MyProjectsDetails = () => {
       <div className="progress-container">
         <h2>{projectId?.title || 'Project Details'}</h2>
 
-       {(status === 'Declined' || status === 'Re-submit' || status === 'Completed') && (
-
+        {/* Feedback section (if project is Declined, Completed or needs Re-submit) */}
+        {(status === 'Declined' || status === 'Re-submit' || status === 'Completed') && (
           <div className="feedback-box">
             <h3>Client Feedback:</h3>
             <p>{feedback || 'No feedback provided.'}</p>
-            
-              <div className="starss">
-                <strong>Rating:</strong>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    className={rating >= star ? 'filled' : ''}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-              
-          
+            <div className="starss">
+              <strong>Rating:</strong>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star} className={rating >= star ? 'filled' : ''}>★</span>
+              ))}
+            </div>
           </div>
         )}
 
+        {/* Project content section */}
         <div className="top-section">
           <div className="left-section">
             <h4>Project Files (from Client)</h4>
@@ -137,6 +134,7 @@ const MyProjectsDetails = () => {
               <p>No files uploaded by client.</p>
             )}
 
+            {/* Previously submitted docs */}
             <h4>Your Submissions:</h4>
             {docs?.length > 0 ? (
               <ul className="attached-files-list9">
@@ -147,9 +145,7 @@ const MyProjectsDetails = () => {
                       <button
                         type="button"
                         className="download-file-btn9"
-                        onClick={() => {
-                          window.location.href = file.url;
-                        }}
+                        onClick={() => window.location.href = file.url}
                       >
                         <FiDownload size={18} />
                       </button>
@@ -168,6 +164,7 @@ const MyProjectsDetails = () => {
               <p>You haven’t submitted any files yet.</p>
             )}
 
+            {/* Upload new docs */}
             <div className="upload-section">
               <h4>Project Files:</h4>
               <button
@@ -188,6 +185,7 @@ const MyProjectsDetails = () => {
                 onChange={handleFileChange}
               />
 
+              {/* Show selected files */}
               {selectedFiles.length > 0 && (
                 <ul className="attached-files-list9">
                   {selectedFiles.map((file, index) => (
@@ -206,6 +204,7 @@ const MyProjectsDetails = () => {
               )}
             </div>
 
+            {/* Submit button */}
             <div className="submit-section">
               <h3>Ready to {status === 'Declined' || status === 'Re-submit' ? 'resubmit' : 'submit'}?</h3>
               <button className="submit-btn" onClick={handleSubmitProject}>
@@ -213,11 +212,12 @@ const MyProjectsDetails = () => {
               </button>
             </div>
 
+            {/* Open chat */}
             <button onClick={() => setShowChat(true)} className="open-chat-btn">
               <FiMessageCircle />
             </button>
 
-            {showChat &&(
+            {showChat && (
               <ChatBox
                 userId={freelancerId}
                 otherUserId={clientId}
@@ -231,6 +231,7 @@ const MyProjectsDetails = () => {
 
         <hr />
 
+        {/* Bottom project details */}
         <div className="details-section">
           <div className="details-left">
             <h2>Project Details</h2>

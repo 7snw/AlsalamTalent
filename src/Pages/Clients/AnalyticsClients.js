@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import '../../Style/Clients/AnalyticsClient.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig3 } from '../../Data/NavbarConfigs';
-import Footer from '../../Components/Footer';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import '../../Style/Clients/AnalyticsClient.css'
+import Navbar from '../../Components/Navbar'
+import { NavConfig3 } from '../../Data/NavbarConfigs'
+import Footer from '../../Components/Footer'
+import axios from 'axios'
 import {
   BarChart,
   Bar,
@@ -12,42 +12,48 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid
-} from 'recharts';
+} from 'recharts'
 
 const AnalyticsClient = () => {
+  // This state holds all the analytics data shown on the page
   const [analytics, setAnalytics] = useState({
     openCount: 0,
     assignedCount: 0,
     completedCount: 0,
-    projectsProgress: [],
-    allProjects: []
-  });
+    projectsProgress: [], // For the bar chart
+    allProjects: [] // For the scrollable project list
+  })
 
-  const storedUser = JSON.parse(localStorage.getItem("user"));
-  const clientId = storedUser?._id;
+  // Get the current logged-in user's ID from local storage
+  const storedUser = JSON.parse(localStorage.getItem("user"))
+  const clientId = storedUser?._id
 
+  // When the page loads, fetch analytics data for this client
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/client/analytics/${clientId}`);
-        setAnalytics(response.data);
+        const response = await axios.get(`http://localhost:5000/api/client/analytics/${clientId}`)
+        setAnalytics(response.data)
       } catch (error) {
-        console.error('Error fetching analytics:', error);
+        console.error('Error fetching analytics:', error)
       }
-    };
-
-    if (clientId) {
-      fetchAnalytics();
     }
-  }, [clientId]);
+
+    // Only fetch data if the client ID exists
+    if (clientId) {
+      fetchAnalytics()
+    }
+  }, [clientId])
 
   return (
     <div className="analytics-page">
+      {/* Show the navbar with client-specific links */}
       <Navbar links={NavConfig3} />
+
       <div className="analytics-container">
         <h2> Analytics</h2>
 
-        {/* TOP CARDS */}
+        {/* Show summary numbers for Open, Assigned, and Completed projects */}
         <div className="summary-cards">
           <div className="card1">
             <h4>Open Projects</h4>
@@ -63,8 +69,9 @@ const AnalyticsClient = () => {
           </div>
         </div>
 
-        {/* CHART + LIST */}
+        {/* This section includes a bar chart and a list of all projects */}
         <div className="details-section9">
+          {/* The left card shows a bar chart of projects by month */}
           <div className="card progress9">
             <h4>Projects by Month</h4>
             <ResponsiveContainer width="100%" height={250}>
@@ -78,12 +85,15 @@ const AnalyticsClient = () => {
             </ResponsiveContainer>
           </div>
 
+          {/* The right card shows all projects with basic info */}
           <div className="card project-list9">
             <h4>All Projects</h4>
             <div className="project-scroll">
               {analytics.allProjects.length === 0 ? (
+                // Show a message if there are no projects
                 <p>No projects found.</p>
               ) : (
+                // Otherwise, list each project with title, status, and budget
                 analytics.allProjects.map((proj, idx) => (
                   <div key={idx} className="project-item">
                     <strong>{proj.title}</strong>
@@ -96,9 +106,11 @@ const AnalyticsClient = () => {
           </div>
         </div>
       </div>
+
+      {/* Show the shared footer at the bottom */}
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default AnalyticsClient;
+export default AnalyticsClient

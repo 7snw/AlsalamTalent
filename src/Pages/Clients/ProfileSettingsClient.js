@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import '../../Style/Clients/ProfileSettingsClient.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig3 } from '../../Data/NavbarConfigs';
-import Footer from '../../Components/Footer';
-import axios from 'axios';
-import { showAlert } from '../../utils/toastMessages';
-
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import Navbar from '../../Components/Navbar'
+import { NavConfig3 } from '../../Data/NavbarConfigs'
+import Footer from '../../Components/Footer'
+import '../../Style/Clients/ProfileSettingsClient.css'
+import { showAlert } from '../../utils/toastMessages'
 
 const ProfileSettingsClient = () => {
-  const [activeSection, setActiveSection] = useState('edit');
+  // Active tab: 'edit' or 'password'
+  const [activeSection, setActiveSection] = useState('edit')
+
+  // Client profile data
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -16,18 +18,22 @@ const ProfileSettingsClient = () => {
     phone: '',
     companyName: '',
     dateOfBirth: ''
-  });
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  })
 
-  const user = JSON.parse(localStorage.getItem('user'));
-  const clientId = user?._id;
-  
+  // Password fields
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+
+  // Get client ID from localStorage
+  const user = JSON.parse(localStorage.getItem('user'))
+  const clientId = user?._id
+
+  // Fetch client profile on mount
   useEffect(() => {
     const fetchClient = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/client/${clientId}`);
-        const data = response.data;
+        const response = await axios.get(`http://localhost:5000/api/client/${clientId}`)
+        const data = response.data
         setFormData({
           fullName: data.fullName || '',
           email: data.email || '',
@@ -35,49 +41,55 @@ const ProfileSettingsClient = () => {
           phone: data.phone || '',
           companyName: data.companyName || '',
           dateOfBirth: data.dateOfBirth ? data.dateOfBirth.slice(0, 10) : ''
-        });
+        })
       } catch (err) {
-        console.error('Error fetching client profile:', err);
-        showAlert('Failed to load profile.');
+        console.error('Error fetching client profile:', err)
+        showAlert('Failed to load profile.')
       }
-    };
+    }
 
-    if (clientId) fetchClient();
-  }, [clientId]);
+    if (clientId) fetchClient()
+  }, [clientId])
 
+  // Handle field changes for profile inputs
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
 
+  // Save updated profile info
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/client/${clientId}`, formData);
-      showAlert('Profile updated successfully!');
+      await axios.put(`http://localhost:5000/api/client/${clientId}`, formData)
+      showAlert('Profile updated successfully!')
     } catch (err) {
-      console.error('Error updating profile:', err);
-      showAlert('Failed to update profile.');
+      console.error('Error updating profile:', err)
+      showAlert('Failed to update profile.')
     }
-  };
+  }
 
+  // Save new password
   const handleChangePassword = async () => {
     try {
       await axios.put(`http://localhost:5000/api/client/changepassword/${clientId}`, {
         oldPassword,
         newPassword
-      });
-      showAlert('Password updated successfully!');
-      setOldPassword('');
-      setNewPassword('');
+      })
+      showAlert('Password updated successfully!')
+      setOldPassword('')
+      setNewPassword('')
     } catch (err) {
-      console.error('Password update failed:', err);
-      showAlert(err.response?.data?.message || 'Failed to update password.');
+      console.error('Password update failed:', err)
+      showAlert(err.response?.data?.message || 'Failed to update password.')
     }
-  };
+  }
 
   return (
     <div className="client-settings-page">
+      {/* Top navbar */}
       <Navbar links={NavConfig3} />
+
       <div className="client-settings-container">
+        {/* Sidebar navigation */}
         <div className="client-settings-sidebar">
           <h3 className="client-settings-username">{formData.fullName || 'Client'}</h3>
           <ul className="client-settings-tabs">
@@ -86,7 +98,9 @@ const ProfileSettingsClient = () => {
           </ul>
         </div>
 
+        {/* Main content area */}
         <div className="client-settings-content">
+          {/* Edit profile section */}
           {activeSection === 'edit' && (
             <div className="client-section">
               <h4>Name</h4>
@@ -105,6 +119,7 @@ const ProfileSettingsClient = () => {
             </div>
           )}
 
+          {/* Change password section */}
           {activeSection === 'password' && (
             <div className="client-section">
               <h4>Old Password</h4>
@@ -116,9 +131,11 @@ const ProfileSettingsClient = () => {
           )}
         </div>
       </div>
+
+      {/* Footer */}
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default ProfileSettingsClient;
+export default ProfileSettingsClient

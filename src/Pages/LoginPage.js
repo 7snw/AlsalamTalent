@@ -6,31 +6,35 @@ import axios from "axios";
 import { FaArrowLeft } from "react-icons/fa";
 import { showAlert } from '../utils/toastMessages';
 
-
 const LoginPage = () => {
+  // State to hold email and password input
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  // Handles login form submission
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  console.log("Attempting login with:", { email, password });
+    console.log("Attempting login with:", { email, password });
 
-  try {
-    const response = await axios.post(
-      "http://localhost:5000/api/users/login",
-      { email: email.toLowerCase(), password }
-    );
+    try {
+      // Send login credentials to backend
+      const response = await axios.post(
+        "http://localhost:5000/api/users/login",
+        { email: email.toLowerCase(), password }
+      );
 
       const userData = response.data;
       console.log("Login response received:", userData); // Confirm response
 
+      // Validate required fields in response
       if (!userData || !userData.id || !userData.role) {
         showAlert("Invalid response from server.");
         return;
       }
 
+      // Save user data in localStorage
       const user = {
         _id: userData.id,
         fullName: userData.name,
@@ -42,7 +46,7 @@ const LoginPage = () => {
       localStorage.setItem("userId", user._id);
       localStorage.setItem("role", user.role);
 
-      // Redirect based on role
+      // Redirect user based on role
       if (user.role === "admin") {
         navigate("/analyticsadmin");
       } else if (user.role === "client") {
@@ -62,6 +66,7 @@ const LoginPage = () => {
     <div className="login-body">
       <div className="login-wrapper">
         <div className="login-container">
+          {/* Back navigation button */}
           <button
             className="back-btn"
             onClick={() => navigate("/studentgraduate")}
@@ -69,6 +74,7 @@ const LoginPage = () => {
             <FaArrowLeft />
           </button>
 
+          {/* Login form section */}
           <div className="login-left">
             <h2>Sign in to your Account</h2>
             <form onSubmit={handleSubmit} className="login-form">
@@ -90,6 +96,8 @@ const LoginPage = () => {
                 Sign In
               </button>
             </form>
+
+            {/* Redirect to registration */}
             <p className="register-link">
               I don’t have an account?{" "}
               <span
@@ -101,8 +109,10 @@ const LoginPage = () => {
             </p>
           </div>
 
+          {/* Divider between form and image */}
           <div className="divider"></div>
 
+          {/* Right image display */}
           <div className="login-right">
             <img src={LoginPhoto} alt="Student dev" />
           </div>

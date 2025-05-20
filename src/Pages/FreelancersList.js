@@ -11,7 +11,7 @@ import DefaultUserIcon from "../Assets/ProfileImage.png";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
-// Render full stars (1-5), always 5 stars total
+// Helper function to render star rating (1–5)
 const renderStars = (rating) => {
   const fullStars = Math.min(Math.max(parseInt(rating || 0), 1), 5);
   const emptyStars = 5 - fullStars;
@@ -30,14 +30,20 @@ const renderStars = (rating) => {
 const FreelancersList = () => {
   const navigate = useNavigate();
 
+  // Navbar config based on role
   const [navbarConfig, setNavbarConfig] = useState(NavConfig2);
+
+  // UI state: search bar and filter selections
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     expertise: [],
     rating: [],
   });
+
+  // Fetched freelancer data
   const [freelancers, setFreelancers] = useState([]);
 
+  // Determine navbar based on logged-in user
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const role = storedUser?.role;
@@ -46,6 +52,7 @@ const FreelancersList = () => {
     else setNavbarConfig(NavConfig2);
   }, []);
 
+  // Fetch all freelancers from the backend
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/freelancer/list")
@@ -57,6 +64,7 @@ const FreelancersList = () => {
       });
   }, []);
 
+  // Handle checking/unchecking filters
   const handleFilterChange = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
@@ -69,13 +77,16 @@ const FreelancersList = () => {
     });
   };
 
+  // Filter freelancers based on search and filters
   const filteredFreelancers = freelancers.filter((freelancer) => {
     const nameMatch = freelancer.fullName
       ?.toLowerCase()
       .includes(search.toLowerCase());
+
     const expertiseMatch = freelancer.expertise?.some((exp) =>
       exp.toLowerCase().includes(search.toLowerCase())
     );
+
     const matchesSearch = nameMatch || expertiseMatch;
 
     const matchesExpertiseFilter =
@@ -92,11 +103,12 @@ const FreelancersList = () => {
 
   return (
     <div className="freelancer-page">
+      {/* Top navbar */}
       <Navbar links={navbarConfig} />
 
       <div className="freelancer-container9">
         <div className="freelancer-content">
-          {/* LEFT FILTER */}
+          {/* LEFT FILTER PANEL */}
           <div className="freelancer-left-panel">
             <h1 className="page-title">Freelancers</h1>
             <div className="filter-section">
@@ -105,13 +117,14 @@ const FreelancersList = () => {
                 Filter your Freelancers according to their Expertise and Rating.
               </p>
 
+              {/* Expertise filter */}
               <div className="filter-group">
                 <h4>Expertise</h4>
                 {[
                   "Marketing",
                   "Graphic Designer",
                   "Illustrator",
-                   "UX/UI Designer",
+                  "UX/UI Designer",
                   "Content Creator",
                   "Web Developer",
                 ].map((type) => (
@@ -126,6 +139,7 @@ const FreelancersList = () => {
                 ))}
               </div>
 
+              {/* Rating filter */}
               <div className="filter-group">
                 <h4>Rating</h4>
                 {[5, 4, 3, 2, 1].map((rating) => (
@@ -144,8 +158,9 @@ const FreelancersList = () => {
             </div>
           </div>
 
-          {/* RIGHT SEARCH & RESULTS */}
+          {/* RIGHT CONTENT SECTION */}
           <div className="freelancer-results">
+            {/* Search bar */}
             <div className="search-wrapper9">
               <input
                 type="text"
@@ -156,6 +171,7 @@ const FreelancersList = () => {
               <img src={SearchIcon} alt="Search" className="search-icon9" />
             </div>
 
+            {/* Freelancers list */}
             <AnimatePresence>
               {filteredFreelancers.length > 0 ? (
                 filteredFreelancers.map((freelancer, i) => (
@@ -171,6 +187,7 @@ const FreelancersList = () => {
                     }
                     style={{ cursor: "pointer" }}
                   >
+                    {/* Basic freelancer info */}
                     <div className="freelancer-info">
                       <img
                         src={freelancer.profileImageUrl || DefaultUserIcon}
@@ -185,6 +202,7 @@ const FreelancersList = () => {
                       </div>
                     </div>
 
+                    {/* Rating and contact */}
                     <div className="freelancer-meta">
                       <div className="rating">
                         {renderStars(freelancer.rating)}
@@ -217,6 +235,7 @@ const FreelancersList = () => {
         </div>
       </div>
 
+      {/* Footer */}
       <Footer />
     </div>
   );

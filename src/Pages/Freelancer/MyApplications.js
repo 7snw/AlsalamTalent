@@ -1,4 +1,5 @@
 // src/Pages/Freelancer/MyApplications.js
+
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
@@ -11,6 +12,8 @@ import SearchIcon from '../../Assets/search.png';
 
 const MyApplications = () => {
   const navigate = useNavigate();
+
+  // State for storing applications, search text, and filters
   const [applications, setApplications] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
@@ -19,9 +22,11 @@ const MyApplications = () => {
     budget: [],
   });
 
+  // Get current user ID from local storage
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
   
+  // Fetch all applications made by the freelancer
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -34,7 +39,7 @@ const MyApplications = () => {
     fetchApplications();
   }, [userId]);
 
-
+  // Filter applications based on search, type, and budget
   const filteredApplications = applications.filter((app) => {
     const matchesSearch = app.project?.title?.toLowerCase().includes(search.toLowerCase());
 
@@ -47,9 +52,8 @@ const MyApplications = () => {
         const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
         const rawBudget = app.project?.budget;
 
-        if (!rawBudget) return false; // if no budget, don't match
+        if (!rawBudget) return false;
 
-        // If budget is a number, use directly
         const budgetValue =
           typeof rawBudget === 'number'
             ? rawBudget
@@ -61,6 +65,7 @@ const MyApplications = () => {
     return matchesSearch && matchesType && matchesBudget;
   });
 
+  
   const getStatusClass = (status) => {
     switch (status.toLowerCase()) {
       case 'assigned':
@@ -68,12 +73,13 @@ const MyApplications = () => {
       case 'cancelled':
         return 'Canceled';
       case 'under review':
-        return 'Pending'; // show 'Pending' styling but label will be 'Under Review'
+        return 'Pending';
       default:
         return 'Pending';
     }
   };
   
+  // Update filters when checkboxes are clicked
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
@@ -91,15 +97,16 @@ const MyApplications = () => {
     <div className="my-applications-page">
       <Navbar links={NavConfig2} />
       <div className="my-applications-container">
+
+        {/* Filter Sidebar */}
         <aside className="my-applications-left-panel">
           <h1 className="page-title">My Applications</h1>
 
-           <div className="filter-section">
+          <div className="filter-section">
             <h3>Filter</h3>
             <div className="filter-group">
-               <p className="hint">Filter the projects according to their type and budget range.</p>
+              <p className="hint">Filter the projects according to their type and budget range.</p>
               <h4>Type</h4>
-
               {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
@@ -111,6 +118,7 @@ const MyApplications = () => {
                 </label>
               ))}
             </div>
+
             <div className="filter-group">
               <h4>Budget</h4>
               {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
@@ -127,6 +135,7 @@ const MyApplications = () => {
           </div>
         </aside>
 
+        {/* Applications List */}
         <main className="my-applications-right-panel">
           <div className="search-wrapper">
             <input
@@ -159,10 +168,9 @@ const MyApplications = () => {
                     <p>{app.project?.budget ? `${app.project.budget} BHD` : '—'}</p>
                   </div>
                   <div className="my-application-actions">
-                  <button className={getStatusClass(app.status)}>
-  {app.status === 'Under Review' ? 'Under Review' : app.status}
-</button>
-
+                    <button className={getStatusClass(app.status)}>
+                      {app.status === 'Under Review' ? 'Under Review' : app.status}
+                    </button>
                   </div>
                 </motion.div>
               ))}

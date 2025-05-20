@@ -1,83 +1,97 @@
-// src/Pages/Clients/BrowseProjects.js
-import React, { useState, useEffect } from 'react';
-import '../../Style/Clients/BrowseProjects.css';
-import '../../Style/PageContents.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig3 } from '../../Data/NavbarConfigs';
-import { useNavigate } from 'react-router-dom';
-import SearchIcon from '../../Assets/search.png';
-import Footer from '../../Components/Footer';
-import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react'
+import '../../Style/Clients/BrowseProjects.css'
+import '../../Style/PageContents.css'
+import Navbar from '../../Components/Navbar'
+import { NavConfig3 } from '../../Data/NavbarConfigs'
+import { useNavigate } from 'react-router-dom'
+import SearchIcon from '../../Assets/search.png'
+import Footer from '../../Components/Footer'
+import { motion, AnimatePresence } from 'framer-motion'
+import axios from 'axios'
 
 const BrowseProjects = () => {
-  const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  const navigate = useNavigate()
+
+  // Search input state
+  const [search, setSearch] = useState('')
+
+  // Filters for project type and budget range
   const [filters, setFilters] = useState({
     type: [],
     budget: []
-  });
-  const [projects, setProjects] = useState([]);
+  })
 
-  const storedUser = JSON.parse(localStorage.getItem('user'));
-  const userId = storedUser?._id;
-  
+  // All projects fetched from backend
+  const [projects, setProjects] = useState([])
+
+  // Get current user from local storage
+  const storedUser = JSON.parse(localStorage.getItem('user'))
+  const userId = storedUser?._id
+
+  // Fetch client's own projects from the backend
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/projects/client/${userId}`);
-        setProjects(response.data);
+        const response = await axios.get(`http://localhost:5000/api/projects/client/${userId}`)
+        setProjects(response.data)
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching projects:', error)
       }
-    };
-  
-    if (userId) { 
-      fetchProjects();
     }
-  }, [userId]); 
-  
-  
 
+    if (userId) {
+      fetchProjects()
+    }
+  }, [userId])
+
+  // Handle filter checkbox selection
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
-      const updated = { ...prev };
-      const alreadySelected = updated[category]?.includes(value);
+      const updated = { ...prev }
+      const alreadySelected = updated[category]?.includes(value)
 
       updated[category] = alreadySelected
         ? updated[category].filter((v) => v !== value)
-        : [...(updated[category] || []), value];
+        : [...(updated[category] || []), value]
 
-      return { ...updated };
-    });
-  };
+      return { ...updated }
+    })
+  }
 
+  // Filter projects by search input, type, and budget
   const filteredProjects = projects.filter((proj) => {
-    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase())
+
+    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category)
+
     const matchesBudget =
       filters.budget.length === 0 ||
       filters.budget.some((range) => {
-        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-        const projectBudget = parseFloat(proj.budget);
-        return projectBudget >= min && projectBudget <= max;
-      });
+        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()))
+        const projectBudget = parseFloat(proj.budget)
+        return projectBudget >= min && projectBudget <= max
+      })
 
-    return matchesSearch && matchesType && matchesBudget;
-  });
+    return matchesSearch && matchesType && matchesBudget
+  })
 
   return (
     <div className="browse-projects-page">
+      {/* Top navigation bar for clients */}
       <Navbar links={NavConfig3} />
+
       <div className="browse-container">
+        {/* Sidebar with filters */}
         <aside className="browse-left-panel">
           <h1 className="page-title">My Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
             <div className="filter-group">
-               <p className="hint">Filter the projects according to their type and budget range.</p>
-              <h4>Type</h4>
+              {/* Description text */}
+              <p className="hint">Filter the projects according to their type and budget range.</p>
 
+              {/* Type checkboxes */}
+              <h4>Type</h4>
               {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
@@ -89,6 +103,8 @@ const BrowseProjects = () => {
                 </label>
               ))}
             </div>
+
+            {/* Budget checkboxes */}
             <div className="filter-group">
               <h4>Budget</h4>
               {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
@@ -105,7 +121,9 @@ const BrowseProjects = () => {
           </div>
         </aside>
 
+        {/* Main content: search and project grid */}
         <main className="browse-right-panel">
+          {/* Search bar */}
           <div className="search-wrapper">
             <input
               type="text"
@@ -116,6 +134,7 @@ const BrowseProjects = () => {
             <img src={SearchIcon} alt="search" className="search-icon" />
           </div>
 
+          {/* Projects display grid */}
           <div className="projects-grid">
             <AnimatePresence>
               {filteredProjects.map((proj, index) => (
@@ -133,19 +152,23 @@ const BrowseProjects = () => {
                   }}
                   onClick={() => navigate(`/project-details/${proj._id}`)}
                 >
+                  {/* Project image */}
                   <img src={proj.imageUrl} alt={proj.title} />
+                  {/* Project title */}
                   <h4>{proj.title}</h4>
+                  {/* Project budget */}
                   <p>{proj.budget} BHD</p>
-                
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         </main>
       </div>
+
+      {/* Footer displayed at the bottom */}
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default BrowseProjects;
+export default BrowseProjects

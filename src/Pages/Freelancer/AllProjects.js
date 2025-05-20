@@ -1,9 +1,10 @@
-// src/Pages/Freelancer/AllProjects.js
-
-import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+// React and external library imports
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa'; // Icons for bookmark status
+import { motion, AnimatePresence } from 'framer-motion'; // Animation library
+import { useNavigate } from 'react-router-dom'; // Navigation
 import React, { useState, useEffect } from 'react';
+
+// Style and component imports
 import '../../Style/Freelancer/AllProjects.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
@@ -13,15 +14,21 @@ import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
 
+// Functional component definition
 const AllProjects = () => {
   const navigate = useNavigate();
+
+  // Get user ID from localStorage
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
+
+  // State variables
   const [allProjects, setAllProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: [], budget: [] });
 
+  // Fetch projects and saved projects on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -29,8 +36,8 @@ const AllProjects = () => {
           axios.get('http://localhost:5000/api/projects/all'),
           axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`)
         ]);
-        setAllProjects(projectsRes.data);
-        setSavedProjects(savedRes.data.map(p => p._id));
+        setAllProjects(projectsRes.data); // All projects
+        setSavedProjects(savedRes.data.map(p => p._id)); // Extract only saved project IDs
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -39,6 +46,7 @@ const AllProjects = () => {
     if (userId) fetchData();
   }, [userId]);
 
+  // Update filter selections
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
@@ -52,26 +60,27 @@ const AllProjects = () => {
     });
   };
 
+  // Check if a project is saved
   const isProjectSaved = (projectId) => savedProjects.includes(projectId);
 
+  // Save or unsave a project
   const handleBookmarkClick = async (e, projectId) => {
-  e.stopPropagation();
-  try {
-    await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
+    e.stopPropagation(); // Prevent navigation
+    try {
+      await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
 
-    // Optimistically update local state
-    setSavedProjects((prev) => {
-      return prev.includes(projectId)
-        ? prev.filter((id) => id !== projectId)
-        : [...prev, projectId];
-    });
-  } catch (error) {
-    console.error('Error updating saved projects:', error);
-  }
-};
+      // Update saved projects state
+      setSavedProjects((prev) => {
+        return prev.includes(projectId)
+          ? prev.filter((id) => id !== projectId)
+          : [...prev, projectId];
+      });
+    } catch (error) {
+      console.error('Error updating saved projects:', error);
+    }
+  };
 
-  
-
+  // Filter logic based on search input and filters
   const filteredProjects = allProjects.filter((proj) => {
     const matchesSearch = proj.title?.toLowerCase().includes(search.toLowerCase());
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
@@ -90,18 +99,20 @@ const AllProjects = () => {
     return matchesSearch && matchesType && matchesBudget;
   });
 
+  // JSX return structure
   return (
     <div className="browse-projects-page">
       <Navbar links={NavConfig2} />
       <div className="browse-container">
+        {/* LEFT SIDEBAR - Filter Section */}
         <aside className="browse-left-panel">
           <h1 className="page-title">All Projects</h1>
           <div className="filter-section">
             <h3>Filter</h3>
             <div className="filter-group">
-               <p className="hint">Filter the projects according to their type and budget range.</p>
+              <p className="hint">Filter the projects according to their type and budget range.</p>
               <h4>Type</h4>
-
+              {/* Project Type Filter */}
               {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
@@ -113,6 +124,8 @@ const AllProjects = () => {
                 </label>
               ))}
             </div>
+
+            {/* Budget Filter */}
             <div className="filter-group">
               <h4>Budget</h4>
               {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
@@ -129,6 +142,7 @@ const AllProjects = () => {
           </div>
         </aside>
 
+        {/* RIGHT SIDE - Search and Projects Grid */}
         <main className="browse-right-panel">
           <div className="search-wrapper">
             <input
@@ -140,6 +154,7 @@ const AllProjects = () => {
             <img src={SearchIcon} alt="search" className="search-icon" />
           </div>
 
+          {/* PROJECT CARDS */}
           <div className="projects-grid">
             <AnimatePresence>
               {filteredProjects.map((proj, index) => (
@@ -160,6 +175,7 @@ const AllProjects = () => {
                   <img src={proj.imageUrl || proj.image || proj.coverImage} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.budget} BHD</p>
+                  {/* Bookmark Icon */}
                   <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj._id)}>
                     {isProjectSaved(proj._id) ? <FaBookmark /> : <FaRegBookmark />}
                   </span>

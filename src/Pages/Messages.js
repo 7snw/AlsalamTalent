@@ -11,24 +11,27 @@ import { FiPaperclip } from "react-icons/fi";
 import { showAlert } from '../utils/toastMessages';
 import ConfirmationModal from "../Components/ConfirmationModal";
 
+// Initialize socket connection
 const socket = io("http://localhost:5000");
 
 const Messages = () => {
   const location = useLocation();
-  const [user, setUser] = useState(null);
-  const [contacts, setContacts] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
-  const [recipient, setRecipient] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [messageInput, setMessageInput] = useState("");
-  const [showAll, setShowAll] = useState(false);
-  const [searchContact, setSearchContact] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const [user, setUser] = useState(null); // Logged-in user
+  const [contacts, setContacts] = useState([]); // Recent chat list
+  const [allUsers, setAllUsers] = useState([]); // All users (for new chat)
+  const [recipient, setRecipient] = useState(null); // Selected user to chat with
+  const [messages, setMessages] = useState([]); // Chat messages
+  const [messageInput, setMessageInput] = useState(""); // New message input
+  const [showAll, setShowAll] = useState(false); // Show all users view
+  const [searchContact, setSearchContact] = useState(""); // Search input for new chat
+  const [confirmDelete, setConfirmDelete] = useState(null); // Contact to confirm deletion
+  const messagesEndRef = useRef(null); // Scroll to bottom of messages
+  const fileInputRef = useRef(null); // Ref for hidden file input
 
+  // Capitalize role strings
   const capitalize = (str) => str?.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
+  // Load user and initial recent chat list
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (!stored) return;
@@ -37,6 +40,7 @@ const Messages = () => {
 
     if (location.state?.userToChat) setRecipient(location.state.userToChat);
 
+    // Fetch latest chat previews
     axios.get(`http://localhost:5000/api/messages/latest/${parsed._id}`)
       .then((res) => {
         const recent = res.data.map((msg) => {
@@ -58,15 +62,18 @@ const Messages = () => {
       .catch((err) => console.error("Failed to load recent chats", err));
   }, [location.state]);
 
+  // Join socket room and load message history
   useEffect(() => {
     if (!user || !recipient) return;
     const roomId = [user._id, recipient._id].sort().join("-");
     socket.emit("joinRoom", roomId);
+
     axios.get(`http://localhost:5000/api/messages/${roomId}`)
       .then((res) => setMessages(res.data))
       .catch((err) => console.error("Failed to load messages:", err));
   }, [user, recipient]);
 
+  // Receive new messages in real-time
   useEffect(() => {
     const handleReceive = (msg) => {
       setMessages((prev) => {
@@ -84,10 +91,12 @@ const Messages = () => {
     return () => socket.off("receiveMessage", handleReceive);
   }, []);
 
+  // Auto-scroll chat to latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages]);
 
+  // Send message via socket
   const sendMessage = () => {
     if (!messageInput.trim() || !user || !recipient) return;
     const roomId = [user._id, recipient._id].sort().join("-");
@@ -121,6 +130,7 @@ const Messages = () => {
     setMessageInput("");
   };
 
+  // Handle file uploads and emit as message
   const handleAttachmentUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length || !user || !recipient) return;
@@ -157,6 +167,7 @@ const Messages = () => {
     }
   };
 
+  // Load all users for starting a new chat
   const handleNewChat = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/users/all");
@@ -168,6 +179,7 @@ const Messages = () => {
     }
   };
 
+  // Confirm delete chat
   const handleConfirmDelete = async () => {
     const c = confirmDelete;
     if (!c || !user) return;
@@ -176,9 +188,10 @@ const Messages = () => {
       const roomId = [user._id, c._id].sort().join("-");
       await axios.delete(`http://localhost:5000/api/messages/room/${roomId}`);
       setContacts((prev) => prev.filter((contact) => contact._id !== c._id));
-      if (recipient?._id === c._id) 
+      if (recipient?._id === c._id) {
         setRecipient(null);
-        setMessages([]); // 👈 Clears old messages from chat window
+        setMessages([]);
+      }
     } catch (err) {
       showAlert("Failed to delete chat.");
     } finally {
@@ -186,6 +199,7 @@ const Messages = () => {
     }
   };
 
+  // Return correct navbar config based on user role
   const getNavbar = () => {
     if (!user || !user.role) return [];
     switch (user.role.toLowerCase()) {
@@ -201,6 +215,7 @@ const Messages = () => {
       <Navbar links={getNavbar()} />
       <div className="title"><p>Messages</p></div>
       <div className="messages-container2">
+        {/* Sidebar showing contacts or users for new chat */}
         <aside className="chat-sidebar">
           <h3>{showAll ? "Start New Chat" : "Chats"}</h3>
           {showAll ? (
@@ -251,6 +266,7 @@ const Messages = () => {
           )}
         </aside>
 
+        {/* Main chat window */}
         <div className="chat-window3">
           <div className="chat-header">
             {recipient ? `Chat with ${recipient.fullName || recipient.email}` : "Select a contact to start chatting"}
@@ -264,6 +280,7 @@ const Messages = () => {
                   <div className="attachment-list">
                     {msg.attachments.map((file, j) => (
                       <div key={j} className="attachment-item">
+                        {/* Show image if file is image, otherwise show link */}
                         {/\.(jpg|jpeg|png|gif|webp)$/i.test(file.url) ? (
                           <img
                             src={`http://localhost:5000${file.url}`}
@@ -290,6 +307,7 @@ const Messages = () => {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Hidden file input for attachments */}
           <input
             type="file"
             multiple
@@ -298,6 +316,7 @@ const Messages = () => {
             style={{ display: "none" }}
           />
 
+          {/* Message input area */}
           {recipient && (
             <div className="chat-input">
               <button className="plus-btn" onClick={() => fileInputRef.current?.click()}>
@@ -318,6 +337,7 @@ const Messages = () => {
         </div>
       </div>
 
+      {/* Confirm delete modal */}
       {confirmDelete && (
         <ConfirmationModal
           message={`Are you sure you want to delete your chat with ${confirmDelete.fullName}?`}

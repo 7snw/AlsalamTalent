@@ -19,7 +19,9 @@ import {
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 
+// Admin analytics dashboard showing total users, projects, and visual reports
 const AnalyticsAdmin = () => {
+  // Analytics state holds counts and progress data
   const [analytics, setAnalytics] = useState({
     totalClients: 0,
     totalFreelancers: 0,
@@ -27,23 +29,26 @@ const AnalyticsAdmin = () => {
     projectsProgress: [],
   });
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Used for redirecting on card clicks
 
+  // Fetch analytics data on mount
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
         const res = await axios.get('http://localhost:5000/api/admin/analytics');
-        setAnalytics(res.data);
+        setAnalytics(res.data); // Set retrieved data to state
       } catch (err) {
-        console.error('Error fetching admin analytics:', err);
+        console.error('Error fetching admin analytics:', err); // Log error if request fails
       }
     };
 
     fetchAnalytics();
   }, []);
 
+  // Colors for pie chart segments
   const COLORS = ['#f1633a', '#1B223C', '#8884d8'];
 
+  // Pie chart data representing system breakdown
   const pieData = [
     { name: 'Clients', value: analytics.totalClients },
     { name: 'Freelancers', value: analytics.totalFreelancers },
@@ -52,26 +57,33 @@ const AnalyticsAdmin = () => {
 
   return (
     <div className="analytics-page2">
-      <Navbar links={NavConfig4} />
+      <Navbar links={NavConfig4} /> {/* Admin navbar */}
+
       <div className="analytics-container2">
         <h2> Analytics</h2>
 
+        {/* Summary cards showing total counts */}
         <div className="summary-cards2">
           <div className="card22 clickable" onClick={() => navigate('/clientlist')}>
             <h4>Total Clients</h4>
             <div className="big-number2">{analytics.totalClients}</div>
           </div>
+
           <div className="card22 clickable" onClick={() => navigate('/freelancers')}>
             <h4>Total Freelancers</h4>
             <div className="big-number2">{analytics.totalFreelancers}</div>
           </div>
+
           <div className="card22 clickable" onClick={() => navigate('/adminallprojects')}>
             <h4>Total Projects</h4>
             <div className="big-number2">{analytics.totalProjects}</div>
           </div>
         </div>
 
+        {/* Charts section */}
         <div className="details-section2">
+
+          {/* Bar Chart: Project Progress per Month */}
           <div className="card progress2">
             <h4>Projects Progress Overview</h4>
             <ResponsiveContainer width="100%" height={250}>
@@ -85,6 +97,7 @@ const AnalyticsAdmin = () => {
             </ResponsiveContainer>
           </div>
 
+          {/* Pie Chart: Distribution of Clients, Freelancers, and Projects */}
           <div className="card performance2">
             <h4>System Breakdown</h4>
             <ResponsiveContainer width="100%" height={250}>
@@ -108,7 +121,8 @@ const AnalyticsAdmin = () => {
           </div>
         </div>
       </div>
-      <Footer />
+
+      <Footer /> {/* Footer */}
     </div>
   );
 };

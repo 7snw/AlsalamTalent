@@ -11,19 +11,26 @@ import Footer from '../../Components/Footer';
 import axios from 'axios';
 
 const SubmittedProjects = () => {
+  // Search input for filtering project titles
   const [search, setSearch] = useState("");
+
+  // List of submitted projects by the current user
   const [submittedProjects, setSubmittedProjects] = useState([]);
+
   const navigate = useNavigate();
+
+  // Get current user's ID from localStorage
   const storedUser = JSON.parse(localStorage.getItem('user'));
   const userId = storedUser?._id;
 
+  // Fetch all completed projects by this client on component mount
   useEffect(() => {
     const fetchSubmittedProjects = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/projects/all');
         const allProjects = response.data;
 
-        // Only projects submitted by this user and Completed
+        // Filter only completed projects created by this client
         const filtered = allProjects.filter(
           (proj) => proj.authorId === userId && proj.status === 'Completed'
         );
@@ -36,17 +43,21 @@ const SubmittedProjects = () => {
     fetchSubmittedProjects();
   }, [userId]);
 
+  // Filter projects based on search input
   const filteredProjects = submittedProjects.filter((project) =>
     project.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="submitted-projects-page">
+      {/* Top navigation bar for client */}
       <Navbar links={NavConfig3} />
 
       <div className="submitted-content">
         <div className="title-search-row">
           <h1 className="page-title4">Submitted Projects</h1>
+
+          {/* Search input box */}
           <div className="search-wrapper4">
             <input
               type="text"
@@ -58,6 +69,7 @@ const SubmittedProjects = () => {
           </div>
         </div>
 
+        {/* Grid of submitted project cards */}
         <div className="submitted-project-grid">
           <AnimatePresence>
             {filteredProjects.map((proj) => (
@@ -73,13 +85,17 @@ const SubmittedProjects = () => {
                   boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                   transition: { duration: 0.2 },
                 }}
+                // Navigate to project details when clicked
                 onClick={() => navigate(`/submitted-project/${proj._id}`)} 
               >
+                {/* Project image or placeholder */}
                 {proj.imageUrl ? (
                   <img src={proj.imageUrl} alt={proj.title} />
                 ) : (
                   <p>No image available</p>
                 )}
+
+                {/* Project title and author */}
                 <div className="submitted-project-info">
                   <h5>{proj.title}</h5>
                   <p>{proj.authorName || 'Unknown'}</p>
@@ -90,6 +106,7 @@ const SubmittedProjects = () => {
         </div>
       </div>
 
+      {/* Footer component */}
       <Footer />
     </div>
   );

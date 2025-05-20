@@ -5,16 +5,18 @@ import { FaArrowLeft } from 'react-icons/fa';
 import axios from 'axios';
 import { showAlert } from '../utils/toastMessages';
 
+// List of expertise options for dropdown
 const expertiseOptions = [
   "Marketing",
   "Graphic Designer",
   "Illustrator",
   "Web Developer",
-    "UX/UI Designer",
+  "UX/UI Designer",
   "Content Creator"
 ];
 
 const GraduateSignUp = () => {
+  // Form data state
   const [formData, setFormData] = useState({
     studentId: '',
     fullName: '',
@@ -32,8 +34,11 @@ const GraduateSignUp = () => {
   const [showMajorDropdown, setShowMajorDropdown] = useState(false);
   const navigate = useNavigate();
 
+  // Handle input field changes (text, file, dropdown)
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
+    // Validate student ID format and range
     if (name === 'studentId') {
       if (value === '') {
         setIsPolyStudent(null);
@@ -44,16 +49,19 @@ const GraduateSignUp = () => {
       }
     }
 
+    // Display file name after selection
     if (name === 'cpr' && files.length) {
       setCprFileName(files[0].name);
     }
 
+    // Update form data state
     setFormData(prev => ({
       ...prev,
       [name]: name === 'cpr' ? files[0] : value
     }));
   };
 
+  // Toggle selection for multiple expertise options
   const handleExpertiseChange = (value) => {
     setFormData(prev => {
       const isSelected = prev.expertise.includes(value);
@@ -64,15 +72,18 @@ const GraduateSignUp = () => {
     });
   };
 
+  // Submit form and send data to backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Check student ID validity again before submission
     const year = parseInt(formData.studentId.substring(0, 4), 10);
     if (year < 2008 || year > new Date().getFullYear()) {
       showAlert('Invalid Student ID');
       return;
     }
 
+    // Prepare form data for multipart upload
     const form = new FormData();
     form.append('userType', 'Graduate');
     form.append('studentId', formData.studentId);
@@ -85,6 +96,7 @@ const GraduateSignUp = () => {
     form.append('cpr', formData.cpr);
 
     try {
+      // Submit to backend
       const response = await axios.post(
         'http://localhost:5000/api/freelancer/graduate-register',
         form,
@@ -96,6 +108,7 @@ const GraduateSignUp = () => {
       if (response.status === 200 || response.status === 201) {
         showAlert('Account Created! Waiting for admin verification.');
 
+        // Send admin notification after registration
         try {
           await axios.post("http://localhost:5000/api/notifications/send", {
             userType: "admin",
@@ -104,7 +117,7 @@ const GraduateSignUp = () => {
             type: "info"
           });
         } catch (notifyErr) {
-          console.warn("⚠️ Admin notification failed:", notifyErr.message);
+          console.warn("Admin notification failed:", notifyErr.message);
         }
 
         navigate('/signin');
@@ -118,11 +131,15 @@ const GraduateSignUp = () => {
   return (
     <div className="graduate-body">
       <div className="graduate-container">
+        {/* Back button */}
         <button className="back-btn" onClick={() => navigate('/studentgraduate')}>
           <FaArrowLeft />
         </button>
+
+        {/* Signup Form */}
         <h2>Create your Account</h2>
         <form onSubmit={handleSubmit} className="graduate-form">
+          {/* Left Column Fields */}
           <div className="graduate-left-fields">
             <div>
               <label>Student ID</label>
@@ -145,9 +162,12 @@ const GraduateSignUp = () => {
             </div>
           </div>
 
+          {/* Divider */}
           <div className="graduate-divider"></div>
 
+          {/* Right Column Fields */}
           <div className="graduate-right-fields">
+            {/* Major Dropdown */}
             <div className="major-field">
               <p>Major</p>
               <div className="major-display" onClick={() => setShowMajorDropdown(!showMajorDropdown)}>
@@ -178,6 +198,7 @@ const GraduateSignUp = () => {
               )}
             </div>
 
+            {/* Phone Number */}
             <div>
               <label>Contact Number</label>
               <input
@@ -190,6 +211,7 @@ const GraduateSignUp = () => {
               />
             </div>
 
+            {/* Expertise Multi-select Dropdown */}
             <div className="expertiseer0">
               <p>Expertise</p>
               <div className="expertise-display0" onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}>
@@ -207,6 +229,7 @@ const GraduateSignUp = () => {
                       <span>{option}</span>
                     </label>
                   ))}
+                  {/* Done / Clear buttons */}
                   <div className="expertise-dropdown-actions0">
                     <button className="close-expertise-dropdown0" type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
                     <button className="clear-expertise-dropdown0" type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
@@ -215,15 +238,19 @@ const GraduateSignUp = () => {
               )}
             </div>
 
+            {/* CPR Upload */}
             <div className="graduate-file-upload-wrapper">
               <label htmlFor="cpr-upload">Upload CPR</label>
               <input id="cpr-upload" type="file" name="cpr" accept="image/*" onChange={handleChange} required />
               {cprFileName && <p style={{ fontSize: '12px', color: '#555' }}></p>}
             </div>
 
+            {/* Submit button */}
             <button type="submit" className="graduate-create-btn">Create</button>
           </div>
         </form>
+
+        {/* Sign-in redirect */}
         <p className="graduate-signin-link">
           I have an account? <span onClick={() => navigate('/signin')}>Sign In</span>
         </p>

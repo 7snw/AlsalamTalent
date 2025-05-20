@@ -1,3 +1,5 @@
+// src/Pages/Freelancer/MyProfile.js
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../Components/Navbar';
@@ -13,14 +15,15 @@ import axios from 'axios';
 import { showError } from '../../utils/toastMessages';
 
 const MyProfile = () => {
-  const [activeTab, setActiveTab] = useState('about');
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [viewPopup, setViewPopup] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [freelancerData, setFreelancerData] = useState(null);
+  const [activeTab, setActiveTab] = useState('about'); // tab control
+  const [uploadedFiles, setUploadedFiles] = useState([]); // portfolio files
+  const [showPopup, setShowPopup] = useState(false); // add modal
+  const [viewPopup, setViewPopup] = useState(false); // view modal
+  const [selectedProject, setSelectedProject] = useState(null); // for viewing details
+  const [freelancerData, setFreelancerData] = useState(null); // freelancer info
   const navigate = useNavigate();
 
+  // Fetch freelancer profile and portfolio on mount
   useEffect(() => {
     const fetchFreelancerProfile = async () => {
       try {
@@ -31,14 +34,18 @@ const MyProfile = () => {
           return;
         }
 
+        // Get freelancer profile data
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
         setFreelancerData(data);
+
+        // Also fetch portfolio
         fetchPortfolio(freelancerId);
       } catch (error) {
         console.error('Failed to fetch freelancer profile:', error);
       }
     };
 
+    // Fetch freelancer's portfolio files
     const fetchPortfolio = async (freelancerId) => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/profile/${freelancerId}`);
@@ -51,6 +58,7 @@ const MyProfile = () => {
     fetchFreelancerProfile();
   }, []);
 
+  // Prevent background scrolling when popups are shown
   useEffect(() => {
     document.body.style.overflow = (showPopup || viewPopup) ? 'hidden' : 'auto';
     return () => {
@@ -58,6 +66,7 @@ const MyProfile = () => {
     };
   }, [showPopup, viewPopup]);
 
+  // Handle saving a new portfolio project
   const handlePopupSave = (formData) => {
     axios.post(`http://localhost:5000/api/freelancer/portfolio/${freelancerData._id}`, formData, {
       headers: {
@@ -77,10 +86,12 @@ const MyProfile = () => {
     <div className="freelancer-profile2">
       <Navbar links={NavConfig2} />
       <div className="profile-container2">
+
+        {/* Profile Header */}
         <div className="profile-header2">
           <div className="left-profile2">
             <img
-              src={freelancerData?.profileImageUrl ? freelancerData.profileImageUrl : userIcon}
+              src={freelancerData?.profileImageUrl || userIcon}
               alt="User Icon"
               className="profile-image2"
             />
@@ -93,6 +104,7 @@ const MyProfile = () => {
           </button>
         </div>
 
+        {/* Tab Buttons */}
         <div className="tab-buttons22">
           <button className={activeTab === 'about' ? 'active' : ''} onClick={() => setActiveTab('about')}>
             About
@@ -103,6 +115,7 @@ const MyProfile = () => {
         </div>
         <hr />
 
+        {/* About Tab Content */}
         {activeTab === 'about' ? (
           <div className="about-section2">
             <div className="basic-info2">
@@ -121,6 +134,7 @@ const MyProfile = () => {
             </div>
           </div>
         ) : (
+          // Portfolio Tab Content
           <div className="portfolio-section2">
             <div className="portfolio-grid2">
               {uploadedFiles.map((proj, i) => (
@@ -145,18 +159,18 @@ const MyProfile = () => {
         )}
       </div>
 
-      {/* Portfolio add popup */}
+      {/* Add Portfolio Modal */}
       {showPopup && (
         <PortfolioPopup onClose={() => setShowPopup(false)} onSubmit={handlePopupSave} />
       )}
 
-      {/* View portfolio popup */}
+      {/* View Portfolio Modal */}
       {viewPopup && selectedProject && (
         <ViewPortfolioPopup
           project={selectedProject} 
           onClose={() => {
             setViewPopup(false);
-            setSelectedProject(null); //Reset selected project
+            setSelectedProject(null);
           }}
         />
       )}

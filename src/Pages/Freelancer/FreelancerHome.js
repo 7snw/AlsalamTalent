@@ -1,3 +1,4 @@
+// Import dependencies and components
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -22,6 +23,7 @@ const FreelancerHome = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
 
+  // State variables for handling projects, filters, and modal
   const [allProjects, setAllProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +32,7 @@ const FreelancerHome = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  // Define categories for filtering
   const categories = [
     "All",
     "Marketing",
@@ -40,6 +43,7 @@ const FreelancerHome = () => {
     "Product Design",
   ];
 
+  // Fetch all and saved projects on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,13 +64,16 @@ const FreelancerHome = () => {
     fetchData();
   }, [userId]);
 
+  // Prevent background scrolling when modal is open
   useEffect(() => {
-  document.body.classList.toggle('modal-open', showModal);
-}, [showModal]);
+    document.body.classList.toggle('modal-open', showModal);
+  }, [showModal]);
 
+  // Check if a project is saved by the freelancer
   const isProjectSaved = (projectId) =>
     savedProjects.some((p) => p._id === projectId);
 
+  // Toggle save/unsave project
   const handleBookmarkClick = async (e, projectId) => {
     e?.stopPropagation?.();
     try {
@@ -83,29 +90,26 @@ const FreelancerHome = () => {
     }
   };
 
-  
-
+  // Handle "Match" button click to fetch matched projects
   const handleMatchClick = async () => {
-  console.log("Match button clicked");
-  try {
-    const res = await axios.get(
-      `http://localhost:5000/api/projects/match/${userId}`
-    );
-    console.log("Matched Projects:", res.data);
-    
-    if (res.data.length === 0) {
-      showAlert("No matched projects found.");
-      return;
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/projects/match/${userId}`
+      );
+      if (res.data.length === 0) {
+        showAlert("No matched projects found.");
+        return;
+      }
+
+      setMatchedProjects(res.data);
+      setSelectedIndex(0);
+      setShowModal(true);
+    } catch (err) {
+      console.error("Error fetching matched projects:", err);
     }
+  };
 
-    setMatchedProjects(res.data);
-    setSelectedIndex(0);
-    setShowModal(true);
-  } catch (err) {
-    console.error(" Error fetching matched projects:", err);
-  }
-};
-
+  // Modal navigation handlers
   const selectedProject = matchedProjects[selectedIndex];
   const closeModal = () => setShowModal(false);
   const nextProject = () =>
@@ -113,6 +117,7 @@ const FreelancerHome = () => {
   const prevProject = () =>
     setSelectedIndex((prev) => (prev - 1 + matchedProjects.length) % matchedProjects.length);
 
+  // Apply category and search filters to projects
   const filteredProjects = allProjects.filter((proj) => {
     const matchesCategory = activeCategory === "All" || proj.category === activeCategory;
     const matchesSearch = proj.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -124,6 +129,7 @@ const FreelancerHome = () => {
       <div className="freelancer-container">
         <Navbar links={NavConfig2} />
 
+        {/* Header section with search and match */}
         <header className="hero">
           <h1><span className="highlight1">Explore</span> Real-World Projects</h1>
           <p>Take on your next project, build your portfolio, and develop your skills.</p>
@@ -143,6 +149,7 @@ const FreelancerHome = () => {
             </button>
           </div>
 
+          {/* Modal view for matched projects */}
           <br />
           {showModal && matchedProjects.length > 0 && selectedProject && (
             <div className="modal-overlay4" onClick={closeModal}>
@@ -175,6 +182,7 @@ const FreelancerHome = () => {
             </div>
           )}
 
+          {/* Category buttons */}
           <div className="categories9">
             {categories.map((cat) => (
               <button
@@ -188,6 +196,7 @@ const FreelancerHome = () => {
           </div>
         </header>
 
+        {/* Project card list */}
         <section className="project-gridd">
           <AnimatePresence>
             {filteredProjects.map((project, index) => (

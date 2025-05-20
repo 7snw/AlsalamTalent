@@ -13,19 +13,27 @@ import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
 
+// Freelancer page that lists all saved/bookmarked projects
 const SavedProjects = () => {
   const navigate = useNavigate();
+
+  // Get the freelancer ID from localStorage
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
-  const [savedProjects, setSavedProjects] = useState([]);
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({ type: [], budget: [] });
 
+  const [savedProjects, setSavedProjects] = useState([]); // All saved projects
+  const [search, setSearch] = useState('');               // Search keyword
+  const [filters, setFilters] = useState({                // Filter state
+    type: [],
+    budget: []
+  });
+
+  // Fetch saved projects from backend when component mounts
   useEffect(() => {
     const fetchSavedProjects = async () => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`);
-        setSavedProjects(data);
+        setSavedProjects(data); // Save to state
       } catch (error) {
         console.error('Error fetching saved projects:', error);
       }
@@ -34,29 +42,32 @@ const SavedProjects = () => {
     if (userId) fetchSavedProjects();
   }, [userId]);
 
+  // Handle checkbox filter toggle
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const updated = { ...prev };
       const alreadySelected = updated[category]?.includes(value);
 
       updated[category] = alreadySelected
-        ? updated[category].filter((v) => v !== value)
-        : [...(updated[category] || []), value];
+        ? updated[category].filter((v) => v !== value) // Remove value if already selected
+        : [...(updated[category] || []), value];       // Add value otherwise
 
       return { ...updated };
     });
   };
 
+  // Handle un-saving (removing bookmark) of a project
   const handleUnsave = async (e, projectId) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent card click
     try {
       await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
-      setSavedProjects((prev) => prev.filter((proj) => proj._id !== projectId));
+      setSavedProjects((prev) => prev.filter((proj) => proj._id !== projectId)); // Remove from local state
     } catch (error) {
       console.error('Error unsaving project:', error);
     }
   };
 
+  // Apply filters and search query to the list of saved projects
   const filteredProjects = savedProjects.filter((proj) => {
     const matchesSearch = proj.title?.toLowerCase().includes(search.toLowerCase());
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
@@ -67,6 +78,7 @@ const SavedProjects = () => {
         const rawBudget = proj.budget;
 
         if (!rawBudget) return false;
+
         const projectBudget =
           typeof rawBudget === 'number'
             ? rawBudget
@@ -80,8 +92,10 @@ const SavedProjects = () => {
 
   return (
     <div className="saved-projects-page">
-      <Navbar links={NavConfig2} />
+      <Navbar links={NavConfig2} /> {/* Freelancer navbar */}
+
       <div className="saved-projects-container">
+        {/* LEFT PANEL: Filters */}
         <aside className="saved-left-panel">
           <h1 className="page-title">Saved Projects</h1>
 
@@ -89,7 +103,8 @@ const SavedProjects = () => {
             <h3>Filter</h3>
             <p className="hint">Filter the projects according to their type and budget range.</p>
 
-          <div className="filter-group">
+            {/* Filter by Type */}
+            <div className="filter-group">
               <h4>Type</h4>
               {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
@@ -97,11 +112,13 @@ const SavedProjects = () => {
                     type="checkbox"
                     checked={filters.type.includes(type)}
                     onChange={() => handleCheckbox('type', type)}
-                  />{' '}
+                  />
                   {type}
                 </label>
               ))}
             </div>
+
+            {/* Filter by Budget */}
             <div className="filter-group">
               <h4>Budget</h4>
               {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
@@ -110,7 +127,7 @@ const SavedProjects = () => {
                     type="checkbox"
                     checked={filters.budget.includes(range)}
                     onChange={() => handleCheckbox('budget', range)}
-                  />{' '}
+                  />
                   {range}
                 </label>
               ))}
@@ -118,7 +135,9 @@ const SavedProjects = () => {
           </div>
         </aside>
 
+        {/* RIGHT PANEL: Search + Results */}
         <main className="saved-right-panel">
+          {/* Search bar */}
           <div className="search-wrapper">
             <input
               type="text"
@@ -129,6 +148,7 @@ const SavedProjects = () => {
             <img src={SearchIcon} alt="search" className="search-icon" />
           </div>
 
+          {/* Grid of filtered projects */}
           <div className="my-projects-grid">
             <AnimatePresence>
               {filteredProjects.map((proj, index) => (
@@ -144,11 +164,14 @@ const SavedProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/project-details/${proj._id}`)}
+                  onClick={() => navigate(`/project-details/${proj._id}`)} // Navigate on card click
                 >
+                  {/* Project image */}
                   <img src={proj.imageUrl || proj.image || proj.coverImage} alt={proj.title} />
                   <h4>{proj.title}</h4>
                   <p>{proj.budget} BHD</p>
+
+                  {/* Unsave button */}
                   <span className="bookmark" onClick={(e) => handleUnsave(e, proj._id)}>
                     <FaBookmark />
                   </span>
@@ -158,7 +181,8 @@ const SavedProjects = () => {
           </div>
         </main>
       </div>
-      <Footer />
+
+      <Footer /> {/* Footer */}
     </div>
   );
 };

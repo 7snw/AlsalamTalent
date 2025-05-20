@@ -1,7 +1,7 @@
 // src/Pages/Admin/AdminAllProjects.js
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // For animation effects
 import '../../Style/Admin/AdminAllProjects.css';
 import '../../Style/Navbar.css';
 import '../../Style/PageContents.css';
@@ -12,22 +12,25 @@ import SearchIcon from '../../Assets/search.png';
 import Footer from '../../Components/Footer';
 import axios from 'axios';
 
+// AdminAllProjects component: Displays and filters all projects
 const AdminAllProjects = () => {
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+
+  const [search, setSearch] = useState(''); // Search input value
   const [filters, setFilters] = useState({
-    status: [], 
-    type: [],
-    budget: [],
+    status: [], // Filter by project status
+    type: [],   // Filter by project category/type
+    budget: [], // Filter by project budget
   });
 
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState([]); // All projects data
 
+  // Fetch all projects on component mount
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/projects/all');
-        setProjects(response.data);
+        setProjects(response.data); // Save project list to state
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
@@ -36,6 +39,7 @@ const AdminAllProjects = () => {
     fetchProjects();
   }, []);
 
+  // Handle checkbox toggle for filters
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
       const alreadySelected = prev[category].includes(value);
@@ -50,9 +54,12 @@ const AdminAllProjects = () => {
     });
   };
 
+  // Apply filters and search to project list
   const filteredProjects = projects.filter((proj) => {
     const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+
     const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+
     const matchesBudget =
       filters.budget.length === 0 ||
       filters.budget.some((range) => {
@@ -60,6 +67,7 @@ const AdminAllProjects = () => {
         const projectBudget = parseFloat(proj.budget);
         return projectBudget >= min && projectBudget <= max;
       });
+
     const matchesStatus = filters.status.length === 0 || filters.status.includes(proj.status);
 
     return matchesSearch && matchesType && matchesBudget && matchesStatus;
@@ -67,44 +75,48 @@ const AdminAllProjects = () => {
 
   return (
     <div className="browse-projects-page">
-      <Navbar links={NavConfig4} />
+      <Navbar links={NavConfig4} /> {/* Admin navbar */}
+
       <div className="browse-container">
+        {/* LEFT PANEL - FILTERS */}
         <aside className="browse-left-panel">
           <h1 className="page-title">All Projects</h1>
+
           <div className="filter-section">
             <h3>Filter</h3>
             <p className="hint">Filter the projects according to their status, type, and budget.</p>
 
+            {/* Filter by status */}
             <div className="filter-group">
               <h4>Status</h4>
               {['Open', 'Assigned', 'Submitted', 'Completed'].map((status) => (
-  <label key={status}>
-    <input
-      type="checkbox"
-      checked={filters.status.includes(status)}
-      onChange={() => handleCheckbox('status', status)}
-    />
-    {status}
-  </label>
-))}
-
+                <label key={status}>
+                  <input
+                    type="checkbox"
+                    checked={filters.status.includes(status)}
+                    onChange={() => handleCheckbox('status', status)}
+                  />
+                  {status}
+                </label>
+              ))}
             </div>
 
+            {/* Filter by type/category */}
             <div className="filter-group">
-              
               <h4>Type</h4>
-
               {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
                 <label key={type}>
                   <input
                     type="checkbox"
                     checked={filters.type.includes(type)}
                     onChange={() => handleCheckbox('type', type)}
-                  />{' '}
+                  />
                   {type}
                 </label>
               ))}
             </div>
+
+            {/* Filter by budget range */}
             <div className="filter-group">
               <h4>Budget</h4>
               {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
@@ -113,16 +125,17 @@ const AdminAllProjects = () => {
                     type="checkbox"
                     checked={filters.budget.includes(range)}
                     onChange={() => handleCheckbox('budget', range)}
-                  />{' '}
+                  />
                   {range}
                 </label>
               ))}
             </div>
-         
           </div>
         </aside>
 
+        {/* RIGHT PANEL - SEARCH + PROJECT LIST */}
         <main className="browse-right-panel">
+          {/* Search input */}
           <div className="search-wrapper">
             <input
               type="text"
@@ -133,6 +146,7 @@ const AdminAllProjects = () => {
             <img src={SearchIcon} alt="search" className="search-icon" />
           </div>
 
+          {/* PROJECTS GRID */}
           <div className="projects-grid">
             <AnimatePresence>
               {filteredProjects.map((proj, index) => (
@@ -148,18 +162,19 @@ const AdminAllProjects = () => {
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
                     transition: { duration: 0.2 },
                   }}
-                  onClick={() => navigate(`/project-details/${proj._id}`)}
+                  onClick={() => navigate(`/project-details/${proj._id}`)} // Navigate to project details
                 >
-                  <img src={proj.imageUrl} alt={proj.title} />
-                  <h4>{proj.title}</h4>
-                  <p>{proj.budget} BHD</p>
+                  <img src={proj.imageUrl} alt={proj.title} /> {/* Project image */}
+                  <h4>{proj.title}</h4> {/* Project title */}
+                  <p>{proj.budget} BHD</p> {/* Project budget */}
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         </main>
       </div>
-      <Footer />
+
+      <Footer /> {/* Footer */}
     </div>
   );
 };

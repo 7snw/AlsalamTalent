@@ -10,59 +10,65 @@ import Navbar from '../../Components/Navbar';
 import { showAlert } from '../../utils/toastMessages';
 import ConfirmationModal from '../../Components/ConfirmationModal';
 
+// Admin page for verifying student or graduate freelancers
 const VerificationsList = () => {
-  const [allFreelancers, setAllFreelancers] = useState([]);
-  const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
-  const [polytechStatusMap, setPolytechStatusMap] = useState({});
-  const [confirmData, setConfirmData] = useState(null);
+  const [allFreelancers, setAllFreelancers] = useState([]); // All pending freelancers
+  const [filter, setFilter] = useState('all');              // Filter: all, student, graduate
+  const [search, setSearch] = useState('');                 // Search input
+  const [polytechStatusMap, setPolytechStatusMap] = useState({}); // Map to track student ID status
+  const [confirmData, setConfirmData] = useState(null);     // Data for confirmation modal
 
+  // Check student IDs with Polytech API and update map
   const checkAllStudentIds = async (freelancers) => {
     const map = {};
     for (const user of freelancers) {
       if (user.studentId) {
         try {
           const res = await axios.get(`http://localhost:5000/api/polytech/check/${user.studentId}`);
-          map[user._id] = res.data.exists;
+          map[user._id] = res.data.exists; // True if student exists in Polytech
         } catch (err) {
           console.error(`Error checking ID ${user.studentId}:`, err);
           map[user._id] = false;
         }
       }
     }
-    setPolytechStatusMap(map);
+    setPolytechStatusMap(map); // Update state with map
   };
 
+  // Fetch pending freelancers from backend
   const fetchFreelancers = useCallback(async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/freelancer/pending');
-      setAllFreelancers(res.data);
-      checkAllStudentIds(res.data);
+      setAllFreelancers(res.data); // Set freelancer list
+      checkAllStudentIds(res.data); // Check student ID validity
     } catch (err) {
       console.error('Error loading pending freelancers:', err);
     }
   }, []);
 
+  // Fetch on mount
   useEffect(() => {
     fetchFreelancers();
   }, [fetchFreelancers]);
 
+  // Confirm verification
   const confirmVerify = async () => {
     if (!confirmData) return;
     try {
       const res = await axios.post('http://localhost:5000/api/admin/verify', {
         freelancerId: confirmData.freelancerId,
       });
-      showAlert(res.data.message);
-      fetchFreelancers();
+      showAlert(res.data.message); // Show success message
+      fetchFreelancers(); // Refresh list
     } catch (err) {
       console.error('Verification error:', err);
       showAlert(err.response?.data?.message || 'Verification failed.');
     } finally {
-      setConfirmData(null);
+      setConfirmData(null); // Close modal
     }
   };
 
+  // Filter and search freelancers
   const filteredList = allFreelancers.filter((user) => {
     const matchFilter = filter === 'all' || user.userType === filter;
     const matchSearch = user.fullName.toLowerCase().includes(search.toLowerCase());
@@ -71,9 +77,11 @@ const VerificationsList = () => {
 
   return (
     <div className="graduates-page">
-      <Navbar links={NavConfig4} />
+      <Navbar links={NavConfig4} /> {/* Admin navbar */}
+
       <div className="graduates-container">
         <div className="graduates-content">
+          {/* Top Bar: Title, Search, Filter */}
           <div className="search-add-wrapper3">
             <h1 className="page-title3">Pending Verifications</h1>
 
@@ -87,6 +95,7 @@ const VerificationsList = () => {
               <img src={SearchIcon} alt="search" className="search-icon3" />
             </div>
 
+            {/* Filter by user type */}
             <div className="filter-wrapper3">
               <label>Filter:</label>
               <select value={filter} onChange={(e) => setFilter(e.target.value)}>
@@ -97,6 +106,7 @@ const VerificationsList = () => {
             </div>
           </div>
 
+          {/* List of cards */}
           <div className="graduates-results">
             {filteredList.map((user) => (
               <div className="graduates-card" key={user._id}>
@@ -106,6 +116,8 @@ const VerificationsList = () => {
                     <p>{user.userType}</p>
                     <p>{user.email}</p>
                     <p>{user.studentId && `Student ID: ${user.studentId}`}</p>
+
+                    {/* View CPR for graduates */}
                     {user.userType === 'Graduate' && user.cprImageUrl && (
                       <p>
                         <a href={user.cprImageUrl} target="_blank" rel="noopener noreferrer">
@@ -115,6 +127,8 @@ const VerificationsList = () => {
                     )}
                   </div>
                 </div>
+
+                {/* Verify Button */}
                 <div className="graduates-meta">
                   {!user.isVerified && (
                     <button
@@ -125,7 +139,7 @@ const VerificationsList = () => {
                           message: 'Are you sure you want to verify this freelancer?',
                         })
                       }
-                      disabled={polytechStatusMap[user._id] === false}
+                      disabled={polytechStatusMap[user._id] === false} // Disable if not validated
                       style={{
                         opacity: polytechStatusMap[user._id] === false ? 0.6 : 1,
                         cursor: polytechStatusMap[user._id] === false ? 'not-allowed' : 'pointer',
@@ -141,6 +155,7 @@ const VerificationsList = () => {
         </div>
       </div>
 
+      {/* Confirmation Modal */}
       {confirmData && (
         <ConfirmationModal
           message={confirmData.message}
@@ -149,7 +164,7 @@ const VerificationsList = () => {
         />
       )}
 
-      <Footer />
+      <Footer /> {/* Footer */}
     </div>
   );
 };
