@@ -6,7 +6,6 @@ import { ToastContainer } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
 
-// Public Pages
 
 import LandingPage from "./Pages/LandingPage";
 
