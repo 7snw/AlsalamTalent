@@ -70,8 +70,6 @@ import ProjectProgress from "./Pages/Clients/ProjectProgress";
 
 import ProfileSettingsClient from "./Pages/Clients/ProfileSettingsClient";
 
-import ClientProjects from "./Pages/Clients/ClientProjects";
-
 import ClientNotifications from "./Pages/Clients/ClientNotifications";
 
 import EditProject from "./Pages/EditProject";
@@ -177,7 +175,6 @@ const App = () => {
               path="/profilesettingsclint"
               element={<ProfileSettingsClient />}
             />
-            <Route path="/clientprojects" element={<ClientProjects />} />
             <Route
               path="/client-notifications"
               element={<ClientNotifications />}
