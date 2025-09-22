@@ -1,183 +1,196 @@
 // src/Pages/Freelancer/MyApplications.js
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import '../../Style/Freelancer/MyApplications.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig2 } from '../../Data/NavbarConfigs';
-import Footer from '../../Components/Footer';
-import SearchIcon from '../../Assets/search.png';
+import Navbar from "../../Components/Navbar";
+import Footer from "../../Components/Footer";
+import { NavConfig2 } from "../../Data/NavbarConfigs";
+
+import SearchIcon from "../../Assets/search.png";
+import WavyBackground from "../../Components/WavyBackground"; 
+
+import "../../Style/Freelancer/MyApplications.css";
+import "../../Style/Navbar.css";
+import "../../Style/PageContents.css";
 
 const MyApplications = () => {
   const navigate = useNavigate();
 
-  // State for storing applications, search text, and filters
+  // State
   const [applications, setApplications] = useState([]);
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({
-    type: [],
-    level: [],
-    budget: [],
-  });
-
-  // Get current user ID from local storage
+  const [search, setSearch] = useState("");
+    const [filters, setFilters] = useState({ status: [] });;
+  const [showModal] = useState(false);
+  // Current user
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
-  
-  // Fetch all applications made by the freelancer
+
+  // Fetch all applications for this freelancer
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/freelancer/${userId}/applications`);
-        setApplications(res.data);
+        const res = await axios.get(
+          `http://localhost:5000/api/freelancer/${userId}/applications`
+        );
+        setApplications(res.data || []);
       } catch (err) {
-        console.error('Error fetching applications:', err);
+        console.error("Error fetching applications:", err);
       }
     };
-    fetchApplications();
+    if (userId) fetchApplications();
   }, [userId]);
 
-  // Filter applications based on search, type, and budget
-  const filteredApplications = applications.filter((app) => {
-    const matchesSearch = app.project?.title?.toLowerCase().includes(search.toLowerCase());
-
-    const matchesType =
-      filters.type.length === 0 || filters.type.includes(app.project?.category);
-
-    const matchesBudget =
-      filters.budget.length === 0 ||
-      filters.budget.some((range) => {
-        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-        const rawBudget = app.project?.budget;
-
-        if (!rawBudget) return false;
-
-        const budgetValue =
-          typeof rawBudget === 'number'
-            ? rawBudget
-            : parseFloat(rawBudget.replace('BHD', '').trim());
-
-        return budgetValue >= min && budgetValue <= max;
-      });
-
-    return matchesSearch && matchesType && matchesBudget;
-  });
-
-  
-  const getStatusClass = (status) => {
-    switch (status.toLowerCase()) {
-      case 'assigned':
-        return 'Approved';
-      case 'cancelled':
-        return 'Canceled';
-      case 'under review':
-        return 'Pending';
-      default:
-        return 'Pending';
-    }
-  };
-  
-  // Update filters when checkboxes are clicked
-  const handleCheckbox = (category, value) => {
+    const toggleFilter = (category, value) => {
     setFilters((prev) => {
-      const updated = { ...prev };
-      const alreadySelected = updated[category]?.includes(value);
-
-      updated[category] = alreadySelected
-        ? updated[category].filter((v) => v !== value)
-        : [...(updated[category] || []), value];
-
-      return { ...updated };
+      const list = prev[category] || [];
+      const next = list.includes(value)
+        ? list.filter((v) => v !== value)
+        : [...list, value];
+      return { ...prev, [category]: next };
     });
   };
 
+ 
+
+  // Status → pill class
+  const getStatusClass = (status = "") => {
+    switch (status.toLowerCase()) {
+      case "assigned":
+        return "Approved";
+      case "cancelled":
+        return "Canceled";
+      case "under review":
+        return "Pending";
+      default:
+        return "Pending";
+    }
+  };
+
+   // Filtered list
+  const filtered = applications.filter((a) => {
+    const stat = a.status || "Under Review";
+    const title = (a.project?.title || "").toLowerCase();
+    const matchesSearch = title.includes(search.toLowerCase());
+    const matchesStatus =
+      filters.status.length === 0 || filters.status.includes(stat);
+    return matchesSearch && matchesStatus;
+  });
+
+
+
+
   return (
-    <div className="my-applications-page">
+    <div className="ma-page">
       <Navbar links={NavConfig2} />
-      <div className="my-applications-container">
 
-        {/* Filter Sidebar */}
-        <aside className="my-applications-left-panel">
-          <h1 className="page-title">My Applications</h1>
+      
+             <WavyBackground
+            colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
+            waveOpacity={0.85}
+            waveWidth={450}
+            blur={0}
+            speed="fast"
+            accentColors={["#f1633a", "#9FD8FF"]}
+            accentWidth={3}
+            accentOpacity={0.5}
+            accentVertical={-220}
+            accentSpacing={12}
+        
+  containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
 
-          <div className="filter-section">
-            <h3>Filter</h3>
-            <div className="filter-group">
-              <p className="hint">Filter the projects according to their type and budget range.</p>
-              <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
-                <label key={type}>
+  paused={showModal}
+  speedOverride={showModal ? 0 : undefined}
+          />
+         
+      <div className="ma-container">
+        {/* LEFT FILTER */}
+        <aside className="ma-filter">
+          <h1 className="ma-title1">
+           My Applications
+          </h1>
+
+          <div className="ma-filter-box1">
+            <h3 className="ma-filter-heading">Filter</h3>
+            <p className="ma-filter-hint">
+             Filter your applications by status.</p>
+           
+
+            <div className="ma-filter-group">
+            <h4 className="ma-filter-label">Status</h4>
+              {["Under Review", "Assigned", "Cancelled"].map((s) => (
+                <label key={s} className="ma-check">
                   <input
                     type="checkbox"
-                    checked={filters.type.includes(type)}
-                    onChange={() => handleCheckbox('type', type)}
-                  />{' '}
-                  {type}
+                    checked={filters.status.includes(s)}
+                    onChange={() => toggleFilter("status", s)}
+                  />
+                  <span>{s}</span>
                 </label>
               ))}
             </div>
 
-            <div className="filter-group">
-              <h4>Budget</h4>
-              {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
-                <label key={range}>
-                  <input
-                    type="checkbox"
-                    checked={filters.budget.includes(range)}
-                    onChange={() => handleCheckbox('budget', range)}
-                  />{' '}
-                  {range}
-                </label>
-              ))}
-            </div>
           </div>
         </aside>
 
-        {/* Applications List */}
-        <main className="my-applications-right-panel">
-          <div className="search-wrapper">
+        {/* RIGHT CONTENT */}
+        <main className="ma-content">
+          <div className="ma-search">
             <input
               type="text"
-              placeholder="What are you looking for?"
+              placeholder="Search project by title…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <img src={SearchIcon} alt="search" className="search-icon" />
+            <img src={SearchIcon} alt="Search" />
           </div>
 
-          <div className="my-applications-list">
+          <div className="ma-list">
+             {filtered.length === 0 ? (
+    <h3 className="empty-title4">No project applications yet.</h3>
+  ) : (
             <AnimatePresence>
-              {filteredApplications.map((app, index) => (
+              {filtered.map((app, index) => (
                 <motion.div
-                  className="my-application-card"
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="ma-card"
+              
                   onClick={() => navigate(`/project-details/${app.project._id}`)}
                 >
                   <img
-                    src={app.project?.imageUrl || app.project?.coverImage || app.project?.image || ''}
-                    alt={app.project?.title}
+                    className="ma-thumb"
+                    src={
+                      app.project?.imageUrl ||
+                      app.project?.coverImage ||
+                      app.project?.image ||
+                      ""
+                    }
+                    alt={app.project?.title || "Project"}
+                    loading="lazy"
                   />
-                  <div className="my-application-info">
+
+                  <div className="ma-info">
                     <h4>{app.project?.title}</h4>
-                    <p>{app.project?.budget ? `${app.project.budget} BHD` : '—'}</p>
+                    <p>
+                      {app.project?.budget || app.project?.budget === 0
+                        ? `BHD ${app.project.budget} `
+                        : "—"}
+                    </p>
                   </div>
-                  <div className="my-application-actions">
+
+                  <div className="ma-actions">
                     <button className={getStatusClass(app.status)}>
-                      {app.status === 'Under Review' ? 'Under Review' : app.status}
+                      {app.status === "Under Review" ? "Under Review" : app.status}
                     </button>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
+  )}
           </div>
         </main>
       </div>
+
       <Footer />
     </div>
   );

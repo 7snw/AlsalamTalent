@@ -1,0 +1,32 @@
+.page-root { background: #e6f1f5;
+   min-height: 100vh; 
+    font-family:var(--font-sans);
+   padding-top: 120px; }
+.page-header {   padding:0 8.5%;
+}
+.fd-actions { display:flex; gap:12px; }
+.fd-search { padding:8px 12px; min-width:700px; border:1px solid #d0d6e2; border-radius:8px; }
+.fd-filter { padding:8px 12px; border:1px solid #d0d6e2; border-radius:8px;background:#0f1b2d; color:#e6f1f5 }
+.page-content {   padding:0 8.5%; margin-bottom: 500px;}
+.page-header h2{   font-size: 30px;
+  color: #f1633a;
+  margin: 10px 0 18px;
+  font-weight: 700;
+  letter-spacing: 0.2px;}
+.fd-card { background:#fff; border:1px solid #e7ecf3; border-radius:12px; padding:12px; }
+.fd-empty { padding:28px; text-align:center; color:#4c576d; }
+.fd-empty.error { color:#b42318; }
+.fd-table-wrap { overflow:auto; }
+.fd-table { width:100%; border-collapse:collapse; }
+
+
+.fd-table thead th { text-align:left; font-weight:600; font-size:14px; color:#0f1b2d; padding:10px; border-bottom:1px solid #eaeef5; white-space:nowrap; }
+.fd-table tbody td { padding:10px; border-bottom:1px solid #f1f4f9; font-size:14px; }
+.truncate { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.pill { display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; line-height:1; background:#eef2f7; color:#0f1b2d; }
+.pill-green { background:#e8f7ef; color:#0c6b3c; }
+.pill-amber { background:#fff5e6; color:#a15c06; }
+.pill-gray { background:#f1f5f9; color:#4b5563; }
+.link { color:#0f62fe; text-decoration:none; }
+.link:hover { text-decoration:underline; }

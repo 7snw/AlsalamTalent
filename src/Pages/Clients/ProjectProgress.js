@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../../Style/Clients/ProjectProgress.css";
-import "../../Style/CircularProgress.css";
 import Navbar from "../../Components/Navbar";
 import Footer from '../../Components/Footer';
 import { NavConfig3 } from "../../Data/NavbarConfigs";
@@ -83,15 +82,15 @@ const ProjectProgress = () => {
         {/* Top Section with files and progress circle */}
         <div className="top-section">
           <div className="left-section">
-            <h4>Project Files (from Client)</h4>
+            <h4>Client Files:</h4>
             {project.files?.length > 0 ? (
               <ul className="attached-files-list9">
                 {project.files.map((file, idx) => (
-                  <li key={idx} className="attached-file-item9">
+                  <li key={idx} className="attached-file-item99">
                     {file.name}
                     <button
                       type="button"
-                      className="download-file-btn9"
+                      className="download-file-btn99"
                       onClick={() => window.location.href = file.url}
                     >
                       <FiDownload size={18} />
@@ -145,7 +144,7 @@ const ProjectProgress = () => {
             <h3>{project.title}</h3>
             <h4>Project Brief:</h4>
             <p>{project.brief || project.description}</p>
-            <h4>Budget/Price:</h4>
+            <h4>Reward:</h4>
             <p>{project.budget} BHD</p>
             <h4>Status:</h4>
             <p>{assignment.status}</p>

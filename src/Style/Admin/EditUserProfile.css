@@ -1,6 +1,6 @@
 .settings-page {
-  background-color: #E6E7E8;
-font-family: 'TT Hoves', sans-serif;
+  background-color: #e6f1f5;
+  font-family:var(--font-sans);
   min-height: 100vh;
   padding-bottom: 0px;
   margin-left: 130px;
@@ -13,7 +13,7 @@ font-family: 'TT Hoves', sans-serif;
   gap: 50px;
   max-width: 700px;
   margin-left: 290px;
-  margin-bottom: 1000px;
+  margin-bottom: 80px;
 }
 
 .settings-content h2 {
@@ -72,7 +72,7 @@ font-family: 'TT Hoves', sans-serif;
 }
 
 .settings-section {
-  background: #f7f7f7;
+  background: #ffffff;
   padding: 30px;
   padding-top: 10px;
   border-radius: 12px;
@@ -93,7 +93,7 @@ font-family: 'TT Hoves', sans-serif;
   padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  background-color: #efefef;
+  background-color: #eef4f7;
   font-size: 13px;
   margin-bottom: 8px;
 }
@@ -101,7 +101,7 @@ font-family: 'TT Hoves', sans-serif;
 .settings-upload-pic-btn,
 .settings-delete-btn {
   padding: 8px 16px;
-  border-radius: 18px;
+   border-radius: 20px;
   border: none;
   font-size: 14px;
   margin-right: 10px;
@@ -120,11 +120,11 @@ font-family: 'TT Hoves', sans-serif;
 
 .settings-save-btn,
 .settings-cancel-btn {
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 8px 18px;
+  font-size: 14px;
   color: #fff;
   border: none;
-  border-radius: 18px;
+  border-radius: 20px;
   cursor: pointer;
   
 }
@@ -185,4 +185,5 @@ font-family: 'TT Hoves', sans-serif;
   display: flex;
   gap: 15px;
   margin-top: 25px;
+ border-radius: 20px;
 }

@@ -1,79 +1,229 @@
-/* src/Style/AllProjects.css */
-
-.all-projects-page {
-  margin-left: 91px;
-  margin-right: 91px;
-  font-family: 'TT Hoves', sans-serif;
-  background-color: #E6E7E8;
-  padding-top: 120px; 
-
+/* PAGE */
+.ap-page{      
+     /* clear fixed navbar */
+   font-family:var(--font-sans);
+  overflow-x:hidden;
+   position: relative; background:#e6f1f5; min-height:100vh; padding-top:120px;
 }
 
-.all-projects-container {
-  display: flex;
-  gap: 40px;
-  padding: 0 6%;
-  width: 80%;
-  padding-top: 0px;
-  margin-top: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* Full height of viewport */
-  box-sizing: border-box;
-  overflow-x: hidden; /* Avoid horizontal scroll */
-  padding-bottom: 100px;
+/* BACKGROUND IMAGE behind content (like LandingPage) */
+.ap-hero-bg{
+  position:absolute;
+  inset:0 auto auto 0;
+  top:0;
+  left:0;
+  right:0;
+  height:clamp(420px, 44vw, 640px); /* tall enough for the curve */
+  margin-left:-8%;
+  margin-right:-8%;
+  margin-top: 90px;
+  background-color:#e6f1f5;
+  background-repeat:no-repeat;
+  background-position:left bottom;
+  background-size:cover;
+  z-index:0;                  /* sits under real content */
+  pointer-events:none;
 }
 
-.all-left-panel {
-  width: 260px;
+/* LAYOUT */
+.ap-container{
+               /* above background */
+  display:flex;
+  gap:28px;
+  padding:0 7%;
+  position: relative; z-index: 2; 
+  min-height:70vh;
+  padding-bottom:100px;
 }
 
-.all-right-panel {
-  flex: 1;
+.ap-filter{ width:280px; flex:0 0 280px; }
+.ap-content{ flex:1; min-width:0;  position: relative;}
+
+
+.ap-bg {
+  position: fixed;
+  inset: 160px 0 0;   /* start higher under navbar (lower number = higher) */
+  height: 100vh;      /* taller background for deep waves */
+  z-index: 0;
+  pointer-events: none;
 }
 
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 25px;
+/* TITLE */
+.ap-title{
+ font-size:30px;
+  margin-top: 90px;
+  font-weight:700;
+  line-height:1.99;
+  color:#f1633a;
+  margin:0 0 10px;
+  margin-left:15px;
+}
+.ap-title-accent{ color:#f1633a; }
+
+/* FILTER BOX */
+.ap-filter-box{
+margin-top: 55px;
+  color:#ffffff;
+  border-radius:18px;
+  padding:18px 16px 14px;
 
 }
+.ap-filter-heading{ margin:0 0 2px; }
+.ap-filter-hint{ margin:0 0 10px; opacity:.85; font-size:13px; }
+.ap-filter-group{ margin:14px 0; }
+.ap-filter-label{ margin:0 0 8px; color:#6fa7b8;  }
+.ap-check{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:14px; }
+.ap-check input{ width:16px; height:16px; accent-color:#f1633a; }
 
-.project-card {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 0 0 15px;
-  overflow: hidden;
-  position: relative;
+/* SEARCH */
+.ap-search{
+  position:relative;
+  max-width:940px;
+  margin:8px 0 18px;
+}
+.ap-search input{
+  width:100%;
+  background:#fff;
+  border:none; outline:none;
+  border-radius:26px;
+  padding:13px 46px 13px 16px;
+  font-size:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.ap-search img{
+  position:absolute; right:0px; top:50%; transform:translateY(-50%);
+  width:18px; height:18px; opacity:.8;
 }
 
-.project-card img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+/* GRID / CARD */
+.ap-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+  gap:22px;
+}
+.ap-card{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  display:flex; flex-direction:column;
+}
+.ap-thumb{ position:relative; width:100%; height:170px; overflow:hidden; }
+.ap-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* floating white circle bookmark (top-right) */
+.ap-save{
+  position:absolute;
+  right:12px; top:12px;
+  width:36px; height:36px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:none; background:#fff; color:#0f1b2d;
+  box-shadow:0 2px 10px rgba(0,0,0,.18);
+  cursor:pointer;
+}
+.ap-save svg{ font-size:16px; }
+
+.ap-meta{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px 14px;
+}
+.ap-name{ font-size:14px; font-weight:600; color:#13203a; line-height:1.2; margin:0; }
+.ap-price{ font-size:14px; font-weight:700; color:#0f1b2d; opacity:.9; }
+
+/* ===== BOTTOM WAVE (optional code-only sweep) ===== */
+.ap-bottom-wave{
+  position:relative;
+  height:400px;
+  margin-top:40px;
+  pointer-events:none;
+}
+.ap-bottom-wave::before,
+.ap-bottom-wave::after{
+  content:"";
+  position:absolute; left:-8%; right:-8%;
+}
+.ap-bottom-wave::before{
+  bottom:-60px; height:400px;
+  background:
+    radial-gradient(160% 190% at 105% 90%, #0b1730 58%, transparent 59%);
+}
+.ap-bottom-wave::after{
+  bottom:-32px; height:200px;
+  background:
+    radial-gradient(140% 160% at 88% 98%,
+      transparent 73.8%,
+      rgba(241,99,58,.9) 74.1%,
+      rgba(241,99,58,.9) 75.1%,
+      transparent 75.4%),
+    radial-gradient(140% 160% at 102% 86%,
+      transparent 73.6%,
+      rgba(150,218,235,.95) 73.9%,
+      rgba(150,218,235,.95) 74.8%,
+      transparent 75.1%);
 }
 
-.project-card h4 {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 10px 15px 5px;
-  color: #1B223C;
-  
+/* RESPONSIVE */
+@media (max-width: 980px){
+  .ap-container{ padding:0 5%; }
+  .ap-filter{ display:none; }
 }
 
-.project-card p {
-  font-size: 13px;
-  margin: 0 15px;
-  color: #444;
+
+/* ===== Skills marquee overlay on the card thumbnail ===== */
+.ap-thumb{
+  position: relative; /* allow absolute overlay */
 }
 
-.bookmark-iconn {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  width: 20px;
-  cursor: pointer;
+.ap-tags-marquee{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+    font-weight: 100px;
+  overflow:hidden;
+  pointer-events:none; /* keep bookmark & card clickable */
+}
+
+.ap-track{
+  display:flex;
+  width:max-content;
+  animation: ap-marquee var(--ap-speed, 22s) linear infinite;
+}
+
+.ap-strip{
+  display:flex;
+  gap:10px;
+  padding-right:20px; /* spacing between duplicated strips */
+}
+
+/* If .ap-tag already exists in your file, keep it.
+   These ensure good pill styling on photos. */
+.ap-tag{
+  display:inline-flex;
+  align-items:center;
+  font-weight: 100px;
+background: rgba(255, 255, 255, 0.507);
+  color:#0f1b2d;
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+  border:1px solid rgba(15,27,45,.06);
+  backdrop-filter:saturate(120%) blur(1px);
+}
+
+/* Smooth infinite move: track contains two identical strips */
+@keyframes ap-marquee{
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Optional: slow down slightly when hovering the card */
+.ap-card:hover .ap-track{
+  animation-duration: calc(var(--ap-speed, 22s) * 1.25);
 }

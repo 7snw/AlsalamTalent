@@ -1,180 +1,213 @@
-// src/Pages/Admin/AdminAllProjects.js
+import React, { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion'; // For animation effects
-import '../../Style/Admin/AdminAllProjects.css';
-import '../../Style/Navbar.css';
-import '../../Style/PageContents.css';
-import Navbar from '../../Components/Navbar';
-import { useNavigate } from 'react-router-dom';
-import { NavConfig4 } from '../../Data/NavbarConfigs';
-import SearchIcon from '../../Assets/search.png';
-import Footer from '../../Components/Footer';
-import axios from 'axios';
+import Navbar from "../../Components/Navbar";
+import Footer from "../../Components/Footer";
+import { NavConfig4 } from "../../Data/NavbarConfigs";
+import WavyBackground from "../../Components/WavyBackground";
+import SearchIcon from "../../Assets/search.png";
 
-// AdminAllProjects component: Displays and filters all projects
+// ⬅️ Reuse the freelancer AllProjects styles for identical look
+import "../../Style/Freelancer/AllProjects.css";
+import "../../Style/Navbar.css";
+import "../../Style/PageContents.css";
+
 const AdminAllProjects = () => {
   const navigate = useNavigate();
-
-  const [search, setSearch] = useState(''); // Search input value
-  const [filters, setFilters] = useState({
-    status: [], // Filter by project status
-    type: [],   // Filter by project category/type
-    budget: [], // Filter by project budget
-  });
-
-  const [projects, setProjects] = useState([]); // All projects data
-
-  // Fetch all projects on component mount
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({ status: [], type: [], budget: [] });
+  const [projects, setProjects] = useState([]);
+  const [showModal] = useState(false);
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/projects/all');
-        setProjects(response.data); // Save project list to state
+        const res = await axios.get("http://localhost:5000/api/projects/all");
+        setProjects(res.data || []);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error("Error fetching projects:", error);
       }
     };
-
     fetchProjects();
   }, []);
 
-  // Handle checkbox toggle for filters
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
-      const alreadySelected = prev[category].includes(value);
-      const updatedCategory = alreadySelected
-        ? prev[category].filter((v) => v !== value)
-        : [...prev[category], value];
-
-      return {
-        ...prev,
-        [category]: updatedCategory,
-      };
+      const list = prev[category] || [];
+      const next = list.includes(value)
+        ? list.filter((v) => v !== value)
+        : [...list, value];
+      return { ...prev, [category]: next };
     });
   };
 
-  // Apply filters and search to project list
-  const filteredProjects = projects.filter((proj) => {
-    const matchesSearch = proj.title.toLowerCase().includes(search.toLowerCase());
+  // Debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(id);
+  }, [search]);
 
-    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+  const filteredProjects = useMemo(() => {
+    return projects.filter((proj) => {
+      const matchesSearch = (proj.title || "")
+        .toLowerCase()
+        .includes(debouncedSearch.toLowerCase());
 
-    const matchesBudget =
-      filters.budget.length === 0 ||
-      filters.budget.some((range) => {
-        const [min, max] = range.replace('BHD', '').split('-').map((v) => parseFloat(v.trim()));
-        const projectBudget = parseFloat(proj.budget);
-        return projectBudget >= min && projectBudget <= max;
-      });
+      const matchesType =
+        filters.type.length === 0 || filters.type.includes(proj.category);
 
-    const matchesStatus = filters.status.length === 0 || filters.status.includes(proj.status);
+   const matchesBudget =
+        filters.budget.length === 0 ||
+        filters.budget.some((range) => {
+          const [min, max] = range
+            .replace("BHD", "")
+            .split("-")
+            .map((v) => parseFloat(v.trim()));
+          const val =
+            typeof proj.budget === "number"
+              ? proj.budget
+              : parseFloat(String(proj.budget).replace("BHD", "").trim());
+          return val >= min && val <= max;
+        });
 
-    return matchesSearch && matchesType && matchesBudget && matchesStatus;
-  });
+      const matchesStatus =
+        filters.status.length === 0 || filters.status.includes(proj.status);
+
+      return matchesSearch && matchesType && matchesBudget && matchesStatus;
+    });
+  }, [projects, debouncedSearch, filters]);
 
   return (
-    <div className="browse-projects-page">
-      <Navbar links={NavConfig4} /> {/* Admin navbar */}
+    <div className="ap-page">
+      <Navbar links={NavConfig4} />
 
-      <div className="browse-container">
-        {/* LEFT PANEL - FILTERS */}
-        <aside className="browse-left-panel">
-          <h1 className="page-title">All Projects</h1>
+      <WavyBackground
+        colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
+        waveOpacity={0.85}
+        waveWidth={450}
+        blur={0}
+        speed="fast"
+        accentColors={["#f1633a", "#9FD8FF"]}
+        accentWidth={3}
+        accentOpacity={0.5}
+        accentVertical={-220}
+        accentSpacing={12}
+      containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
 
-          <div className="filter-section">
-            <h3>Filter</h3>
-            <p className="hint">Filter the projects according to their status, type, and budget.</p>
+  paused={showModal}
+  speedOverride={showModal ? 0 : undefined}
+      />
 
-            {/* Filter by status */}
-            <div className="filter-group">
-              <h4>Status</h4>
-              {['Open', 'Assigned', 'Submitted', 'Completed'].map((status) => (
-                <label key={status}>
+      <div className="ap-container">
+        {/* LEFT FILTER (same visual style as AllProjects) */}
+        <aside className="ap-filter">
+          <h1 className="ap-title">
+            <span className="ap-title-accent">All</span> Projects
+          </h1>
+
+          <div className="ap-filter-box">
+            <h3 className="ap-filter-heading">Filter</h3>
+            <p className="ap-filter-hint">
+              Filter the projects according to their status, type, and reward range.
+            </p>
+
+            <div className="ap-filter-group">
+              <h4 className="ap-filter-label">Status</h4>
+              {["Open", "Assigned", "Completed"].map((s) => (
+                <label key={s} className="ap-check">
                   <input
                     type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={() => handleCheckbox('status', status)}
+                    checked={(filters.status || []).includes(s)}
+                    onChange={() => handleCheckbox("status", s)}
                   />
-                  {status}
+                  <span>{s}</span>
                 </label>
               ))}
             </div>
 
-            {/* Filter by type/category */}
-            <div className="filter-group">
-              <h4>Type</h4>
-              {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
-                <label key={type}>
+            <div className="ap-filter-group">
+              <h4 className="ap-filter-label">Type</h4>
+              {[
+            "Marketing",
+  "Graphic Design",
+  "Content Creation",
+  "Product Design",
+  "Web Design",
+  "Photography",
+  "Video & Motion",
+  "Reports & Presentations"
+              ].map((t) => (
+                <label key={t} className="ap-check">
                   <input
                     type="checkbox"
-                    checked={filters.type.includes(type)}
-                    onChange={() => handleCheckbox('type', type)}
+                    checked={(filters.type || []).includes(t)}
+                    onChange={() => handleCheckbox("type", t)}
                   />
-                  {type}
+                  <span>{t}</span>
                 </label>
               ))}
             </div>
 
-            {/* Filter by budget range */}
-            <div className="filter-group">
-              <h4>Budget</h4>
-              {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
-                <label key={range}>
+            <div className="ap-filter-group">
+              <h4 className="ap-filter-label">Reward</h4>
+               {["BHD 10 - 40 ", "BHD 50 - 70 ", "BHD 80 - 100 "].map((r) => (
+                <label key={r} className="ap-check">
                   <input
                     type="checkbox"
-                    checked={filters.budget.includes(range)}
-                    onChange={() => handleCheckbox('budget', range)}
+                    checked={filters.budget.includes(r)}
+                    onChange={() => handleCheckbox("budget", r)}
                   />
-                  {range}
+                  <span>{r}</span>
                 </label>
               ))}
             </div>
           </div>
         </aside>
 
-        {/* RIGHT PANEL - SEARCH + PROJECT LIST */}
-        <main className="browse-right-panel">
-          {/* Search input */}
-          <div className="search-wrapper">
+        {/* RIGHT CONTENT (cards styled like freelancer AllProjects) */}
+        <main className="ap-content">
+          <div className="ap-search">
             <input
               type="text"
-              placeholder="What are you looking for?"
+              placeholder="Search project by title…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <img src={SearchIcon} alt="search" className="search-icon" />
+            <img src={SearchIcon} alt="Search" />
           </div>
 
-          {/* PROJECTS GRID */}
-          <div className="projects-grid">
-            <AnimatePresence>
-              {filteredProjects.map((proj, index) => (
-                <motion.div
-                  className="project-card"
-                  key={proj._id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  whileHover={{
-                    y: -4,
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-                    transition: { duration: 0.2 },
-                  }}
-                  onClick={() => navigate(`/project-details/${proj._id}`)} // Navigate to project details
-                >
-                  <img src={proj.imageUrl} alt={proj.title} /> {/* Project image */}
-                  <h4>{proj.title}</h4> {/* Project title */}
-                  <p>{proj.budget} BHD</p> {/* Project budget */}
-                </motion.div>
-              ))}
-            </AnimatePresence>
+          <div className="ap-grid">
+            {filteredProjects.map((proj, index) => (
+              <motion.div
+                key={proj._id}
+                className="ap-card"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.02 }}
+                whileHover={{ y: -4, boxShadow: "0 10px 22px rgba(0,0,0,.14)" }}
+                onClick={() => navigate(`/project-details/${proj._id}`)}
+              >
+                <div className="ap-thumb">
+                  <img
+                    src={proj.imageUrl || proj.image || proj.coverImage}
+                    alt={proj.title}
+                    loading="lazy"
+                  />
+                </div>
+
+                <div className="ap-meta">
+                  <h4 className="ap-name">{proj.title}</h4>
+                  <div className="ap-price">BHD {proj.budget} </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </main>
       </div>
 
-      <Footer /> {/* Footer */}
+      <Footer />
     </div>
   );
 };

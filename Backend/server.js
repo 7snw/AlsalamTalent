@@ -8,7 +8,17 @@ const Admin = require('./models/Admin');
 require('dotenv').config();
 const morgan = require('morgan');
 
-// Import routes
+
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+app.use('/uploads', express.static('uploads'));
+
+
+
+//  routes
 const userRoutes = require('./routes/users');
 const freelancerRoutes = require('./routes/freelancers');
 const clientRoutes = require('./routes/clients');
@@ -25,16 +35,26 @@ const messageUploadsRoute = require('./routes/messageUploads');
 const notificationRoutes = require('./routes/notifications');
 
 
+const resourceRoutes = require('./routes/resourceRoutes');
+app.use('/api/resources', resourceRoutes);
 
-// Express app
-const app = express();
+const paymentsRouter = require('./routes/payments');
+app.use('/api/payments', paymentsRouter);
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use('/uploads', express.static('uploads'));
 
-// File upload setup
+
+const bookingsRoute = require('./routes/bookings');
+app.use('/api/bookings', bookingsRoute);
+
+const clientsRouter = require('./routes/clients');
+app.use('/api/clients', clientsRouter);
+
+
+const freelancerRouter = require('./routes/freelancers');
+app.use('/api/freelancers', freelancerRouter);
+
+
+// File upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
@@ -54,7 +74,7 @@ const anyFileFilter = (req, file, cb) => cb(null, true);
 const uploadImage = multer({ storage, fileFilter: imageFileFilter });
 const uploadAnyFile = multer({ storage, fileFilter: anyFileFilter });
 
-// Static file serving
+// Static file 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/messages', express.static('uploads/messages'));
 
@@ -77,7 +97,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use(morgan('dev'));
 
 
-// File upload endpoints
+// File upload 
 app.post('/api/upload-image', uploadImage.single('image'), (req, res) => {
   if (!req.file) return res.status(400).send('No image uploaded');
   const imageUrl = `/uploads/${req.file.filename}`;
@@ -109,33 +129,30 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  socket.on('joinRoom', (roomId) => {
-    socket.join(roomId);
+  socket.on('joinRoom', (roomId) => socket.join(roomId));
+
+  socket.on('sendMessage', async (msg) => {
+    const saved = await Message.create({
+      senderId: msg.senderId,
+      receiverId: msg.receiverId,
+      senderRole: msg.senderRole,
+      receiverRole: msg.receiverRole,
+      content: msg.content,
+      roomId: msg.roomId,
+      attachments: msg.attachments || [],
+      timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+    });
+
+    // ⬇️ Re-fetch so plugin decrypts on hydration
+    const fresh = await Message.findById(saved._id); // no .lean()
+    io.to(msg.roomId).emit('receiveMessage', fresh);
   });
 
-  socket.on('sendMessage', async (msgData) => {
-    try {
-      const newMessage = new Message({
-        senderId: msgData.senderId,
-        receiverId: msgData.receiverId,
-        senderRole: msgData.senderRole,
-        receiverRole: msgData.receiverRole,
-        content: msgData.content,
-        roomId: msgData.roomId,
-        attachments: msgData.attachments || []
-      });
-
-      await newMessage.save();
-      io.to(msgData.roomId).emit('receiveMessage', newMessage);
-    } catch (err) {
-      console.error('Error saving message:', err.message);
-    }
-  });
 
   socket.on('disconnect', () => {});
 });
 
-// Connect to DB and hash default admin password if needed
+// Connect to DB and hash default admin password
 connectDB().then(async () => {
   try {
     const admin = await Admin.findOne({ email: 'admin@alsalam.com' });

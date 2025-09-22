@@ -17,29 +17,7 @@ const EditUserProfile = () => {
   const [formData, setFormData] = useState(null); // Stores the form fields
   const [loading, setLoading] = useState(true); // Loading state
 
-  // Fetch user details when component mounts
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/client/${userId}`);
-        const userData = response.data;
-
-        // Format dateOfBirth to fit <input type="date">
-        if (userData.dateOfBirth) {
-          userData.dateOfBirth = new Date(userData.dateOfBirth).toISOString().split('T')[0];
-        }
-
-        userData.role = 'client'; // Ensure the role stays fixed as 'client'
-        setFormData(userData); // Set form data state
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      } finally {
-        setLoading(false); // Stop loading once done
-      }
-    };
-
-    fetchUser(); // Call fetch function
-  }, [userId]);
+ 
 
   // Handle input changes
   const handleChange = (e) => {
@@ -49,28 +27,63 @@ const EditUserProfile = () => {
     }));
   };
 
-  // Submit updated user info
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+// src/Pages/Admin/EditUserProfile.js
+// (Only key changes shown: stricter payload + DOB handling)
 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const admin = JSON.parse(localStorage.getItem("user"));
+
+    // Build a *whitelist* payload so we don't send internal props accidentally
+    const payload = {
+      fullName:     formData.fullName || '',
+      email:        formData.email || '',
+      occupation:   formData.occupation || '',
+      phone:        formData.phone || '',
+      companyName:  formData.companyName || '',
+      dateOfBirth:  formData.dateOfBirth || '', // keep as 'YYYY-MM-DD'
+      authorId:     admin?._id
+    };
+
+    await axios.put(`http://localhost:5000/api/client/${userId}`, payload);
+
+    showAlert('User updated successfully!');
+    navigate('/clientlist');
+  } catch (error) {
+    console.error('Error updating user:', error?.response?.data || error);
+    showAlert(error?.response?.data?.message || 'Failed to update user.');
+  }
+};
+
+// When loading the user, don't reformat DOB if it's already YYYY-MM-DD:
+useEffect(() => {
+  const fetchUser = async () => {
     try {
-      const admin = JSON.parse(localStorage.getItem("user")); // Get current admin info
+      const { data } = await axios.get(`http://localhost:5000/api/client/${userId}`);
 
-      const payload = {
-        ...formData,
-        authorId: admin?._id // Add author ID for logging purposes
-      };
+      const userData = { ...data };
+      if (userData.dateOfBirth) {
+        // If backend returns a full ISO, normalize to YYYY-MM-DD for <input type="date">
+        const s = String(userData.dateOfBirth);
+        userData.dateOfBirth =
+          /^\d{4}-\d{2}-\d{2}$/.test(s)
+            ? s
+            : new Date(s).toISOString().slice(0, 10);
+      }
 
-      // Send updated data to backend
-      await axios.put(`http://localhost:5000/api/client/${userId}`, payload);
-
-      showAlert('User updated successfully!'); // Success message
-      navigate('/clientlist'); // Redirect to client list
-    } catch (error) {
-      console.error('Error updating user:', error);
-      showAlert('Failed to update user.'); // Error message
+      userData.role = 'client';
+      setFormData(userData);
+    } catch (err) {
+      console.error('Error fetching user:', err);
+    } finally {
+      setLoading(false);
     }
   };
+  fetchUser();
+}, [userId]);
+
 
   // Cancel and return to client list
   const handleCancel = () => {

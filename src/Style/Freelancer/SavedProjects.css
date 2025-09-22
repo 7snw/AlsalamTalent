@@ -1,57 +1,143 @@
-/* src/Style/SavedProjects.css */
 
-.saved-projects-page {
-    margin-left: 91px;
-    margin-right: 91px;
-   font-family: 'TT Hoves', sans-serif;
-    background-color: #E6E7E8;
-    padding-top: 120px; 
-  }
-  
-  .saved-projects-container {
-    display: flex;
-    gap: 40px;
-    padding: 0 6%;
-    margin-bottom: 200px;
-  }
-  
-  .saved-left-panel {
-    width: 260px;
-  }
-  
-  .saved-right-panel {
-    flex: 1;
-  }
-  
 
-  .my-project-card {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 0 0 15px;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  .my-project-card img {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-  }
-  
-  .my-project-card h4 {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 10px 15px 5px;
-    color: #1B223C;
-  }
-  
-  .my-project-card p {
-    font-size: 13px;
-    margin: 0 15px;
-    color: #444;
-  }
-  
+/* PAGE */
+.sp-page{
+  position:relative;
+  background:#e6f1f5;           /* light content area */
+  padding-top:120px;            /* clear fixed navbar */
+  font-family:var(--font-sans);
+  overflow-x:hidden;
+  min-height:100vh;
+}
 
-  
+.empty-title0 { width:100%; text-align:center; opacity:.85; margin-left:320px; color: #f1633a }
+
+
+.sp-bg {
+  position: fixed;
+  inset: 120px 0 0;
+  height: 170vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Hero background image (behind content, like AllProjects/MyApplications) */
+.sp-hero-bg{
+  position:absolute;
+  top:0; left:0; right:0;
+  height:clamp(420px, 44vw, 640px);
+  margin-left:-8%;
+  margin-right:-8%;
+  margin-top:90px;              /* push under the navbar */
+  background-color:#e6f1f5;
+  background-repeat:no-repeat;
+  background-position:left bottom;
+  background-size:cover;
+  z-index:0;                    /* behind content */
+  pointer-events:none;
+}
+
+/* LAYOUT */
+.sp-container{
+  position:relative;
+  z-index:2;                    /* above background */
+  display:flex;
+  gap:28px;
+  padding:0 7%;
+  min-height:70vh;
+  padding-bottom:100px;
+}
+
+.sp-filter{ width:280px; flex:0 0 280px; }
+.sp-content{ flex:1; min-width:0; }
+
+/* TITLE */
+.sp-title{
+ font-size:30px;
+  margin-top: 90px;
+  font-weight:700;
+  line-height:1.99;
+  color:#f1633a;
+  margin:0 0 10px;
+  margin-left:15px;
+}
+.sp-title-accent{ color:#f1633a; }
+
+/* FILTER BOX (dark card) */
+.sp-filter-box{
+margin-top: 55px;
+  color:#ffffff;
+  border-radius:18px;
+  padding:18px 16px 14px;
+}
+.sp-filter-heading{ margin:0 0 2px; }
+.sp-filter-hint{ margin:0 0 10px; opacity:.85; font-size:13px; }
+.sp-filter-group{ margin:14px 0; }
+.sp-filter-label{ margin:0 0 8px; color:#6fa7b8; }
+.sp-check{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:14px; }
+.sp-check input{ width:16px; height:16px; accent-color:#f1633a; }
+
+/* SEARCH */
+.sp-search{
+  position:relative;
+  max-width:940px;
+  margin:8px 0 18px;
+}
+.sp-search input{
+  width:100%;
+  background:#fff;
+  border:none; outline:none;
+  border-radius:26px;
+  padding:13px 46px 13px 16px;
+  font-size:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.sp-search img{
+  position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  width:18px; height:18px; opacity:.8;
+    margin-right: -50px;
+}
+
+/* GRID / CARD */
+.sp-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+  gap:22px;
+}
+.sp-card{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  display:flex; flex-direction:column;
+}
+
+/* image thumb with floating bookmark (TOP-RIGHT) */
+.sp-thumb{ position:relative; width:100%; height:170px; overflow:hidden; }
+.sp-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.sp-save{
+  position:absolute;
+  right:12px; top:12px;           /* TOP instead of bottom */
+  width:36px; height:36px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:none; background:#fff; color:#0f1b2d;
+  box-shadow:0 2px 10px rgba(0,0,0,.18);
+  cursor:pointer;
+}
+.sp-save svg{ font-size:16px; }
+
+.sp-meta{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px 14px;
+}
+.sp-name{ font-size:14px; font-weight:600; color:#13203a; line-height:1.2; margin:0; }
+.sp-price{ font-size:14px; font-weight:700; color:#0f1b2d; opacity:.9; }
+
+/* Responsive */
+@media (max-width: 980px){
+  .sp-container{ padding:0 5%; }
+  .sp-filter{ display:none; }
+}

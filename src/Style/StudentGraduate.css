@@ -1,77 +1,148 @@
-body {
-  margin: 0;
-  font-family: 'TT Hoves', sans-serif;
-  background-color: #E6E7E8;
-  color: #1B223C;
+:root{
+  --sky:#e6f1f5;
+  --ink:#1B223C;
+  --accent:#f1633a;
+  --teal:#8fbfce;
+  --navy:#081625;
+    --font-sans: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-.container {
-  width: 100%;
-  min-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  padding: 0 6%;
-  box-sizing: border-box;
-  padding-top: 120px; 
+html, body{
+  margin:0;
+ font-family:var(--font-sans);
+  background:var(--sky);
+  color:var(--ink);
 }
 
+/* Page wrapper */
+.sg-container{
+  width:100%;
+  min-height:85vh;
+  display:flex;
+  flex-direction:column;
+  padding:0 6%;
+  box-sizing:border-box;
 
-.main {
-  text-align: center;
-  margin-top: 3rem;
+}
+/* ---------------- HERO WITH WAVES ---------------- */
+.sg-hero{
+  position:relative;
+  margin-left:-8%;
+  margin-right:-8%;
+  padding-left:6%;
+  padding-right:6%;
+  background-repeat:no-repeat;
+  background-position:center top;
+  background-size:cover;
+  padding-top:250px;
+  padding-bottom:280px;
+}
+.sg-hero::after{
+  content:"";
+  position:absolute; left:0; right:0; bottom:0;
+  height:340px;
+  background:var(--navy);
+  z-index:-1;
 }
 
-.main h1 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+.sg-title{
+  text-align:center;
+font-size:36px;
+  font-weight:600;
+  margin:6px 0 22px;
+  color:var(--ink);
+  margin-top: -80px;
+    margin-bottom: 118px;
 }
-.cards {
-  display: flex;
-  justify-content: center;
-  gap: 3rem;
-  flex-wrap: wrap;
-  margin-bottom: 200px;
-}
+.sg-accent{ color:var(--accent); }
+.sg-teal{ color:var(--teal); }
 
-.student-card,
-.graduate-card {
-  width: 320px;
-  height: 290px;
-  background: white;
-  border-radius: 20px;
-  overflow: hidden;
-  text-align: left;
-  padding: 0 0 15px;
-  position: relative;
-  transition: transform 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
+/* ---------------- CARDS (glass tiles) ---------------- */
+.sg-cards{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:22px;
+  flex-wrap:wrap;
+  margin-top:14px;
 }
 
-.student-card:hover,
-.graduate-card:hover {
-  transform: translateY(-5px);
+/* New tile look: compact, horizontal, glassy */
+.sg-card{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  width:clamp(290px, 36vw, 460px);
+  min-height:112px;
+  padding:18px 20px;
+  border-radius:18px;
+  text-align:left;
+  cursor:pointer;
+
+  background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.86));
+  border:1px solid rgba(255,255,255,.45);
+  backdrop-filter:saturate(120%) blur(6px);
+  -webkit-backdrop-filter:saturate(120%) blur(6px);
+
+  box-shadow:
+    0 16px 34px rgba(8,22,37,.28),
+    0 1px 0 rgba(255,255,255,.6) inset;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  margin-top:36px; /* lighter lift relative to waves */
+}
+.sg-card:hover{
+  transform:translateY(-4px);
+  box-shadow:
+    0 20px 44px rgba(8,22,37,.36),
+    0 0 0 3px rgba(255,255,255,.6) inset;
 }
 
-.student-card img,
-.graduate-card img {
-  width: 100%;
-  height: 190px;
-  object-fit: cover;
+/* Color accents per tile */
+.sg-card--student:hover{ border-color:rgba(241,99,58,.5); }
+.sg-card--grad:hover{ border-color:rgba(143,191,206,.55); }
+
+/* Icon tile */
+.sg-icon-wrap{
+  width: 70px; height: 70px;
+  border-radius:14px;
+  display:grid; place-items:center;
+  background:#fff;
+  border:2px solid rgba(0,0,0,.06);
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+  flex:0 0 auto;
+}
+.sg-icon{ font-size:33px; color:#f1633a; }
+.is-accent{ box-shadow:0 0 0 3px rgba(241,99,58,.10) inset; }
+.is-teal{ box-shadow:0 0 0 3px rgba(143,191,206,.14) inset; }
+
+/* Text */
+.sg-card-body{ display:flex; flex-direction:column; gap:6px; }
+.sg-card-title{
+  margin:0;
+  font-size:18px;
+  font-weight:800;
+  color:var(--ink);
+}
+.sg-card-text{
+  margin:0;
+  font-size:14px;
+  line-height:1.45;
+  color:#334;
 }
 
-.student-card h4,
-.graduate-card h4 {
-  margin: 10px 15px 5px;
-  font-size: 20px;
-  color: #1B223C;
+/* Keep breathing room above footer */
+.sg-hero{ margin-bottom:60px; }
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 860px){
+  .sg-card{ width:min(92%, 480px); }
 }
-
-.student-card p,
-.graduate-card p {
-  margin: 0 15px;
-  font-size: 15px;
-  color: #333;
+@media (max-width: 540px){
+  .sg-card{
+    gap:14px;
+    padding:16px 16px;
+    border-radius:16px;
+  }
+  .sg-icon-wrap{ width:52px; height:52px; }
+  .sg-icon{ font-size:24px; }
 }
-
-

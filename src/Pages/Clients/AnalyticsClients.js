@@ -98,7 +98,7 @@ const AnalyticsClient = () => {
                   <div key={idx} className="project-item">
                     <strong>{proj.title}</strong>
                     <p>Status: {proj.status}</p>
-                    <p>Budget: {proj.budget} BD</p>
+                    <p>Reward: {proj.budget} BD</p>
                   </div>
                 ))
               )}

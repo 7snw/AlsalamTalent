@@ -1,6 +1,6 @@
 .analytics-page2 {
-font-family: 'TT Hoves', sans-serif;
-  background-color: #E6E7E8;
+  font-family:var(--font-sans);
+  background-color: #e6f1f5;
   min-height: 100vh;
   padding: 0 6%;
   padding-top: 120px; 
@@ -14,7 +14,7 @@ font-family: 'TT Hoves', sans-serif;
   min-height: 74vh;
   box-sizing: border-box;
   padding: 0 6% 100px;
-  margin-bottom: 200px;
+  margin-bottom: 50px;
 }
 
 .analytics-container2 h2 {

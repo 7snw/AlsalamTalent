@@ -1,138 +1,176 @@
-// React imports and hooks
-import React, { useState, useEffect } from 'react';
-import '../../Style/Freelancer/MyProjects.css';
-import '../../Style/Navbar.css';
-import '../../Style/PageContents.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig2 } from '../../Data/NavbarConfigs';
-import SearchIcon from '../../Assets/search.png';
-import { motion, AnimatePresence } from 'framer-motion';
-import Footer from '../../Components/Footer';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// src/Pages/Freelancer/AssignedProjects.js
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import WavyBackground from "../../Components/WavyBackground";  
+import Navbar from "../../Components/Navbar";
+import Footer from "../../Components/Footer";
+import { NavConfig2 } from "../../Data/NavbarConfigs";
+import SearchIcon from "../../Assets/search.png";
 
-// Component for displaying assigned freelancer projects
+
+import "../../Style/Freelancer/MyProjects.css";
+import "../../Style/Navbar.css";
+import "../../Style/PageContents.css";
+
 const AssignedProjects = () => {
   const navigate = useNavigate();
-
-  // State for search input
-  const [search, setSearch] = useState('');
-
-  // State for filtering projects by status type
-  const [filters, setFilters] = useState({ type: [] });
-
-  // State for holding all assigned projects
+  const [showModal] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({ type: [] }); // status filters
   const [projects, setProjects] = useState([]);
 
-  // Fetch freelancer's assigned projects on component mount
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const storedUser = JSON.parse(localStorage.getItem("user")); // Get current user
+        const storedUser = JSON.parse(localStorage.getItem("user"));
         const freelancerId = storedUser?._id;
-        const response = await axios.get(`http://localhost:5000/api/assignments/by-freelancer/${freelancerId}`);
-        setProjects(response.data); // Store fetched assignments
+        const { data } = await axios.get(
+          `http://localhost:5000/api/assignments/by-freelancer/${freelancerId}`
+        );
+        setProjects(data || []);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error("Error fetching projects:", error);
       }
     };
-
     fetchProjects();
   }, []);
 
-  // Toggle filter status types
   const handleCheckbox = (value) => {
     setFilters((prev) => {
-      const updatedType = prev.type.includes(value)
+      const next = prev.type.includes(value)
         ? prev.type.filter((v) => v !== value)
         : [...prev.type, value];
-      return { ...prev, type: updatedType };
+      return { ...prev, type: next };
     });
   };
 
-  // Apply filters and search logic
   const filteredProjects = projects.filter((proj) => {
+    const title = (proj.projectId?.title || "").toLowerCase();
+    const matchesSearch = title.includes(search.toLowerCase());
     const matchesType =
       filters.type.length === 0 || filters.type.includes(proj.status);
-    const matchesSearch = proj.projectId?.title?.toLowerCase().includes(search.toLowerCase());
-    return matchesType && matchesSearch;
+    return matchesSearch && matchesType;
   });
 
-  // Navigate to detailed view of selected project
-  const handleProjectClick = (assignmentId) => {
-    navigate(`/my-project/${assignmentId}`);
-  };
+  const openProject = (assignmentId) => navigate(`/my-project/${assignmentId}`);
 
   return (
-    <div className="my-projects-page">
+    <div className="as-page">
       <Navbar links={NavConfig2} />
+  <WavyBackground
+      colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
+      waveOpacity={0.85}
+      waveWidth={450}
+      blur={0}
+      speed="fast"
+      accentColors={["#f1633a", "#9FD8FF"]}
+      accentWidth={3}
+      accentOpacity={0.5}
+      accentVertical={-220}
+      accentSpacing={12}
+      
+  containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
 
-      <div className="my-projects-container">
-        {/* Sidebar with filters */}
-        <div className="my-left-panel">
-          <h1 className="page-title">Assigned Projects</h1>
-          <div className="filter-section">
-            <h3>Filter</h3>
-            <p className="hint">Filter your projects according to their progress.</p>
-            <div className="filter-group">
-              <h4>Status</h4>
-              {/* Status filter checkboxes */}
-              {['Assigned', 'Submitted', 'Completed', 'Re-submit', 'Declined'].map((type) => (
-                <label key={type}>
+  paused={showModal}
+  speedOverride={showModal ? 0 : undefined}
+    />
+
+      <div className="as-container">
+        {/* LEFT FILTER */}
+        <aside className="as-filter">
+          <h1 className="as-title1">
+           Assigned Projects
+          </h1>
+
+          <div className="as-filter-box1">
+            <h3 className="as-filter-heading">Filter</h3>
+            <p className="as-filter-hint">
+              Filter your projects according to <br />their progress.
+            </p>
+
+            <div className="as-filter-group">
+              <h4 className="as-filter-label">Status</h4>
+              {[
+                "Assigned",
+                "Submitted",
+                "Re-submitted",
+                "Requested Revision",
+                "Completed",
+                "Declined",
+              ].map((type) => (
+                <label key={type} className="as-check">
                   <input
                     type="checkbox"
                     checked={filters.type.includes(type)}
                     onChange={() => handleCheckbox(type)}
                   />
-                  {type}
+                  <span>{type}</span>
                 </label>
               ))}
             </div>
           </div>
-        </div>
+        </aside>
 
-        {/* Right side project list and search */}
-        <div className="my-right-panel">
-          <div className="search-wrapper">
+        {/* RIGHT CONTENT */}
+        <main className="as-content">
+          <div className="as-search">
             <input
               type="text"
-              placeholder="What are you looking for?"
+              placeholder="Search project by title…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <img src={SearchIcon} alt="search" className="search-icon" />
+            <img src={SearchIcon} alt="Search" />
           </div>
 
-          <div className="my-projects-grid">
+          <div className="as-grid">
+            {filteredProjects.length === 0 ? (
+    <h3 className="empty-title2">No assigned projects yet.</h3>
+  ) : (
             <AnimatePresence>
-              {/* Render filtered project cards */}
+              
               {filteredProjects.map((project, i) => (
                 <motion.div
-                  className="my-project-card"
-                  key={i}
+                  key={project._id || i}
+                  className="as-card"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  whileHover={{
-                    y: -4,
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-                    transition: { duration: 0.2 },
-                  }}
-                  onClick={() => handleProjectClick(project._id)}
+                  transition={{ duration: 0.3, delay: i * 0.03 }}
+                  whileHover={{ y: -4, boxShadow: "0 10px 22px rgba(0,0,0,.14)" }}
+                  onClick={() => openProject(project._id)}
                 >
-                  {/* Project card content */}
-                  <img
-                    src={project.projectId?.imageUrl || "path_to_default_image.jpg"}
-                    alt={project.projectId?.title}
-                  />
-                  <h4>{project.projectId?.title}</h4>
-                  <span className="progress-text">{project.status}</span>
+                  <div className="as-thumb">
+                    <img
+                      src={
+                        project.projectId?.imageUrl ||
+                        project.projectId?.image ||
+                        project.projectId?.coverImage
+                      }
+                      alt={project.projectId?.title || "Project"}
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div className="as-meta">
+                    <h4 className="as-name">{project.projectId?.title}</h4>
+                    <span
+                      className={`as-status ${String(project.status || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {project.status}
+                    </span>
+                  </div>
                 </motion.div>
-              ))}
+              )
+              )}  
             </AnimatePresence>
+            )}
           </div>
-        </div>
+        </main>
       </div>
 
       <Footer />

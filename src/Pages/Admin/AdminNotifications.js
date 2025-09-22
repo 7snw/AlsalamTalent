@@ -1,84 +1,141 @@
-import { useEffect, useState } from "react";
+// src/Pages/Admin/AdminNotifications.js
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Navbar from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
 import "../../Style/Notifications.css";
 import { NavConfig4 } from "../../Data/NavbarConfigs";
-import { showAlert } from "../../utils/toastMessages";
-import BellIcon from '../../Assets/Bell3.png';
 
-// AdminNotifications page: Displays all notifications specific to admin users
+// Same icon set & meta used by freelancer page
+import AssignedIcon from "../../Assets/assigned.png";
+import SubmittedIcon from "../../Assets/submitted.png";
+import AvailableIcon from "../../Assets/available.png";
+import WelcomeIcon from "../../Assets/welcome.png";
+import PaymentIcon from "../../Assets/payment.png";
+import Booking from "../../Assets/booking.png";
+
+const TYPE_META = {
+  assigned:  { color: "#f16238", bg: "#f16238", icon: AssignedIcon },
+  submitted: { color: "#3d76ae", bg: "#3d76ae", icon: SubmittedIcon },
+  available: { color: "#f89d33", bg: "#f89d33", icon: AvailableIcon },
+  welcome:   { color: "#9dcbd8", bg: "#9dcbd8", icon: WelcomeIcon },
+  payment:   { color: "#06142f", bg: "#06142f", icon: PaymentIcon },
+  booking:   { color: "#deaa87", bg: "#deaa87", icon: Booking },
+  default:   { color: "#A2D1DD", bg: "#A2D1DD", icon: WelcomeIcon },
+};
+
+const inferType = (t = "", s = "", m = "") => {
+  const text = `${t} ${s} ${m}`.toLowerCase();
+  if (text.includes("assigned")) return "assigned";
+  if (text.includes("submitted")) return "submitted";
+  if (text.includes("available") || text.includes("new project")) return "available";
+  if (text.includes("welcome")) return "welcome";
+  if (text.includes("payment")) return "payment";
+  if (text.includes("booking")) return "booking";
+  return "default";
+};
+
 const AdminNotifications = () => {
-  const [notifications, setNotifications] = useState([]); // Stores list of notifications
-  const [loading, setLoading] = useState(true); // Indicates loading state
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("latest");
 
   useEffect(() => {
-    const stored = localStorage.getItem("user"); // Retrieve user data from localStorage
+    const stored = localStorage.getItem("user");
+    if (!stored) return setLoading(false);
 
-    if (stored) {
-      const parsed = JSON.parse(stored); // Parse stored user JSON
+    const parsed = JSON.parse(stored);
+    const userId = parsed?._id;
 
-      // Fetch notifications for the admin using their ID
-      axios
-        .get(`http://localhost:5000/api/notifications/${parsed._id}/admin`)
-        .then((res) => {
-          console.log("Admin notifications:", res.data);
-          setNotifications(res.data); // Store the notifications
-        })
-        .catch((err) => {
-          console.error("Error fetching admin notifications:", err);
-          showAlert("Failed to fetch notifications."); // Show alert if request fails
-        })
-        .finally(() => setLoading(false)); // Stop loading regardless of success/failure
-    } else {
-      setLoading(false); // No user found, stop loading
-    }
+    if (!userId) return setLoading(false);
+
+    axios
+      .get(`http://localhost:5000/api/notifications/${userId}/admin`)
+      .then((res) => setNotifications(res.data || []))
+      .catch((err) => console.error("❌ Error fetching admin notifications:", err))
+      .finally(() => setLoading(false));
   }, []);
 
-  // Show loading state while notifications are being fetched
-  if (loading) return <div>Loading notifications...</div>;
+  const enriched = useMemo(
+    () =>
+      (notifications || []).map((n) => {
+        const key = inferType(n.type, n.subject, n.message);
+        const meta = TYPE_META[key] || TYPE_META.default;
+        return { ...n, __meta: meta };
+      }),
+    [notifications]
+  );
+
+  const displayed = useMemo(() => {
+    const arr = [...enriched];
+    if (tab === "latest") {
+      arr.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else {
+      arr.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+    return arr;
+  }, [enriched, tab]);
+
+  if (loading) return null;
 
   return (
     <div className="notifications-page">
-      <Navbar links={NavConfig4} /> {/* Admin navigation bar */}
+      <Navbar links={NavConfig4} />
 
       <div className="notifications-container">
-        <h2>Notifications</h2>
+        <div className="notif-header">
+          <h2>Notifications</h2>
+          <div className="segmented" role="tablist" aria-label="Filter notifications">
+            <button
+              className={`seg-option ${tab === "latest" ? "active" : ""}`}
+              onClick={() => setTab("latest")}
+              role="tab"
+              aria-selected={tab === "latest"}
+            >
+              Latest
+            </button>
+            <button
+              className={`seg-option ${tab === "earliest" ? "active" : ""}`}
+              onClick={() => setTab("earliest")}
+              role="tab"
+              aria-selected={tab === "earliest"}
+            >
+              Earliest
+            </button>
+          </div>
+        </div>
 
-        {/* If no notifications, show message */}
-        {notifications.length === 0 ? (
-          <>
-            <p className="no-notifications">No notifications to show.</p>
-          </>
+        {displayed.length === 0 ? (
+          <p className="no-notifications">No notifications to show.</p>
         ) : (
-          <>
-            {/* Render each notification as a list item */}
-            <ul className="notification-list">
-              {notifications.map((note) => (
-                <li key={note._id} className={`notification-item ${note.type}`}>
-                  {/* Bell icon next to each notification */}
-                  <img src={BellIcon} alt="Bell Icon" className="bell-icon1" />
+          <ul className="notification-list">
+            {displayed.map((note) => (
+              <li key={note._id} className="notification-item">
+                <div
+                  className="notif-icon-wrapper"
+                  style={{ backgroundColor: note.__meta.bg }}
+                >
+                  <img src={note.__meta.icon} alt="icon" className="notif-icon" />
+                </div>
 
-                  {/* Notification details */}
-                  <div className="notification-content">
-                    <p>
-                      <strong>{note.subject || "No subject"}</strong>
-                    </p>
-                    <p>{note.message || "No message"}</p>
-                    <small className="notification-time">
-                      {note.createdAt
-                        ? new Date(note.createdAt).toLocaleString() // Format timestamp
-                        : "No timestamp"}
-                    </small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </>
+                <div className="notification-content">
+                  <p className="notification-subject">
+                    <strong>{note.subject || "No subject"}</strong>
+                  </p>
+                  <p>{note.message || "No message"}</p>
+                  <small className="notification-time">
+                    {note.createdAt
+                      ? new Date(note.createdAt).toLocaleString()
+                      : "No timestamp"}
+                  </small>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
-      <Footer /> {/* Footer */}
+      <Footer />
     </div>
   );
 };

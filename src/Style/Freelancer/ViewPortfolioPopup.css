@@ -9,26 +9,29 @@
     justify-content: center;
     align-items: center;
     z-index: 999;
-    padding-top: 45px; 
-
+    padding-top: 85px; 
+ padding: 45px 12px 12px;
+overflow: auto; 
   }
   
   /* Popup container */
   .popup-box0 {
     background-color: #ffffff;
-    padding: 30px 40px;
+    padding: 14px 40px;
     border-radius: 20px;
-    width: 600px;
-    max-height: 80%;
-    max-width: 95%;
+    width: 500px;
+        max-height: 80vh;    /* same cap as PortfolioPopup */
+  display: flex;               /* allow inner content to flex/scroll */
+  flex-direction: column;
+  overflow: hidden;   
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
- font-family: 'TT Hoves', sans-serif;
+  font-family:var(--font-sans);
  
   }
   
   /* Title */
   .popup-title0 {
-    font-size: 22px;
+    font-size: 21px;
     font-weight: bold;
     margin-bottom: 10px;
     color: #1b223c;
@@ -37,17 +40,22 @@
   
   /* Content */
   .popup-content0 {
-    font-size: 15px;
-    color: #1b223c;
-    line-height: 1.6;
+     font-size: 14px;
+color: #1b223c;
+  line-height: 1.5;
+  flex: 1;                     /* take remaining height */
+  min-height: 0;               /* required so overflow works inside flex */
+  overflow-y: auto;            /* << internal scrollbar appears here */
+  overscroll-behavior: contain;
+  padding-right: 5px;   
   }
   
   .popup-content0 p {
-    margin: 5px 0;
+    margin: 1px 0;
   }
   
   .popup-content0 img {
-    max-height: 160px;
+  max-height: 230px;
     object-fit: cover;
     margin: 10px 0 20px;
     border-radius: 12px;
@@ -60,16 +68,15 @@
   }
   
   .download-btn0 {
-    display: inline-block;
-    margin-top: 0px;
-    background-color: #1b223c;
-    color: #ffffff;
-    padding: 10px 20px;
-    text-decoration: none;
-     border-radius: 18px;
-    font-weight: 500;
-    font-size: 14px;
-    transition: background-color 0.2s ease;
+   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f4f4f4;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #1B223C;
   }
   
   .download-btn0:hover {
@@ -87,9 +94,9 @@
     color: #1b223c;
     padding: 10px 20px;
     margin-top: -30px;
-    margin-bottom: -30px;
+    margin-bottom: 0px;
     border: none;
-   border-radius: 18px;
+  border-radius: 20px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
@@ -98,14 +105,96 @@
   .cancel-btn0:hover {
     background-color: #bdbdbd;
   }
-  
+  /* optional – if needed locally */
+.skills-list3 {   display: flex; gap: 8px; flex-wrap: wrap; }
+.skill-pill3 {   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.236);background:#ffffff;color:#1b223c; padding:6px 10px; border-radius:999px; font-size:13px; }
+
   .delete-btn0 {
-  background-color: #f1633a;
+  background-color: #1b223c;
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 18px;
-  font-size: 14px;
+  padding: 8px 16px;
+ border-radius: 20px;
+  
+  margin-top: -20px;
+  margin-bottom: 5px;
+  font-size: 13px;
   cursor: pointer;
-  margin-right: 10px;
+  margin-right: 3px;
+   margin-left: 2px;
+}
+
+ .delete-btn0:hover {
+ background-color: #14192d;
+ }
+
+.image-carousel-container0 {
+  position: relative;
+}
+
+.arrow-btn0 {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.6);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 50%;
+}
+
+.left-arrow0 {
+  left: 10px;
+}
+
+.right-arrow0 {
+  right: 10px;
+}
+
+/* Full-screen lightbox mode */
+.fullscreen-mode {
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 9999;
+}
+
+.fullscreen-mode .popup-box0 {
+  width: 80%;
+  height: 80%;
+  margin: auto;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.fullscreen-mode img {
+  width: 130%;
+  height: 130%;
+  object-fit: contain;
+  border-radius: 0;
+}
+
+
+.fullscreen-mode .popup-content0 {
+  overflow: visible;
+  padding-right: 0;
+}
+
+/* Collaborator chips */
+.collab-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.collab-chip {
+  display:inline-flex; align-items:center; gap:8px;
+   border-radius:999px; padding:6px 10px;
+  font-size:12px; color:#1b223c;
+}
+.collab-avatar {
+  width:22px; height:22px; border-radius:50%;
+  background:#dfe6f3; display:inline-flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:11px;
+}
+.collab-name { color: #1b223c; white-space:nowrap; }
+
+.collab-name:hover {
+  text-decoration: underline;
+  color: #f1633a; /* matches your theme */
 }

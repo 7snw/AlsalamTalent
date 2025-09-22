@@ -1,17 +1,28 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+ font-family: 'Sifonn';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+   font-family: 'Sifonn';
 }
 body {
   overflow-x: hidden;
 }
 
+
+/* src/index.css (or App.css) */
+:root {
+  --font-sans: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+html, body, #root {
+  font-family: var(--font-sans);
+}
+
+/* Optional: default to a lighter feel for body text */
+body { font-weight: 300; }         /* Outfit Light */
+/* Headings still pop */
+h1, h2, h3, .title { font-weight: 700; }

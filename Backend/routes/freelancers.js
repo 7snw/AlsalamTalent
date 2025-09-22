@@ -1,55 +1,173 @@
+// routes/freelancers.js
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const router = express.Router();
-const Freelancer = require('../models/Freelancer');
-const nodemailer = require('nodemailer');
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
-const sendNotification = require("../utils/sendNotification");
+const multer  = require('multer');
+const path    = require('path');
+const fs      = require('fs');
+const router  = express.Router();
+const axios   = require('axios');
 
+const PendingSignup = require('../models/PendingSignUp');
+const { Freelancer } = require('../models/Freelancer');
+const nodemailer    = require('nodemailer');
+const bcrypt        = require('bcryptjs');
 
-// Create uploads folder if it doesn't exist
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+const { sendNotification } = require('../utils/sendNotification');
+const sendEmail = require('../utils/sendEmail');
+const { lookupHash } = require('../utils/cryptoVault'); // 🔐 for deterministic lookups
+
+const parseSkills = (raw) => {
+  if (!raw) return [];
+  try {
+    const a = JSON.parse(raw);
+    return (Array.isArray(a) ? a : [a]).map(s => String(s).trim()).filter(Boolean);
+  } catch {
+    return String(raw)
+      .split(/[,;|]/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+};
+
+const {
+  adminNewStudentRegistered,
+  studentWelcomePending,
+  adminNewGraduateRegistered,
+  graduateWelcomePending,
+  newChatMessageEmail,
+  verificationCode
+} = require('../utils/emailTemplates');
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://ctrlz.bh';
+const BASE_URL     = process.env.BASE_URL     || 'http://localhost:5000';
+
+const crypto   = require('crypto');
+const OtpToken = require('../models/OtpToken');
+
+const OTP_TTL_MIN = 10;
+const generate6   = () => String(crypto.randomInt(100000, 1000000)); // 6-digit
+
+/* ------------------------------ Helpers ------------------------------ */
+const normEmail = (v='') => String(v).trim().toLowerCase();
+const normPhone = (v='') => String(v).replace(/\s+/g, '').trim();
+const normStr   = (v='') => String(v).trim();
+
+async function createAndSendOtp({ userId, email }) {
+  await OtpToken.updateMany({ userId, used: false }, { $set: { used: true } });
+  const code = generate6();
+  const codeHash  = await bcrypt.hash(code, 10);
+  const expiresAt = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
+  await OtpToken.create({ userId, codeHash, expiresAt });
+
+  const html = `
+    <p>Use this code to verify your identity:</p>
+    <div style="font-size:24px;font-weight:700;letter-spacing:6px">${code}</div>
+    <p>This code expires in ${OTP_TTL_MIN} minutes.</p>
+  `;
+  await sendEmail({
+    to: email, subject: 'Your ctrlZ verification code',
+    html, text: `Your ctrlZ code is ${code} (expires in ${OTP_TTL_MIN} minutes)`
+  });
 }
 
-// Multer storage config
+async function verifyOtp({ userId, code }) {
+  const token = await OtpToken.findOne({
+    userId, used: false, expiresAt: { $gt: new Date() }
+  }).sort({ createdAt: -1 });
+
+  if (!token) return { ok: false, reason: 'NO_ACTIVE' };
+  const ok = await bcrypt.compare(String(code || ''), token.codeHash);
+  if (!ok)   return { ok: false, reason: 'BAD_CODE' };
+
+  token.used = true;
+  await token.save();
+  return { ok: true };
+}
+
+/* ---------------------------- Uploads setup ---------------------------- */
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  destination: (_req, _file, cb) => cb(null, uploadDir),
+  filename: (_req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `${unique}-${file.originalname}`);
   }
 });
 
-const imageFileFilter = (req, file, cb) => {
+const isValidBHIban = (s='') => /^BH\d{2}[A-Z]{4}\d{14}$/i.test(String(s).replace(/\s+/g,''));
+const imageFileFilter = (_req, file, cb) => {
   const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-  if (allowed.includes(file.mimetype)) cb(null, true);
-  else cb(new Error('Only JPEG, PNG, JPG, or WEBP images are allowed.'));
+  allowed.includes(file.mimetype) ? cb(null, true)
+    : cb(new Error('Only JPEG/PNG/JPG/WEBP images are allowed.'));
+};
+const docFileFilter = (_req, file, cb) => {
+  const allowed = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  allowed.includes(file.mimetype) ? cb(null, true)
+    : cb(new Error('Only PDF, DOC, or DOCX files are allowed.'));
 };
 
-
-const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 }, fileFilter: imageFileFilter });
+const uploadImage   = multer({ storage, fileFilter: imageFileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
+const uploadCv      = multer({ storage, fileFilter: docFileFilter,   limits: { fileSize: 10 * 1024 * 1024 } });
 const uploadAnyFile = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
-const uploadImage = multer({ storage, fileFilter: imageFileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
 
-const BASE_URL = 'http://localhost:5000';
+/* ------------------------------ Email/OTP ------------------------------ */
+const transporter = nodemailer.createTransport({
+  service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+});
+const isValidIban = (iban = '') => /^BH\d{2}[A-Z0-9]{18}$/i.test(iban.replace(/\s+/g, ''));
 
-// ---------------------------- ROUTES ----------------------------
+const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000)); // 6-digit
+async function sendOtpEmail(email, name, code) {
+  const subject = 'Your ctrlZ verification code';
+  const html = verificationCode({ name, code });
+  await sendEmail({ to: email, subject, html, text: `Your code is ${code}` });
+}
 
-// Register new freelancer
-router.post('/register', upload.single('cpr'), async (req, res) => {
+/** DUMMY API for graduates (unchanged) */
+// const dummyGraduates = [ ... ];
+async function verifyGraduateWithPolytechnic({ studentId, fullName, cpr }) {
+  const match = dummyGraduates.find(
+    g => g.studentId === normStr(studentId) &&
+         g.fullName.toLowerCase() === normStr(fullName).toLowerCase() &&
+         g.cpr === normStr(cpr)
+  );
+  return !!match;
+}
+
+/* --------------------------- Generic Register --------------------------- */
+router.post('/register', uploadCv.single('cv'), async (req, res) => {
   try {
-    const {
-      studentId, fullName, email, password, major,
-      phone, expertise, userType
-    } = req.body;
+    let { studentId, fullName, email, password, major, phone, expertise, userType, iban, cpr } = req.body;
 
-    const parsedExpertise = Array.isArray(expertise) ? expertise : JSON.parse(expertise);
-    const cprImagePath = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
+    if (iban) {
+      const clean = String(iban).replace(/\s+/g, '').toUpperCase();
+      if (!isValidBHIban(clean)) return res.status(400).json({ message: 'Invalid IBAN format.' });
+      iban = clean;
+    }
+
+    email     = normEmail(email);
+    studentId = normStr(studentId);
+
+    // 🔐 de-dupe using deterministic hashes (email) or plain studentId
+    const dup = await Freelancer.findOne({
+      $or: [
+        email ? { emailHash: lookupHash(email) } : null,
+        studentId ? { studentId } : null
+      ].filter(Boolean)
+    });
+    if (dup) return res.status(400).json({ message: 'Email or Student ID already registered.' });
+
+    const parsedExpertise = Array.isArray(expertise) ? expertise : JSON.parse(expertise || '[]');
+    const cvPath = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
+
+    const otp = generateOtp();
+    const otpHash = await bcrypt.hash(otp, 10);
+    const otpExpires = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
 
     const newFreelancer = await Freelancer.create({
       userType,
@@ -58,55 +176,31 @@ router.post('/register', upload.single('cpr'), async (req, res) => {
       email,
       password,
       major,
-      phone,
+      phone: normPhone(phone),
       expertise: parsedExpertise,
-      cprImageUrl: cprImagePath,
-      isVerified: userType === 'Graduate' ? false : true,
+      iban,
+      cpr: normStr(cpr),
+      cvUrl: cvPath,
+      isVerified: false,
+      otpHash,
+      otpExpires
     });
 
-    if (userType === 'Graduate') {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        }
-      });
-
-      await transporter.sendMail({
-        from: `"AlSalam Bank | Ctrl-Z" <${process.env.EMAIL_USER}>`,
-        to: process.env.ADMIN_EMAIL,
-        subject: 'Graduate Verification Request - AlSalam Bank | Ctrl-Z',
-        html: `
-          <p><strong>A new Graduate needs verification:</strong></p>
-          <ul>
-            <li><strong>Name:</strong> ${fullName}</li>
-            <li><strong>Student ID:</strong> ${studentId}</li>
-            <li><strong>Email:</strong> ${email}</li>
-            <li><strong>Phone:</strong> ${phone}</li>
-            <li><strong>Major:</strong> ${major}</li>
-          </ul>
-          <p>CPR image attached below.</p>
-        `,
-        attachments: [
-          {
-            filename: req.file.originalname,
-            path: req.file.path,
-          }
-        ]
-      });
-    }
-
-    res.status(201).json({ message: 'Graduate registered and awaiting admin verification.' });
+    await sendOtpEmail(email, fullName, otp);
+    res.status(201).json({ message: 'OTP sent.', freelancerId: newFreelancer._id });
   } catch (err) {
-    console.error('Graduate signup error:', err);
+    console.error('Signup error:', err);
     res.status(500).json({ message: 'Registration failed', error: err.message });
   }
 });
 
-router.get('/pending', async (req, res) => {
+/* ------------------------------ Admin Lists ----------------------------- */
+router.get('/pending', async (_req, res) => {
   try {
-    const pendingFreelancers = await Freelancer.find({ isVerified: false }).select('fullName userType email studentId cprImageUrl');
+    // NOTE: avoid .lean() so plugin can decrypt
+    const pendingFreelancers = await Freelancer
+      .find({ isVerified: false })
+      .select('fullName userType email studentId cvUrl');
     res.json(pendingFreelancers);
   } catch (err) {
     console.error('Error fetching freelancers:', err);
@@ -114,202 +208,396 @@ router.get('/pending', async (req, res) => {
   }
 });
 
-
-
-// Get freelancer list (basic)
-router.get('/list', async (req, res) => {
+// verified list
+router.get('/list', async (_req, res) => {
   try {
-    const freelancers = await Freelancer.find({}, 'fullName expertise profileImageUrl rating');
-    res.json(freelancers);
+    const people = await Freelancer
+      .find({ isVerified: true, isActive: true });
+    res.json(people);
   } catch (err) {
-    console.error('Error fetching freelancers:', err);
-    res.status(500).json({ message: 'Server error', error: err });
+    console.error('Error fetching list:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-
-
-// ----------------- Student Registration -----------------
-router.post('/student-register', async (req, res) => {
-  const {
-    studentId, fullName, email, password, major, phone, expertise
-  } = req.body;
-
+/* ------------------------- ADMIN: unified list (pending + verified) ------------------------- */
+// GET /api/freelancer/admin/all?q=...&limit=...
+router.get('/admin/all', async (req, res) => {
   try {
-    const newFreelancer = await Freelancer.create({
-      userType: 'Student',
-      studentId,
-      fullName,
-      email,
-      password,
-      major,
-      phone,
-      expertise,
-      isVerified: false
+    const q = String(req.query.q || '').trim().toLowerCase();
+    const limit = Math.min(parseInt(req.query.limit || '500', 10), 1000);
+
+    // fetch both (keep PendingSignup lean; it isn't encrypted)
+    const [pending, verifiedDocs] = await Promise.all([
+      PendingSignup.find({})
+        .select('kind data createdAt')
+        .sort({ createdAt: -1 })
+        .lean(),
+      Freelancer.find({})
+        .select('_id studentId fullName email major phone expertise iban cvUrl isVerified isActive createdAt')
+        .sort({ createdAt: -1 })
+    ]);
+
+    // map “pending” payloads to the same shape
+    const mapPending = pending.map(p => {
+      const d = p.data || {};
+      return {
+        _id: p._id,
+        studentId: String(d.studentId || ''),
+        fullName : String(d.fullName  || ''),
+        email    : String(d.email     || ''),
+        major    : String(d.major     || ''),
+        phone    : String(d.phone     || ''),
+        expertise: Array.isArray(d.expertise) ? d.expertise : [],
+        iban     : String(d.iban || ''),
+        cvUrl    : String(d.cvUrl || ''),
+        status   : 'Pending',
+        isVerified: false,
+        isActive : false,
+        createdAt: p.createdAt
+      };
     });
 
-    // Send admin email
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+    // convert verified docs to plain objects (decrypted by plugin)
+    const mapVerified = verifiedDocs.map(v => {
+      const o = v.toObject();
+      return {
+        _id: o._id,
+        studentId: String(o.studentId || ''),
+        fullName : String(o.fullName  || ''),
+        email    : String(o.email     || ''),
+        major    : String(o.major     || ''),
+        phone    : String(o.phone     || ''),
+        expertise: Array.isArray(o.expertise) ? o.expertise : [],
+        iban     : String(o.iban || ''),
+        cvUrl    : String(o.cvUrl || ''),
+        status   : o.isVerified ? (o.isActive ? 'Verified' : 'Disabled') : 'Unverified',
+        isVerified: !!o.isVerified,
+        isActive : !!o.isActive,
+        createdAt: o.createdAt
+      };
     });
 
-    await transporter.sendMail({
-      from: `"AlSalam Bank | Ctrl-Z" <${process.env.EMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL,
-      subject: 'New Student Registration - Verification Needed',
-      html: `
-        <p><strong>A new student has registered:</strong></p>
-        <ul>
-          <li><strong>Name:</strong> ${fullName}</li>
-          <li><strong>Student ID:</strong> ${studentId}</li>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>Phone:</strong> ${phone}</li>
-          <li><strong>Major:</strong> ${major}</li>
-        </ul>
-        <p>Please log into the admin panel to verify this student.</p>
-      `
-    });
+    let items = [...mapPending, ...mapVerified];
 
-    // Send notification to student
-    await sendNotification({
-      userId: newFreelancer._id,
-      userType: "freelancer",
-      email,
-      subject: "Welcome to Ctrl-Z!",
-      message: "Your student account has been created and is pending admin verification.",
-      type: "info"
-    });
+    // optional server-side filter by name or studentId (and email for convenience)
+    if (q) {
+      items = items.filter(it =>
+        it.fullName.toLowerCase().includes(q) ||
+        it.studentId.toLowerCase().includes(q) ||
+        it.email.toLowerCase().includes(q)
+      );
+    }
 
-    res.status(201).json({ message: 'Student registered and pending admin verification.' });
+    // cap length
+    if (items.length > limit) items = items.slice(0, limit);
+
+    res.json({ items, total: items.length });
   } catch (err) {
-    console.error('Student signup error:', err);
-    res.status(500).json({ message: 'Registration failed', error: err.message });
-  }
-});
-
-
-
-// ----------------- Graduate Registration -----------------
-router.post('/graduate-register', upload.single('cpr'), async (req, res) => {
-  try {
-    const {
-      studentId, fullName, email, password, major, phone
-    } = req.body;
-
-    const expertise = JSON.parse(req.body.expertise);
-    const imageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
-
-    const newFreelancer = await Freelancer.create({
-      userType: 'Graduate',
-      studentId,
-      fullName,
-      email,
-      password,
-      major,
-      phone,
-      expertise,
-      cprImageUrl: imageUrl,
-      isVerified: false
-    });
-
-    // Send CPR to admin
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.ADMIN_EMAIL,
-      subject: 'New Graduate Registration - CPR Review Required',
-      text: `Graduate Registered:\n\nName: ${fullName}\nStudent ID: ${studentId}\nEmail: ${email}\n\nPlease verify their CPR.`,
-      attachments: [
-        {
-          filename: req.file.originalname,
-          path: req.file.path
-        }
-      ]
-    });
-
-    // Send notification to graduate
-    await sendNotification({
-      userId: newFreelancer._id,
-      userType: "freelancer",
-      email,
-      subject: "Welcome to Ctrl-Z | AlSalam Bank!",
-      message: "Your graduate account has been created and is pending admin verification.",
-      type: "info"
-    });
-
-    res.status(201).json({ message: 'Graduate registered and email sent to admin.' });
-  } catch (err) {
-    console.error('Graduate signup error:', err);
-    res.status(500).json({ message: 'Registration failed.', error: err.message });
-  }
-});
-
-// Get full freelancer profile
-router.get('/profile/:id', async (req, res) => {
-  try {
-    const freelancer = await Freelancer.findById(req.params.id).select(
-      'fullName email studentId major userType phone dateOfBirth bio skills specialties expertise portfolio role cprImageUrl profileImageUrl projects'
-    );
-    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
-    res.json(freelancer);
-  } catch (err) {
-    console.error('Error fetching freelancer profile:', err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
-
-// Update freelancer profile
-router.put('/profile/:id', upload.single('profileImage'), async (req, res) => {
-  try {
-    const freelancerId = req.params.id;
-    const parsedData = JSON.parse(req.body.data);
-    const updates = { ...parsedData };
-
-    if (updates.dateOfBirth) updates.dateOfBirth = new Date(updates.dateOfBirth);
-    if (req.file) updates.profileImageUrl = `${BASE_URL}/uploads/${req.file.filename}`;
-
-    const updatedFreelancer = await Freelancer.findByIdAndUpdate(freelancerId, updates, { new: true });
-    if (!updatedFreelancer) return res.status(404).json({ message: 'Freelancer not found' });
-
-    res.json(updatedFreelancer);
-  } catch (err) {
-    console.error('Error updating freelancer profile:', err);
+    console.error('admin/all error:', err);
     res.status(500).json({ message: 'Server error', error: err.message || err });
   }
 });
 
-// Change freelancer password
+
+/* ------------------------- STUDENT REGISTER -> PENDING ------------------------- */
+router.post('/student-register', uploadCv.single('cv'), async (req, res) => {
+  try {
+    let { studentId, fullName, email, password, major, phone, expertise, iban } = req.body;
+
+    email     = normEmail(email);
+    studentId = normStr(studentId);
+
+    if (typeof iban === 'string' && iban) {
+      const clean = iban.replace(/\s+/g, '').toUpperCase();
+      if (!isValidBHIban(clean)) return res.status(400).json({ message: 'Invalid IBAN format.' });
+      iban = clean;
+    }
+
+    // 🔐 de-dupe using hash
+    const dup = await Freelancer.findOne({
+      $or: [
+        email ? { emailHash: lookupHash(email) } : null,
+        studentId ? { studentId } : null
+      ].filter(Boolean)
+    });
+    if (dup) return res.status(400).json({ message: 'Email or Student ID already registered.' });
+
+    const otp = generateOtp();
+    const otpHash = await bcrypt.hash(otp, 10);
+    const otpExpires = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
+
+    const cvUrl = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : '';
+    const parsedExpertise = Array.isArray(expertise) ? expertise : JSON.parse(expertise || '[]');
+
+    const pending = await PendingSignup.create({
+      kind: 'Student',
+      data: { userType: 'Student', studentId, fullName, email, password, major, phone: normPhone(phone), expertise: parsedExpertise, iban, cvUrl },
+      otpHash, otpExpires
+    });
+
+    await sendOtpEmail(email, fullName, otp);
+    return res.status(201).json({ message: 'OTP sent to your email.', regId: pending._id });
+  } catch (err) {
+    console.error('Student pending signup error:', err);
+    return res.status(500).json({ message: 'Registration failed', error: err.message });
+  }
+});
+
+/* ----------------------- GRADUATE REGISTER -> PENDING ----------------------- */
+router.post('/graduate-register', uploadCv.single('cv'), async (req, res) => {
+  try {
+    let { studentId, fullName, email, password, major, phone, expertise, iban, cpr } = req.body;
+
+    email     = normEmail(email);
+    studentId = normStr(studentId);
+
+    if (iban) {
+      const clean = String(iban).replace(/\s+/g, '').toUpperCase();
+      if (!isValidBHIban(clean)) return res.status(400).json({ message: 'Invalid IBAN format.' });
+      iban = clean;
+    }
+
+    const match = await verifyGraduateWithPolytechnic({ studentId, fullName, cpr });
+    if (!match) {
+      return res.status(400).json({ message: 'Graduate details could not be verified. Please check your Student ID, Name, and CPR.' });
+    }
+
+    // 🔐 de-dupe using hash
+    const dup = await Freelancer.findOne({
+      $or: [
+        email ? { emailHash: lookupHash(email) } : null,
+        studentId ? { studentId } : null
+      ].filter(Boolean)
+    });
+    if (dup) return res.status(400).json({ message: 'Email or Student ID already registered.' });
+
+    const otp = generateOtp();
+    const otpHash = await bcrypt.hash(otp, 10);
+    const otpExpires = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
+
+    const cvUrl = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : '';
+    const parsedExpertise = Array.isArray(expertise) ? expertise : JSON.parse(expertise || '[]');
+
+    const pending = await PendingSignup.create({
+      kind: 'Graduate',
+      data: { userType: 'Graduate', studentId, fullName, email, password, major, phone: normPhone(phone), expertise: parsedExpertise, iban, cpr: normStr(cpr), cvUrl },
+      otpHash, otpExpires
+    });
+
+    await sendOtpEmail(email, fullName, otp);
+    res.status(201).json({ message: 'OTP sent to your email.', regId: pending._id });
+  } catch (err) {
+    console.error('Graduate pending signup error:', err);
+    res.status(500).json({ message: 'Registration failed.', error: err.message });
+  }
+});
+
+/* ----------------------------- VERIFY OTP -> CREATE ----------------------------- */
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { regId, code } = req.body;
+    if (!regId || !code) return res.status(400).json({ message: 'Missing fields.' });
+
+    const pending = await PendingSignup.findById(regId);
+    if (!pending) return res.status(400).json({ message: 'No active signup. Please restart.' });
+
+    if (!pending.otpHash || !pending.otpExpires) return res.status(400).json({ message: 'No active OTP. Please resend.' });
+    if (new Date() > new Date(pending.otpExpires)) return res.status(400).json({ message: 'OTP expired. Please resend.' });
+
+    const ok = await bcrypt.compare(String(code), pending.otpHash);
+    if (!ok) return res.status(400).json({ message: 'Incorrect code.' });
+
+    const payload = pending.data;
+
+    // 🔐 de-dup on hash/plain
+    const already = await Freelancer.findOne({
+      $or: [
+        payload.email ? { emailHash: lookupHash(normEmail(payload.email)) } : null,
+        payload.studentId ? { studentId: normStr(payload.studentId) } : null
+      ].filter(Boolean)
+    });
+
+    if (already) {
+      await PendingSignup.findByIdAndDelete(regId);
+      return res.json({ message: 'Account already verified. You can sign in now.' });
+    }
+
+    const freelancer = await Freelancer.create({
+      ...payload,
+      email: normEmail(payload.email),
+      studentId: normStr(payload.studentId),
+      phone: normPhone(payload.phone),
+      cpr: normStr(payload.cpr || ''),
+      isVerified: true,
+      emailVerified: true
+    });
+
+    const dashboardLink = `${FRONTEND_URL}/freelancer-dashboard`;
+    const welcomeHtml = pending.kind === 'Graduate'
+      ? graduateWelcomePending({ name: payload.fullName, dashboardLink })
+      : studentWelcomePending({ name: payload.fullName, dashboardLink });
+
+    await sendNotification({
+      userId: freelancer._id,
+      userType: 'freelancer',
+      subject: 'Welcome to ctrlZ!',
+      message: 'Your account is ready. Start exploring projects.',
+      type: 'welcome',
+      alsoEmail: true,
+      // use plaintext payload.email to avoid any chance of ciphertext on fresh doc
+      email: normEmail(payload.email),
+      html: welcomeHtml
+    });
+
+    await PendingSignup.findByIdAndDelete(regId);
+    res.json({ message: 'Account verified. You can sign in now.', freelancerId: freelancer._id });
+  } catch (err) {
+    console.error('verify-otp error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+/* --------------------------------- RESEND OTP --------------------------------- */
+router.post('/resend-otp', async (req, res) => {
+  try {
+    const { regId } = req.body;
+    if (!regId) return res.status(400).json({ message: 'Missing regId.' });
+
+    const pending = await PendingSignup.findById(regId);
+    if (!pending) return res.status(400).json({ message: 'No active signup. Please restart.' });
+
+    const otp = generateOtp();
+    pending.otpHash = await bcrypt.hash(otp, 10);
+    pending.otpExpires = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
+    await pending.save();
+
+    await sendOtpEmail(pending.data.email, pending.data.fullName, otp);
+    res.json({ message: 'OTP resent.' });
+  } catch (err) {
+    console.error('resend-otp error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+/* --------------------------- Profile: GET / PUT ------------------------- */
+router.get('/profile/:id', async (req, res) => {
+  try {
+    const freelancer = await Freelancer.findById(req.params.id).select(
+      'fullName email studentId major userType phone dateOfBirth bio skills expertise portfolio role cvUrl profileImageUrl projects iban isVerified isActive rating cpr'
+    );
+    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
+
+    freelancer.profileImageUrl = freelancer.profileImageUrl || '';
+    res.status(200).json(freelancer);
+  } catch (err) {
+    console.error('Error fetching freelancer profile:', err);
+    res.status(500).json({ message: 'Server error', error: err.message || err });
+  }
+});
+
+// UPDATE profile (supports profile image upload)
+router.put(
+  '/profile/:id',
+  uploadAnyFile.fields([{ name: 'profileImage', maxCount: 1 }, { name: 'cv', maxCount: 1 }]),
+  async (req, res) => {
+    try {
+      const freelancerId = req.params.id;
+      const bodyObj = req.body.data ? JSON.parse(req.body.data) : req.body;
+      const updates = { ...bodyObj };
+
+      if (typeof updates.iban === 'string') {
+        const clean = updates.iban.replace(/\s+/g, '').toUpperCase();
+        if (clean && !isValidBHIban(clean)) {
+          return res.status(400).json({ message: 'Invalid IBAN format.' });
+        }
+        updates.iban = clean;
+      }
+
+      const freelancer = await Freelancer.findById(freelancerId);
+      if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
+
+      // PROFILE IMAGE
+      const newImg = req.files?.profileImage?.[0];
+      if (newImg) {
+        if (freelancer.profileImageUrl) {
+          const old = path.join(__dirname, '..', freelancer.profileImageUrl.replace(BASE_URL, '').replace(/^\//, ''));
+          if (fs.existsSync(old)) try { fs.unlinkSync(old); } catch {}
+        }
+        updates.profileImageUrl = `${BASE_URL}/uploads/${newImg.filename}`;
+      } else if (req.body.profileImageUrl === '') {
+        if (freelancer.profileImageUrl) {
+          const old = path.join(__dirname, '..', freelancer.profileImageUrl.replace(BASE_URL, '').replace(/^\//, ''));
+          if (fs.existsSync(old)) try { fs.unlinkSync(old); } catch {}
+        }
+        updates.profileImageUrl = '';
+      }
+
+      // CV FILE
+      const newCv = req.files?.cv?.[0];
+      if (newCv) {
+        const ok = [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ].includes(newCv.mimetype);
+        if (!ok) return res.status(400).json({ message: 'Only PDF, DOC, or DOCX allowed.' });
+
+        if (freelancer.cvUrl) {
+          const old = path.join(__dirname, '..', freelancer.cvUrl.replace(BASE_URL, '').replace(/^\//, ''));
+          if (fs.existsSync(old)) try { fs.unlinkSync(old); } catch {}
+        }
+        updates.cvUrl = `${BASE_URL}/uploads/${newCv.filename}`;
+      }
+      if (String(req.body.removeCv || '').toLowerCase() === 'true') {
+        if (freelancer.cvUrl) {
+          const old = path.join(__dirname, '..', freelancer.cvUrl.replace(BASE_URL, '').replace(/^\//, ''));
+          if (fs.existsSync(old)) try { fs.unlinkSync(old); } catch {}
+        }
+        updates.cvUrl = '';
+      }
+
+      if (updates.dateOfBirth) updates.dateOfBirth = new Date(updates.dateOfBirth);
+
+      // basic normalizations
+      if (typeof updates.email === 'string') updates.email = normEmail(updates.email);
+      if (typeof updates.phone === 'string') updates.phone = normPhone(updates.phone);
+      if (typeof updates.studentId === 'string') updates.studentId = normStr(updates.studentId);
+      if (typeof updates.cpr === 'string') updates.cpr = normStr(updates.cpr);
+
+      const updated = await Freelancer.findByIdAndUpdate(freelancerId, updates, { new: true, runValidators: true });
+      res.json(updated);
+    } catch (err) {
+      console.error('Error updating freelancer profile:', err);
+      res.status(500).json({ message: 'Server error', error: err.message || err });
+    }
+  }
+);
+
+/* ---------------------------- Auth / Security --------------------------- */
 router.put('/changepassword/:id', async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
+    const trimmedOldPassword = (oldPassword || '').trim();
+    const trimmedNewPassword = (newPassword || '').trim();
+
     const freelancer = await Freelancer.findById(req.params.id);
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    const isMatch = await bcrypt.compare(oldPassword, freelancer.password);
+    const isMatch = await bcrypt.compare(trimmedOldPassword, freelancer.password || '');
     if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect' });
 
-    freelancer.password = await bcrypt.hash(newPassword, 10);
+    freelancer.password = trimmedNewPassword;
     await freelancer.save();
 
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err });
+    console.error('Error changing password:', err);
+    res.status(500).json({ message: 'Server error', error: err.message || err });
   }
 });
 
-
-// Add a project
+/* ------------------------------- Projects ------------------------------ */
 router.post('/:id/add-project', uploadAnyFile.fields([
   { name: 'projectFiles', maxCount: 10 },
   { name: 'projectImage', maxCount: 1 }
@@ -318,11 +606,13 @@ router.post('/:id/add-project', uploadAnyFile.fields([
     const { projectTitle, projectStatus } = req.body;
     const freelancerId = req.params.id;
 
-    const projectFiles = req.files?.projectFiles?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
-    const projectImage = req.files?.projectImage?.[0] ? `${BASE_URL}/uploads/${req.files.projectImage[0].filename}` : '';
+    const projectFiles = req.files?.projectFiles?.map(f => `${BASE_URL}/uploads/${f.filename}`) || [];
+    const projectImage = req.files?.projectImage?.[0]
+      ? `${BASE_URL}/uploads/${req.files.projectImage[0].filename}`
+      : '';
 
     const newProject = { projectTitle, projectStatus, projectFiles, projectImage };
-    const freelancer = await Freelancer.findByIdAndUpdate(freelancerId, { $push: { projects: newProject } }, { new: true });
+    await Freelancer.findByIdAndUpdate(freelancerId, { $push: { projects: newProject } }, { new: true });
 
     res.json({ message: 'Project added successfully', project: newProject });
   } catch (err) {
@@ -331,7 +621,6 @@ router.post('/:id/add-project', uploadAnyFile.fields([
   }
 });
 
-// Get my projects
 router.get('/:id/my-projects', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.id).select('projects');
@@ -343,7 +632,6 @@ router.get('/:id/my-projects', async (req, res) => {
   }
 });
 
-// Update a project
 router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([
   { name: 'projectFiles', maxCount: 10 },
   { name: 'projectImage', maxCount: 1 }
@@ -352,9 +640,11 @@ router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([
     const { freelancerId, projectId } = req.params;
     const { projectTitle, projectStatus, existingFiles = [] } = req.body;
 
-    const newProjectFiles = req.files?.projectFiles?.map(file => `${BASE_URL}/uploads/${file.filename}`) || [];
+    const newProjectFiles = req.files?.projectFiles?.map(f => `${BASE_URL}/uploads/${f.filename}`) || [];
     const allFiles = [...(Array.isArray(existingFiles) ? existingFiles : [existingFiles]), ...newProjectFiles];
-    const projectImage = req.files?.projectImage?.[0] ? `${BASE_URL}/uploads/${req.files.projectImage[0].filename}` : undefined;
+    const projectImage = req.files?.projectImage?.[0]
+      ? `${BASE_URL}/uploads/${req.files.projectImage[0].filename}`
+      : undefined;
 
     const freelancer = await Freelancer.findById(freelancerId);
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
@@ -375,37 +665,35 @@ router.put('/:freelancerId/update-project/:projectId', uploadAnyFile.fields([
   }
 });
 
-// Apply to project
+/* ----------------------------- Applications ---------------------------- */
 router.put('/:id/apply-project', async (req, res) => {
   try {
     const { projectId } = req.body;
     const freelancer = await Freelancer.findById(req.params.id);
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    const alreadyApplied = freelancer.applications.find((a) => a.projectId.toString() === projectId);
+    const alreadyApplied = freelancer.applications.find(a => a.projectId.toString() === projectId);
     if (alreadyApplied) return res.status(400).json({ message: 'Already applied to this project' });
 
     freelancer.applications.push({ projectId });
     await freelancer.save();
 
+    await sendNotification({
+      userId: freelancer._id,
+      userType: 'freelancer',
+      email: freelancer.email, // decrypted because fetched (no lean)
+      subject: 'Project Application Submitted',
+      message: 'You have successfully applied to a project. Please wait for further updates.',
+      type: 'info'
+    });
 
-  await sendNotification({
-    userId: freelancer._id,
-    userType: "freelancer",
-    email: freelancer.email,
-    subject: "Project Application Submitted",
-    message: "You have successfully applied to a project. Please wait for further updates.",
-    type: "info"
-  });
-
-
+    res.json({ message: 'Application submitted.' });
   } catch (err) {
     console.error('Error applying to project:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// Get applications
 router.get('/:id/applications', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.id).populate('applications.projectId');
@@ -419,20 +707,16 @@ router.get('/:id/applications', async (req, res) => {
   }
 });
 
-// Save/Unsave project
+/* ------------------------------- Saved --------------------------------- */
 router.put('/:id/save-project', async (req, res) => {
   try {
     const { projectId } = req.body;
     const freelancer = await Freelancer.findById(req.params.id);
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    const projectIndex = freelancer.savedProjects.findIndex(id => id.toString() === projectId);
-
-    if (projectIndex > -1) {
-      freelancer.savedProjects.splice(projectIndex, 1);
-    } else {
-      freelancer.savedProjects.push(projectId);
-    }
+    const idx = freelancer.savedProjects.findIndex(id => id.toString() === projectId);
+    if (idx > -1) freelancer.savedProjects.splice(idx, 1);
+    else freelancer.savedProjects.push(projectId);
 
     await freelancer.save();
     res.json({ message: 'Saved projects updated successfully', savedProjects: freelancer.savedProjects });
@@ -442,12 +726,10 @@ router.put('/:id/save-project', async (req, res) => {
   }
 });
 
-// Get saved projects
 router.get('/:id/saved-projects', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.id).populate('savedProjects');
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
-
     res.json(freelancer.savedProjects);
   } catch (error) {
     console.error('Error fetching saved projects:', error);
@@ -455,42 +737,77 @@ router.get('/:id/saved-projects', async (req, res) => {
   }
 });
 
-// Add portfolio project
-router.post('/portfolio/:freelancerId', uploadImage.single('image'), async (req, res) => {
+router.post('/portfolio/:freelancerId', uploadImage.array('images', 10), async (req, res) => {
   try {
-    const { title, description, projectType } = req.body;
-    const freelancerId = req.params.freelancerId;
+    const freelancerId = String(req.params.freelancerId);
+    const { title, description, projectType, skills } = req.body;
 
-    if (!req.file) return res.status(400).json({ message: 'Image file is required.' });
+    if (!title || !description) {
+      return res.status(400).json({ message: 'Missing required fields (title, description).' });
+    }
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'At least one image file is required.' });
+    }
+
+    // accept new "skills" (preferred) and gracefully fall back to legacy "projectType"
+    const skillsArr = parseSkills(skills).length ? parseSkills(skills) : parseSkills(projectType);
+    if (skillsArr.length === 0) {
+      return res.status(400).json({ message: 'Please provide at least one skill/type.' });
+    }
+
+    const imageUrls = req.files.map((file) => `${BASE_URL}/uploads/${file.filename}`);
+
+    // collaborators (unchanged)
+    let collaboratorIds = [];
+    try {
+      collaboratorIds = JSON.parse(req.body.collaborators || '[]');
+      if (!Array.isArray(collaboratorIds)) collaboratorIds = [];
+    } catch { collaboratorIds = []; }
+
+    collaboratorIds = collaboratorIds
+      .map(String)
+      .filter(Boolean)
+      .filter((id, i, arr) => arr.indexOf(id) === i)
+      .filter((id) => id !== freelancerId);
+
+    let collaborators = [];
+    if (collaboratorIds.length) {
+      const found = await Freelancer.find({
+        _id: { $in: collaboratorIds },
+        isVerified: true
+      }).select('_id fullName email');
+      collaborators = found.map(c => ({ _id: c._id, fullName: c.fullName, email: c.email }));
+    }
 
     const newPortfolio = {
       title,
       description,
-      category: projectType,
-      imageUrl: `${BASE_URL}/uploads/${req.file.filename}`
+      skills: skillsArr,
+      // keep legacy "category" for older UIs (first skill as a fallback)
+      category: projectType || skillsArr[0],
+      imageUrls,
+      collaborators,
+      createdBy: freelancerId
     };
 
-    const freelancer = await Freelancer.findByIdAndUpdate(
+    const owner = await Freelancer.findByIdAndUpdate(
       freelancerId,
       { $push: { portfolio: newPortfolio } },
       { new: true }
     );
 
-    if (!freelancer) return res.status(404).json({ message: 'Freelancer not found.' });
-
-    res.status(201).json(newPortfolio);
+    if (!owner) return res.status(404).json({ message: 'Freelancer not found.' });
+    return res.status(201).json(newPortfolio);
   } catch (error) {
     console.error('Error adding portfolio project:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get freelancer's portfolio
 router.get('/portfolio/:freelancerId', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.freelancerId).select('portfolio');
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found.' });
-
     res.json(freelancer.portfolio);
   } catch (error) {
     console.error('Error fetching portfolio:', error);
@@ -498,7 +815,51 @@ router.get('/portfolio/:freelancerId', async (req, res) => {
   }
 });
 
-// PUT /api/freelancer/deactivate/:id
+router.delete('/portfolio/:portfolioId', async (req, res) => {
+  try {
+    const { portfolioId } = req.params;
+    const freelancer = await Freelancer.findOne({ 'portfolio._id': portfolioId });
+    if (!freelancer) return res.status(404).json({ message: 'Portfolio project not found.' });
+
+    freelancer.portfolio = freelancer.portfolio.filter(item => item._id.toString() !== portfolioId);
+    await freelancer.save();
+
+    res.status(200).json({ message: 'Portfolio project deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting portfolio project:', error);
+    res.status(500).json({ message: 'Failed to delete portfolio project.', error: error.message });
+  }
+});
+
+/* --------------------------- Search (plain filter) ---------------------- */
+router.get('/search', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim().toLowerCase();
+    const limit = Math.min(parseInt(req.query.limit || '50', 10), 200);
+
+    // avoid .lean() so plugin decrypts email/fullName
+    const raw = await Freelancer
+      .find({ isVerified: true, isActive: true })
+      .select('_id fullName email profileImageUrl rating expertise')
+      .limit(limit);
+
+    const people = q
+      ? raw
+          .map(d => d.toObject())
+          .filter(p =>
+            String(p.fullName || '').toLowerCase().includes(q) ||
+            String(p.email || '').toLowerCase().includes(q)
+          )
+      : raw.map(d => d.toObject());
+
+    res.json(people);
+  } catch (e) {
+    console.error('search error', e);
+    res.status(500).json({ message: 'Server error', error: e.message });
+  }
+});
+
+/* ------------------------------ Activate/Off ---------------------------- */
 router.put('/deactivate/:id', async (req, res) => {
   try {
     const freelancer = await Freelancer.findById(req.params.id);

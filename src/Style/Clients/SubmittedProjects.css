@@ -1,8 +1,8 @@
 /* src/Style/Clients/SubmittedProjects.css */
 
 .submitted-projects-page {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #E6E7E8;
+   font-family:var(--font-sans);
+  background-color: #e6f1f5;
   margin-left: 91px;
   margin-right: 91px;
   min-height: 100vh;

@@ -1,14 +1,13 @@
 import { toast } from 'react-toastify';
 
 const defaultOptions = {
-  position: 'top-right',
-  autoClose: 4000,
+  position: 'bottom-right',
+  autoClose: 2000, 
   pauseOnHover: true,
   closeOnClick: true,
   draggable: true,
   theme: 'light',
 };
-
 
 export const showSuccess = (message) => {
   toast.success(message, defaultOptions);
@@ -25,10 +24,11 @@ export const showInfo = (message) => {
 export const showWarning = (message) => {
   toast.warn(message, defaultOptions);
 };
+
 export const showAlert = (message) => {
   toast(message, {
-    position: 'top-right',
-    autoClose: false, // stays until manually closed
+    position: 'bottom-right',
+    autoClose: 3000,  
     closeOnClick: true,
     draggable: true,
     theme: 'light',
@@ -36,7 +36,7 @@ export const showAlert = (message) => {
     style: {
       background: '#fff',
       color: '#000',
-      borderLeft: '6px solid orange',
+      borderLeft: '5px solid #6dbbc7ff',
       fontWeight: 'bold'
     }
   });

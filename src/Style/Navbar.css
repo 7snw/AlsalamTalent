@@ -1,48 +1,91 @@
 /* === Layout === */
 .navbar {
   position: fixed;
-  font-family: 'TT Hoves', sans-serif;
+  font-family:var(--font-sans);
   top: 0;
   left: 0;
-  right: 0;
+  right: -40px;
   z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 4%;
-  background-color: #E6E7E8;
+  padding: 20px 7.5% ;
+  background-color: #e6f1f5;
   pointer-events: auto;
-
 }
-
 
 .logo-image {
-  margin-left:70px;
-  margin-right: -10px;
-   margin-top:1px;
-  height: 35px;
-  width:95px;
+  margin-left: 13px;
+ margin-right: 0px;
+
+  margin-top: 1px;
+  height: 50px;
+  width: 95px;
 }
 
-
-
+/* === Links === */
 .nav-links {
   display: flex;
   list-style: none;
   gap: 40px;
+   margin-left: 20px;
+
   font-size: 16px;
   color: #1B223C;
   margin-right: 30px;
   padding: 0;
 }
 
-.nav-links li {
+.nav-item {
   position: relative;
-  cursor: pointer;
 }
 
-.nav-links li:hover {
+/* Interactive elements (anchors & button trigger) */
+.nav-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+/* Hover state (temporary) */
+.nav-link:hover {
   color: #f1633a;
+}
+
+/* PERSISTENT active state via NavLink */
+.nav-link.active,
+.nav-link[aria-current="page"] {
+  color: #f1633a;
+}
+
+/* If any dropdown child is active, we mark parent li.active */
+.nav-item.active > .nav-link {
+  color: #f1633a;
+}
+
+/* Optional underline/indicator for active top-level links */
+.nav-link.active::after,
+.nav-item.active > .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: #f1633a;
+}
+
+/* Accessible focus */
+.nav-link:focus-visible,
+.dropdown-item:focus-visible {
+  outline: 2px solid #f1633a;
+  outline-offset: 2px;
 }
 
 .nav-left {
@@ -57,39 +100,42 @@
   gap: 25px;
 }
 
+/* === Icons === */
 .nav-icons {
   background-color: transparent;
   display: flex;
-  gap: 20px;
+  gap: 15px;
   align-items: center;
-   margin-right: 70px;
+  margin-right: 70px;
 }
 
 .nav-icon {
   background-color: transparent;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   cursor: pointer;
   transition: transform 0.2s ease;
   border-radius: 20px;
 }
 
-.nav-icon:hover {
-  transform: scale(1.1);
-}
+.nav-icon:hover { transform: scale(1.1); }
 
+/* === Sign in button === */
 .sign-in-btn2 {
-  background-color: #1B223C;
+  background-color: #f1633a;
   color: #fff;
   padding: 10px 22px;
   border: none;
-  border-radius: 18px;
+  border-radius: 20px;
   cursor: pointer;
   margin-right: 70px;
 }
 
+.sign-in-btn2:hover { background-color: #6fa7b8; }
+.primary-btn:hover { background: #6fa7b8 }
+
 /* === Dropdown Menu === */
-.nav-links li .dropdown {
+.nav-item.has-dropdown .dropdown {
   display: none;
   position: absolute;
   top: 100%;
@@ -99,31 +145,45 @@
   margin-top: 2px;
   width: 170px;
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
   z-index: 10;
 }
 
-.nav-links li:hover .dropdown,
-.nav-links li .dropdown:hover {
+/* Keep open when toggled via state */
+.nav-item.open .dropdown,
+.nav-item .dropdown:hover {
   display: block;
 }
 
-.dropdown li {
-  list-style: none;
+.dropdown li { list-style: none; }
+
+/* Turn dropdown items into anchors for NavLink */
+.dropdown-item {
+  display: block;
   padding: 8px 14px;
   color: #fafafa;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color .2s, color .2s;
 }
 
-.dropdown li:hover {
+/* Hover */
+.dropdown-item:hover {
   background-color: #2a3152;
-  color: #f1633a;
+  color: #78aebd;
   cursor: pointer;
 }
 
-/* === User Dropdown === */
-.user-dropdown-wrapper {
-  position: relative;
+/* Active dropdown link (persistent) */
+.dropdown-item.active,
+.dropdown-item[aria-current="page"] {
+  color: #f1633a;
+  background-color: #2a3152;
 }
+
+/* === User Dropdown === */
+.user-dropdown-wrapper { position: relative; }
 
 .user-dropdown {
   margin-top: 1px;
@@ -133,7 +193,7 @@
   right: 0;
   background: #1d2543;
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
   z-index: 20;
   min-width: 130px;
   list-style: none;
@@ -141,9 +201,7 @@
   color: #fafafa;
 }
 
-.user-dropdown-wrapper:hover .user-dropdown {
-  display: block;
-}
+.user-dropdown-wrapper:hover .user-dropdown { display: block; }
 
 .user-dropdown .dropdown-item {
   padding: 10px 16px;

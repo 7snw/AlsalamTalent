@@ -7,31 +7,37 @@ import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { FaTrash, FaPaperPlane } from "react-icons/fa";
-import { FiPaperclip } from "react-icons/fi";
-import { showAlert } from '../utils/toastMessages';
+import { FiPaperclip} from "react-icons/fi";
+import userIcon from "../Assets/ProfileImage.png";
+import { showAlert } from "../utils/toastMessages";
 import ConfirmationModal from "../Components/ConfirmationModal";
 
-// Initialize socket connection
 const socket = io("http://localhost:5000");
 
 const Messages = () => {
   const location = useLocation();
-  const [user, setUser] = useState(null); // Logged-in user
-  const [contacts, setContacts] = useState([]); // Recent chat list
-  const [allUsers, setAllUsers] = useState([]); // All users (for new chat)
-  const [recipient, setRecipient] = useState(null); // Selected user to chat with
-  const [messages, setMessages] = useState([]); // Chat messages
-  const [messageInput, setMessageInput] = useState(""); // New message input
-  const [showAll, setShowAll] = useState(false); // Show all users view
-  const [searchContact, setSearchContact] = useState(""); // Search input for new chat
-  const [confirmDelete, setConfirmDelete] = useState(null); // Contact to confirm deletion
-  const messagesEndRef = useRef(null); // Scroll to bottom of messages
-  const fileInputRef = useRef(null); // Ref for hidden file input
 
-  // Capitalize role strings
-  const capitalize = (str) => str?.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const [user, setUser] = useState(null);
+  const [contacts, setContacts] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [recipient, setRecipient] = useState(null);
 
-  // Load user and initial recent chat list
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
+
+  const [showAll, setShowAll] = useState(false);
+  const [searchContact, setSearchContact] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const [preview, setPreview] = useState({ open: false, url: "", name: "" });
+
+  const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const capitalize = (str) =>
+    str?.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+  /* -------- Load user, recent chats -------- */
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (!stored) return;
@@ -40,15 +46,18 @@ const Messages = () => {
 
     if (location.state?.userToChat) setRecipient(location.state.userToChat);
 
-    // Fetch latest chat previews
-    axios.get(`http://localhost:5000/api/messages/latest/${parsed._id}`)
+    axios
+      .get(`http://localhost:5000/api/messages/latest/${parsed._id}`)
       .then((res) => {
-        const recent = res.data.map((msg) => {
+        const recent = (res.data || []).map((msg) => {
           const isSender = msg.senderId === parsed._id;
           return {
             _id: isSender ? msg.receiverId : msg.senderId,
             fullName: isSender ? msg.receiverName : msg.senderName,
             role: isSender ? msg.receiverRole : msg.senderRole,
+            profileImageUrl: isSender
+              ? msg.receiverProfileImage
+              : msg.senderProfileImage,
             preview: msg.content,
             timestamp: msg.timestamp,
           };
@@ -62,18 +71,19 @@ const Messages = () => {
       .catch((err) => console.error("Failed to load recent chats", err));
   }, [location.state]);
 
-  // Join socket room and load message history
+  /* -------- Load messages for active conversation -------- */
   useEffect(() => {
     if (!user || !recipient) return;
     const roomId = [user._id, recipient._id].sort().join("-");
     socket.emit("joinRoom", roomId);
 
-    axios.get(`http://localhost:5000/api/messages/${roomId}`)
-      .then((res) => setMessages(res.data))
+    axios
+      .get(`http://localhost:5000/api/messages/${roomId}`)
+      .then((res) => setMessages(res.data || []))
       .catch((err) => console.error("Failed to load messages:", err));
   }, [user, recipient]);
 
-  // Receive new messages in real-time
+  /* -------- Realtime receive -------- */
   useEffect(() => {
     const handleReceive = (msg) => {
       setMessages((prev) => {
@@ -91,14 +101,23 @@ const Messages = () => {
     return () => socket.off("receiveMessage", handleReceive);
   }, []);
 
-  // Auto-scroll chat to latest message
+  /* -------- Auto scroll -------- */
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
-  // Send message via socket
+  /* -------- Send text message -------- */
   const sendMessage = () => {
     if (!messageInput.trim() || !user || !recipient) return;
+
+    if (
+      user.role.toLowerCase() === "freelancer" &&
+      recipient.role?.toLowerCase() === "admin"
+    ) {
+      showAlert("Freelancers cannot send messages to the platform admin.");
+      return;
+    }
+
     const roomId = [user._id, recipient._id].sort().join("-");
     const timestamp = new Date().toISOString();
 
@@ -116,34 +135,47 @@ const Messages = () => {
     };
 
     socket.emit("sendMessage", msgData);
+
     setContacts((prev) => {
       const updated = {
         _id: recipient._id,
         fullName: recipient.fullName,
         role: recipient.role,
+        profileImageUrl: recipient.profileImageUrl,
         preview: msgData.content,
         timestamp,
       };
       const others = prev.filter((c) => c._id !== recipient._id);
       return [updated, ...others];
     });
+
     setMessageInput("");
   };
 
-  // Handle file uploads and emit as message
+  /* -------- Upload & send attachments -------- */
   const handleAttachmentUpload = async (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     if (!files.length || !user || !recipient) return;
+
+    if (
+      user.role.toLowerCase() === "freelancer" &&
+      recipient.role?.toLowerCase() === "admin"
+    ) {
+      showAlert("Freelancers cannot send messages to the platform admin.");
+      return;
+    }
 
     const formData = new FormData();
     files.forEach((file) => formData.append("attachments", file));
 
     try {
-      const res = await axios.post("http://localhost:5000/api/upload-message-files", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/upload-message-files",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-      const uploaded = res.data.files;
+      const uploaded = res.data.files || [];
       const roomId = [user._id, recipient._id].sort().join("-");
       const timestamp = new Date().toISOString();
 
@@ -161,17 +193,24 @@ const Messages = () => {
       };
 
       socket.emit("sendMessage", msgData);
+      // Clear file input so same file can be re-selected if desired
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {
       console.error("Attachment upload failed:", err);
       showAlert("Failed to upload file.");
     }
   };
 
-  // Load all users for starting a new chat
+  /* -------- New chat flow -------- */
   const handleNewChat = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/users/all");
-      const others = res.data.filter((u) => u._id !== user._id);
+      let others = (res.data || []).filter((u) => u._id !== user._id);
+
+      if (user.role.toLowerCase() === "freelancer") {
+        others = others.filter((u) => u.role.toLowerCase() !== "admin");
+      }
+
       setAllUsers(others);
       setShowAll(true);
     } catch (err) {
@@ -179,7 +218,6 @@ const Messages = () => {
     }
   };
 
-  // Confirm delete chat
   const handleConfirmDelete = async () => {
     const c = confirmDelete;
     if (!c || !user) return;
@@ -199,25 +237,34 @@ const Messages = () => {
     }
   };
 
-  // Return correct navbar config based on user role
+  /* -------- Navbar config -------- */
   const getNavbar = () => {
     if (!user || !user.role) return [];
     switch (user.role.toLowerCase()) {
-      case "admin": return NavConfig4;
-      case "client": return NavConfig3;
-      case "freelancer": return NavConfig2;
-      default: return [];
+      case "admin":
+        return NavConfig4;
+      case "client":
+        return NavConfig3;
+      case "freelancer":
+        return NavConfig2;
+      default:
+        return [];
     }
   };
 
   return (
     <div className="messages-page">
       <Navbar links={getNavbar()} />
-      <div className="title"><p>Messages</p></div>
+
+      <div className="title">
+        <p>Messages</p>
+      </div>
+
       <div className="messages-container2">
-        {/* Sidebar showing contacts or users for new chat */}
+        {/* Sidebar */}
         <aside className="chat-sidebar">
           <h3>{showAll ? "Start New Chat" : "Chats"}</h3>
+
           {showAll ? (
             <>
               <input
@@ -228,16 +275,49 @@ const Messages = () => {
                 className="contact-search"
               />
               <ul>
-                {allUsers.filter((u) =>
-                  (u.fullName || u.email).toLowerCase().includes(searchContact.toLowerCase())
-                ).map((u) => (
-                  <li key={u._id} onClick={() => {
-                    setRecipient(u);
-                    setShowAll(false);
-                  }}>
-                    {u.fullName || u.email}
-                  </li>
-                ))}
+                {allUsers
+                  .filter((u) =>
+                    (u.fullName || u.email || "")
+                      .toLowerCase()
+                      .includes(searchContact.toLowerCase())
+                  )
+                  .map((u) => (
+                    <li
+                      key={u._id}
+                      className="new-chat-item1"
+                      onClick={async () => {
+                        try {
+                          const res = await axios.get(
+                            `http://localhost:5000/api/users/${u._id}`
+                          );
+                          const fullUser = res.data;
+                          setRecipient({
+                            _id: fullUser._id,
+                            fullName: fullUser.fullName,
+                            email: fullUser.email,
+                            role: fullUser.role,
+                            profileImageUrl: fullUser.profileImageUrl,
+                          });
+                          setShowAll(false);
+                        } catch (err) {
+                          console.error("Failed to fetch user profile:", err);
+                        }
+                      }}
+                    >
+                      <img
+                        src={
+                          u.profileImageUrl
+                            ? u.profileImageUrl.startsWith("http")
+                              ? u.profileImageUrl
+                              : `http://localhost:5000${u.profileImageUrl}`
+                            : userIcon
+                        }
+                        alt="Profile"
+                        className="new-chat-user-img1"
+                      />
+                      <span>{u.fullName || u.email}</span>
+                    </li>
+                  ))}
               </ul>
             </>
           ) : (
@@ -246,68 +326,139 @@ const Messages = () => {
                 {contacts.map((c, i) => (
                   <li key={i} className="chat-item">
                     <div className="chat-info" onClick={() => setRecipient(c)}>
-                      <div className="chat-name">{c.fullName || c.email}</div>
-                      <div className="last-msg">{c.preview?.slice(0, 25)}...</div>
+                      <img
+                        src={
+                          c.profileImageUrl
+                            ? c.profileImageUrl.startsWith("http")
+                              ? c.profileImageUrl
+                              : `http://localhost:5000${c.profileImageUrl}`
+                            : userIcon
+                        }
+                        alt="Profile"
+                        className="chat-contact-img"
+                      />
+                      <div className="chat-texts">
+                        <div className="chat-name">{c.fullName || c.email}</div>
+                        <div className="last-msg">
+                          {(c.preview || "").slice(0, 25)}
+                          {(c.preview || "").length > 25 ? "…" : ""}
+                        </div>
+                      </div>
                     </div>
+
                     <button
                       className="delete-chat-btn"
                       onClick={(e) => {
                         e.stopPropagation();
                         setConfirmDelete(c);
                       }}
+                      title="Delete chat"
                     >
                       <FaTrash />
                     </button>
                   </li>
                 ))}
               </ul>
-              <button className="new-chat-btn" onClick={handleNewChat}>New chat</button>
+
+              <button className="new-chat-btn" onClick={handleNewChat}>
+                New chat
+              </button>
             </>
           )}
         </aside>
 
-        {/* Main chat window */}
+        {/* Chat window */}
         <div className="chat-window3">
           <div className="chat-header">
-            {recipient ? `Chat with ${recipient.fullName || recipient.email}` : "Select a contact to start chatting"}
+            {recipient ? (
+              <div className="chat-header-content">
+                {recipient.profileImageUrl && (
+                  <img
+                    src={
+                      recipient.profileImageUrl.startsWith("http")
+                        ? recipient.profileImageUrl
+                        : `http://localhost:5000${recipient.profileImageUrl}`
+                    }
+                    alt="Profile"
+                    className="recipient-profile-img"
+                  />
+                )}
+                <span>{recipient.fullName || recipient.email}</span>
+              </div>
+            ) : (
+              "Select a contact to start chatting"
+            )}
           </div>
 
           <div className="chat-messages3">
-            {messages.map((msg, i) => (
-              <div key={i} className={`message-wrapper ${msg.senderId === user._id ? "msg-right3" : "msg-left3"}`}>
-                {msg.content && msg.content !== "[Attachment]" && <p>{msg.content}</p>}
-                {msg.attachments?.length > 0 && (
-                  <div className="attachment-list">
-                    {msg.attachments.map((file, j) => (
-                      <div key={j} className="attachment-item">
-                        {/* Show image if file is image, otherwise show link */}
-                        {/\.(jpg|jpeg|png|gif|webp)$/i.test(file.url) ? (
-                          <img
-                            src={`http://localhost:5000${file.url}`}
-                            alt={file.name}
-                            className="chat-attachment-image"
-                          />
-                        ) : (
-                          <a
-                            href={`http://localhost:5000${file.url}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="chat-attachment-link"
-                          >
-                            <FiPaperclip className="paperclip-icon" />
-                            {file.name}
-                          </a>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+            {messages.map((msg, i) => {
+              const mine = user && msg.senderId === user._id;
+              const hasText = msg.content && msg.content !== "[Attachment]";
+              const attachments = msg.attachments || [];
+
+              return (
+                <div
+                  key={i}
+                  className={`message-group ${mine ? "rightt" : "leftt"}`}
+                >
+                  {hasText && (
+                    <div className={`bubble ${mine ? "rightt" : "leftt"}`}>
+                      <p>{msg.content}</p>
+                    </div>
+                  )}
+
+                  {!!attachments.length && (
+                    <div className="attach-row">
+                      {attachments.map((file, j) => {
+                        const url = file.url?.startsWith("http")
+                          ? file.url
+                          : `http://localhost:5000${file.url}`;
+                        const isImg = /\.(jpg|jpeg|png|gif|webp|avif)$/i.test(
+                          file.url || ""
+                        );
+
+                        return (
+                          <div key={j} className="attachment-item">
+                            {isImg ? (
+                              <img
+                                src={url}
+                                alt={file.name}
+                                className="chat-attachment-image"
+                                onClick={() =>
+                                  setPreview({
+                                    open: true,
+                                    url,
+                                    name: file.name || "image",
+                                  })
+                                }
+                                title="Click to view"
+                              />
+                            ) : (
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="chat-attachment-link"
+                                download={file.name || true}
+                                title="Open / Download"
+                              >
+                                <FiPaperclip className="paperclip-icon" />
+                                {file.name || "File"}
+                              </a>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Hidden file input for attachments */}
+          {/* Hidden file input */}
           <input
             type="file"
             multiple
@@ -316,12 +467,17 @@ const Messages = () => {
             style={{ display: "none" }}
           />
 
-          {/* Message input area */}
+          {/* Input row */}
           {recipient && (
-            <div className="chat-input">
-              <button className="plus-btn" onClick={() => fileInputRef.current?.click()}>
+            <div className="chat-input2">
+              <button
+                className="plus-btn"
+                onClick={() => fileInputRef.current?.click()}
+                title="Attach files"
+              >
                 <FiPaperclip />
               </button>
+
               <input
                 type="text"
                 placeholder="Type a message..."
@@ -329,7 +485,8 @@ const Messages = () => {
                 onChange={(e) => setMessageInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               />
-              <button className="send-btn" onClick={sendMessage}>
+
+              <button className="send-btn" onClick={sendMessage} title="Send">
                 <FaPaperPlane />
               </button>
             </div>
@@ -337,13 +494,35 @@ const Messages = () => {
         </div>
       </div>
 
-      {/* Confirm delete modal */}
+      {/* Delete confirmation */}
       {confirmDelete && (
         <ConfirmationModal
           message={`Are you sure you want to delete your chat with ${confirmDelete.fullName}?`}
           onConfirm={handleConfirmDelete}
           onCancel={() => setConfirmDelete(null)}
         />
+      )}
+
+      {/* Image preview modal */}
+      {preview.open && (
+        <div
+          className="img-modal"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setPreview({ open: false, url: "", name: "" })}
+        >
+          <div
+            className="img-modal-box"
+            onClick={(e) => e.stopPropagation()}
+            role="document"
+          >
+         
+
+            <img src={preview.url} alt={preview.name} className="img-modal-img" />
+
+          
+          </div>
+        </div>
       )}
 
       <Footer />
