@@ -9,7 +9,6 @@ import { NavConfig4 } from "../../Data/NavbarConfigs";
 import WavyBackground from "../../Components/WavyBackground";
 import SearchIcon from "../../Assets/search.png";
 
-// ⬅️ Reuse the freelancer AllProjects styles for identical look
 import "../../Style/Freelancer/AllProjects.css";
 import "../../Style/Navbar.css";
 import "../../Style/PageContents.css";

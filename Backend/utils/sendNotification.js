@@ -13,7 +13,7 @@ async function resolveUser(userId, role) {
       default:           return null;
     }
   } catch (error) {
-    console.error("❌ resolveUser failed:", error?.message || error);
+    console.error(" resolveUser failed:", error?.message || error);
     return null;
   }
 }

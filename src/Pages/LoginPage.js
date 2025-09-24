@@ -8,7 +8,6 @@ import LandingPage from "./LandingPage";
 import SignInArt from "../Assets/LoginPhoto.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-// ✅ Works in CRA/Webpack or Node envs (no import.meta)
 const API_BASE =
   (typeof process !== "undefined" &&
     process.env &&
@@ -163,7 +162,7 @@ case "freelancer": {
     } else if (typeof norm.profileCompleted === "boolean") {
       needsAttention = !norm.profileCompleted;
     } else {
-      // ✅ If we can't verify, assume *not complete* for brand-new users
+    
       needsAttention = true;
     }
 

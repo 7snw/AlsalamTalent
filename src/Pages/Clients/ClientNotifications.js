@@ -54,7 +54,7 @@ const ClientNotifications = () => {
       .get(`http://localhost:5000/api/notifications/${userId}/client`)
       .then((res) => setNotifications(res.data || []))
       .catch((err) => {
-        console.error("❌ Error fetching client notifications:", err);
+        console.error("Error fetching client notifications:", err);
       })
       .finally(() => setLoading(false));
   }, []);

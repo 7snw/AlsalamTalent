@@ -206,7 +206,7 @@ const BrowseProjects = () => {
                       loading="lazy"
                     />
 
-                    {/* ✅ Skills marquee overlay (continuous loop) */}
+                  
                     {!!tags.length && (
                       <div className="ap-tags-marquee" aria-hidden>
                         <div className="ap-track" style={{ "--ap-speed": "6s" }}>

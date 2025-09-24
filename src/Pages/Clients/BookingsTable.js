@@ -34,7 +34,7 @@ export default function BookingsTable() {
     fetchData();
   }, [fetchData]);
 
-  // 🔔 live updates via Socket.IO
+ 
   useEffect(() => {
     const socket = socketIO(API_BASE, { transports: ["websocket"] });
 
@@ -56,7 +56,7 @@ export default function BookingsTable() {
     });
 
     return () => socket.disconnect();
-  }, [q, spaceType, dateISO]); // ✅ removed API_BASE from deps
+  }, [q, spaceType, dateISO]);
 
   return (
     <div className="bklist-wrap">

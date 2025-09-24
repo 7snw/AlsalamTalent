@@ -103,7 +103,7 @@ if (!user) {
    if (user) role = 'client';
  }
 
-    // Freelancer (🔐 encrypted email: look up by hash and avoid .lean() so fields decrypt)
+    // Freelancer ( encrypted email: look up by hash and avoid .lean() so fields decrypt)
     if (!user) {
       user = await FreelancerModel
         .findOne({ emailHash: lookupHash(email) })

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";                 // ⬅️ NEW
+import { motion } from "framer-motion";               
 import "../Style/AboutUs.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";

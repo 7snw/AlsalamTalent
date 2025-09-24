@@ -67,7 +67,7 @@ router.post('/record', async (req, res) => {
     const flName  = (freelancerName || fl?.fullName || '').trim();
     const flEmail = (fl?.email || '').trim();
 
-    // ✅ fetch client (name/email) to email invoice details
+    //  fetch client (name/email) to email invoice details
     const cl = await Client.findById(clientId).select('fullName name email companyName');
     const clName  = (cl?.fullName || cl?.name || cl?.companyName || '').trim();
     const clEmail = (cl?.email || '').trim();
@@ -139,7 +139,7 @@ router.post('/record', async (req, res) => {
       }
     }
 
-    // ✅ Email client: Invoice details (subject, amount, IBAN, method)
+    // Email client: Invoice details (subject, amount, IBAN, method)
     if (clEmail) {
       try {
         const html = invoiceForClient({
@@ -261,7 +261,7 @@ router.get('/by-client/:clientId', async (req, res) => {
       }
     }
 
-    // 🔎 optional text search by freelancerName or paymentId (and projectTitle for convenience)
+    // optional text search by freelancerName or paymentId (and projectTitle for convenience)
     if (q && String(q).trim()) {
       const needle = String(q).trim();
       query.$or = [

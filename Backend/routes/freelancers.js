@@ -13,7 +13,7 @@ const bcrypt        = require('bcryptjs');
 
 const { sendNotification } = require('../utils/sendNotification');
 const sendEmail = require('../utils/sendEmail');
-const { lookupHash } = require('../utils/cryptoVault'); // 🔐 for deterministic lookups
+const { lookupHash } = require('../utils/cryptoVault'); 
 
 const parseSkills = (raw) => {
   if (!raw) return [];
@@ -153,7 +153,7 @@ router.post('/register', uploadCv.single('cv'), async (req, res) => {
     email     = normEmail(email);
     studentId = normStr(studentId);
 
-    // 🔐 de-dupe using deterministic hashes (email) or plain studentId
+    //  de-dupe using deterministic hashes (email) or plain studentId
     const dup = await Freelancer.findOne({
       $or: [
         email ? { emailHash: lookupHash(email) } : null,
@@ -195,18 +195,6 @@ router.post('/register', uploadCv.single('cv'), async (req, res) => {
 });
 
 /* ------------------------------ Admin Lists ----------------------------- */
-router.get('/pending', async (_req, res) => {
-  try {
-    // NOTE: avoid .lean() so plugin can decrypt
-    const pendingFreelancers = await Freelancer
-      .find({ isVerified: false })
-      .select('fullName userType email studentId cvUrl');
-    res.json(pendingFreelancers);
-  } catch (err) {
-    console.error('Error fetching freelancers:', err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
 
 // verified list
 router.get('/list', async (_req, res) => {
@@ -222,81 +210,13 @@ router.get('/list', async (_req, res) => {
 
 /* ------------------------- ADMIN: unified list (pending + verified) ------------------------- */
 // GET /api/freelancer/admin/all?q=...&limit=...
-router.get('/admin/all', async (req, res) => {
-  try {
-    const q = String(req.query.q || '').trim().toLowerCase();
-    const limit = Math.min(parseInt(req.query.limit || '500', 10), 1000);
-
-    // fetch both (keep PendingSignup lean; it isn't encrypted)
-    const [pending, verifiedDocs] = await Promise.all([
-      PendingSignup.find({})
-        .select('kind data createdAt')
-        .sort({ createdAt: -1 })
-        .lean(),
-      Freelancer.find({})
-        .select('_id studentId fullName email major phone expertise iban cvUrl isVerified isActive createdAt')
-        .sort({ createdAt: -1 })
-    ]);
-
-    // map “pending” payloads to the same shape
-    const mapPending = pending.map(p => {
-      const d = p.data || {};
-      return {
-        _id: p._id,
-        studentId: String(d.studentId || ''),
-        fullName : String(d.fullName  || ''),
-        email    : String(d.email     || ''),
-        major    : String(d.major     || ''),
-        phone    : String(d.phone     || ''),
-        expertise: Array.isArray(d.expertise) ? d.expertise : [],
-        iban     : String(d.iban || ''),
-        cvUrl    : String(d.cvUrl || ''),
-        status   : 'Pending',
-        isVerified: false,
-        isActive : false,
-        createdAt: p.createdAt
-      };
-    });
-
-    // convert verified docs to plain objects (decrypted by plugin)
-    const mapVerified = verifiedDocs.map(v => {
-      const o = v.toObject();
-      return {
-        _id: o._id,
-        studentId: String(o.studentId || ''),
-        fullName : String(o.fullName  || ''),
-        email    : String(o.email     || ''),
-        major    : String(o.major     || ''),
-        phone    : String(o.phone     || ''),
-        expertise: Array.isArray(o.expertise) ? o.expertise : [],
-        iban     : String(o.iban || ''),
-        cvUrl    : String(o.cvUrl || ''),
-        status   : o.isVerified ? (o.isActive ? 'Verified' : 'Disabled') : 'Unverified',
-        isVerified: !!o.isVerified,
-        isActive : !!o.isActive,
-        createdAt: o.createdAt
-      };
-    });
-
-    let items = [...mapPending, ...mapVerified];
-
-    // optional server-side filter by name or studentId (and email for convenience)
-    if (q) {
-      items = items.filter(it =>
-        it.fullName.toLowerCase().includes(q) ||
-        it.studentId.toLowerCase().includes(q) ||
-        it.email.toLowerCase().includes(q)
-      );
-    }
-
-    // cap length
-    if (items.length > limit) items = items.slice(0, limit);
-
-    res.json({ items, total: items.length });
-  } catch (err) {
-    console.error('admin/all error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message || err });
-  }
+router.get('/admin/all', async (_req, res) => {
+  const verifiedDocs = await Freelancer
+    .find({ isVerified: true })
+    .select('_id studentId fullName email major phone expertise iban cvUrl isVerified isActive createdAt')
+    .sort({ createdAt: -1 });
+  const items = verifiedDocs.map(v => v.toObject());
+  res.json({ items, total: items.length });
 });
 
 
@@ -314,7 +234,7 @@ router.post('/student-register', uploadCv.single('cv'), async (req, res) => {
       iban = clean;
     }
 
-    // 🔐 de-dupe using hash
+    //  de-dupe using hash
     const dup = await Freelancer.findOne({
       $or: [
         email ? { emailHash: lookupHash(email) } : null,
@@ -363,7 +283,7 @@ router.post('/graduate-register', uploadCv.single('cv'), async (req, res) => {
       return res.status(400).json({ message: 'Graduate details could not be verified. Please check your Student ID, Name, and CPR.' });
     }
 
-    // 🔐 de-dupe using hash
+    //  de-dupe using hash
     const dup = await Freelancer.findOne({
       $or: [
         email ? { emailHash: lookupHash(email) } : null,
@@ -410,7 +330,7 @@ router.post('/verify-otp', async (req, res) => {
 
     const payload = pending.data;
 
-    // 🔐 de-dup on hash/plain
+    // de-dup on hash/plain
     const already = await Freelancer.findOne({
       $or: [
         payload.email ? { emailHash: lookupHash(normEmail(payload.email)) } : null,
@@ -423,15 +343,16 @@ router.post('/verify-otp', async (req, res) => {
       return res.json({ message: 'Account already verified. You can sign in now.' });
     }
 
-    const freelancer = await Freelancer.create({
+       const freelancer = new Freelancer({
       ...payload,
       email: normEmail(payload.email),
       studentId: normStr(payload.studentId),
-      phone: normPhone(payload.phone),
+     phone: normPhone(payload.phone),
       cpr: normStr(payload.cpr || ''),
       isVerified: true,
       emailVerified: true
     });
+   await freelancer.save(); 
 
     const dashboardLink = `${FRONTEND_URL}/freelancer-dashboard`;
     const welcomeHtml = pending.kind === 'Graduate'

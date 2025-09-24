@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const bcrypt   = require('bcryptjs');
 
-// 🔐 field-encryption plugin
+//  field-encryption plugin
 const fieldEncryption = require('../utils/mongooseFieldEncryption');
 
 /* ------------------------------------------------------------------ */
@@ -65,7 +65,7 @@ const freelancerSchema = new mongoose.Schema(
     // These will be ENCRYPTED at rest; keep non-unique on plaintext columns
     fullName: { type: String, trim: true },
 
-    // 👇 added: major (kept plain)
+    // added: major (kept plain)
     major: { type: String, trim: true },
 
     // IMPORTANT: do NOT put `lowercase: true` on encrypted fields
@@ -150,7 +150,7 @@ freelancerSchema.pre('save', async function(next) {
 });
 
 /* ------------------------------------------------------------------ */
-/* 🔐 Field-level encryption + deterministic lookup hashes             */
+/* Field-level encryption + deterministic lookup hashes             */
 /* ------------------------------------------------------------------ */
 
 freelancerSchema.plugin(fieldEncryption, {

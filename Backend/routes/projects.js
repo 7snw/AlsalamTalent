@@ -186,7 +186,7 @@ router.get('/all', async (req, res) => {
       filter.projectType = typeRaw;
     }
 
-    // 🔒 Hide completed projects for freelancers only
+    //  Hide completed projects for freelancers only
     if (audience === 'freelancer') {
       filter.status = { $ne: 'Completed' };
     }

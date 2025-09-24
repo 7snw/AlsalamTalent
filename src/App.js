@@ -10,9 +10,7 @@ import SignUpPage from "./Pages/SignUpPage";
 import GraduateSignUp from "./Pages/GraduateSignUp";
 import LoginPage from "./Pages/LoginPage";
 import AboutUs from "./Pages/AboutUs";
-// src/App.js (or routes file)
 
-// ...
 
 // Shared Pages
 import Messages from "./Pages/Messages";

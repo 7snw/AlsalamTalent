@@ -89,7 +89,7 @@ if (brevoApi) {
     return null;
   }).filter(Boolean);
 
-  // ✅ Build SendSmtpEmail by assigning fields explicitly
+  // Build SendSmtpEmail by assigning fields explicitly
   const payload = new SibApiV3Sdk.SendSmtpEmail();
   payload.sender      = { email: fromEmail, name: fromName };
   payload.to          = normalizeList(to) || [];

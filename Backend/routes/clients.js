@@ -5,7 +5,7 @@ const bcrypt  = require('bcryptjs');
 
 const Client  = require('../models/Client');
 const logAction = require('../utils/logAction');
-const { lookupHash } = require('../utils/cryptoVault'); // 🔐 same as freelancers
+const { lookupHash } = require('../utils/cryptoVault');
 const sendEmail = require('../utils/sendEmail');
 const { verificationCode } = require('../utils/emailTemplates');
 

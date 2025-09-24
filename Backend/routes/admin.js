@@ -5,9 +5,9 @@ const Client = require('../models/Client');
 const Freelancer = require('../models/Freelancer');
 const bcrypt = require('bcryptjs');
 
-const { sendNotification } = require('../utils/sendNotification');     // ✅
-const { accountVerified } = require('../utils/emailTemplates');        // ✅
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://ctrlz.bh';   // ✅
+const { sendNotification } = require('../utils/sendNotification');     
+const { accountVerified } = require('../utils/emailTemplates');        
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://ctrlz.bh';   
 
 
 // Verify student or graduate dynamically

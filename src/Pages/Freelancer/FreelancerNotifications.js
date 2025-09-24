@@ -11,7 +11,7 @@ import AssignedIcon from "../../Assets/assigned.png";
 import SubmittedIcon from "../../Assets/submitted.png";
 import AvailableIcon from "../../Assets/available.png";
 import WelcomeIcon from "../../Assets/welcome.png";
-import PaymentIcon from "../../Assets/payment.png";   // ✅ add this line
+import PaymentIcon from "../../Assets/payment.png"; 
 import Booking from "../../Assets/booking.png";  
 
 const TYPE_META = {
@@ -20,7 +20,7 @@ const TYPE_META = {
   available: { color: "#f89d33", bg: "#f89d33", icon: AvailableIcon },
   welcome:   { color: "#9dcbd8", bg: "#9dcbd8", icon: WelcomeIcon },
   payment:   { color: "#06142f", bg: "#06142f", icon: PaymentIcon }, 
-  booking:   { color: "#deaa87", bg: "#deaa87", icon: Booking }, // ✅ new type
+  booking:   { color: "#deaa87", bg: "#deaa87", icon: Booking },
   default:   { color: "#9dcbd8", bg: "#9dcbd8", icon: WelcomeIcon },
 };
 

@@ -159,7 +159,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
           <ul className="foot-social-icons">
             <li>
               <a
-                href="https://instagram.com/yourhandle"
+                href="https://instagram.com/ctrlz.bh"
                 target="_blank"
                 rel="noreferrer"
                 className="icon-link"
@@ -170,7 +170,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
             </li>
             <li>
               <a
-                href="https://www.linkedin.com/company/yourhandle"
+                href="https://www.linkedin.com/company/ctrlz.bh"
                 target="_blank"
                 rel="noreferrer"
                 className="icon-link"
@@ -181,7 +181,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
             </li>
             <li>
               <a
-                href="https://www.tiktok.com/@yourhandle"
+                href="https://www.tiktok.com/@ctrlz.bh"
                 target="_blank"
                 rel="noreferrer"
                 className="icon-link"

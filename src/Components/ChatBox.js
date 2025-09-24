@@ -46,7 +46,7 @@ const ChatBox = ({ userId, otherUserId, role, assignmentId, closeChat }) => {
     if (!input.trim()) return;
 
     if (!userId || !otherUserId || !roomId) {
-      console.error("❌ senderId, receiverId, or roomId is missing!");
+      console.error(" senderId, receiverId, or roomId is missing!");
       return;
     }
 

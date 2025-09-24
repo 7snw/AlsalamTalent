@@ -24,7 +24,7 @@ async function logAction(reqOrOpts, maybeOpts) {
       projectId = null,
     } = opts;
 
-    // 🔎 Resolve userId from many places (now includes authorId)
+    //  Resolve userId from many places (now includes authorId)
     const userId =
       explicitUserId ||
       req?.userId ||

@@ -17,13 +17,28 @@ import slide4 from "../Assets/resources/4.png";
 import slide5 from "../Assets/resources/5.png";
 import slide6 from "../Assets/resources/6.png";
 
-import platformTutorial from "../Assets/resources/platformTutorials.png";
 
-import Signup from "../Assets/resources/Signup.png";
-import profile from "../Assets/resources/profile.png";
-import projects from "../Assets/resources/projects.png";
-import apply from "../Assets/resources/apply.png";
-import submit from "../Assets/resources/submit.png";
+import i1 from "../Assets/resources/platformTutorials.png";
+import i2 from "../Assets/Library/2.jpg";
+import i3 from "../Assets/Library/3.jpg";
+import i4 from "../Assets/Library/4.jpg";
+import i5 from "../Assets/Library/5.jpg";
+import i6 from "../Assets/Library/6.jpg";
+import i7 from "../Assets/Library/7.jpg";
+import i8 from "../Assets/Library/8.jpg";
+import i9 from "../Assets/Library/9.jpg";
+import i10 from "../Assets/Library/10.jpg";
+import iap from "../Assets/Library/ap.png";
+import i12 from "../Assets/Library/12.jpg";
+import i13 from "../Assets/Library/13.jpg";
+import i14 from "../Assets/Library/14.jpg";
+import i16 from "../Assets/Library/16.jpg";
+import i17 from "../Assets/Library/17.jpg";
+import i18 from "../Assets/Library/18.jpg";
+import i19 from "../Assets/Library/19.jpg";
+import i20 from "../Assets/Library/20.jpg";
+import i21 from "../Assets/Library/21.jpg";
+import i22 from "../Assets/Library/22.jpg";
 
 import Guidline from "../Assets/resources/Guidelines.png";
 import Library1 from "../Assets/resources/Resources.png";
@@ -43,38 +58,119 @@ const platformSteps = [
     step: 0,
     title: "Landing Page",
     desc: "Watch the tutorial before you start.",
-    img: platformTutorial,
+    img: i1,
   },
   {
     step: 1,
     title: "Create your account",
     desc: "Sign up and verify your identity.",
-    img: Signup,
+    img: i2,
   },
   {
     step: 2,
-    title: "Complete your profile",
-    desc: "Add skills, portfolio.",
-    img: profile,
+    title: "Terms & Conditions",
+    desc: " Students cannot register unless they agree to the t&c",
+    img: i3,
   },
   {
     step: 3,
-    title: "Find a project",
-    desc: "Explore projects and save favorites.",
-    img: projects,
+    title: "Email Verification",
+    desc: " An OTP code will be sent to their email to verify their identity.",
+    img: i4,
   },
   {
     step: 4,
-    title: "Apply & get assigned",
-    desc: "Apply for projects.",
-    img: apply,
+    title: "Sign In",
+    desc: "Once they verify their identity, they can sign in using their student email and password.",
+    img: i5,
   },
   {
-    step: 5,
-    title: "Submit & get paid",
-    desc: "Upload files, get approval, and receive payment.",
-    img: submit,
+    step: 6,
+    title: "Complete your profile (1)",
+    desc: "They must add their biography,  date of birth, skills to be able to apply for projects.",
+    img: i6,
   },
+  {
+    step: 7,
+    title: "Complete your profile (2)",
+    desc: "They must add their portfolio work.",
+    img: i7,
+  },{
+    step: 8,
+    title: "Find your Match",
+    desc: " Once they complete their profile, they can navigate to the Explore Projects Page, where they can see a personalized Project Matches list.",
+    img: i8,
+  },{
+    step: 9,
+  title: "Find a project",
+    desc: "Explore projects and campaigns.",
+    img: i9,
+  },{
+    step: 10,
+    title: "View Poject Details",
+    desc: "Freelancers cannot download a project unless they're assigned to it.",
+    img: i10,
+  },{
+    step: 11,
+    title: "Applications",
+    desc: "The client will review the freelancer's profile/potfolio before assigning or canceling their application.",
+    img: iap,
+  },{
+    step: 12,
+    title: "Assigned Projects",
+    desc: " The freelancer can find the project in the Assigned Projects Page.",
+    img: i12,
+  },{
+    step: 13,
+    title: "Project Details",
+    desc: "The freelancer can download the project files once they're assigned.",
+    img: i13,
+  },{
+    step: 14,
+    title: "Submit Projects",
+    desc: "Upload files, get approval, and receive payment.",
+    img: i14,
+  },{
+    step: 22,
+    title: "Payment History",
+    desc: "The freelancer can see their total earnings from ctrlz, and the payment transactions.",
+    img: i22,
+  },
+  {
+    step: 16,
+    title: "Save Projects",
+    desc: "The freelancer can save projects for later.",
+    img: i16,
+  },{
+    step: 17,
+    title: "Find Freelancers",
+    desc: "The freelancer can find other freelancers, search, and filter according to their expertise or ratings.",
+    img: i17,
+  },{
+    step: 19,
+    title: "Library",
+    desc: " A  library of learning materials and guides that help freelancers improve their abilities while working on projects.",
+    img: i19,
+  },
+  {
+    step: 21,
+    title: "Book a Space",
+    desc: " Freelancers can reserve physical resources like a desk, studio, or podcast room.",
+    img: i21,
+  },
+  {
+    step: 18,
+    title: "Real-time Chat",
+    desc: "The freelancer can get in touch with other freelancers.",
+    img: i18,
+  },
+{
+    step: 20,
+    title: "Notifications",
+    desc: "Freelancer’s notifications page for submissions and applications updates.",
+    img: i20,
+  }
+
 ];
 
 /* ---------- Helpers ---------- */

@@ -54,7 +54,7 @@ const AssignedProject = () => {
     return matchesSearch && matchesType;
   });
 
-  // 👉 Always open the single review/details page
+  // Always open the single review/details page
   const openAssignment = (assignmentId) =>
     navigate(`/submitted-project/${assignmentId}`);
 

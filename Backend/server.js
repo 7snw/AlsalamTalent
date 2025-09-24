@@ -143,7 +143,7 @@ io.on('connection', (socket) => {
       timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
     });
 
-    // ⬇️ Re-fetch so plugin decrypts on hydration
+    // ⬇Re-fetch so plugin decrypts on hydration
     const fresh = await Message.findById(saved._id); // no .lean()
     io.to(msg.roomId).emit('receiveMessage', fresh);
   });

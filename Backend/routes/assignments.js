@@ -14,7 +14,6 @@ const { sendNotification } = require('../utils/sendNotification');
 const sendEmail = require('../utils/sendEmail');
 const {
   assignmentAssigned,
-  // NEW: use the dedicated templates you added
   stageSubmittedForClient,
   stageReviewedForFreelancer,
   finalRatedForFreelancer,

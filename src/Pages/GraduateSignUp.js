@@ -153,7 +153,7 @@ const GraduateSignUp = () => {
   const [formData, setFormData] = useState({
     studentId: "", fullName: "", email: "", password: "",
     major: "", phone: "", iban: "", expertise: [], agreeTerms: false,
-    cpr: "" // ✅ NEW
+    cpr: ""
   });
   const [cvFile, setCvFile] = useState(null);
 
@@ -215,7 +215,7 @@ const GraduateSignUp = () => {
     if (!/^[0-9]{8}$/.test(formData.phone)) return showAlert("Phone number must be exactly 8 digits.");
     if (formData.expertise.length === 0) return showAlert("Please select at least one area of expertise.");
     if (!formData.agreeTerms) return showAlert("Please accept the Terms & Conditions to continue.");
-    if (!formData.cpr.trim()) return showAlert("CPR is required."); // ✅ new validation
+    if (!formData.cpr.trim()) return showAlert("CPR is required."); 
 
     const cleanIban = normalizeIban(formData.iban);
     if (formData.iban && !isValidBHIban(formData.iban)) return showAlert("Please enter a valid Bahrain IBAN.");
@@ -230,7 +230,7 @@ const GraduateSignUp = () => {
       fd.append("major", formData.major);
       fd.append("phone", formData.phone);
       fd.append("iban", cleanIban);
-      fd.append("cpr", formData.cpr); // ✅ send CPR
+      fd.append("cpr", formData.cpr); 
       fd.append("expertise", JSON.stringify(formData.expertise));
       if (cvFile) fd.append("cv", cvFile);
 

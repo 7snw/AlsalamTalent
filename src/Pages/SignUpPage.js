@@ -85,7 +85,6 @@ const OtpModal = ({ open, onClose, regId, email }) => {
     const res = await axios.post(`${API}/verify-otp`, { regId, code });
     showAlert(res.data?.message || "Verified!");
 
-    // ✅ Mark user as “just registered” so LoginPage can show the one-time onboarding alert
     try { localStorage.setItem("cz_just_registered", "1"); } catch {}
 
 
@@ -119,6 +118,7 @@ const OtpModal = ({ open, onClose, regId, email }) => {
         </div>
         <div className="otp-body">
           <p>We sent a 6-digit code to <strong>{email}</strong>. Enter it below to activate your account.</p>
+            <p>Note: The code may also appear in your Junk folder.</p>
           <input
             className="otp-input"
             type="text"

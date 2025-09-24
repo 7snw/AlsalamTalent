@@ -11,7 +11,7 @@ import { FaPlay } from "react-icons/fa";
 import WavyBackground from "../Components/WavyBackground";
 import TextGenerateEffect from "../Components/TextGenerateEffect";
 
-/* ⬇️ ADD YOUR IMAGE HERE (update the filename/path if needed) */
+
 import HeroImage from "../Assets/landing-hero.png"; // e.g. /Assets/landing-hero.png
 
 const LandingPage = () => {

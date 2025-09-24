@@ -12,7 +12,7 @@ const messageSchema = new mongoose.Schema(
     senderRole:    { type: String, enum: ['Freelancer', 'Client', 'Admin'], required: true },
     receiverRole:  { type: String, enum: ['Freelancer', 'Client', 'Admin'], required: true },
 
-    // 🔐 encrypted at rest
+    // encrypted at rest
     content:       { type: String, required: true },
 
     roomId:        { type: String, required: true },
@@ -60,7 +60,7 @@ messageSchema.post('init', decDoc);
 messageSchema.post('find', (docs) => docs.forEach(decDoc));
 messageSchema.post('findOne', decDoc);
 
-// ⭐ Important: also decrypt the in-memory doc right after save,
+// Important: also decrypt the in-memory doc right after save,
 // so the API/socket can return plaintext immediately without a refetch.
 messageSchema.post('save', function (doc, next) {
   try {

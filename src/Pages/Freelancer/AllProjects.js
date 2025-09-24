@@ -36,7 +36,7 @@ const AllProjects = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ⬇️ IMPORTANT: ask backend to hide Completed for freelancers
+        // IMPORTANT: ask backend to hide Completed for freelancers
         const [projectsRes, savedRes] = await Promise.all([
           axios.get("http://localhost:5000/api/projects/all?audience=freelancer"),
           userId

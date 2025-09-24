@@ -17,7 +17,7 @@ const Navbar = ({ links = [] }) => {
   const [redirectPath, setRedirectPath] = useState('/');
   const [hasNotifications, setHasNotifications] = useState(false);
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
-  const navbarRef = useRef(null); // 🟡 reference for outside click detection
+  const navbarRef = useRef(null); // reference for outside click detection
 
   // Support both: links as array OR object { items, showIcons, hideSignIn }
   const navItems = useMemo(() => {
@@ -81,7 +81,7 @@ const Navbar = ({ links = [] }) => {
     fetchNotifications();
   }, [role, userId]);
 
-  // 🟡 Handle click outside to close dropdown
+  //  Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navbarRef.current && !navbarRef.current.contains(event.target)) {
