@@ -5,7 +5,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 const router = express.Router();
-
+const logAction = require('../utils/logAction');
 const Booking = require("../models/Booking");
 const Freelancer = require("../models/Freelancer");
 const Client = require("../models/Client");
@@ -136,6 +136,7 @@ router.post("/", async (req, res) => {
       notes,
     });
 
+    
     // refresh with NON-lean populate so the encryption plugin can decrypt
     const enrichedDoc = await Booking.findById(booking._id).populate({
       path: "freelancerId",
@@ -242,6 +243,12 @@ router.post("/", async (req, res) => {
           console.error("Notification task failed:", i, r.reason)
       )
     );
+
+     await logAction({
+      userId: freelancerId,
+      action: `Booked Space (${spaceType})`,
+      meta: { dateISO, timeRange },
+    });
 
     return res.status(201).json(payload);
   } catch (err) {

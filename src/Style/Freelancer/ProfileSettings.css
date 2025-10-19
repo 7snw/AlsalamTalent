@@ -17,6 +17,12 @@
   margin-bottom: 400px;
   overflow-x: hidden;
 }
+.mfa-setup img {
+  display: block;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
 
 .settings-sidebar9 {
   width: 150px;

@@ -15,18 +15,6 @@ import WavyBackground from "../../Components/WavyBackground";
 
 import "../../Style/Clients/ClientHome.css";
 
-/* Normalize skills list */
-const getProjectSkills = (proj) => {
-  let raw =
-    proj?.skills ?? proj?.requiredSkills ?? proj?.tags ?? proj?.keywords ?? [];
-  if (typeof raw === "string") raw = raw.split(",");
-  const list = (Array.isArray(raw) ? raw : [])
-    .map((s) => String(s || "").trim())
-    .filter(Boolean);
-  if (!list.length && proj?.category) list.push(proj.category);
-  return list.slice(0, 10);
-};
-
 const getType = (p) =>
   String(p?.projectType || p?.type || "project").trim().toLowerCase(); // "project" | "campaign"
 
@@ -90,7 +78,7 @@ const ClientHome = () => {
   );
 
   const Card = ({ project, index }) => {
-    const skills = getProjectSkills(project);
+  
     const type = getType(project);
     return (
       <motion.div
@@ -110,26 +98,7 @@ const ClientHome = () => {
           />
           {type === "campaign" && <span className="ch-badge">Campaign</span>}
 
-          {!!skills.length && (
-            <div className="ch-tags-marquee" aria-hidden>
-              <div className="ch-track" style={{ "--ch-speed": "5s" }}>
-                <div className="ch-strip">
-                  {skills.map((t, i) => (
-                    <span className="ch-tag" key={`a-${i}`}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <div className="ch-strip" aria-hidden>
-                  {skills.map((t, i) => (
-                    <span className="ch-tag" key={`b-${i}`}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+      
         </div>
 
         <div className="ch-meta">

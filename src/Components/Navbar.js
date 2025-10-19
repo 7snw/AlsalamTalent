@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import '../Style/Navbar.css';
-import Logo from '../Assets/Logo.png';
+import Logo from '../Assets/LightBlue.png';
 import ChatIcon from '../Assets/Chat.png';
 import BellIcon from '../Assets/Bell.png';
 import BellIconNew from '../Assets/Bell2.png';

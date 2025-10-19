@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "../Style/Footer.css";
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
 import { SiTiktok } from "react-icons/si";
-import CtrlzLogo from "../Assets/ctrlz-logo.png";
+import CtrlzLogo from "../Assets/FooterLogo.png";
 
 const Footer = ({ forceWave, forceNoWave }) => {
   const year = new Date().getFullYear();
@@ -115,7 +115,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
           >
            <img src={CtrlzLogo} alt="Logo" className="logo-image22" />
           </div>
-          <p className="foot-tagline">"Undo Limits | Redo Possibilities"</p>
+          <p className="foot-tagline">Undo Limits | Redo Possibilities</p>
           <p className="foot-copy">© {year} ctrlZ. All rights reserved.</p>
         </div>
 
@@ -133,6 +133,14 @@ const Footer = ({ forceWave, forceNoWave }) => {
                 About us
               </a>
             </li>
+              <li>
+          <a href="/terms" onClick={(e) => { e.preventDefault(); navigate("/terms"); }}> Terms & Conditions
+            
+              </a>
+            </li>
+         
+
+
           </ul>
         </div>
 
@@ -150,7 +158,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
           <h4 className="foot-title mt12">Location</h4>
           <address className="foot-address">
             Bahrain Polytechnic, Campus B
-            <div className="foot-subaddress">Building 25 | 1st Floor | Room 25.228</div>
+            <div className="foot-subaddress">Building 25 | 1st Floor | Room 25.229</div>
           </address>
         </div>
 

@@ -23,13 +23,38 @@ const expertiseOptions = [
 
 const isPolyEmail = (e) => /^20\d{7}@student\.polytechnic\.bh$/i.test(String(e).trim());
 
+const extractIdFromEmail = (email = "") => {
+  const match = email.match(/^20\d{7}/);
+  return match ? match[0] : null;
+};
+
 
 const isValidBHIBAN = (raw) => {
   const iban = String(raw || "").replace(/\s+/g, "").toUpperCase();
   return /^BH\d{2}[A-Z]{4}\d{14}$/.test(iban);
 };
-const isStrongPassword = (pwd) =>
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(pwd);
+
+
+// Password Policy Validation
+const isStrongPassword = (pwd) => {
+  // 1. Length: at least 12 characters (fallback: 8 if system restriction)
+  const minLength = 12;
+  if (pwd.length < minLength) return false;
+
+  // 2. Must include uppercase, lowercase, number, and special character
+  const hasUpper = /[A-Z]/.test(pwd);
+  const hasLower = /[a-z]/.test(pwd);
+  const hasNumber = /\d/.test(pwd);
+  const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+
+  // 3. Disallow spaces or commonly weak passwords
+  const hasSpace = /\s/.test(pwd);
+  const commonWeak = ["Password123!", "Admin@123", "Welcome@123", "Qwerty@123"];
+  const isWeak = commonWeak.some(w => pwd.toLowerCase() === w.toLowerCase());
+
+  return hasUpper && hasLower && hasNumber && hasSpecial && !hasSpace && !isWeak;
+};
+
 
 const TermsModal = ({ open, onClose, onAccept }) => {
   const boxRef = useRef(null);
@@ -150,6 +175,8 @@ const SignUpPage = () => {
   const [cvFile, setCvFile] = useState(null);
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [showTermsWarning, setShowTermsWarning] = useState(false);
+
   const [submitting] = useState(false);
   const [showMajorDropdown, setShowMajorDropdown] = useState(false);
   const [otpModal, setOtpModal] = useState({ open: false, regId: null });
@@ -202,17 +229,27 @@ const SignUpPage = () => {
     if (!isPolyEmail(formData.email)) {
       return showAlert("Please use your Polytechnic email (20xxxxxxx@student.polytechnic.bh).");
     }
-    // Student ID validation
-  if (!/^20\d{7}$/.test(formData.studentId)) {
-    return showAlert("Student ID must start with 20 and be followed by 7 digits (e.g., 20xxxxxxx).");
-  }
+    
+ // Student ID validation
+if (!/^20\d{7}$/.test(formData.studentId)) {
+  return showAlert("Student ID must start with 20 and be followed by 7 digits (e.g., 20xxxxxxx).");
+}
 
-  if (!isPolyEmail(formData.email)) {
-    return showAlert("Please use your Polytechnic email (20xxxxxxx@student.polytechnic.bh).");
-  }
+if (!isPolyEmail(formData.email)) {
+  return showAlert("Please use your Polytechnic email (20xxxxxxx@student.polytechnic.bh).");
+}
+
+// Cross-check that the student ID matches the number in the email
+const idFromEmail = extractIdFromEmail(formData.email);
+if (idFromEmail !== formData.studentId) {
+  return showAlert("Your Student ID must match your Polytechnic email address.");
+}
+
+
+
   if (!formData.fullName.trim()) return showAlert("Full Name is required.");
-  if (!isStrongPassword(formData.password)) {
-  return showAlert("Password must be at least 8 characters, and include uppercase, lowercase, number, and special character.");
+ if (!isStrongPassword(formData.password)) {
+  return showAlert("Password must be at least 12 characters long, include uppercase, lowercase, number, and special character, and must not contain spaces or common patterns.");
 }
 
   if (!formData.major) return showAlert("Please select your Major.");
@@ -221,7 +258,11 @@ const SignUpPage = () => {
   if (!formData.iban.trim()) return showAlert("IBAN is required.");
   if (!isValidBHIBAN(formData.iban)) return showAlert("Please enter a valid Bahrain IBAN.");
   if (!cvFile) return showAlert("Please upload your CV.");
-  if (!formData.agreeTerms) return showAlert("Please accept the Terms & Conditions to continue.");
+if (!formData.agreeTerms) {
+  setShowTermsWarning(true);
+  showAlert("You must agree to the Terms & Conditions before creating your account.");
+  return;
+}
 
     try {
       const fd = new FormData();
@@ -256,9 +297,17 @@ const SignUpPage = () => {
   return (
     <div className="signup-body">
       <div className="signup-bg-live" aria-hidden="true"><LandingPage /></div>
-      <div className="signup-dim" aria-hidden="true" onClick={() => navigate("/landingPage")} />
+    <div className="signup-dim" aria-hidden="true" />
+
       <div className="signup-container" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-        <h2 className="signup-title">Create your Account</h2>
+        <h2 className="signup-title">Create your Account <button
+  className="signup-close"
+  aria-label="Close"
+  onClick={() => navigate("/landingPage")}
+>
+  ×
+</button>
+</h2>
 
         <form onSubmit={handleSubmit} className="signup-form">
           <div className="left-fields">
@@ -285,7 +334,10 @@ const SignUpPage = () => {
 
             <div>
               <label>Password</label>
-              <input type="password" name="password" value={formData.password} onChange={handleChange} minLength="8" required />
+              <input type="password" name="password" value={formData.password} onChange={handleChange} />
+               <small style={{opacity: 0.7, display: 'block', marginTop: '2px', marginBottom: '-18px', fontSize: '12px' }}>
+       Must be at least <strong>12 characters</strong> long, uppercase, lowercase, number, and special character.
+    </small>
             </div>
 
             <div className="file-field">
@@ -298,6 +350,7 @@ const SignUpPage = () => {
                 aria-required="true"
                 title="Please upload your CV (PDF, DOC, or DOCX)."
               />
+
             </div>
           </div>
 
@@ -360,7 +413,7 @@ const SignUpPage = () => {
             </div>
 
             <div>
-              <label>IBAN Number</label>
+              <label>AlSalam Bank IBAN</label>
               <input
                 type="text"
                 name="iban"
@@ -378,20 +431,21 @@ const SignUpPage = () => {
               <input type="tel" name="phone" value={formData.phone} onChange={handleChange} pattern="[0-9]{8}" required />
             </div>
 
-            <button type="submit" className="create-btn" disabled={submitting || !formData.agreeTerms}>
+            <button type="submit" className="create-btn" >
               {submitting ? "Creating…" : "Create"}
             </button>
           </div>
         </form>
 
         <div className="terms-row center">
-          <input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleChange} />
-          <span>
-            I read, I understand, and I agree to the{" "}
-            <button type="button" className="terms-link" onClick={() => setShowTerms(true)}>
-              Terms &amp; Conditions
-            </button>
-          </span>
+          <input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleChange} required />
+        <span style={{ color: showTermsWarning ? "#f1633a" : "inherit" }}>
+  I read, I understand, and I agree to the{" "}
+  <button type="button" className="terms-link" onClick={() => setShowTerms(true)}>
+    Terms &amp; Conditions
+  </button>
+</span>
+
         </div>
 
         <p className="signin-link">I have an account? <span onClick={() => navigate("/signin")}>Sign In</span></p>

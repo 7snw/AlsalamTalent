@@ -15,7 +15,7 @@ import "../../Style/Navbar.css";
 import "../../Style/PageContents.css";
 
 const skillsOf = (proj) => {
-  let raw = proj?.skills ?? proj?.requiredSkills ?? proj?.tags ?? [];
+  let raw = proj?.skills ?? proj?.requiredSkills ?? [];
   if (typeof raw === "string") raw = raw.split(",");
   return (Array.isArray(raw) ? raw : [])
     .map((s) => String(s || "").trim())
@@ -204,8 +204,7 @@ const AllProjects = () => {
 
           <div className="ap-grid">
             {filteredProjects.map((proj, i) => {
-              
-              const tags = skillsOf(proj);
+            
               
               return (
                 <motion.div
@@ -231,26 +230,6 @@ const AllProjects = () => {
                       {isProjectSaved(proj._id) ? <FaBookmark /> : <FaRegBookmark />}
                     </button>
 
-                    {!!tags.length && (
-                      <div className="ap-tags-marquee" aria-hidden>
-                        <div className="ap-track" style={{ "--ap-speed": "6s" }}>
-                          <div className="ap-strip">
-                            {tags.map((t, ix) => (
-                              <span className="ap-tag" key={`a-${ix}`}>
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="ap-strip" aria-hidden>
-                            {tags.map((t, ix) => (
-                              <span className="ap-tag" key={`b-${ix}`}>
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <div className="ap-meta">

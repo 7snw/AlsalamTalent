@@ -119,36 +119,85 @@ position: relative; z-index: 2;                       /* above hero */
 .fl-list{ display:flex; flex-direction:column; gap:16px; }
 
 /* CARD */
-.fl-card1{
-  background:#fff;
-  border-radius:18px;
-  padding:14px 18px;
-  display:flex; align-items:center; justify-content:space-between;
-  gap:16px;
-  box-shadow:0 4px 6px rgba(0,0,0,.06);
-  cursor:pointer;
-    cursor:pointer;
-  transition:transform .25s ease, box-shadow .25s ease;
-}
-.fl-card1:hover{
-  background:#eef4f7;
-  box-shadow:0 8px 20px rgba(0,0,0,.10);
-  transform:translateY(-2px);
+.fl-card1 {
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* LEFT */
-.fl-info{ display:flex; align-items:center; gap:14px; min-width:0; }
-.fl-avatar{ width:60px; height:60px; border-radius:50%; object-fit:cover; }
-.fl-text h3{ font-size:18px; margin:0; color:#1B223C; }
-.fl-text p{ font-size:14px; margin:3px 0 0; color:#444; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fl-card1:hover {
+  background: #eef4f7;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* LEFT SECTION */
+.fl-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.fl-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.fl-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fl-text h3 {
+  font-size: 18px;
+  margin: 0;
+  color: #1b223c;
+  font-weight: 700;
+}
+
+.fl-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+  color: #f1633a;
+  line-height: 1;
+}
+
+.fl-text p {
+  font-size: 14px;
+  margin: 0;
+  color: #444;
+  white-space: normal;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  max-width: 640px;
+}
+
 
 /* RIGHT */
 .fl-meta{ display:flex; align-items:center; gap:18px; }
-.fl-stars span{ font-size:20px; color:#f1633a; margin-right:3px; }
+.fl-stars span{ font-size:20px; color:#f1633a; margin-right:3px;margin-top: 15px; }
 .fl-contact{
-  background:#a1d0dd; color:#1B223C; border:0;
+  background:#a1d0dd; color:#1B223C; border:0;margin-top: 15px;
   padding:8px 18px; border-radius:18px; font-size:14px; cursor:pointer;
 }
+
+.fl-stars span{ font-size:20px; color:#f1633a; margin-right:3px; }
 
 /* RESPONSIVE */
 @media (max-width: 980px){

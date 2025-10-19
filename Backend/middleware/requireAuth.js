@@ -2,24 +2,42 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = function requireAuth(req, res, next) {
-  const h = req.headers.authorization || '';
-  const token = h.startsWith('Bearer ') ? h.slice(7) : null;
-  if (!token) return res.status(401).json({ message: 'Unauthorized' });
-
   try {
-    const p = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
-    // tolerate different token shapes
+    const h = req.headers.authorization || '';
+    const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+    if (!token) return res.status(401).json({ message: 'Unauthorized: missing token' });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
+
     const _id =
-      p._id || p.id || p.userId || p.user?._id || p.user?.id || p.sub;
-    const role = p.role || p.type || p.user?.role;
+      decoded.id ||
+      decoded._id ||
+      decoded.userId ||
+      decoded.user?._id ||
+      decoded.sub;
 
-    if (!_id || !role) {
+    const role =
+      decoded.role ||
+      decoded.type ||
+      decoded.user?.role ||
+      decoded.p?.role;
+
+    if (!_id || !role)
       return res.status(401).json({ message: 'Invalid token payload' });
-    }
 
-    req.user = { _id: String(_id), role: String(role).toLowerCase() };
+    // 👇 This part is the only addition
+    req.user = {
+      _id: String(_id),
+      id: String(_id), // add alias for compatibility
+      role: String(role).toLowerCase(),
+    };
+
     return next();
-  } catch (e) {
-    return res.status(401).json({ message: 'Invalid token' });
+  } catch (err) {
+    if (err.name === 'TokenExpiredError')
+      return res.status(401).json({ message: 'Session expired. Please log in again.' });
+    if (err.name === 'JsonWebTokenError')
+      return res.status(401).json({ message: 'Invalid or malformed token' });
+    return res.status(401).json({ message: 'Authentication failed' });
   }
 };

@@ -56,7 +56,14 @@ async function createAndSendOtp({ userId, email }) {
   const code = generate6();
   const codeHash  = await bcrypt.hash(code, 10);
   const expiresAt = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
-  await OtpToken.create({ userId, codeHash, expiresAt });
+await OtpToken.create({
+  userId: userId || null,
+  email: email || null,
+  codeHash,
+  expiresAt,
+  purpose: "LOGIN",
+});
+
 
   const html = `
     <p>Use this code to verify your identity:</p>
@@ -228,13 +235,60 @@ router.post('/student-register', uploadCv.single('cv'), async (req, res) => {
     email     = normEmail(email);
     studentId = normStr(studentId);
 
+    /* ----------------------------------------------------------------
+       1. Validate Student ID & Polytechnic Email Consistency
+    ------------------------------------------------------------------ */
+    const idRegex = /^20\d{7}$/;
+    const emailRegex = /^20\d{7}@student\.polytechnic\.bh$/i;
+
+    if (!idRegex.test(studentId)) {
+      return res.status(400).json({ message: 'Invalid Student ID. Must start with 20 and be followed by 7 digits (e.g., 20xxxxxxx).' });
+    }
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email. Must use Bahrain Polytechnic format (20xxxxxxx@student.polytechnic.bh).' });
+    }
+
+    const idFromEmail = email.match(/^20\d{7}/)?.[0];
+    if (idFromEmail !== studentId) {
+      return res.status(400).json({ message: 'Student ID must match the number in your Polytechnic email address.' });
+    }
+
+    /* ----------------------------------------------------------------
+       2. Validate Password (Al Salam Bank Policy)
+    ------------------------------------------------------------------ */
+    const isStrongPassword = (pwd) => {
+      if (!pwd || pwd.length < 12) return false; // Minimum 12 characters
+      const hasUpper = /[A-Z]/.test(pwd);
+      const hasLower = /[a-z]/.test(pwd);
+      const hasNumber = /\d/.test(pwd);
+      const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+      const hasSpace = /\s/.test(pwd);
+      const weakList = ["Password123!", "Admin@123", "Welcome@123", "Qwerty@123"];
+      const isWeak = weakList.some((w) => pwd.toLowerCase() === w.toLowerCase());
+      return hasUpper && hasLower && hasNumber && hasSpecial && !hasSpace && !isWeak;
+    };
+
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({
+        message: 'Password must be at least 12 characters long, include uppercase, lowercase, number, and special character, and must not contain spaces or common weak patterns.'
+      });
+    }
+
+    /* ----------------------------------------------------------------
+       3. Validate IBAN Format (already aligned with InfoSec)
+    ------------------------------------------------------------------ */
     if (typeof iban === 'string' && iban) {
       const clean = iban.replace(/\s+/g, '').toUpperCase();
-      if (!isValidBHIban(clean)) return res.status(400).json({ message: 'Invalid IBAN format.' });
+      if (!isValidBHIban(clean)) {
+        return res.status(400).json({ message: 'Invalid IBAN format.' });
+      }
       iban = clean;
     }
 
-    //  de-dupe using hash
+    /* ----------------------------------------------------------------
+       4. Check for duplicate email or Student ID
+    ------------------------------------------------------------------ */
     const dup = await Freelancer.findOne({
       $or: [
         email ? { emailHash: lookupHash(email) } : null,
@@ -243,26 +297,54 @@ router.post('/student-register', uploadCv.single('cv'), async (req, res) => {
     });
     if (dup) return res.status(400).json({ message: 'Email or Student ID already registered.' });
 
+    /* ----------------------------------------------------------------
+       5. Prepare OTP for verification
+    ------------------------------------------------------------------ */
     const otp = generateOtp();
     const otpHash = await bcrypt.hash(otp, 10);
     const otpExpires = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
 
+    /* ----------------------------------------------------------------
+       6. Store pending signup securely
+    ------------------------------------------------------------------ */
     const cvUrl = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : '';
-    const parsedExpertise = Array.isArray(expertise) ? expertise : JSON.parse(expertise || '[]');
+    const parsedExpertise = Array.isArray(expertise)
+      ? expertise
+      : JSON.parse(expertise || '[]');
 
     const pending = await PendingSignup.create({
       kind: 'Student',
-      data: { userType: 'Student', studentId, fullName, email, password, major, phone: normPhone(phone), expertise: parsedExpertise, iban, cvUrl },
-      otpHash, otpExpires
+      data: {
+        userType: 'Student',
+        studentId,
+        fullName,
+        email,
+        password, // bcrypt hashing happens later during activation
+        major,
+        phone: normPhone(phone),
+        expertise: parsedExpertise,
+        iban,
+        cvUrl,
+      },
+      otpHash,
+      otpExpires,
     });
 
+    /* ----------------------------------------------------------------
+       7. Send OTP Email
+    ------------------------------------------------------------------ */
     await sendOtpEmail(email, fullName, otp);
+
+    // Masked console output (no sensitive info logged)
+    console.log(`New pending signup: ${email.replace(/.{3}@/, "***@")} (Student ID: ${studentId})`);
+
     return res.status(201).json({ message: 'OTP sent to your email.', regId: pending._id });
   } catch (err) {
     console.error('Student pending signup error:', err);
     return res.status(500).json({ message: 'Registration failed', error: err.message });
   }
 });
+
 
 /* ----------------------- GRADUATE REGISTER -> PENDING ----------------------- */
 router.post('/graduate-register', uploadCv.single('cv'), async (req, res) => {
@@ -495,28 +577,67 @@ router.put(
   }
 );
 
+
 /* ---------------------------- Auth / Security --------------------------- */
 router.put('/changepassword/:id', async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const trimmedOldPassword = (oldPassword || '').trim();
-    const trimmedNewPassword = (newPassword || '').trim();
-
     const freelancer = await Freelancer.findById(req.params.id);
     if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-    const isMatch = await bcrypt.compare(trimmedOldPassword, freelancer.password || '');
-    if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect' });
+    const match = await bcrypt.compare(oldPassword.trim(), freelancer.password || '');
+    if (!match) return res.status(400).json({ message: 'Old password is incorrect.' });
 
-    freelancer.password = trimmedNewPassword;
-    await freelancer.save();
+    // --- Password policy checks (same as before)
+    const isStrongPassword = (pwd) => {
+      if (!pwd || pwd.length < 12) return false;
+      const hasUpper = /[A-Z]/.test(pwd);
+      const hasLower = /[a-z]/.test(pwd);
+      const hasNumber = /\d/.test(pwd);
+      const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+      const hasSpace = /\s/.test(pwd);
+      const weakList = ["Password123!", "Admin@123", "Welcome@123", "Qwerty@123"];
+      const isWeak = weakList.some((w) => pwd.toLowerCase() === w.toLowerCase());
+      return hasUpper && hasLower && hasNumber && hasSpecial && !hasSpace && !isWeak;
+    };
+    if (!isStrongPassword(newPassword)) {
+      return res.status(400).json({ message: 'Password does not meet policy requirements.' });
+    }
 
-    res.json({ message: 'Password updated successfully' });
+  // --- Enforce short interval for testing (e.g. 10 seconds)
+const secondsSinceChange = freelancer.lastPasswordChange
+  ? (Date.now() - freelancer.lastPasswordChange.getTime()) / 1000
+  : 999;
+if (secondsSinceChange < 10)  // ⏱ allow only after 10 seconds
+  return res.status(400).json({ message: 'You must wait 10 seconds before changing your password again (testing mode).' });
+
+
+    for (const oldHash of freelancer.passwordHistory || []) {
+      if (await bcrypt.compare(newPassword.trim(), oldHash))
+        return res.status(400).json({ message: 'Cannot reuse any of your last 13 passwords.' });
+    }
+
+    // --- Hash new password and update
+ // --- 8. Update password (pre-save hook will hash automatically) ---
+freelancer.password = newPassword.trim();
+freelancer.lastPasswordChange = Date.now();
+
+// record previous hashes before overwrite
+if (freelancer.passwordHistory?.length) {
+  // keep last 13 only
+  freelancer.passwordHistory = freelancer.passwordHistory.slice(0, 13);
+}
+
+await freelancer.save();
+
+    res.json({ message: 'Password updated successfully!' });
   } catch (err) {
     console.error('Error changing password:', err);
-    res.status(500).json({ message: 'Server error', error: err.message || err });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
+
 
 /* ------------------------------- Projects ------------------------------ */
 router.post('/:id/add-project', uploadAnyFile.fields([
@@ -794,5 +915,140 @@ router.put('/deactivate/:id', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+/* ---------------------- FORGOT PASSWORD (RESET FLOW) ---------------------- */
+
+// Step 1: Request password reset – send OTP
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+    const cleanEmail = email.trim().toLowerCase();
+   const freelancer = await Freelancer.findOne({ emailHash: lookupHash(cleanEmail) })
+  .select('+resetOtp +resetOtpExpiry +password');
+
+    if (!freelancer) return res.status(404).json({ message: 'No account found with this email.' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = await bcrypt.hash(otp, 10);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min expiry
+
+    freelancer.resetOtp = otpHash;
+    freelancer.resetOtpExpiry = expiresAt;
+    await freelancer.save();
+
+    const html = `
+      <p>Use this code to reset your password:</p>
+      <h2 style="letter-spacing:6px;">${otp}</h2>
+      <p>This code expires in 10 minutes.</p>
+    `;
+    await sendEmail({
+      to: cleanEmail,
+      subject: 'ctrlZ Password Reset Code',
+      html,
+      text: `Your ctrlZ password reset code is ${otp} (expires in 10 minutes).`,
+    });
+
+    res.json({ message: 'Reset code sent to your email.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ message: 'Failed to send reset code.' });
+  }
+});
+
+
+// Step 2: Verify OTP and change password
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, code, oldPassword, newPassword } = req.body;
+
+    // --- 1. Validate input ---
+    if (!email || !code || !oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const codeTrimmed = String(code || '').trim();
+
+    // --- 2. Find freelancer and explicitly include hidden fields ---
+    const freelancer = await Freelancer.findOne({ emailHash: lookupHash(cleanEmail) })
+      .select('+resetOtp +resetOtpExpiry +password');
+
+    if (!freelancer) {
+      return res.status(404).json({ message: 'Account not found.' });
+    }
+
+    // --- 3. Validate OTP existence and expiry ---
+    if (!freelancer.resetOtp || !freelancer.resetOtpExpiry) {
+      return res.status(400).json({ message: 'Reset code missing. Please request a new one.' });
+    }
+
+    if (Date.now() > new Date(freelancer.resetOtpExpiry).getTime()) {
+      return res.status(400).json({ message: 'Reset code expired. Please request a new one.' });
+    }
+
+    // --- 4. Compare OTP securely ---
+    const ok = await bcrypt.compare(codeTrimmed, freelancer.resetOtp);
+    if (!ok) {
+      return res.status(400).json({ message: 'Incorrect code. Please check and try again.' });
+    }
+
+    // --- 5. Validate old password ---
+    const oldOk = await bcrypt.compare(oldPassword.trim(), freelancer.password);
+    if (!oldOk) {
+      return res.status(400).json({ message: 'Old password is incorrect.' });
+    }
+
+    // --- 6. Enforce password policy ---
+    const isStrongPassword = (pwd) => {
+      if (!pwd || pwd.length < 12) return false;
+      const hasUpper = /[A-Z]/.test(pwd);
+      const hasLower = /[a-z]/.test(pwd);
+      const hasNumber = /\d/.test(pwd);
+      const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+      const hasSpace = /\s/.test(pwd);
+      const weakList = ["Password123!", "Admin@123", "Welcome@123", "Qwerty@123"];
+      const isWeak = weakList.some((w) => pwd.toLowerCase() === w.toLowerCase());
+      return hasUpper && hasLower && hasNumber && hasSpecial && !hasSpace && !isWeak;
+    };
+
+    if (!isStrongPassword(newPassword)) {
+      return res.status(400).json({
+        message: 'Password does not meet policy requirements (min 12 chars, uppercase, lowercase, number, special char).',
+      });
+    }
+
+    // --- 7. Prevent password reuse (13-history check) ---
+    for (const oldHash of freelancer.passwordHistory || []) {
+      if (await bcrypt.compare(newPassword.trim(), oldHash)) {
+        return res.status(400).json({ message: 'Cannot reuse any of your last 13 passwords.' });
+      }
+    }
+
+    // --- 8. Hash & update password ---
+    freelancer.password = newPassword.trim(); // will be re-hashed by pre-save hook
+    freelancer.lastPasswordChange = Date.now();
+    freelancer.passwordHistory = [
+      ...(freelancer.passwordHistory || []),
+      freelancer.password,
+    ].slice(-13);
+
+    // clear reset fields
+    freelancer.resetOtp = undefined;
+    freelancer.resetOtpExpiry = undefined;
+
+    await freelancer.save();
+
+    // --- 9. Respond success ---
+    res.json({ message: 'Password reset successfully. You can now log in.' });
+
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ message: 'Failed to reset password.', error: err.message });
+  }
+});
+
 
 module.exports = router;

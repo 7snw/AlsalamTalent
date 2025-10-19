@@ -4,6 +4,7 @@ const Resource = require('../models/Resource');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const logAction = require('../utils/logAction');
 
 // Reuse your existing multer "upload" config:
 
@@ -84,6 +85,12 @@ router.post(
 
       await newRes.save();
 
+       await logAction({
+      userId: req.user?.id,
+      action: 'Uploaded Resource',
+      meta: { title: newRes.title, section: newRes.section },
+    });
+
       return res.status(201).json(newRes);
     } catch (err) {
       console.error('Error creating resource:', err);
@@ -154,6 +161,13 @@ router.put(
       updates.files = [...kept, ...newUploads];
 
       const updated = await Resource.findByIdAndUpdate(req.params.id, updates, { new: true });
+
+ await logAction({
+      userId: req.user?.id,
+      action: 'Updated Resource',
+      meta: { resourceId: updated._id, title: updated.title },
+    });
+
       return res.json(updated);
     } catch (err) {
       console.error('Error updating resource:', err);

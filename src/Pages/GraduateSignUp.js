@@ -89,11 +89,19 @@ const OtpModal = ({ open, onClose, regId, email }) => {
   useEffect(() => { if (!open) setCode(""); }, [open]);
   if (!open) return null;
 
+  const API =
+  import.meta.env.VITE_API_BASE ||
+  process.env.REACT_APP_API_BASE ||
+  "http://localhost:5000";
   const verify = async () => {
-    if (!/^\d{6}$/.test(code)) return showAlert("Enter the 6-digit code.");
+    if (!/^\d{6}$/.test(code)) return showAlert("Enter the OTP code.");
     try {
       setLoading(true);
-      const res = await axios.post(`${API}/verify-otp`, { regId, code }); // 👈 use regId
+      const res = await axios.post(
+  `${API}/verify-otp`,
+  { regId, code },
+  { withCredentials: true }   // ✅ keep session cookie active
+);
       showAlert(res.data?.message || "Verified!");
       window.location.href = "/signin";
     } catch (e) {

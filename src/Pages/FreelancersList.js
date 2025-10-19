@@ -16,19 +16,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 const renderStars = (rating) => {
-  const full = Math.min(Math.max(parseInt(rating || 0, 10), 1), 5);
+  const safeRating = Number.isFinite(rating) ? rating : 0;
+  const full = Math.min(Math.max(Math.floor(safeRating), 0), 5);
   const empty = 5 - full;
+
   return (
     <>
       {Array.from({ length: full }, (_, i) => (
-        <span key={`full-${i}`}>★</span>
+        <span key={`full-${i}`} className="star-full">★</span>
       ))}
       {Array.from({ length: empty }, (_, i) => (
-        <span key={`empty-${i}`}>☆</span>
+        <span key={`empty-${i}`} className="star-empty">☆</span>
       ))}
     </>
   );
 };
+
 
 const FreelancersList = () => {
   const navigate = useNavigate();
@@ -183,17 +186,20 @@ const FreelancersList = () => {
                    
                     onClick={() => navigate(`/freelancerprofile/${f._id}`)}
                   >
-                    <div className="fl-info">
-                      <img
-                        src={f.profileImageUrl || DefaultUserIcon}
-                        alt="profile"
-                        className="fl-avatar"
-                      />
-                      <div className="fl-text">
-                        <h3>{f.fullName}</h3>
-                        <p>{f.expertise?.join(", ") || "Freelancer"}</p>
-                      </div>
-                    </div>
+                <div className="fl-info">
+  <img
+    src={f.profileImageUrl || DefaultUserIcon}
+    alt="profile"
+    className="fl-avatar"
+  />
+  <div className="fl-text">
+    <h3>{f.fullName}</h3>
+  
+    <p>{f.expertise?.join(", ") || "Freelancer"}</p>
+  </div>
+</div>
+
+
 
                     <div className="fl-meta">
                       <div className="fl-stars">{renderStars(f.rating)}</div>

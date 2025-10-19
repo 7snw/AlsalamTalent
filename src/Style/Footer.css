@@ -48,9 +48,10 @@ background: var(--footer);
 
 
 .logo-image22 {
-  margin-left: -5px;
-  height: 35px;
- 
+  margin-left: 22px;
+  height: 70px;
+  margin-top: -15px;
+  margin-bottom: -23px;
 }
 
 /* ---------- Content ---------- */
@@ -69,6 +70,7 @@ background: var(--footer);
   font-size:16px;
   font-weight:500;
   margin:8px 0 10px;
+  
   color:#ffffff;
 }
 
@@ -91,6 +93,7 @@ body.has-page-waves .site-footer .footer-wave { display:none; }
 
 .foot-logo{
   display:flex; align-items:center; gap:5px;
+  
   font-weight:700; font-size:22px; letter-spacing:.2px; cursor:pointer;
 }
 .foot-logo-box{
@@ -99,8 +102,8 @@ body.has-page-waves .site-footer .footer-wave { display:none; }
   background:var(--accent); color:#fff; font-weight:700;
 }
 .foot-logo-z{ color:var(--accent); }
-.foot-tagline{ margin:10px 0 14px; color:#adadad; line-height:1.5; font-size:15px; }
-.foot-copy{ margin-top:-9px; color:#adadad; font-size:14px; }
+.foot-tagline{ margin:10px 0 14px; color:#adadad; line-height:1.5; font-size:15px;   margin-left:   42px; }
+.foot-copy{ margin-top:-9px; color:#adadad; font-size:14px;   margin-left: 42px;}
 
 .mt12{ margin-top:12px; }
 .foot-address{ font-style:normal; color:#cfe5ec; }

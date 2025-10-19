@@ -1,12 +1,11 @@
-// src/Pages/LoginPage.jsx
-import React, { useEffect, useState } from "react";
+// additions only marked with // 🔐 OTP ADDITION and // 🔐 FORGOT PASSWORD ADDITION
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Style/Login.css";
 import axios from "axios";
 import { showAlert } from "../utils/toastMessages";
 import LandingPage from "./LandingPage";
 import SignInArt from "../Assets/LoginPhoto.png";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const API_BASE =
   (typeof process !== "undefined" &&
@@ -17,95 +16,28 @@ const API_BASE =
 
 const normalizeEmail = (v = "") => String(v).trim().toLowerCase();
 
-// ---- Onboarding helpers ----
-
-// Optional API: GET /api/freelancers/me/onboarding
-// Returns (suggested): { profileCompleted: boolean, portfolioCount: number, missing: string[] }
-async function fetchFreelancerOnboarding(token) {
-  try {
-    const { data } = await axios.get(`${API_BASE}/api/freelancers/me/onboarding`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    });
-    const profileCompleted = !!data?.profileCompleted;
-    const portfolioCount = Number.isFinite(data?.portfolioCount)
-      ? data.portfolioCount
-      : Array.isArray(data?.portfolio)
-      ? data.portfolio.length
-      : 0;
-
-    return {
-      profileCompleted,
-      portfolioCount,
-      missing: Array.isArray(data?.missing) ? data.missing : [],
-    };
-  } catch {
-    return null; // silent fallback
-  }
-}
-
-// Decide if this user is "just registered"
-function isJustRegistered(loginPayloadUser) {
-  // 1) Primary: flag set by Sign-Up success
-  try {
-    const flag = localStorage.getItem("cz_just_registered");
-    if (flag === "1") return true;
-  } catch {}
-
-  // 2) Fallback: if backend gives createdAt and it’s within N days (e.g., 3)
-  const createdAt = loginPayloadUser?.createdAt || loginPayloadUser?.created_at;
-  if (createdAt) {
-    const created = new Date(createdAt).getTime();
-    if (!Number.isNaN(created)) {
-      const DAYS = 3 * 24 * 60 * 60 * 1000;
-      if (Date.now() - created <= DAYS) return true;
-    }
-  }
-
-  return false;
-}
-
-// Clear the "just registered" one-time flag
-function clearJustRegisteredFlag() {
-  try {
-    localStorage.removeItem("cz_just_registered");
-  } catch {}
-}
-
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [showPw, setShowPw] = useState(false);
+  const [showPw] = useState(false);
+
+  // 🔐 OTP ADDITION
+  const [otpStep, setOtpStep] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+
+  // 🔐 FORGOT PASSWORD ADDITION
+  const [forgotStep, setForgotStep] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetOtp, setResetOtp] = useState("");
+  const [oldPw, setOldPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [sending, setSending] = useState(false);
+
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "Escape") navigate("/landingpage");
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [navigate]);
-
-  const normalizeLoginResponse = (data) => {
-    // Accept flexible API shapes
-    const userBlob = data?.user ? data.user : data || {};
-    const id = userBlob._id || userBlob.id;
-    const fullName = userBlob.fullName || userBlob.name || "";
-    const role = (userBlob.role || "").toLowerCase();
-    const mail = userBlob.email || "";
-    const token = data?.token || userBlob?.token || null;
-
-    // Optional pass-throughs we might use
-    const createdAt = userBlob.createdAt || userBlob.created_at || null;
-    const profileCompleted =
-      typeof userBlob.profileCompleted === "boolean" ? userBlob.profileCompleted : undefined;
-
-    return { id, fullName, email: mail, role, token, createdAt, profileCompleted, rawUser: userBlob };
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const cleanEmail = normalizeEmail(email);
     if (!cleanEmail || !password) {
       showAlert("Please enter your email and password.");
@@ -114,85 +46,109 @@ export default function LoginPage() {
 
     setSubmitting(true);
     try {
-      const url = `${API_BASE}/api/users/login`;
-      const payload = { email: cleanEmail, password: String(password) };
+      const { data } = await axios.post(`${API_BASE}/api/users/login`, {
+        email: cleanEmail,
+        password,
+      });
 
-      const { data } = await axios.post(url, payload /* , { withCredentials: true } */);
-      const norm = normalizeLoginResponse(data);
-
-      if (!norm.id || !norm.role) {
-        showAlert("Invalid response from server.");
-        setSubmitting(false);
+      if (data.step === "otp_required") {
+        showAlert("OTP sent to your email");
+        setOtpStep(true);
         return;
       }
 
-      const user = {
-        _id: norm.id,
-        fullName: norm.fullName,
-        email: norm.email,
-        role: norm.role,
-        createdAt: norm.createdAt || undefined,
-      };
-
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("userId", user._id);
-      localStorage.setItem("role", user.role);
-      if (norm.token) localStorage.setItem("token", norm.token);
-
-      switch (norm.role) {
-        case "admin":
-          navigate("/analyticsadmin");
-          break;
-
-        case "client":
-          navigate("/clienthome");
-          break;
-case "freelancer": {
-  const justRegistered = isJustRegistered({ createdAt: norm.createdAt });
-
-  if (justRegistered) {
-    const onboarding = await fetchFreelancerOnboarding(norm.token);
-
-    // Decide when to alert
-    let needsAttention = false;
-    if (onboarding) {
-      const needsPortfolio = (onboarding.portfolioCount || 0) < 1;
-      const needsProfile = !onboarding.profileCompleted;
-      needsAttention = needsPortfolio || needsProfile;
-    } else if (typeof norm.profileCompleted === "boolean") {
-      needsAttention = !norm.profileCompleted;
-    } else {
-    
-      needsAttention = true;
-    }
-
-    if (needsAttention) {
-      showAlert("Welcome aboard! Complete your profile and add your portfolio to get personalized project matches.");
-      // Give the toast a moment to render before leaving the page
-      await new Promise((r) => setTimeout(r, 800));
-    }
-
-    clearJustRegisteredFlag();
-  }
-
-  navigate("/freelancer-home");
-  break;
-}
-
-
-        default:
-          showAlert("Unknown role. Please contact support.");
-      }
+      processLoginSuccess(data);
     } catch (err) {
-      const status = err?.response?.status;
       const msg =
         err?.response?.data?.message ||
-        (status === 401 || status === 404
-          ? "Email or password is incorrect."
-          : "Login failed. Please try again.");
+        "Login failed. Please check your credentials.";
       showAlert(msg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // 🔐 OTP ADDITION
+  const handleVerifyOtp = async () => {
+    if (!/^\d{6}$/.test(otpCode)) return showAlert("Enter a valid 6-digit OTP.");
+    try {
+      const { data } = await axios.post(`${API_BASE}/api/users/verify-login-otp`, {
+        email,
+        code: otpCode,
+      });
+    
+      processLoginSuccess(data);
+    } catch (err) {
+      showAlert(err?.response?.data?.message || "OTP verification failed.");
+    }
+  };
+
+  // 🔐 FORGOT PASSWORD ADDITION
+  const handleSendResetCode = async () => {
+    if (!resetEmail) return showAlert("Enter your registered email.");
+    setSending(true);
+    try {
+      const res = await axios.post(`${API_BASE}/api/freelancer/forgot-password`, {
+        email: resetEmail,
+      });
+      showAlert(res.data.message);
+    } catch (err) {
+      showAlert(err?.response?.data?.message || "Failed to send reset code.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetEmail || !resetOtp || !oldPw || !newPw) {
+      return showAlert("Please fill all fields.");
+    }
+    setSending(true);
+    try {
+      const res = await axios.post(`${API_BASE}/api/freelancer/reset-password`, {
+        email: resetEmail,
+        code: resetOtp,
+        oldPassword: oldPw,
+        newPassword: newPw,
+      });
+      showAlert(res.data.message);
+      setForgotStep(false);
+      setResetEmail("");
+      setResetOtp("");
+      setOldPw("");
+      setNewPw("");
+    } catch (err) {
+      showAlert(err?.response?.data?.message || "Failed to reset password.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const processLoginSuccess = (data) => {
+    const userId = data._id || data.id;
+    const role = (data.role || "").toLowerCase();
+    const user = {
+      _id: userId,
+      id: userId,
+      fullName: data.fullName || data.name,
+      email: data.email,
+      role,
+    };
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("userId", userId);
+    localStorage.setItem("role", role);
+    switch (role) {
+      case "admin":
+        navigate("/analyticsadmin");
+        break;
+      case "client":
+        navigate("/clienthome");
+        break;
+      case "freelancer":
+        navigate("/freelancer-home");
+        break;
+      default:
+        showAlert("Unknown role. Please contact support.");
     }
   };
 
@@ -201,83 +157,165 @@ case "freelancer": {
       <div className="login-bg-live" aria-hidden="true">
         <LandingPage />
       </div>
+      <div className="login-dim" aria-hidden="true"  />
 
-      <div
-        className="login-dim"
-        aria-hidden="true"
-        onClick={() => navigate("/landingpage")}
-      />
-
-      <div
-        className="login-modal"
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="login-modal" onClick={(e) => e.stopPropagation()}>
         <div className="login-left">
-          <h2 className="login-title">
-            <span className="accent">Sign in</span> to your Account
-          </h2>
+          {/* 🔐 FORGOT PASSWORD FLOW */}
+          {forgotStep ? (
+            <div className="reset-section">
+              <h2 className="reset-title">
+                Reset Your Password
+                <button
+  className="code-close"
+  aria-label="Close"
+  onClick={() => navigate("/landingPage")}
+>
+  ×
+</button>
+              </h2>
 
-          <form onSubmit={handleSubmit} className="login-form">
-            <label>Email</label>
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={submitting}
-              required
-            />
-
-            <label>Password</label>
-            <div className="pw-field" style={{ position: "relative" }}>
+              <label className="reset-label">Email</label>
               <input
-                type={showPw ? "text" : "password"}
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={submitting}
-                required
-                style={{ paddingRight: "2.5rem" }}
+                className="reset-input reset-email"
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
               />
+
               <button
-                type="button"
-                className="pw-toggle"
-                onClick={() => setShowPw((s) => !s)}
-                aria-label={showPw ? "Hide password" : "Show password"}
-                tabIndex={-1}
-                style={{
-                  position: "absolute",
-                  right: "0.75rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "transparent",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  display: "grid",
-                  placeItems: "center",
-                  lineHeight: 0,
-                }}
+                onClick={handleSendResetCode}
+                className="reset-btn"
+                disabled={sending}
               >
-                {showPw ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                {sending ? "Sending..." : "Send Reset Code"}
+              </button>
+
+              <label className="reset-label">OTP Code</label>
+              <input
+                className="reset-input reset-otp"
+                type="text"
+                maxLength={6}
+                value={resetOtp}
+                onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, ""))}
+              />
+
+              <label className="reset-label">Old Password</label>
+              <input
+                className="reset-input reset-oldpw"
+                type="password"
+                value={oldPw}
+                onChange={(e) => setOldPw(e.target.value)}
+              />
+
+              <label className="reset-label">New Password</label>
+              <input
+                className="reset-input reset-newpw"
+                type="password"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+              />
+
+              <small className="reset-note">
+                Must include uppercase, lowercase, number, and special character.
+              </small>
+
+              <button
+                onClick={handleResetPassword}
+                className="reset-btn"
+                disabled={sending}
+              >
+                {sending ? "Processing..." : "Reset Password"}
+              </button>
+
+              <p className="reset-back" onClick={() => setForgotStep(false)}>
+                Back to Login
+              </p>
+            </div>
+          ) : !otpStep ? (
+            <div className="login-section">
+              <h2 className="login-title">
+                Sign in to your Account
+
+                <button
+  className="signin-close"
+  aria-label="Close"
+  onClick={() => navigate("/landingPage")}
+>
+  ×
+</button>
+              </h2>
+
+              <form onSubmit={handleSubmit} className="login-form">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={submitting}
+                  required
+                />
+                <label>Password</label>
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={submitting}
+                  required
+                />
+
+                <p
+                  className="forgot-link"
+                  onClick={() => setForgotStep(true)}
+                  style={{
+                    fontSize: "13px",
+                    marginTop: "5px",
+                    color: "#f1633a",
+                    cursor: "pointer",
+                    textAlign: "right",
+                  }}
+                >
+                  Forgot Password?
+                </p>
+
+                <button type="submit" className="login-btn" disabled={submitting}>
+                  {submitting ? "Signing in…" : "Sign In"}
+                </button>
+              </form>
+
+              <p className="register-link">
+                I don’t have an account?{" "}
+                <span onClick={() => navigate("/signup")}>Register</span>
+              </p>
+            </div>
+          ) : (
+            <div className="otp-section">
+              <h2 className="otp-title1">
+                <span className="accent">Verify</span> your OTP
+                <button
+  className="otpp-close"
+  aria-label="Close"
+  onClick={() => navigate("/landingPage")}
+>
+  ×
+</button>
+              </h2>
+              <p className="otp-subtext1">Enter the 6-digit code sent to {email}</p>
+              <input
+                type="text"
+                maxLength={6}
+                className="otp-input1"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+              />
+
+              <button onClick={handleVerifyOtp} className="otp-btn">
+                Verify & Continue
               </button>
             </div>
-
-            <button type="submit" className="login-btn" disabled={submitting}>
-              {submitting ? "Signing in…" : "Sign In"}
-            </button>
-          </form>
-
-          <p className="register-link">
-            I don’t have an account?{" "}
-            <span onClick={() => navigate("/signup")}>Register</span>
-          </p>
+          )}
         </div>
-
-        <div className="login-split" aria-hidden="true" />
-
+        <div className="login-split" />
         <div className="login-right">
           <img src={SignInArt} alt="Sign in illustration" />
         </div>

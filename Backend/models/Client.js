@@ -30,6 +30,11 @@ const clientSchema = new mongoose.Schema(
     // Password reset (OTP-by-email)
     pwResetOtpHash:   { type: String, select: false },
     pwResetExpiresAt: { type: Date,   select: false },
+    mfaSecret: { type: String, select: false },
+mfaEnabled: { type: Boolean, default: false },
+encryptedFields: ["email", "phone", "iban", "mfaSecret"]
+
+
   },
   { timestamps: true, strict: true }
 );

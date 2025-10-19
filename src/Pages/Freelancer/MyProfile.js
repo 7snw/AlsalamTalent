@@ -17,19 +17,22 @@ import { showError } from '../../utils/toastMessages';
 
 /* --- stars identical to the list page --- */
 const renderStars = (rating) => {
-  const full = Math.min(Math.max(parseInt(rating ?? 0, 10), 0), 5);
+  const safeRating = Number.isFinite(rating) ? rating : 0;
+  const full = Math.min(Math.max(Math.floor(safeRating), 0), 5);
   const empty = 5 - full;
+
   return (
     <>
       {Array.from({ length: full }, (_, i) => (
-        <span key={`full-${i}`}>★</span>
+        <span key={`full-${i}`} className="star-full">★</span>
       ))}
       {Array.from({ length: empty }, (_, i) => (
-        <span key={`empty-${i}`}>☆</span>
+        <span key={`empty-${i}`} className="star-empty">☆</span>
       ))}
     </>
   );
 };
+
 
 const MyProfile = () => {
   const [activeTab, setActiveTab] = useState('about');

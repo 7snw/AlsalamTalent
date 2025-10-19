@@ -58,11 +58,12 @@ html, body{
 }
 
 .signup-title{
+  margin-top:-10px;
   text-align:center;
   color:var(--ink);
-  margin:6px 0 24px;
-  font-size: 28px;
-  font-weight:770;
+
+  font-size: 27px;
+  font-weight:750;
 }
 .signup-title .accent{ color:var(--accent); }
 
@@ -108,7 +109,8 @@ html, body{
   width:100%;
    font-family:var(--font-sans);
   padding:12px 14px;
-  border:1px solid #d9d9df;
+ border: 1px solid #d9d9df;
+ 
   border-radius:12px;
   font-size:14px;
   background:var(--field-bg);
@@ -118,10 +120,13 @@ html, body{
 }
 .signup-form input:focus,
 .signup-form select:focus{
-  outline:none;
-  border-color:#c6d3de;
-  box-shadow:0 0 0 3px rgba(143,191,206,.20);
+ border-color: #f1633a;
+  box-shadow: 0 0 6px #f1633a66;
+  outline: none;
 }
+
+
+
 
 /* File field */
 .file-field input[type="file"]{
@@ -150,7 +155,10 @@ html, body{
   margin-bottom: 5px;
   cursor: pointer;
     width: 97%;
+      border-radius:12px;
+
 }
+
 
 
 .majorr-field p {
@@ -181,7 +189,7 @@ html, body{
   top: 100%;
   left: 0;
   background-color: #ffffff;
-  border:1px solid #d9d9df;
+  border:1px solid #dfdbd9;
   border-radius: 8px;
   padding: 10px;
   width: 100%;
@@ -292,7 +300,9 @@ html, body{
   width:100%;
   box-shadow:0 12px 24px rgba(0,0,0,.15);
 }
-.create-btn:hover{ background:#172845; }
+.create-btn:hover{  outline:none;
+  border-color:#c6d3de;
+  box-shadow:0 0 0 3px rgba(143,191,206,.20); background:#1c2e4d; }
 
 /* Centered T&C row above Sign In */
 .terms-row{
@@ -359,6 +369,7 @@ html, body{
 .tc-head{
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 18px;
+    font-size:20px;
   border-bottom: 1px solid #eef1f4;
 }
 .tc-head h3{ margin: 0; color: var(--ink); }
@@ -373,7 +384,7 @@ html, body{
   max-height: 58vh;
 }
 .tc-body h4{ margin: 14px 0 6px; color: #1b223c; }
-.tc-body p{ margin: 0 0 10px; color: #223; }
+.tc-body p{ margin: 0 0 10px; color: #223;   }
 
 .tc-consent{
   display: none;
@@ -442,15 +453,15 @@ html, body{
   display: flex; justify-content: space-between; align-items: center;
   padding: 14px 16px; border-bottom: 1px solid #eef1f4;
 }
-.otp-x{ border: none; background: transparent; font-size: 22px; cursor: pointer; line-height: 1; }
+.otp-x{ border: none; background: transparent; font-size: 22px; cursor: pointer; line-height: 1; margin-top: -3px; }
 .otp-body{ padding: 18px; }
 .otp-input{
-  width: 100%;
+  width:96%;
   text-align: center;
   letter-spacing: 8px;
   font-weight: 700;
   font-size: 22px;
-  padding: 12px 14px;
+  padding: 12px 10px;
   border: 1px solid #d9d9df;
   border-radius: 12px;
   background: #eef4f7;
@@ -462,4 +473,20 @@ html, body{
 }
 .otp-secondary{
   background: #e7eaef; color: #111; border: none; border-radius: 10px; padding: 10px 16px; 
+}
+
+.signup-close {
+  position: absolute;
+  top: 26px;
+  right: 35px;
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  color: #121f36;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.signup-close:hover {
+  color: #f1633a;
 }

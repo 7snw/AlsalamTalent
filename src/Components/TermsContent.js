@@ -11,7 +11,7 @@ export default function TermsContent({ hideTitle = false }) {
       <p>
        •	Only Bahrain Polytechnic students or graduates aged 18 years and above are eligible to register.<br></br>
 •	You confirm that all information provided in registration is accurate and truthful such as the ID number you have provided. <br></br>
-•	The use of another Bahrain Polytechnic student’s ID number, or the creation of an account using false or borrowed credentials, is strictly prohibited and will be considered a serious violation of this Agreement, subject to disciplinary action including account suspension or termination
+•	The use of another Bahrain Polytechnic student’s ID number, or the creation of an account using false or borrowed credentials,<br></br> is strictly prohibited and will be considered a serious violation of this Agreement, subject to disciplinary action including account suspension or termination
       </p>
 
       <h3>2. Relationship of Parties</h3>

@@ -93,8 +93,17 @@ const CV_ALLOWED = [
 const CV_MAX = 10 * 1024 * 1024;
 
 /* ---------------- Password strength (for change password tab) ---------------- */
-const isStrongPassword = (pwd) =>
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(String(pwd || ""));
+const isStrongPassword = (pwd = '') => {
+  if (pwd.length < 12) return false;
+  const hasUpper = /[A-Z]/.test(pwd);
+  const hasLower = /[a-z]/.test(pwd);
+  const hasNumber = /\d/.test(pwd);
+  const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+  const hasSpace = /\s/.test(pwd);
+  const weakList = ["Password123!", "Admin@123", "Welcome@123", "Qwerty@123"];
+  const isWeak = weakList.some(w => pwd.toLowerCase() === w.toLowerCase());
+  return hasUpper && hasLower && hasNumber && hasSpecial && !hasSpace && !isWeak;
+};
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
@@ -105,6 +114,7 @@ const ProfileSettings = () => {
   const [imageFile, setImageFile] = useState(null);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   const [showMajorDropdown, setShowMajorDropdown] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -256,24 +266,46 @@ const ProfileSettings = () => {
     }
   };
 
-  const handleChangePassword = async () => {
-    try {
-      if (!isStrongPassword(newPassword)) {
-        return showAlert('New password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
-      }
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      const freelancerId = storedUser?._id;
-      await axios.put(`http://localhost:5000/api/freelancer/changepassword/${freelancerId}`, {
+const handleChangePassword = async () => {
+  try {
+    if (!oldPassword.trim() || !newPassword.trim()) {
+      return showAlert('Please fill in both old and new passwords.');
+    }
+
+    if (!isStrongPassword(newPassword)) {
+      return showAlert(
+        'New password must be at least 12 characters long, include uppercase, lowercase, number, and special character, and must not contain spaces or weak patterns (e.g., Password123!).'
+      );
+    }
+
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const freelancerId = storedUser?._id;
+    if (!freelancerId) {
+      return showAlert('You are not logged in.');
+    }
+
+    const res = await axios.put(
+      `http://localhost:5000/api/freelancer/changepassword/${freelancerId}`,
+      {
         oldPassword: oldPassword.trim(),
         newPassword: newPassword.trim(),
-      });
-      showAlert('Password updated successfully!');
-      setOldPassword(''); setNewPassword('');
-    } catch (error) {
-      console.error('Error changing password:', error);
-      showAlert('Failed to change password.');
-    }
-  };
+      }
+    );
+
+    showAlert(res.data?.message || 'Password updated successfully!');
+    setOldPassword('');
+    setNewPassword('');
+  } catch (error) {
+    console.error('Error changing password:', error);
+    const errMsg =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      'Failed to change password.';
+    showAlert(errMsg);
+  }
+};
+
+
 
   const handleDeactivateAccount = async () => {
     try {
@@ -448,15 +480,33 @@ const ProfileSettings = () => {
             </div>
           )}
 
-          {activeSection === 'password' && (
-            <div className="section9">
-              <h4>Old Password</h4>
-              <input type="password" name="oldPassword" autoComplete="current-password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
-              <h4>New Password</h4>
-              <input type="password" name="newPassword" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-              <button className="save-btn9" onClick={handleChangePassword}>Save Password</button>
-            </div>
-          )}
+     {activeSection === 'password' && (
+  <div className="section9">
+    <h4>Old Password</h4>
+    <input
+      type="password"
+      name="oldPassword"
+      autoComplete="current-password"
+      value={oldPassword}
+      onChange={(e) => setOldPassword(e.target.value)}
+    />
+    <h4>New Password</h4>
+    <input
+      type="password"
+      name="newPassword"
+      autoComplete="new-password"
+      value={newPassword}
+      onChange={(e) => setNewPassword(e.target.value)}
+    />
+    <small style={{ opacity: 0.7, display: 'block', marginTop: '-5px' ,fontSize: '12px'}}>
+      Must be at least <strong>12 characters</strong> long and include uppercase, lowercase, number, and special character.
+    </small>
+    <button className="save-btn9" onClick={handleChangePassword}>
+      Save Password
+    </button>
+  </div>
+)}
+
         </div>
       </div>
       <Footer />

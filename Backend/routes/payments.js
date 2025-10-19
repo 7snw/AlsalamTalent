@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const logAction = require('../utils/logAction');
 const Payment    = require('../models/Payment');
 const Freelancer = require('../models/Freelancer');
 const Client     = require('../models/Client');   
@@ -84,6 +84,14 @@ router.post('/record', async (req, res) => {
       amount: amt,
       method: method || 'Bank Transfer',
       status: 'Pending',
+    });
+
+
+     await logAction({
+      userId: clientId,
+      action: 'Recorded Payment',
+      projectId,
+      meta: { amount },
     });
 
     // ---- IN-APP notification to freelancer ONLY (no email via sendNotification)
@@ -199,6 +207,13 @@ router.put('/:id/complete', async (req, res) => {
     } catch (e) {
       console.warn('[payments] completion notify failed:', e?.message || e);
     }
+
+      await logAction({
+      userId: req.user?.id || updated.clientId,
+      action: 'Marked Payment as Completed',
+      projectId: updated.projectId,
+      meta: { amount: updated.amount },
+    });
 
     res.json(updated);
   } catch (e) {

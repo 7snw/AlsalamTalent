@@ -3,14 +3,16 @@ import RoleProtectedLayout from "./Components/RoleProtectedLayout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
+import { useSessionWatcher } from "./hooks/useSessionWatcher";
 
 import LandingPage from "./Pages/LandingPage";
 import StudentGraduate from "./Pages/StudentOrGraduate";
 import SignUpPage from "./Pages/SignUpPage";
 import GraduateSignUp from "./Pages/GraduateSignUp";
 import LoginPage from "./Pages/LoginPage";
+import VerifyReset from "./Pages/VerifyReset";
 import AboutUs from "./Pages/AboutUs";
-
+import TermsPage from "./Pages/TermsPage";
 
 // Shared Pages
 import Messages from "./Pages/Messages";
@@ -46,6 +48,7 @@ import ProjectProgress from "./Pages/Clients/ProjectProgress";
 import ProfileSettingsClient from "./Pages/Clients/ProfileSettingsClient";
 import ClientNotifications from "./Pages/Clients/ClientNotifications";
 import PostResource from "./Pages/Clients/PostResource";
+
 // Admin Pages
 import AdminAllProjects from "./Pages/Admin/AdminAllProjects";
 import Clientlist from "./Pages/Admin/UsersList";
@@ -62,11 +65,11 @@ import EditProject from "./Pages/EditProject";
 import ProjectDetails from "./Pages/ProjectDetails";
 import Library from "./Pages/Library";
 
+
 /* ---------- Scroll to top on route change ---------- */
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    // prevent browser from restoring previous scroll on back/forward
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
@@ -76,7 +79,10 @@ function ScrollToTop() {
 }
 
 const App = () => {
-  // ensure manual restoration set once as well
+  // 👀 Activate session timeout watcher globally
+  useSessionWatcher();
+
+  // ensure scroll restoration setting
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
@@ -86,7 +92,7 @@ const App = () => {
   return (
     <Router>
       <>
-        {/* 3s auto-close toasts */}
+        {/* Toasts (auto close after 3s) */}
         <ToastContainer position="top-right" autoClose={3000} />
 
         {/* scroll-to-top on every route change */}
@@ -98,15 +104,15 @@ const App = () => {
           <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/studentgraduate" element={<StudentGraduate />} />
           <Route path="/signin" element={<LoginPage />} />
+          <Route path="/verifyReset" element={<VerifyReset />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/graduatesignup" element={<GraduateSignUp />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/library" element={<Library />} />
+          <Route path="/terms" element={<TermsPage />} />
 
           {/* Shared Protected */}
-          <Route
-            element={<RoleProtectedLayout allowedRoles={["Freelancer", "Client", "Admin"]} />}
-          >
+          <Route element={<RoleProtectedLayout allowedRoles={["Freelancer", "Client", "Admin"]} />}>
             <Route path="/messages" element={<Messages />} />
             <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
             <Route path="/freelancers" element={<FreelancersList />} />
@@ -146,7 +152,6 @@ const App = () => {
             <Route path="/profilesettingsclint" element={<ProfileSettingsClient />} />
             <Route path="/client-notifications" element={<ClientNotifications />} />
             <Route path="/resources" element={<PostResource />} />
-
           </Route>
 
           {/* Admin */}

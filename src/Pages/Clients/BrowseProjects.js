@@ -187,7 +187,7 @@ const BrowseProjects = () => {
           {/* Cards grid */}
           <div className="ap-grid">
             {filteredProjects.map((proj, i) => {
-              const tags = skillsOf(proj);
+           
               return (
                 <motion.div
                   key={proj._id}
@@ -207,22 +207,7 @@ const BrowseProjects = () => {
                     />
 
                   
-                    {!!tags.length && (
-                      <div className="ap-tags-marquee" aria-hidden>
-                        <div className="ap-track" style={{ "--ap-speed": "6s" }}>
-                          <div className="ap-strip">
-                            {tags.map((t, ix) => (
-                              <span className="ap-tag" key={`a-${ix}`}>{t}</span>
-                            ))}
-                          </div>
-                          <div className="ap-strip" aria-hidden>
-                            {tags.map((t, ix) => (
-                              <span className="ap-tag" key={`b-${ix}`}>{t}</span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                
                   </div>
 
                   <div className="ap-meta">

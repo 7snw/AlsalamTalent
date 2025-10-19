@@ -93,6 +93,7 @@
   margin-bottom:20px;
   margin-left: 57px;
   margin-top: 20px;
+ 
 }
 
 h1{
@@ -292,6 +293,7 @@ h1{
   object-fit: contain;
   transform: translate(-40px, -5px); /* nudge slightly right/down */
   user-select: none;
+  margin-top: -10px;
 }
 
 /* soft circular glow behind the illustration (optional) */

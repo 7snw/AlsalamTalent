@@ -90,7 +90,7 @@ const freelancerSchema = new mongoose.Schema(
 
     isVerified: { type: Boolean, default: false },
     isActive:   { type: Boolean, default: true },
-    rating:     { type: Number, default: 1, min: 1, max: 5 },
+    rating:     { type: Number, default: 0 },
 
     // Profile
     expertise:       [String],
@@ -114,6 +114,14 @@ const freelancerSchema = new mongoose.Schema(
     // OTP for sign-up (kept)
     otpHash:    { type: String, select: false, default: null },
     otpExpires: { type: Date,   select: false, default: null },
+
+    // --- Security Policy Fields (Al Salam Bank InfoSec) ---
+    lastPasswordChange: { type: Date, default: Date.now },      // 4.4 expiry
+    passwordHistory: [{ type: String }],  
+    
+    resetOtp: { type: String, select: false },
+resetOtpExpiry: { type: Date },
+// 4.6 reuse check (keep last 13)
   },
   { timestamps: true, strict: true }
 );
@@ -121,36 +129,60 @@ const freelancerSchema = new mongoose.Schema(
 /* ------------------------------------------------------------------ */
 /* Normalizers & password hashing                                     */
 /* ------------------------------------------------------------------ */
+freelancerSchema.pre('save', async function (next) {
+  try {
+    // --- Password hashing ---
+    if (this.isModified('password') && this.password) {
+      const newPassword = String(this.password).trim();
+      const newHash = await bcrypt.hash(newPassword, 10);
 
-freelancerSchema.pre('save', async function(next) {
-  // password → bcrypt
-  if (this.isModified('password') && this.password) {
-    this.password = await bcrypt.hash(String(this.password).trim(), 10);
-  }
+      // Load password history (on current doc)
+      if (Array.isArray(this.passwordHistory)) {
+        // Prevent duplicates if same hash somehow re-hashed
+        if (!this.passwordHistory.includes(newHash)) {
+          this.passwordHistory.unshift(newHash);
+        }
+      } else {
+        this.passwordHistory = [newHash];
+      }
 
-  // normalize common fields (still plaintext in-memory here; plugin will encrypt on write)
-  if (this.isModified('iban') && typeof this.iban === 'string') {
-    const clean = this.iban.replace(/\s+/g, '').toUpperCase();
-    this.iban = clean;
-    this.ibanLast4 = clean ? clean.slice(-4) : undefined;
+      // Limit to last 13
+      this.passwordHistory = this.passwordHistory.slice(0, 13);
+
+      // Update last change timestamp
+      this.lastPasswordChange = Date.now();
+
+      // Replace plaintext with bcrypt hash
+      this.password = newHash;
+    }
+
+    // --- Normalizations ---
+    if (this.isModified('iban') && typeof this.iban === 'string') {
+      const clean = this.iban.replace(/\s+/g, '').toUpperCase();
+      this.iban = clean;
+      this.ibanLast4 = clean ? clean.slice(-4) : undefined;
+    }
+    if (this.isModified('email') && this.email) {
+      this.email = String(this.email).trim().toLowerCase();
+    }
+    if (this.isModified('phone') && this.phone) {
+      this.phone = String(this.phone).replace(/\s+/g, '').trim();
+    }
+    if (this.isModified('studentId') && this.studentId) {
+      this.studentId = String(this.studentId).trim();
+    }
+    if (this.isModified('cpr') && this.cpr) {
+      this.cpr = String(this.cpr).replace(/\s+/g, '').trim();
+    }
+
+    next();
+  } catch (err) {
+    next(err);
   }
-  if (this.isModified('email') && this.email) {
-    this.email = String(this.email).trim().toLowerCase();  // normalize here instead
-  }
-  if (this.isModified('phone') && this.phone) {
-    this.phone = String(this.phone).replace(/\s+/g, '').trim();
-  }
-  if (this.isModified('studentId') && this.studentId) {
-    this.studentId = String(this.studentId).trim();
-  }
-  if (this.isModified('cpr') && this.cpr) {
-    this.cpr = String(this.cpr).replace(/\s+/g, '').trim();
-  }
-  next();
 });
 
 /* ------------------------------------------------------------------ */
-/* Field-level encryption + deterministic lookup hashes             */
+/* Field-level encryption + deterministic lookup hashes               */
 /* ------------------------------------------------------------------ */
 
 freelancerSchema.plugin(fieldEncryption, {

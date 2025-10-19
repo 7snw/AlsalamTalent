@@ -280,6 +280,13 @@ router.post('/:id/stages/:stage/upload', upload.array('docs'), async (req, res) 
     ];
 
     await assignment.save();
+
+       await logAction({
+      userId: assignment.freelancerId,
+      action: `Uploaded Files (${stage})`,
+      projectId: assignment.projectId,
+    });
+
     res.json({ message: 'Files uploaded to stage', assignment });
   } catch (err) {
     console.error('Stage upload error:', err);
@@ -323,6 +330,12 @@ router.put('/:id/stages/:stage/submit', async (req, res) => {
     }
 
     await assignment.save();
+
+        await logAction({
+      userId: assignment.freelancerId,
+      action: `Submitted Stage (${stage})`,
+      projectId: assignment.projectId,
+    });
 
     // ===== NOTIFY + EMAIL: client (author) about submission (uses your template) =====
     try {
@@ -409,6 +422,13 @@ router.put('/:id/stages/:stage/review', async (req, res) => {
 
     await assignment.save();
 
+       await logAction({
+      userId: assignment.authorId,
+      action: `Reviewed Stage (${stage}) - ${status}`,
+      projectId: assignment.projectId,
+    });
+
+    
     // sync project + freelancer rating when fully completed
     if (assignment.status === 'Completed') {
       await Project.findByIdAndUpdate(assignment.projectId, { status: 'Completed' });

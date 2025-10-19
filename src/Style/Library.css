@@ -96,6 +96,7 @@
 .library-card{
   background:#fff;
   border-radius:16px;
+  border: 0.5px solid #939393ca;
   padding:16px;
   box-shadow:0 4px 12px rgba(0,0,0,.08);
   display:flex;
@@ -134,6 +135,7 @@
   padding:16px;
   box-shadow:0 4px 12px rgba(0,0,0,.08);
   display:flex;
+    border: 0.5px solid #939393ca;
   gap:12px;
   text-decoration:none;
   color:inherit;
@@ -189,7 +191,7 @@
   width: 99.6%;
   height: auto;
  
-  border: 1px solid #11223d;
+   border: 0.5px solid #939393;
 
   object-fit: cover;
 }

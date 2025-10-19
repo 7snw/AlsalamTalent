@@ -34,6 +34,7 @@
   position: relative; z-index: 2; 
   min-height:70vh;
   padding-bottom:100px;
+  
 }
 
 .ap-filter{ width:280px; flex:0 0 280px; }
@@ -58,12 +59,14 @@
   color:#f1633a;
   margin:0 0 10px;
   margin-left:15px;
+  position: fixed;
 }
-.ap-title-accent{ color:#f1633a; }
+.ap-title-accent{ color:#f1633a;margin-bottom: 50px;} 
 
 /* FILTER BOX */
 .ap-filter-box{
-margin-top: 55px;
+margin-top: 115px;
+position: fixed;
   color:#ffffff;
   border-radius:18px;
   padding:18px 16px 14px;
