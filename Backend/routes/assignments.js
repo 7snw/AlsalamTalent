@@ -1,4 +1,3 @@
-// routes/assignments.js
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -34,14 +33,14 @@ const BASE_URL = 'http://localhost:5000';
 const VALID_STAGES = ['initial', 'half', 'final'];
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
-/* ---------------- helpers ---------------- */
+
 const STAGE_TITLES = {
   initial: 'Initial Concept',
   half: '50% of the work',
   final: 'Final Submission',
 };
 
-// Plain wrapper used only as a fallback
+
 const htmlWrap = (title, paragraphs = []) =>
   `
   <div style="font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#0f1b2d;line-height:1.5">
@@ -51,8 +50,8 @@ const htmlWrap = (title, paragraphs = []) =>
   `;
 
 async function emailAndNotify({
-  toUser,    // mongoose doc with fullName/email/_id
-  toType,    // 'client' | 'freelancer'
+  toUser,   
+  toType,    
   subject,
   text,
   html,
@@ -88,7 +87,7 @@ async function emailAndNotify({
   }
 }
 
-// helper: recompute aggregates (mirrors model logic)
+
 const recomputeAggregate = (a) => {
   const s = a.stages || {};
   const ok = (x) => ['reviewed', 'completed'].includes(x);
@@ -121,7 +120,7 @@ const recomputeAggregate = (a) => {
   if (lastFb) a.feedback = lastFb;
 };
 
-/* =================== ASSIGN =================== */
+
 router.post('/assign', async (req, res) => {
   try {
     const { projectId, freelancerId, authorId } = req.body;
@@ -143,7 +142,7 @@ router.post('/assign', async (req, res) => {
       assignedAt: new Date(),
     });
 
-    // In-app notification
+
     try {
       const notif = await sendNotification({
         userId: freelancer._id,
@@ -162,7 +161,6 @@ router.post('/assign', async (req, res) => {
 
     await logAction({ userId: authorId, action: 'Assigned Project to Freelancer', projectId });
 
-    // Branded email
     try {
       if (freelancer.email) {
         const html = assignmentAssigned({
@@ -191,7 +189,7 @@ router.post('/assign', async (req, res) => {
   }
 });
 
-/* =================== BASIC FETCHERS =================== */
+
 router.get('/by-author/:authorId', async (req, res) => {
   try {
     const assignments = await Assignment.find({ authorId: req.params.authorId })
@@ -229,7 +227,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-/* =================== RATING AGGREGATION =================== */
+
 const updateFreelancerRating = async (freelancerId) => {
   const assignments = await Assignment.find({
     freelancerId,
@@ -243,9 +241,9 @@ const updateFreelancerRating = async (freelancerId) => {
   }
 };
 
-/* =================== STAGES =================== */
 
-// Upload files to a stage (does NOT mark as submitted)
+
+
 router.post('/:id/stages/:stage/upload', upload.array('docs'), async (req, res) => {
   try {
     const { id, stage } = req.params;
@@ -256,12 +254,11 @@ router.post('/:id/stages/:stage/upload', upload.array('docs'), async (req, res) 
     const assignment = await Assignment.findById(id);
     if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
 
-    // hard close
     if (assignment.terminal || assignment.status === 'Declined') {
       return res.status(403).json({ message: 'This assignment was closed by the client.' });
     }
 
-    // Progress gating
+   
     if (stage === 'half' && !['reviewed', 'completed'].includes(assignment.stages.initial.status)) {
       return res.status(400).json({ message: 'You must finish Initial review before uploading 50%.' });
     }
@@ -294,7 +291,6 @@ router.post('/:id/stages/:stage/upload', upload.array('docs'), async (req, res) 
   }
 });
 
-// Mark a stage as submitted/pending (awaiting client review)
 router.put('/:id/stages/:stage/submit', async (req, res) => {
   try {
     const { id, stage } = req.params;
@@ -319,10 +315,10 @@ router.put('/:id/stages/:stage/submit', async (req, res) => {
       return res.status(400).json({ message: '50% must be reviewed before submitting Final.' });
     }
 
-    assignment.stages[stage].status = 'pending'; // waiting for client
+    assignment.stages[stage].status = 'pending'; 
     assignment.submittedAt = new Date();
 
-    // If the assignment was in a revision flow, show "Re-submitted". Otherwise "Submitted".
+
     if (['Requested Revision', 'Declined', 'Re-submitted'].includes(assignment.status)) {
       assignment.status = 'Re-submitted';
     } else {
@@ -337,12 +333,12 @@ router.put('/:id/stages/:stage/submit', async (req, res) => {
       projectId: assignment.projectId,
     });
 
-    // ===== NOTIFY + EMAIL: client (author) about submission (uses your template) =====
+   
     try {
       const client = await Client.findById(assignment.authorId).select('fullName email');
       const stageTitle = STAGE_TITLES[stage] || 'Submission';
       const subject = `New ${stageTitle} submitted — ${assignment.projectId?.title || 'Project'}`;
-      const reviewLink = `${FRONTEND_URL}/submitted/${assignment._id}`; // adjust if needed
+      const reviewLink = `${FRONTEND_URL}/submitted/${assignment._id}`; 
 
       const html = stageSubmittedForClient({
         name: client?.fullName || 'there',
@@ -380,14 +376,13 @@ router.put('/:id/stages/:stage/submit', async (req, res) => {
   }
 });
 
-// Client review of a stage (approve / request revision / decline). Final can carry a rating.
+
 router.put('/:id/stages/:stage/review', async (req, res) => {
   try {
     const { id, stage } = req.params;
     if (!VALID_STAGES.includes(stage)) return res.status(400).json({ message: 'Invalid stage' });
 
-    // status: 'reviewed' | 'declined' | 'completed'
-    // decision (optional when status==='declined'): 'revise' | 'reject'
+
     const { status, feedback, rating, decision } = req.body;
     if (!['reviewed', 'declined', 'completed'].includes(status)) {
       return res.status(400).json({ message: 'Invalid review status' });
@@ -405,14 +400,14 @@ router.put('/:id/stages/:stage/review', async (req, res) => {
       assignment.stages.final.rating = clamp(Math.round(Number(rating) || 1), 1, 5);
     }
 
-    // Drive top-level status precisely
+   
     if (status === 'declined') {
       if (decision === 'reject') {
-        // Terminal decline: fully closed
+     
         assignment.status = 'Declined';
         assignment.terminal = true;
       } else {
-        // Non-terminal decline: ask for revision
+    
         assignment.status = 'Requested Revision';
         assignment.terminal = false;
       }
@@ -429,7 +424,7 @@ router.put('/:id/stages/:stage/review', async (req, res) => {
     });
 
     
-    // sync project + freelancer rating when fully completed
+  
     if (assignment.status === 'Completed') {
       await Project.findByIdAndUpdate(assignment.projectId, { status: 'Completed' });
       await updateFreelancerRating(assignment.freelancerId);
@@ -446,9 +441,8 @@ router.put('/:id/stages/:stage/review', async (req, res) => {
       projectId: assignment.projectId,
     });
 
-    /* ===== NOTIFY + EMAIL: freelancer about the review/feedback/rating (use templates) ===== */
     try {
-      const freelancer = assignment.freelancerId; // populated
+      const freelancer = assignment.freelancerId;
       const stageTitle = STAGE_TITLES[stage] || 'Submission';
       const workLink = `${FRONTEND_URL}/project-details/${assignment.projectId?._id}`;
 
@@ -531,7 +525,7 @@ router.put('/:id/stages/:stage/review', async (req, res) => {
   }
 });
 
-/* =================== LEGACY (kept) =================== */
+
 
 router.put('/:id/update-status', async (req, res) => {
   try {
@@ -547,7 +541,7 @@ router.put('/:id/update-status', async (req, res) => {
     if (typeof rating === 'number') a.rating = clamp(Math.round(rating), 1, 5);
     if (typeof feedback === 'string') a.feedback = feedback;
 
-    // propagate decline to current stage (best effort)
+   
     if ((status || a.status) === 'Declined') {
       const st = a.stages || {};
       const pick = (key) => st[key] && !['completed'].includes(st[key].status);
@@ -559,7 +553,7 @@ router.put('/:id/update-status', async (req, res) => {
       }
     }
 
-    // mirror “Completed” to project + rating aggregation
+ 
     if (a.status === 'Completed') {
       await Project.findByIdAndUpdate(a.projectId, { status: 'Completed' });
       await updateFreelancerRating(a.freelancerId);
@@ -588,7 +582,7 @@ router.put('/:id/update-status', async (req, res) => {
   }
 });
 
-// Legacy docs upload endpoints unchanged…
+
 router.post('/:id/update-docs', upload.array('docs'), async (req, res) => {
   try {
     const files = (req.files || []).map((file) => ({
@@ -645,7 +639,7 @@ router.post('/:id/update-docs', upload.array('docs'), async (req, res) => {
 
 router.put('/:id/update-docs', async (req, res) => {
   try {
-    const { docs } = req.body; // [{ name, url }]
+    const { docs } = req.body; 
     const updated = await Assignment.findByIdAndUpdate(
       req.params.id,
       { docs, submitted: Array.isArray(docs) && docs.length > 0 },

@@ -471,7 +471,7 @@ const handleChangePassword = async () => {
   className="save-btn9"
   onClick={() => {
     handleSave();        // call save function
-    navigate("/myprofile"); // then navigate
+  
   }}
 >
   Save

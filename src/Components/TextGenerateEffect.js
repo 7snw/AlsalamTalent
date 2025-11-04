@@ -6,17 +6,17 @@ import { cn } from "../lib/utils";
 
 const TextGenerateEffect = ({
   words = "",
-  segments,                 // [{ text: string, className?: string }]
-  as: Tag = "div",          // wrapper element
+  segments,                
+  as: Tag = "div",         
   className,
   filter = true,
   duration = 0.5,
-  staggerDelay = 0.06,      // <- you used this prop in your page
-  wordClassName,            // optional extra class for every word
+  staggerDelay = 0.06,    
+  wordClassName,          
 }) => {
   const [scope, animate] = useAnimate();
 
-  // Build a flat list of words keeping segment classNames
+
   const items = useMemo(() => {
     if (Array.isArray(segments) && segments.length) {
       return segments.flatMap((seg, si) =>
@@ -39,7 +39,7 @@ const TextGenerateEffect = ({
   }, [words, segments]);
 
   useEffect(() => {
-    // Animate only the word spans inside our scope
+   
     animate(
       "[data-word]",
       { opacity: 1, filter: filter ? "blur(0px)" : "none" },

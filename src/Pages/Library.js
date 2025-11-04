@@ -23,6 +23,7 @@ import i2 from "../Assets/Library/2.jpg";
 import i3 from "../Assets/Library/3.jpg";
 import i4 from "../Assets/Library/4.jpg";
 import i5 from "../Assets/Library/5.jpg";
+import i55 from "../Assets/Library/55.png";
 import i6 from "../Assets/Library/6.jpg";
 import i7 from "../Assets/Library/7.jpg";
 import i8 from "../Assets/Library/8.jpg";
@@ -37,7 +38,7 @@ import i17 from "../Assets/Library/17.jpg";
 import i18 from "../Assets/Library/18.jpg";
 import i19 from "../Assets/Library/19.jpg";
 import i20 from "../Assets/Library/20.jpg";
-import i21 from "../Assets/Library/21.jpg";
+
 import i22 from "../Assets/Library/22.jpg";
 
 import Guidline from "../Assets/resources/Guidelines.png";
@@ -83,6 +84,12 @@ const platformSteps = [
     title: "Sign In",
     desc: "Once they verify their identity, they can sign in using their student email and password.",
     img: i5,
+  },
+   {
+    step: 44,
+    title: "Verify OTP",
+    desc: "An OTP code will be sent to your email for Multi-factor Authetication",
+    img: i55,
   },
   {
     step: 6,
@@ -152,12 +159,7 @@ const platformSteps = [
     desc: " A  library of learning materials and guides that help freelancers improve their abilities while working on projects.",
     img: i19,
   },
-  {
-    step: 21,
-    title: "Book a Space",
-    desc: " Freelancers can reserve physical resources like a desk, studio, or podcast room.",
-    img: i21,
-  },
+  
   {
     step: 18,
     title: "Real-time Chat",

@@ -27,79 +27,16 @@ app.use(cors({
 }));
 
 
-
-
-// ---------------- Session Config ----------------
-const SESSION_TIMEOUT_MINUTES = parseFloat(process.env.SESSION_TIMEOUT_MINUTES || "30");
-const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000;
-
-app.use(session({
-  genid: () => uuidv4(),
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  rolling: true,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: SESSION_TIMEOUT_MS,
-  },
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    collectionName: "sessions",
-    ttl: Math.floor(SESSION_TIMEOUT_MS / 1000) + 60, // buffer to avoid early cleanup
-    autoRemove: "interval",
-    autoRemoveInterval: 5, //  check every 5min instead of every 1min
-  }),
-}));
-
-console.log(` Session timeout set to ${SESSION_TIMEOUT_MINUTES} min (${SESSION_TIMEOUT_MS} ms)`);
-
-
-// ---------------- Idle Timeout Middleware ----------------
-// Idle timeout check
-app.use(async (req, res, next) => {
-  if (!req.session) return next();
-
-  const now = Date.now();
-  if (req.session.lastActivity && now - req.session.lastActivity > SESSION_TIMEOUT_MS) {
-    console.log(`⚠️ Session expired for ${req.session.userId} after ${(now - req.session.lastActivity) / 1000}s`);
-    await logAction(req.session.userId, "SESSION_TIMEOUT", { sessionId: req.sessionID, role: req.session.role });
-    req.session.destroy(() => {});
-    res.clearCookie("connect.sid");
-    return res.status(440).json({ message: "Session expired due to inactivity." });
-  }
-
-  // ✅ always refresh
-  req.session.lastActivity = now;
-  req.session.cookie.maxAge = SESSION_TIMEOUT_MS;
-  next();
-});
-
-
-app.get("/api/session/status", (req, res) => {
-  if (!req.session || !req.session.userId)
-    return res.status(440).json({ expired: true, message: "Session expired" });
-
-  res.json({ active: true, userId: req.session.userId });
-});
-
-
-
-
-
-// NEW: morgan includes request ID
 morgan.token('reqid', (req) => req.id);
 const httpLogFormatDev = ':method :url :status :res[content-length] - :response-time ms (:reqid)'; // NEW
 const httpLogFormatProd = ':remote-addr :method :url :status :res[content-length] - :response-time ms :reqid'; // NEW
 app.use(
   morgan(process.env.NODE_ENV === 'development' ? httpLogFormatDev : httpLogFormatProd)
-); // NEW (MOVED earlier; replaces the old app.use(morgan('dev')) later)
-
-// ---------- Auth / static ----------
+); 
 
 app.use('/uploads', express.static('uploads'));
+// app.js or server.js
+
 
 //  routes
 const userRoutes = require('./routes/users');
@@ -172,7 +109,13 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/upload-message-files', messageUploadsRoute);
 app.use('/api/notifications', notificationRoutes);
 
-// (REMOVED) app.use(morgan('dev')); // MOVED & replaced above with :reqid formats
+app.use('/api/ocr', require('./routes/ocr'));
+app.use('/api/freelancer', require('./routes/freelancers'));
+
+
+
+const verifyGraduate = require('./routes/verifyGraduate');
+app.use('/api/verify-graduate', verifyGraduate);
 
 // File upload 
 app.post('/api/upload-image', uploadImage.single('image'), (req, res) => {
@@ -189,9 +132,10 @@ app.post('/api/upload-file', uploadAnyFile.single('file'), (req, res) => {
 
 // Health check
 app.get('/', (req, res) => {
-  res.set('X-Request-Id', req.id); // NEW: helpful for tracing in clients / load balancers
+  res.set('X-Request-Id', req.id); 
   res.send('API is running...');
 });
+
 
 // Socket.IO Setup
 const http = require('http');
@@ -221,15 +165,15 @@ io.on('connection', (socket) => {
       timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
     });
 
-    // ⬇Re-fetch so plugin decrypts on hydration
-    const fresh = await Message.findById(saved._id); // no .lean()
+   
+    const fresh = await Message.findById(saved._id); 
     io.to(msg.roomId).emit('receiveMessage', fresh);
   });
 
   socket.on('disconnect', () => {});
 });
 
-// Connect to DB and hash default admin password
+
 connectDB().then(async () => {
   try {
     const admin = await Admin.findOne({ email: 'admin@alsalam.com' });
@@ -248,7 +192,7 @@ connectDB().then(async () => {
 });
 });
 
-// Add this to your server (temporarily)
+
 app.get('/fix-admin-password', async (req, res) => {
   const admin = await Admin.findOne({ email: 'admin@alsalam.com' });
   if (admin) {

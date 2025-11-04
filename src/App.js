@@ -66,7 +66,7 @@ import ProjectDetails from "./Pages/ProjectDetails";
 import Library from "./Pages/Library";
 
 
-/* ---------- Scroll to top on route change ---------- */
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -79,10 +79,10 @@ function ScrollToTop() {
 }
 
 const App = () => {
-  // 👀 Activate session timeout watcher globally
+
   useSessionWatcher();
 
-  // ensure scroll restoration setting
+
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";

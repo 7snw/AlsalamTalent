@@ -1,4 +1,3 @@
-// src/Components/Footer.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../Style/Footer.css";
@@ -13,7 +12,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
 
   const [showWave, setShowWave] = useState(true);
 
-  // Compute auth + role on every render (keeps it reactive without extra state)
+
   const storedUser = (() => {
     try {
       return JSON.parse(localStorage.getItem("user") || "null");
@@ -24,7 +23,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
   const role = (storedUser?.role || "").toLowerCase();
   const isAuthed = !!storedUser;
 
-  // Role-based Home path
+
   const homePath = isAuthed
     ? role === "freelancer"
       ? "/freelancer-home"
@@ -36,11 +35,11 @@ const Footer = ({ forceWave, forceNoWave }) => {
     : "/landingpage";
 
   useEffect(() => {
-    // explicit overrides win
+   
     if (forceWave === true) return void setShowWave(true);
     if (forceNoWave === true) return void setShowWave(false);
 
-    // auto-detect: look for common wave containers
+  
     const check = () => {
       const hasPageWaves = !!document.querySelector(
         ".fh-bg, .wavy-bg, [data-has-waves='true']"
@@ -48,9 +47,9 @@ const Footer = ({ forceWave, forceNoWave }) => {
       setShowWave(!hasPageWaves);
     };
 
-    check(); // on mount / route change
+    check(); 
 
-    // observe DOM in case waves mount after footer
+
     const mo = new MutationObserver(() => check());
     mo.observe(document.body, { childList: true, subtree: true });
 
@@ -58,7 +57,7 @@ const Footer = ({ forceWave, forceNoWave }) => {
   }, [location.pathname, forceWave, forceNoWave]);
 
   const handleLogoClick = () => {
-    // If logged in, sign out then go to landing page
+
     if (isAuthed) {
       localStorage.clear();
     }

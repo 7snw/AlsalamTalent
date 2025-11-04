@@ -15,7 +15,7 @@ const api = axios.create({
   withCredentials: true, // allow cookies (for refresh token if needed)
 });
 
-// 🔒 Automatically attach token to every request
+ 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -24,7 +24,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🚨 Handle expired or invalid sessions globally
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {

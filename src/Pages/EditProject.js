@@ -11,7 +11,7 @@ import { FiPaperclip } from "react-icons/fi";
 import { showAlert } from "../utils/toastMessages";
 import SkillsInput from "../Components/SkillsInput";
 
-/* Options (same as PostProject) */
+
 const CATEGORY_OPTIONS = [
   
   "Marketing",
@@ -30,7 +30,6 @@ const STATUS_OPTIONS = [
   { value: "Completed", label: "Completed" },
 ];
 
-/* Helper: ISO -> input yyyy-mm-dd */
 const toInputDate = (d) => (d ? new Date(d).toISOString().slice(0, 10) : "");
 
 const EditProject = () => {

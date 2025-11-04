@@ -7,7 +7,7 @@ import axios from "axios";
 import Navbar from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
 import { NavConfig2 } from "../../Data/NavbarConfigs";
-import WavyBackground from "../../Components/WavyBackground";
+
 import SearchIcon from "../../Assets/search.png";
 
 import "../../Style/Freelancer/AllProjects.css";
@@ -27,7 +27,6 @@ const AllProjects = () => {
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
-  const [showModal] = useState(false);
   const [allProjects, setAllProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
   const [search, setSearch] = useState("");
@@ -120,25 +119,7 @@ const AllProjects = () => {
     <div className="ap-page">
       <Navbar links={NavConfig2} />
 
-      <WavyBackground
-        colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
-        waveOpacity={0.85}
-        waveWidth={450}
-        blur={0}
-        speed="fast"
-        accentColors={["#f1633a", "#9FD8FF"]}
-        accentWidth={3}
-        accentOpacity={0.5}
-        accentVertical={-220}
-        accentSpacing={12}
      
-
-          
-  containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
-
-  paused={showModal}
-  speedOverride={showModal ? 0 : undefined}
-      />
 
       <div className="ap-container">
         <aside className="ap-filter">

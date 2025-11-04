@@ -6,10 +6,10 @@ const colors = {
 };
 
 const base = {
-  // give the body a real background color (not 'none')
+ 
   body: `margin:0;padding:24px;background:none;
          font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;`,
-  // duplicate bg via CSS + bgcolor so dark-mode auto-theming is less likely
+
   box: `width:100%;max-width:660px;margin:0 auto;
         background:${colors.back};background-color:${colors.back};
         border-radius:10px;overflow:hidden;`,
@@ -95,18 +95,15 @@ function shell({ title, greeting, bodyHTML }) {
   </body></html>`;
 }
 
-/* ===== TEMPLATES ===== */
+
 
 function paymentApproved({ name, projectTitle, amountBHD, method, iban }) {
   const body = `
     <p style="${base.p}">Your client has <strong>approved the payment</strong> for the project <strong>${projectTitle || ''}</strong>.</p>
-    <p style="${base.p}">You’ll receive the payment soon. You can track the status on the platform:</p>
+    <p style="${base.p}">You’ll receive the payment soon.</p>
     <p style="${base.p}"><a href="${FRONTEND_URL}/payments/history" style="${base.btn}">Payments → History</a></p>
     <div style="margin-top:18px;padding-top:6px;">
-      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
-        <tr><td style="padding:8px 0;${base.v}">BHD ${Number(amountBHD || 0)}</td></tr>
-        <tr><td style="padding:8px 0;${base.v}">${iban || '—'}</td></tr>
-      </table>
+  
     </div>`;
   return shell({ title:'Your payment was approved', greeting: name || 'there', bodyHTML: body });
 }
@@ -167,7 +164,7 @@ function assignmentAssigned({ name, projectTitle, projectLink }) {
   return shell({ title: 'New project assigned', greeting: name || 'there', bodyHTML: body });
 }
 
-// at top: FRONTEND_URL, colors, base, headerWavesSVG, shell (...) stay the same
+
 
 function newProjectAvailable({ name, projectTitle, projectLink, projectType }) {
   const body = `
@@ -213,7 +210,7 @@ function adminNewStudentRegistered({
   major,
   iban
 }) {
-  // one-cell rows: tight, consistent spacing in all email clients
+
   const row = (label, value) => `
     <tr>
       <td style="padding:2px 0; font-size:14px; line-height:1.4; color:${colors.text}; vertical-align:top;">
@@ -245,7 +242,7 @@ function adminNewStudentRegistered({
   });
 }
 
-// ... keep FRONTEND_URL, colors, base, headerWavesSVG, shell, and existing templates
+
 
 function graduateWelcomePending({ name, dashboardLink }) {
   const body = `
@@ -274,7 +271,7 @@ function adminNewGraduateRegistered({
   major,
   iban
 }) {
-  // same tight, one-cell rows used for students
+ 
   const row = (label, value) => `
     <tr>
       <td style="padding:2px 0; font-size:14px; line-height:1.4; color:${colors.text}; vertical-align:top;">
@@ -394,9 +391,6 @@ function bookingNewForClient({ name, space, dateISO, timeRange, freelancerName, 
 }
 
 
-// utils/emailTemplates.js  (append these)
-
-/* ---------- Stage helpers ---------- */
 
 function stageKeyToNice(stage) {
   if (stage === 'initial') return 'Initial Concept';
@@ -405,7 +399,6 @@ function stageKeyToNice(stage) {
   return 'Submission';
 }
 
-// To CLIENT when freelancer submits a stage
 function stageSubmittedForClient({ name, projectTitle, stage, reviewLink, freelancerName }) {
   const body = `
     <p style="${base.p}">
@@ -421,7 +414,7 @@ function stageSubmittedForClient({ name, projectTitle, stage, reviewLink, freela
   return shell({ title: 'New stage submitted', greeting: name || 'there', bodyHTML: body });
 }
 
-// To FREELANCER when client reviews/declines Initial or 50%
+
 function stageReviewedForFreelancer({ name, projectTitle, stage, status, feedback, openLink }) {
   const nice = stageKeyToNice(stage);
 const pretty =
@@ -453,7 +446,7 @@ const pretty =
  return shell({ title, greeting: name || 'there', bodyHTML: body });
 }
 
-// To FREELANCER when Final is completed (rated)
+
 function finalRatedForFreelancer({ name, projectTitle, rating, feedback, openLink }) {
   const body = `
     <p style="${base.p}">
@@ -470,9 +463,7 @@ function finalRatedForFreelancer({ name, projectTitle, rating, feedback, openLin
   return shell({ title: 'Final approved', greeting: name || 'there', bodyHTML: body });
 }
 
-/* ---------- Chat ---------- */
 
-// Generic “you have a new message” email
 function newChatMessageEmail({ name, fromName, openLink }) {
   const body = `
     <p style="${base.p}">
@@ -486,7 +477,7 @@ function newChatMessageEmail({ name, fromName, openLink }) {
 
 
 module.exports = {
-  // existing exports...
+
   paymentApproved,
   verificationCode,
   applicationSubmitted,

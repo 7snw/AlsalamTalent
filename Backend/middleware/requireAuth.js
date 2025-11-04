@@ -1,4 +1,3 @@
-// middleware/requireAuth.js
 const jwt = require('jsonwebtoken');
 
 module.exports = function requireAuth(req, res, next) {
@@ -25,10 +24,9 @@ module.exports = function requireAuth(req, res, next) {
     if (!_id || !role)
       return res.status(401).json({ message: 'Invalid token payload' });
 
-    // 👇 This part is the only addition
     req.user = {
       _id: String(_id),
-      id: String(_id), // add alias for compatibility
+      id: String(_id),
       role: String(role).toLowerCase(),
     };
 

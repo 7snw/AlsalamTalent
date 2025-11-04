@@ -1,7 +1,6 @@
-// models/Assignment.js
 const mongoose = require('mongoose');
 
-// ---------- Sub-schemas ----------
+
 const StageFileSchema = new mongoose.Schema(
   {
     name: String,
@@ -13,9 +12,7 @@ const StageFileSchema = new mongoose.Schema(
 
 const StageSchema = new mongoose.Schema(
   {
-    // not_submitted (default), pending (submitted & waiting),
-    // reviewed (approved for this stage), declined (needs revision),
-    // completed (final approved)
+
     status: {
       type: String,
       enum: ['not_submitted', 'pending', 'reviewed', 'declined', 'completed', 'submitted'],
@@ -24,34 +21,30 @@ const StageSchema = new mongoose.Schema(
     
     docs: [StageFileSchema],
     feedback: { type: String, default: '' },
-    // only used on the "final" stage
     rating: { type: Number, min: 1, max: 5 },
   },
   { _id: false }
 );
 
-// ---------- Main schema ----------
 const assignmentSchema = new mongoose.Schema(
   {
     projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
     freelancerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Freelancer', required: true },
     authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', required: true },
- // If true, this assignment is closed (no further uploads/submissions)
     terminal: { type: Boolean, default: false },
 
-    // New 3-stage structure
+
     stages: {
       initial: { type: StageSchema, default: () => ({}) },
       half: { type: StageSchema, default: () => ({}) },
       final: { type: StageSchema, default: () => ({}) },
     },
 
-    // Aggregate/legacy fields (kept for compatibility)
     progressPercentage: { type: Number, default: 0 },
-    docs: [{ name: String, url: String }],        // legacy, not used by new UI
-    submitted: { type: Boolean, default: false }, // legacy
-    feedback: { type: String },                   // last feedback copy for convenience
-    rating: { type: Number },                     // copy of final.rating for convenience
+    docs: [{ name: String, url: String }],       
+    submitted: { type: Boolean, default: false },
+    feedback: { type: String },                   
+    rating: { type: Number },                 
 
     status: {
       type: String,
@@ -70,7 +63,7 @@ const assignmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ---------- Helpers ----------
+
 function recomputeAggregate(a) {
   const s = a.stages || {};
   const ok = (x) => ['reviewed', 'completed'].includes(x);
@@ -81,7 +74,7 @@ function recomputeAggregate(a) {
 
   a.progressPercentage = Math.round((done / 3) * 100);
 
-  // Don't override explicit flow states
+
   const locked = ['Requested Revision', 'Re-submitted', 'Declined'].includes(a.status);
 
   if (!locked) {
@@ -100,7 +93,7 @@ function recomputeAggregate(a) {
 
   if (typeof s.final?.rating === 'number') a.rating = s.final.rating;
 
-  // copy the most recent non-empty feedback to top-level (final > half > initial)
+
   const lastFb =
     (s.final?.feedback || '').trim() ||
     (s.half?.feedback || '').trim() ||
@@ -108,7 +101,6 @@ function recomputeAggregate(a) {
   if (lastFb) a.feedback = lastFb;
 }
 
-// keep aggregates fresh whenever we save the doc directly
 assignmentSchema.pre('save', function (next) {
   recomputeAggregate(this);
   next();

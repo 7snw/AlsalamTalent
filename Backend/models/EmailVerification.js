@@ -1,4 +1,3 @@
-// models/EmailVerification.js
 const mongoose = require("mongoose");
 
 const emailVerificationSchema = new mongoose.Schema({

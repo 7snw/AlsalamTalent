@@ -1,10 +1,10 @@
 const Payment = require('../models/Payment');
 
-// GET /api/payments/freelancer/:freelancerId/summary
+
 exports.getFreelancerSummary = async (req, res) => {
   try {
     const { freelancerId } = req.params;
-    const PLATFORM_FEE = 0.10; // adjust to your business rule
+    const PLATFORM_FEE = 0.10;
 
     const tx = await Payment.find({ freelancer: freelancerId }).lean();
 
@@ -21,7 +21,7 @@ exports.getFreelancerSummary = async (req, res) => {
   }
 };
 
-// GET /api/payments/freelancer/:freelancerId?status=pending|completed
+
 exports.listFreelancerTransactions = async (req, res) => {
   try {
     const { freelancerId } = req.params;

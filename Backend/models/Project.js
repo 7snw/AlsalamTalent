@@ -1,4 +1,4 @@
-// models/Project.js
+
 const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema(
@@ -16,7 +16,7 @@ const projectSchema = new mongoose.Schema(
     brief: { type: String, required: true },
     category: { type: String, required: true },
 
-    //  NEW: project type (project | campaign)
+  
     projectType: {
       type: String,
       enum: ['project', 'campaign'],
@@ -24,19 +24,17 @@ const projectSchema = new mongoose.Schema(
       index: true,
     },
 
-    //  Skills/tags
+ 
     skills: { type: [String], default: [] },
 
-    // Reward amount
+
     budget: { type: Number, required: true },
 
-    // Legacy (kept so old code doesn’t break). We populate from initial/half.
     duration: {
       from: { type: Date },
       to: { type: Date },
     },
 
-    // Three-stage deadlines
     deadlines: {
       initial: { type: Date, required: true },
       half: { type: Date, required: true },

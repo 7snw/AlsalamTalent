@@ -1,4 +1,3 @@
-// routes/freelancers.js
 const express = require('express');
 const multer  = require('multer');
 const path    = require('path');
@@ -44,7 +43,7 @@ const crypto   = require('crypto');
 const OtpToken = require('../models/OtpToken');
 
 const OTP_TTL_MIN = 10;
-const generate6   = () => String(crypto.randomInt(100000, 1000000)); // 6-digit
+const generate6   = () => String(crypto.randomInt(100000, 1000000)); 
 
 /* ------------------------------ Helpers ------------------------------ */
 const normEmail = (v='') => String(v).trim().toLowerCase();
@@ -135,15 +134,30 @@ async function sendOtpEmail(email, name, code) {
   await sendEmail({ to: email, subject, html, text: `Your code is ${code}` });
 }
 
-/** DUMMY API for graduates (unchanged) */
-// const dummyGraduates = [ ... ];
-async function verifyGraduateWithPolytechnic({ studentId, fullName, cpr }) {
-  const match = dummyGraduates.find(
-    g => g.studentId === normStr(studentId) &&
-         g.fullName.toLowerCase() === normStr(fullName).toLowerCase() &&
-         g.cpr === normStr(cpr)
-  );
-  return !!match;
+async function verifyGraduateWithPolytechnic({ cpr }) {
+  try {
+    const res = 
+      await axios.post(`${process.env.BASE_URL || 'http://localhost:5000'}/api/verify-graduate`, { cpr },
+
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    const data = res.data;
+
+    // data sample: { CPR, Student_ID, Student_Name, Programme, Graduated, Graduation_Year }
+    if (data.Graduated === "Yes") {
+      return {
+        ok: true,
+        studentId: data.Student_ID,
+        fullName: data.Student_Name,
+        major: data.Programme,
+        graduationYear: data.Graduation_Year
+      };
+    }
+    return { ok: false, reason: "Not graduated" };
+  } catch (err) {
+    console.error("Polytechnic verification error:", err.message);
+    return { ok: false, reason: "Verification failed" };
+  }
 }
 
 /* --------------------------- Generic Register --------------------------- */
@@ -160,7 +174,6 @@ router.post('/register', uploadCv.single('cv'), async (req, res) => {
     email     = normEmail(email);
     studentId = normStr(studentId);
 
-    //  de-dupe using deterministic hashes (email) or plain studentId
     const dup = await Freelancer.findOne({
       $or: [
         email ? { emailHash: lookupHash(email) } : null,
@@ -216,7 +229,7 @@ router.get('/list', async (_req, res) => {
 });
 
 /* ------------------------- ADMIN: unified list (pending + verified) ------------------------- */
-// GET /api/freelancer/admin/all?q=...&limit=...
+
 router.get('/admin/all', async (_req, res) => {
   const verifiedDocs = await Freelancer
     .find({ isVerified: true })
@@ -258,7 +271,7 @@ router.post('/student-register', uploadCv.single('cv'), async (req, res) => {
        2. Validate Password (Al Salam Bank Policy)
     ------------------------------------------------------------------ */
     const isStrongPassword = (pwd) => {
-      if (!pwd || pwd.length < 12) return false; // Minimum 12 characters
+      if (!pwd || pwd.length < 12) return false; 
       const hasUpper = /[A-Z]/.test(pwd);
       const hasLower = /[a-z]/.test(pwd);
       const hasNumber = /\d/.test(pwd);
@@ -319,7 +332,7 @@ router.post('/student-register', uploadCv.single('cv'), async (req, res) => {
         studentId,
         fullName,
         email,
-        password, // bcrypt hashing happens later during activation
+        password, 
         major,
         phone: normPhone(phone),
         expertise: parsedExpertise,
@@ -335,7 +348,7 @@ router.post('/student-register', uploadCv.single('cv'), async (req, res) => {
     ------------------------------------------------------------------ */
     await sendOtpEmail(email, fullName, otp);
 
-    // Masked console output (no sensitive info logged)
+  
     console.log(`New pending signup: ${email.replace(/.{3}@/, "***@")} (Student ID: ${studentId})`);
 
     return res.status(201).json({ message: 'OTP sent to your email.', regId: pending._id });
@@ -360,10 +373,12 @@ router.post('/graduate-register', uploadCv.single('cv'), async (req, res) => {
       iban = clean;
     }
 
-    const match = await verifyGraduateWithPolytechnic({ studentId, fullName, cpr });
-    if (!match) {
-      return res.status(400).json({ message: 'Graduate details could not be verified. Please check your Student ID, Name, and CPR.' });
-    }
+    const result = await verifyGraduateWithPolytechnic({ cpr });
+if (!result.ok) {
+  return res.status(400).json({ message: 'Graduate details could not be verified. Please check your CPR.' });
+}
+
+
 
     //  de-dupe using hash
     const dup = await Freelancer.findOne({
@@ -382,10 +397,21 @@ router.post('/graduate-register', uploadCv.single('cv'), async (req, res) => {
     const parsedExpertise = Array.isArray(expertise) ? expertise : JSON.parse(expertise || '[]');
 
     const pending = await PendingSignup.create({
-      kind: 'Graduate',
-      data: { userType: 'Graduate', studentId, fullName, email, password, major, phone: normPhone(phone), expertise: parsedExpertise, iban, cpr: normStr(cpr), cvUrl },
-      otpHash, otpExpires
-    });
+  kind: 'Graduate',
+  data: {
+    userType: 'Graduate',
+    studentId: result.studentId || studentId,
+    fullName: result.fullName || fullName,
+    major: result.major || major,
+    phone: normPhone(phone),
+    expertise: parsedExpertise,
+    iban,
+    cpr: normStr(cpr),
+    cvUrl
+  },
+  otpHash, otpExpires
+});
+
 
     await sendOtpEmail(email, fullName, otp);
     res.status(201).json({ message: 'OTP sent to your email.', regId: pending._id });
@@ -448,7 +474,7 @@ router.post('/verify-otp', async (req, res) => {
       message: 'Your account is ready. Start exploring projects.',
       type: 'welcome',
       alsoEmail: true,
-      // use plaintext payload.email to avoid any chance of ciphertext on fresh doc
+    
       email: normEmail(payload.email),
       html: welcomeHtml
     });
@@ -499,7 +525,6 @@ router.get('/profile/:id', async (req, res) => {
   }
 });
 
-// UPDATE profile (supports profile image upload)
 router.put(
   '/profile/:id',
   uploadAnyFile.fields([{ name: 'profileImage', maxCount: 1 }, { name: 'cv', maxCount: 1 }]),
@@ -520,7 +545,7 @@ router.put(
       const freelancer = await Freelancer.findById(freelancerId);
       if (!freelancer) return res.status(404).json({ message: 'Freelancer not found' });
 
-      // PROFILE IMAGE
+
       const newImg = req.files?.profileImage?.[0];
       if (newImg) {
         if (freelancer.profileImageUrl) {
@@ -536,7 +561,7 @@ router.put(
         updates.profileImageUrl = '';
       }
 
-      // CV FILE
+    
       const newCv = req.files?.cv?.[0];
       if (newCv) {
         const ok = [
@@ -588,7 +613,6 @@ router.put('/changepassword/:id', async (req, res) => {
     const match = await bcrypt.compare(oldPassword.trim(), freelancer.password || '');
     if (!match) return res.status(400).json({ message: 'Old password is incorrect.' });
 
-    // --- Password policy checks (same as before)
     const isStrongPassword = (pwd) => {
       if (!pwd || pwd.length < 12) return false;
       const hasUpper = /[A-Z]/.test(pwd);
@@ -604,7 +628,7 @@ router.put('/changepassword/:id', async (req, res) => {
       return res.status(400).json({ message: 'Password does not meet policy requirements.' });
     }
 
-  // --- Enforce short interval for testing (e.g. 10 seconds)
+
 const secondsSinceChange = freelancer.lastPasswordChange
   ? (Date.now() - freelancer.lastPasswordChange.getTime()) / 1000
   : 999;
@@ -617,14 +641,12 @@ if (secondsSinceChange < 10)  // ⏱ allow only after 10 seconds
         return res.status(400).json({ message: 'Cannot reuse any of your last 13 passwords.' });
     }
 
-    // --- Hash new password and update
- // --- 8. Update password (pre-save hook will hash automatically) ---
 freelancer.password = newPassword.trim();
 freelancer.lastPasswordChange = Date.now();
 
-// record previous hashes before overwrite
+
 if (freelancer.passwordHistory?.length) {
-  // keep last 13 only
+
   freelancer.passwordHistory = freelancer.passwordHistory.slice(0, 13);
 }
 
@@ -723,7 +745,7 @@ router.put('/:id/apply-project', async (req, res) => {
     await sendNotification({
       userId: freelancer._id,
       userType: 'freelancer',
-      email: freelancer.email, // decrypted because fetched (no lean)
+      email: freelancer.email,
       subject: 'Project Application Submitted',
       message: 'You have successfully applied to a project. Please wait for further updates.',
       type: 'info'
@@ -791,7 +813,7 @@ router.post('/portfolio/:freelancerId', uploadImage.array('images', 10), async (
       return res.status(400).json({ message: 'At least one image file is required.' });
     }
 
-    // accept new "skills" (preferred) and gracefully fall back to legacy "projectType"
+    
     const skillsArr = parseSkills(skills).length ? parseSkills(skills) : parseSkills(projectType);
     if (skillsArr.length === 0) {
       return res.status(400).json({ message: 'Please provide at least one skill/type.' });
@@ -799,7 +821,7 @@ router.post('/portfolio/:freelancerId', uploadImage.array('images', 10), async (
 
     const imageUrls = req.files.map((file) => `${BASE_URL}/uploads/${file.filename}`);
 
-    // collaborators (unchanged)
+   
     let collaboratorIds = [];
     try {
       collaboratorIds = JSON.parse(req.body.collaborators || '[]');
@@ -825,7 +847,7 @@ router.post('/portfolio/:freelancerId', uploadImage.array('images', 10), async (
       title,
       description,
       skills: skillsArr,
-      // keep legacy "category" for older UIs (first skill as a fallback)
+    
       category: projectType || skillsArr[0],
       imageUrls,
       collaborators,
@@ -879,7 +901,7 @@ router.get('/search', async (req, res) => {
     const q = (req.query.q || '').trim().toLowerCase();
     const limit = Math.min(parseInt(req.query.limit || '50', 10), 200);
 
-    // avoid .lean() so plugin decrypts email/fullName
+   
     const raw = await Freelancer
       .find({ isVerified: true, isActive: true })
       .select('_id fullName email profileImageUrl rating expertise')
@@ -916,9 +938,7 @@ router.put('/deactivate/:id', async (req, res) => {
   }
 });
 
-/* ---------------------- FORGOT PASSWORD (RESET FLOW) ---------------------- */
 
-// Step 1: Request password reset – send OTP
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -958,13 +978,13 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 
-// Step 2: Verify OTP and change password
+
 
 router.post('/reset-password', async (req, res) => {
   try {
     const { email, code, oldPassword, newPassword } = req.body;
 
-    // --- 1. Validate input ---
+   
     if (!email || !code || !oldPassword || !newPassword) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
@@ -972,7 +992,7 @@ router.post('/reset-password', async (req, res) => {
     const cleanEmail = email.trim().toLowerCase();
     const codeTrimmed = String(code || '').trim();
 
-    // --- 2. Find freelancer and explicitly include hidden fields ---
+   
     const freelancer = await Freelancer.findOne({ emailHash: lookupHash(cleanEmail) })
       .select('+resetOtp +resetOtpExpiry +password');
 
@@ -980,7 +1000,6 @@ router.post('/reset-password', async (req, res) => {
       return res.status(404).json({ message: 'Account not found.' });
     }
 
-    // --- 3. Validate OTP existence and expiry ---
     if (!freelancer.resetOtp || !freelancer.resetOtpExpiry) {
       return res.status(400).json({ message: 'Reset code missing. Please request a new one.' });
     }
@@ -989,19 +1008,19 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ message: 'Reset code expired. Please request a new one.' });
     }
 
-    // --- 4. Compare OTP securely ---
+
     const ok = await bcrypt.compare(codeTrimmed, freelancer.resetOtp);
     if (!ok) {
       return res.status(400).json({ message: 'Incorrect code. Please check and try again.' });
     }
 
-    // --- 5. Validate old password ---
+  
     const oldOk = await bcrypt.compare(oldPassword.trim(), freelancer.password);
     if (!oldOk) {
       return res.status(400).json({ message: 'Old password is incorrect.' });
     }
 
-    // --- 6. Enforce password policy ---
+
     const isStrongPassword = (pwd) => {
       if (!pwd || pwd.length < 12) return false;
       const hasUpper = /[A-Z]/.test(pwd);
@@ -1020,15 +1039,14 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    // --- 7. Prevent password reuse (13-history check) ---
     for (const oldHash of freelancer.passwordHistory || []) {
       if (await bcrypt.compare(newPassword.trim(), oldHash)) {
         return res.status(400).json({ message: 'Cannot reuse any of your last 13 passwords.' });
       }
     }
 
-    // --- 8. Hash & update password ---
-    freelancer.password = newPassword.trim(); // will be re-hashed by pre-save hook
+
+    freelancer.password = newPassword.trim(); 
     freelancer.lastPasswordChange = Date.now();
     freelancer.passwordHistory = [
       ...(freelancer.passwordHistory || []),
@@ -1041,7 +1059,7 @@ router.post('/reset-password', async (req, res) => {
 
     await freelancer.save();
 
-    // --- 9. Respond success ---
+
     res.json({ message: 'Password reset successfully. You can now log in.' });
 
   } catch (err) {

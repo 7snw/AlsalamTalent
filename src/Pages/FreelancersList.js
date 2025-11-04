@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../Style/FreelancersList.css";
 import "../Style/Navbar.css";
 import "../Style/PageContents.css";
-import WavyBackground from "../Components/WavyBackground";
+
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import { NavConfig2, NavConfig3, NavConfig4 } from "../Data/NavbarConfigs";
@@ -15,9 +15,9 @@ import DefaultUserIcon from "../Assets/ProfileImage.png";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
-const renderStars = (rating) => {
-  const safeRating = Number.isFinite(rating) ? rating : 0;
-  const full = Math.min(Math.max(Math.floor(safeRating), 0), 5);
+const renderStars = (rating = 0) => {
+  const safeRating = Number(rating) || 0;
+  const full = Math.min(Math.max(Math.round(safeRating), 0), 5);
   const empty = 5 - full;
 
   return (
@@ -33,9 +33,10 @@ const renderStars = (rating) => {
 };
 
 
+
 const FreelancersList = () => {
   const navigate = useNavigate();
-  const [showModal] = useState(false);
+
   const [navbarConfig, setNavbarConfig] = useState(NavConfig2);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ expertise: [], rating: [] });
@@ -83,7 +84,8 @@ const FreelancersList = () => {
       filters.expertise.length === 0 ||
       f.expertise?.some((e) => filters.expertise.includes(e));
 
-    const intRating = Math.round(f.rating || 5);
+    const intRating = Math.round(f.rating || 0);
+
     const matchesRating =
       filters.rating.length === 0 ||
       filters.rating.includes(intRating.toString());
@@ -94,23 +96,7 @@ const FreelancersList = () => {
   return (
     <div className="fl-page">
       <Navbar links={navbarConfig} />
-  <WavyBackground
-      colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
-      waveOpacity={0.85}
-      waveWidth={450}
-      blur={0}
-      speed="fast"
-      accentColors={["#f1633a", "#9FD8FF"]}
-      accentWidth={3}
-      accentOpacity={0.5}
-      accentVertical={-220}
-      accentSpacing={12}
-          
-  containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
-
-  paused={showModal}
-  speedOverride={showModal ? 0 : undefined}
-    />
+ 
       <div className="fl-container">
         {/* LEFT FILTER */}
         <aside className="fl-filter">

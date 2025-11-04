@@ -1,11 +1,6 @@
-// utils/dataCrypto.js
 const crypto = require('crypto');
 
-/** Load a 32-byte key from env, supporting:
- *  - "hex:<64 hex chars>"
- *  - "base64:<base64 string>"
- *  - raw 64-hex or base64/base64url (auto-detected)
- */
+
 function loadKey() {
   const raw = process.env.DATA_ENC_KEY || '';
   if (!raw) throw new Error('Missing DATA_ENC_KEY env var');
@@ -45,7 +40,7 @@ function encrypt(plain = '') {
 
 function decrypt(blob = '') {
   if (blob == null || blob === '') return blob;
-  if (typeof blob !== 'string' || !blob.startsWith('v1:')) return blob; // old/plain
+  if (typeof blob !== 'string' || !blob.startsWith('v1:')) return blob; 
   const [, ivB64, ctB64, tagB64] = blob.split(':');
   const iv = Buffer.from(ivB64, 'base64');
   const ct = Buffer.from(ctB64, 'base64');
@@ -56,7 +51,7 @@ function decrypt(blob = '') {
   return pt.toString('utf8');
 }
 
-// Deterministic, search/unique friendly hash (lowercased, trimmed)
+
 function norm(s) { return String(s || '').trim().toLowerCase(); }
 function hashDeterministic(s) { return crypto.createHash('sha256').update(norm(s)).digest('hex'); }
 

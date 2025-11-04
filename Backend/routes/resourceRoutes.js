@@ -6,12 +6,12 @@ const path = require('path');
 const fs = require('fs');
 const logAction = require('../utils/logAction');
 
-// Reuse your existing multer "upload" config:
+
 
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
-/* Multer storage */
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, 'uploads/'),
   filename: (_req, file, cb) => {
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix);
   },
 });
-const upload = multer({ storage });// same as used in projects route
+const upload = multer({ storage });
 const nameFromUrl = (u) => {
   try {
     const p = new URL(u);
@@ -33,10 +33,7 @@ const nameFromUrl = (u) => {
   }
 };
 
-/* ---------------------------
-   POST /api/resources/upload
-   Create new resource
-----------------------------*/
+
 router.post(
   '/upload',
   upload.fields([
@@ -47,7 +44,7 @@ router.post(
     try {
       const {
         title,
-        section,           // 'resources' | 'bank' | 'platform'
+        section,          
         description,
         externalUrl,
         order
@@ -80,7 +77,7 @@ router.post(
         order: Number.isFinite(Number(order)) ? Number(order) : 0,
         imageUrl,
         files,
-        docs: [] // keeping shape similar to Project; use if you later want separate docs
+        docs: []
       });
 
       await newRes.save();
@@ -99,10 +96,7 @@ router.post(
   }
 );
 
-/* ---------------------------
-   PUT /api/resources/:id
-   Update a resource (merge files similar to Project)
-----------------------------*/
+
 router.put(
   '/:id',
   upload.fields([
@@ -115,7 +109,7 @@ router.put(
       const current = await Resource.findById(req.params.id);
       if (!current) return res.status(404).json({ message: 'Resource not found' });
 
-      // section update (validated)
+   
       let newSection = current.section;
       if (typeof req.body.section === 'string') {
         const s = req.body.section.toLowerCase();
@@ -132,14 +126,14 @@ router.put(
           : current.order,
       };
 
-      // image
+      
       if (req.files['resourceImage']) {
         updates.imageUrl = `${baseUrl}/${req.files['resourceImage'][0].path}`;
       } else {
         updates.imageUrl = current.imageUrl;
       }
 
-      // files (keep existing + add)
+  
       const kept = (() => {
         const raw = req.body.existingFiles;
         if (!raw) return current.files || [];
@@ -176,11 +170,7 @@ router.put(
   }
 );
 
-/* ---------------------------
-   GET /api/resources
-   Optional filter by ?section=resources|bank|platform
-   Sort by order asc, then createdAt desc
-----------------------------*/
+
 router.get('/', async (req, res) => {
   try {
     const q = {};

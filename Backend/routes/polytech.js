@@ -12,7 +12,6 @@ router.get('/check/:id', async (req, res) => {
     return res.json({ exists: false, reason: 'Invalid format or year' });
   }
 
-  // No need to check in database anymore; any ID from 2008+ is considered valid format
   return res.json({ exists: true });
 });
 

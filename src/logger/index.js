@@ -1,15 +1,12 @@
-// src/logger/index.js
 const fs = require('fs-extra');
 const path = require('path');
 const { createLogger, format, transports } = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
-// Optional Mongo transport
-// const { MongoDB } = require('winston-mongodb');
 
 const LOG_DIR = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
-fs.ensureDirSync(LOG_DIR); // make sure /logs exists
+fs.ensureDirSync(LOG_DIR); 
 
-// Helpful: include request-id if present
+
 const requestIdFormat = format((info) => {
   if (info.reqId) {
     info.message = `[reqId=${info.reqId}] ${info.message}`;
@@ -21,7 +18,7 @@ const baseFormat = format.combine(
   requestIdFormat(),
   format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
   format.errors({ stack: true }),
-  // JSON in prod; pretty in dev
+  
   process.env.NODE_ENV === 'development'
     ? format.combine(
         format.colorize(),
@@ -41,17 +38,17 @@ const logger = createLogger({
   transports: [
     new transports.Console(),
 
-    // Combined rotating log (weekly)
+ 
     new DailyRotateFile({
       dirname: LOG_DIR,
       filename: 'combined-%DATE%.log',
-      datePattern: 'YYYY-[W]WW', // ISO week number => weekly files
+      datePattern: 'YYYY-[W]WW', 
       zippedArchive: true,
-      maxFiles: '8w', // keep ~8 weeks
+      maxFiles: '8w', 
       level: process.env.LOG_LEVEL || 'info',
     }),
 
-    // Errors rotating log (weekly)
+  
     new DailyRotateFile({
       dirname: LOG_DIR,
       filename: 'errors-%DATE%.log',

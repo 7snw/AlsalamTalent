@@ -1,5 +1,25 @@
+// models/Payment.js
 const mongoose = require('mongoose');
+const fieldEncryption = require('../utils/mongooseFieldEncryption');
 
+// ---------- helpers ----------
+function pad4(n) { return String(n).padStart(4, '0'); }
+function ymdUTC(d) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return { y, m, day, key: `${y}${m}${day}` };
+}
+function dayRangeUTC(d) {
+  const { y, m, day } = ymdUTC(d);
+  return {
+    start: new Date(`${y}-${m}-${day}T00:00:00.000Z`),
+    end:   new Date(`${y}-${m}-${day}T23:59:59.999Z`),
+    key:   `${y}${m}${day}`,
+  };
+}
+
+// ---------- schema ----------
 const paymentSchema = new mongoose.Schema(
   {
     clientId:     { type: mongoose.Schema.Types.ObjectId, ref: 'Client',     required: true },
@@ -10,43 +30,85 @@ const paymentSchema = new mongoose.Schema(
     projectTitle:   String,
     freelancerName: String,
 
-    iban:     String,
-    amount:   { type: Number, default: 0 },
+    // encrypted-at-rest (stored as base64 strings)
+    iban:     { type: String, default: '' },
+    amount:   { type: String, default: '0' },                 // ciphertext is text, keep as String
     currency: { type: String, default: 'BHD' },
     method:   { type: String, default: 'Bank Transfer' },
 
-    // Lifecycle
+    // deterministic hash for exact-match lookups on IBAN (not returned by default)
+    ibanHash: { type: String, index: true, select: false },
+
     status: {
       type: String,
       enum: ['Pending', 'Processing', 'Paid', 'Failed', 'Cancelled'],
       default: 'Pending',
     },
 
-    // Nice-to-have metadata shown in UI
-    paymentId:   String,          // e.g., PAY-20250829-0001
-    date:        { type: Date, default: Date.now },
+    paymentId:   { type: String, index: true, unique: true, sparse: true },
+    date:        { type: Date, default: Date.now },           // display date (can differ from createdAt)
     completedAt: { type: Date },
   },
   { timestamps: true }
 );
 
-// Auto-generate a short sequential ID per day
-paymentSchema.pre('save', async function (next) {
-  if (this.paymentId) return next();
+// ---------- indexes you may find useful ----------
+paymentSchema.index({ clientId: 1, createdAt: -1 });
+paymentSchema.index({ freelancerId: 1, createdAt: -1 });
+paymentSchema.index({ status: 1, createdAt: -1 });
 
-  const today = new Date();
-  const y = today.getFullYear();
-  const m = String(today.getMonth() + 1).padStart(2, '0');
-  const d = String(today.getDate()).padStart(2, '0');
+// ---------- human-readable paymentId generation ----------
+// Runs for create/save
+paymentSchema.pre('save', async function generatePaymentId(next) {
+  try {
+    if (this.paymentId) return next();
 
-  const start = new Date(`${y}-${m}-${d}T00:00:00.000Z`);
-  const end   = new Date(`${y}-${m}-${d}T23:59:59.999Z`);
-  const countToday = await mongoose.model('Payment').countDocuments({
-    createdAt: { $gte: start, $lte: end },
-  });
+    const now = new Date();
+    const { start, end, key } = dayRangeUTC(now);
 
-  this.paymentId = `PAY-${y}${m}${d}-${String(countToday + 1).padStart(4, '0')}`;
-  next();
+    // Count how many payments already exist today to get the next sequence
+    const countToday = await mongoose.model('Payment').countDocuments({
+      createdAt: { $gte: start, $lte: end },
+    });
+
+    this.paymentId = `PAY-${key}-${pad4(countToday + 1)}`;
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
 
-module.exports = mongoose.model('Payment', paymentSchema);
+// Also guard batch inserts (insertMany does NOT run 'save' middleware)
+paymentSchema.pre('insertMany', async function (next, docs) {
+  try {
+    if (!Array.isArray(docs) || docs.length === 0) return next();
+
+    const now = new Date();
+    const { start, end, key } = dayRangeUTC(now);
+
+    // Start from current count in DB
+    let counter = await mongoose.model('Payment').countDocuments({
+      createdAt: { $gte: start, $lte: end },
+    });
+
+    for (const d of docs) {
+      if (!d.paymentId) {
+        counter += 1;
+        d.paymentId = `PAY-${key}-${pad4(counter)}`;
+      }
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------- encryption plugin ----------
+paymentSchema.plugin(fieldEncryption, {
+  fields: ['iban', 'amount', 'currency', 'method'],
+  // plugin expects "hashedFields" mapping: { hashField : sourceField }
+  hashedFields: { ibanHash: 'iban' },
+});
+
+// ---------- export ----------
+module.exports = mongoose.models.Payment || mongoose.model('Payment', paymentSchema);

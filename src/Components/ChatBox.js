@@ -60,7 +60,7 @@ const ChatBox = ({ userId, otherUserId, role, assignmentId, closeChat }) => {
     };
 
     socket.emit("sendMessage", message);
-    setInput(""); // input cleared, socket will push the message back
+    setInput(""); 
   };
 
   return (

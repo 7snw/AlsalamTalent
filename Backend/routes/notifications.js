@@ -1,4 +1,3 @@
-// routes/notifications.js
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
@@ -16,8 +15,7 @@ async function getUserDetails(userId, role) {
   return null;
 }
 
-// List notifications for a user
-// GET /api/notifications/:userId/:role
+
 router.get("/:userId/:role", async (req, res) => {
   try {
     const { userId, role } = req.params;
@@ -37,7 +35,6 @@ router.get("/:userId/:role", async (req, res) => {
 });
 
 
-// PATCH /api/notifications/:id/read  -> mark one as read
 router.patch("/:id/read", async (req, res) => {
   try {
     const { id } = req.params;
@@ -50,7 +47,6 @@ router.patch("/:id/read", async (req, res) => {
   }
 });
 
-// PATCH /api/notifications/read-all/:userId/:role  -> mark all as read for user
 router.patch("/read-all/:userId/:role", async (req, res) => {
   try {
     const { userId, role } = req.params;
@@ -66,7 +62,7 @@ router.patch("/read-all/:userId/:role", async (req, res) => {
   }
 });
 
-// Send an arbitrary notification (kept)
+
 router.post('/', async (req, res) => {
   try {
     const note = await Notification.create({
@@ -80,7 +76,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Broadcast to freelancers (kept)
 router.post('/broadcast', async (req, res) => {
   const { role, subject, message, type = 'info' } = req.body;
   if (String(role || '').toLowerCase() !== 'freelancer') {

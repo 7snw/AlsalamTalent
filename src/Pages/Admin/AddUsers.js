@@ -61,7 +61,7 @@ const AddUsers = () => {
       <Navbar links={NavConfig4} />
       <div className="add-user-container">
         <div className="add-user-content">
-          <h2>Add A New Client Account</h2>
+          <h2>Add a new client account</h2>
 
           {/* Client registration form */}
           <form className="add-user-form" onSubmit={handleSubmit} autoComplete="off">
@@ -141,16 +141,6 @@ const AddUsers = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label>Date of Birth</label>
-              <input
-                type="date"
-                name="dateOfBirth"
-                value={formData.dateOfBirth}
-                onChange={handleChange}
-                required
-              />
-            </div>
 
             <button type="submit" className="add-btn">Add</button>
           </form>

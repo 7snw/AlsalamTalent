@@ -4,10 +4,10 @@ import "../Style/Clients/SubmittedProjectDetailsPage.css";
 export default function PaymentInfoModal({
   open,
   onClose,
-  info,          // expected to include at least { iban } (optional)
-  projectTitle,  // string
-  amount,        // number
-  onAccept,      // function
+  info,          
+  projectTitle, 
+  amount,        
+  onAccept,      
 }) {
   if (!open) return null;
 

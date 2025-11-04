@@ -1,4 +1,3 @@
-// models/Application.js
 const mongoose = require('mongoose');
 
 const applicationSchema = new mongoose.Schema({

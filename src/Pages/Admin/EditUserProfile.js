@@ -19,13 +19,14 @@ const EditUserProfile = () => {
 
  
 
-  // Handle input changes
-  const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value // Update changed field
-    }));
-  };
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  let v = value;
+  if (name === 'email') v = value.trim().toLowerCase();
+  if (name === 'phone') v = value.replace(/\s+/g, '').trim();
+  setFormData(prev => ({ ...prev, [name]: v }));
+};
+
 
 // src/Pages/Admin/EditUserProfile.js
 // (Only key changes shown: stricter payload + DOB handling)
@@ -85,10 +86,6 @@ useEffect(() => {
 }, [userId]);
 
 
-  // Cancel and return to client list
-  const handleCancel = () => {
-    navigate('/clientlist');
-  };
 
   // Show loading indicator until data is ready
   if (loading || !formData) return <p>Loading...</p>;
@@ -99,7 +96,7 @@ useEffect(() => {
 
       <div className="settings-container">
         <div className="settings-content">
-          <h2>Edit user profile</h2>
+          <h2> User profile</h2>
 
           {/* Profile edit form */}
           <form className="settings-section" onSubmit={handleSubmit}>
@@ -110,6 +107,7 @@ useEffect(() => {
               value={formData.fullName}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Email</h4>
@@ -119,6 +117,7 @@ useEffect(() => {
               value={formData.email}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Occupation</h4>
@@ -128,6 +127,7 @@ useEffect(() => {
               value={formData.occupation}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Phone Number</h4>
@@ -137,6 +137,7 @@ useEffect(() => {
               value={formData.phone}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Company Name</h4>
@@ -146,25 +147,15 @@ useEffect(() => {
               value={formData.companyName}
               onChange={handleChange}
               required
+              readOnly 
             />
 
-            <h4>Date of Birth</h4>
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleChange}
-              required
-            />
+          
 
             {/* Hidden input to enforce role as client */}
             <input type="hidden" name="role" value="client" />
 
-            {/* Save and Cancel buttons */}
-            <div className="edit-buttons">
-              <button type="submit" className="settings-save-btn">Save</button>
-              <button type="button" className="settings-cancel-btn" onClick={handleCancel}>Cancel</button>
-            </div>
+           
           </form>
         </div>
       </div>

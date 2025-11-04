@@ -1,4 +1,3 @@
-// routes/bookings.js
 "use strict";
 
 const express = require("express");
@@ -17,7 +16,7 @@ const {
   bookingNewForClient,
 } = require("../utils/emailTemplates");
 
-/* ---------- email helper (SMTP first, Gmail fallback) ---------- */
+
 const FROM_FALLBACK = () =>
   process.env.FROM_EMAIL ||
   (process.env.EMAIL_USER
@@ -38,7 +37,7 @@ async function mail({ to, subject, text, html }) {
   }
 }
 
-/* ---------- who to notify on client side ---------- */
+
 async function getClientRecipients() {
   const recipients = [];
 
@@ -47,7 +46,7 @@ async function getClientRecipients() {
     mongoose.Types.ObjectId.isValid(process.env.BOOKINGS_CLIENT_ID)
   ) {
     try {
-      const c = await Client.findById(process.env.BOOKINGS_CLIENT_ID); // NO .lean()
+      const c = await Client.findById(process.env.BOOKINGS_CLIENT_ID); 
       if (c)
         recipients.push({
           _id: c._id,
@@ -82,7 +81,7 @@ async function getClientRecipients() {
   );
 }
 
-/* ---------- availability ---------- */
+
 router.get("/check", async (req, res) => {
   try {
     const { space, date, time } = req.query;
@@ -101,7 +100,7 @@ router.get("/check", async (req, res) => {
   }
 });
 
-/* ---------- create booking (return & emit studentId) ---------- */
+
 router.post("/", async (req, res) => {
   try {
     const { freelancerId, spaceType, dateISO, timeRange, space, date, time, notes } =
@@ -118,7 +117,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "space/date/time are required" });
     }
 
-    // pull studentId too (NO .lean())
+  
     const freelancer = await Freelancer.findById(
       freelancerId,
       "fullName email studentId"
@@ -127,7 +126,7 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "Freelancer not found" });
 
     const booking = await Booking.create({
-      freelancerId, // keep ObjectId in DB
+      freelancerId, 
       freelancerName: freelancer.fullName || "Unknown",
       freelancerEmail: freelancer.email,
       spaceType: _space,
@@ -136,28 +135,27 @@ router.post("/", async (req, res) => {
       notes,
     });
 
-    
-    // refresh with NON-lean populate so the encryption plugin can decrypt
+ 
     const enrichedDoc = await Booking.findById(booking._id).populate({
       path: "freelancerId",
       select: "studentId",
-      options: { lean: false }, // <-- critical
+      options: { lean: false }, 
     });
 
     const enriched = enrichedDoc ? enrichedDoc.toObject() : booking.toObject();
 
     const payload = {
       ...enriched,
-      // expose studentId under the same field name expected by the table
+     
       freelancerId:
         enriched?.freelancerId?.studentId || String(booking.freelancerId),
     };
 
-    // broadcast
+   
     const io = req.app.get("io");
     if (io) io.emit("booking:created", payload);
 
-    // -------------------- EMAILS + NOTIFICATIONS --------------------
+ 
     const frHtml = bookingConfirmedFreelancer({
       name: freelancer.fullName,
       space: _space,
@@ -203,9 +201,9 @@ router.post("/", async (req, res) => {
 
         const clText =
           `A new booking has been made.\n\n` +
-          `• Space: ${_space}\n• Date: ${_date}\n• Time: ${_time}\n` +
-          `• Freelancer: ${freelancer.fullName}\n• Freelancer Email: ${freelancer.email}\n` +
-          `• Freelancer ID: ${freelancer.studentId || freelancerId}\n` +
+          `• Space: ${_space}\n• Date: ${_date} • Time: ${_time}\n` +
+          `• Freelancer Email: ${freelancer.email}\n` +
+          
           `${notes ? `• Notes: ${notes}\n` : ""}\n\n— ctrlZ`;
 
         const arr = [];
@@ -224,8 +222,7 @@ router.post("/", async (req, res) => {
               userId: c._id,
               userType: "client",
               subject: "New Booking",
-              message: `Booked ${_space} on ${_date}, ${_time} by ${freelancer.fullName} (${
-                freelancer.studentId || freelancerId
+              message: `Booked ${_space} on ${_date}, ${_time} by ${freelancer.fullName} 
               }).`,
               type: "info",
               html: clHtml,
@@ -260,7 +257,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-/* ---------- list bookings (table shows studentId) ---------- */
+
 router.get("/", async (req, res) => {
   try {
     const { q = "", spaceType, dateISO, limit = 100, page = 1 } = req.query;
@@ -278,7 +275,7 @@ router.get("/", async (req, res) => {
     const pg = Math.max(1, Number(page));
     const skip = (pg - 1) * lim;
 
-    // NO .lean() here, because we populate an encrypted model
+ 
     const docs = await Booking.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -286,7 +283,7 @@ router.get("/", async (req, res) => {
       .populate({
         path: "freelancerId",
         select: "studentId",
-        options: { lean: false }, // important
+        options: { lean: false }, 
       });
 
     const items = docs.map((d) => {

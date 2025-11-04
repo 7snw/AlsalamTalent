@@ -454,7 +454,7 @@ export default function MyProjectsDetails() {
           </div>
 
           <div className="feedback-col">
-            <p className="subhead">Comments:</p>
+            <p className="subhead">Client Comments:</p>
             <div className="bubblee" ref={bubbleRef}>
               <div className="bubblee-body">
                 {(stages?.[activeStage]?.feedback || "No comments yet.").trim()}

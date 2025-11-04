@@ -1,4 +1,4 @@
-// src/Data/NavbarConfigs.js
+
 
 //General
 export const NavConfig1 = [
@@ -12,7 +12,7 @@ export const NavConfig2 = Object.assign([
   { label: 'Home', path: '/freelancer-home' },
   {
     label: 'Projects', 
-    //path: '/all-projects',
+  
     dropdown: [
       { label: 'Browse Projects', path: '/allprojects' },
        { label: 'Assigned Projects', path: '/Assignedprojects' }, 
@@ -47,7 +47,6 @@ export const NavConfig3 = Object.assign([
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'Analytics', path: '/AnalyticsClient' },
     { label: 'Bookings', path: '/bookingsTable' },
     { label: 'Library', path: '/library' }
 ], { 

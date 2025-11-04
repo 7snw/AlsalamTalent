@@ -64,15 +64,15 @@
 
 /* FILTER BOX (dark card) */
 .ma-filter-box1{
-margin-top: 55px;
-  color:#ffffff;
+ margin-top:0px;
+  color:#0f1b2d;
   border-radius:18px;
   padding:18px 16px 14px;
 }
 .ma-filter-heading{ margin:0 0 2px; }
 .ma-filter-hint{ margin:0 0 10px; opacity:.85; font-size:13px; }
 .ma-filter-group{ margin:14px 0; }
-.ma-filter-label{ margin:0 0 8px;  color:#6fa7b8; }
+.ma-filter-label{ margin:0 0 8px;  color:#0f1b2d; }
 .ma-check{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:14px; }
 .ma-check input{ width:16px; height:16px; accent-color:#f1633a; }
 

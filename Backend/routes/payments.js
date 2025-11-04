@@ -1,28 +1,27 @@
+// routes/payments.js
 const express = require('express');
 const router = express.Router();
-const logAction = require('../utils/logAction');
-const Payment    = require('../models/Payment');
-const Freelancer = require('../models/Freelancer');
-const Client     = require('../models/Client');   
-const sendEmail  = require('../utils/sendEmail');
-const { paymentApproved, invoiceForClient } = require('../utils/emailTemplates'); 
+
+const logAction   = require('../utils/logAction');
+const Payment     = require('../models/Payment');
+const Freelancer  = require('../models/Freelancer');
+const Client      = require('../models/Client');
+const sendEmail   = require('../utils/sendEmail');
+const { paymentApproved, invoiceForClient } = require('../utils/emailTemplates');
 
 let Notification, sendNotification;
-
-// Optional deps (don’t crash if not present)
 try { Notification = require('../models/Notification'); } catch { /* noop */ }
 try { ({ sendNotification } = require('../utils/sendNotification')); } catch { sendNotification = async () => {}; }
 
 router.use(express.json());
 
-// (optional) simple request logger
-router.use((req, _res, next) => {
-  console.log('[payments]', req.method, req.originalUrl);
-  if (req.method !== 'GET') console.log('[payments] body:', req.body);
-  next();
-});
+// -------- helpers --------
+const maskIban = (iban = '') => {
+  const s = String(iban).replace(/\s+/g, '');
+  if (!s) return '—';
+  return s.length <= 8 ? '****' : `${s.slice(0,4)} **** **** ${s.slice(-4)}`;
+};
 
-// Utility: normalize status for UI filters
 const normalizeStatusForUI = (status) => {
   const s = String(status || '').toLowerCase();
   if (s === 'pending') return 'Pending';
@@ -31,14 +30,19 @@ const normalizeStatusForUI = (status) => {
   return 'Pending';
 };
 
-// Preflight
+// Redact sensitive fields from logs
+router.use((req, _res, next) => {
+  const safeBody = { ...(req.body || {}) };
+  if (safeBody.iban) safeBody.iban = '***REDACTED***';
+  console.log('[payments]', req.method, req.originalUrl);
+  if (req.method !== 'GET') console.log('[payments] body:', safeBody);
+  next();
+});
+
+// -------- CORS preflight (optional) --------
 router.options('/record', (_req, res) => res.sendStatus(204));
 
-/**
- * POST /api/payments/record
- * Creates a payment record, pushes an IN-APP notification ONLY,
- * and sends the single branded email “Your payment was approved”.
- */
+// -------- Create / Record payment --------
 router.post('/record', async (req, res) => {
   try {
     const {
@@ -53,7 +57,6 @@ router.post('/record', async (req, res) => {
       method,
     } = req.body;
 
-    // ---- validate
     if (!clientId || !freelancerId || !assignmentId || !projectId) {
       return res.status(400).json({ message: 'Missing required ids.' });
     }
@@ -62,17 +65,15 @@ router.post('/record', async (req, res) => {
       return res.status(400).json({ message: 'Missing/invalid amount.' });
     }
 
-    // ---- fetch freelancer (name/email)
     const fl = await Freelancer.findById(freelancerId).select('fullName email');
     const flName  = (freelancerName || fl?.fullName || '').trim();
     const flEmail = (fl?.email || '').trim();
 
-    //  fetch client (name/email) to email invoice details
     const cl = await Client.findById(clientId).select('fullName name email companyName');
     const clName  = (cl?.fullName || cl?.name || cl?.companyName || '').trim();
     const clEmail = (cl?.email || '').trim();
 
-    // ---- create payment
+    // Create (encryption happens in model plugin)
     const payment = await Payment.create({
       clientId,
       freelancerId,
@@ -81,20 +82,20 @@ router.post('/record', async (req, res) => {
       projectTitle: projectTitle || '',
       freelancerName: flName,
       iban: (iban || '').trim(),
-      amount: amt,
+      amount: String(amt),
       method: method || 'Bank Transfer',
       status: 'Pending',
     });
 
-
-     await logAction({
+    // Audit log
+    await logAction({
       userId: clientId,
       action: 'Recorded Payment',
       projectId,
-      meta: { amount },
+      meta: { amount: amt },
     });
 
-    // ---- IN-APP notification to freelancer ONLY (no email via sendNotification)
+    // Notify freelancer in-app
     try {
       const subject = 'Payment approved';
       const message =
@@ -119,7 +120,7 @@ router.post('/record', async (req, res) => {
       console.warn('[payments] sendNotification failed:', e?.message || e);
     }
 
-    // ---- Email freelancer: "Your payment was approved"
+    // Email freelancer (masked IBAN)
     if (flEmail) {
       try {
         const html = paymentApproved({
@@ -127,7 +128,7 @@ router.post('/record', async (req, res) => {
           projectTitle,
           amountBHD: amt,
           method: method || 'Bank Transfer',
-          iban: (iban || '').trim(),
+          iban: maskIban(iban),
         });
 
         await sendEmail({
@@ -139,7 +140,7 @@ router.post('/record', async (req, res) => {
             `Your client has approved the payment for the project "${projectTitle || ''}".\n` +
             `Amount: BHD ${amt}\n` +
             `Method: ${method || 'Bank Transfer'}\n` +
-            `IBAN: ${iban || '—'}\n\n` +
+            `IBAN: ${maskIban(iban)}\n\n` +
             `You’ll receive the payment soon.`,
         });
       } catch (e) {
@@ -147,7 +148,7 @@ router.post('/record', async (req, res) => {
       }
     }
 
-    // Email client: Invoice details (subject, amount, IBAN, method)
+    // Email client (masked IBAN)
     if (clEmail) {
       try {
         const html = invoiceForClient({
@@ -155,7 +156,7 @@ router.post('/record', async (req, res) => {
           projectTitle,
           freelancerName: flName,
           amountBHD: amt,
-          iban: (iban || '').trim(),
+          iban: maskIban(iban),
           method: method || 'Bank Transfer',
         });
 
@@ -169,7 +170,7 @@ router.post('/record', async (req, res) => {
             `Freelancer: ${flName || '—'}\n` +
             `Amount: BHD ${amt}\n` +
             `Method: ${method || 'Bank Transfer'}\n` +
-            `IBAN: ${iban || '—'}\n\n` +
+            `IBAN: ${maskIban(iban)}\n\n` +
             `You can view this payment in Payments -> History`,
         });
       } catch (e) {
@@ -184,6 +185,7 @@ router.post('/record', async (req, res) => {
   }
 });
 
+// -------- Mark payment completed --------
 router.put('/:id/complete', async (req, res) => {
   try {
     const updated = await Payment.findByIdAndUpdate(
@@ -193,7 +195,6 @@ router.put('/:id/complete', async (req, res) => {
     );
     if (!updated) return res.status(404).json({ message: 'Payment not found' });
 
-    // Optional: in-app notify on completion (no email)
     try {
       await sendNotification({
         userId: updated.freelancerId,
@@ -208,11 +209,11 @@ router.put('/:id/complete', async (req, res) => {
       console.warn('[payments] completion notify failed:', e?.message || e);
     }
 
-      await logAction({
+    await logAction({
       userId: req.user?.id || updated.clientId,
       action: 'Marked Payment as Completed',
       projectId: updated.projectId,
-      meta: { amount: updated.amount },
+      meta: { amount: Number(updated.amount || 0) },
     });
 
     res.json(updated);
@@ -222,45 +223,43 @@ router.put('/:id/complete', async (req, res) => {
   }
 });
 
-/**
- * GET /api/payments/freelancer/:fid
- */
+// -------- Freelancer history (returns plaintext IBAN too) --------
 router.get('/freelancer/:fid', async (req, res) => {
   try {
     const { fid } = req.params;
 
+    // IMPORTANT: no .lean() so decrypted fields are available
     const rows = await Payment.find({ freelancerId: fid })
-      .sort({ date: -1, createdAt: -1 })
-      .lean();
+      .sort({ date: -1, createdAt: -1 });
 
     const includeInTotal = new Set(['Pending', 'Processing', 'Paid', 'Completed']);
     const total = rows.reduce((sum, r) => {
-      return includeInTotal.has(String(r.status)) ? sum + Number(r.amount || 0) : sum;
+      const amt = Number(r.amount || 0);
+      return includeInTotal.has(String(r.status)) ? sum + (Number.isFinite(amt) ? amt : 0) : sum;
     }, 0);
 
     const transactions = rows.map(r => ({
       _id: r._id,
       projectTitle: r.projectTitle || '',
       date: r.date || r.createdAt,
-      amount: r.amount || 0,
-      currency: r.currency || 'BHD',
+      amount: Number(r.amount || 0),         // decrypted String -> Number
+      currency: r.currency || 'BHD',         // decrypted
       status: normalizeStatusForUI(r.status),
       paymentId: r.paymentId || '',
+      // plaintext IBAN (decrypted)
+      iban: r.iban || '',
+      // optional masked copy
+      ibanMasked: maskIban(r.iban),
     }));
 
-    res.json({
-      currency: 'BHD',
-      totalEarnings: total,
-      transactions,
-    });
+    res.json({ currency: 'BHD', totalEarnings: total, transactions });
   } catch (e) {
     console.error('PAYMENTS /freelancer error:', e?.message);
     res.status(500).json({ message: 'Failed to load payment history.' });
   }
 });
 
-
-// GET /api/payments/by-client/:clientId?q=isa or q=PAY-20250916-0001
+// -------- Client payments (returns plaintext IBAN) --------
 router.get('/by-client/:clientId', async (req, res) => {
   try {
     const { from, to, q } = req.query;
@@ -276,7 +275,6 @@ router.get('/by-client/:clientId', async (req, res) => {
       }
     }
 
-    // optional text search by freelancerName or paymentId (and projectTitle for convenience)
     if (q && String(q).trim()) {
       const needle = String(q).trim();
       query.$or = [
@@ -286,12 +284,30 @@ router.get('/by-client/:clientId', async (req, res) => {
       ];
     }
 
-    const rows = await Payment.find(query).sort({ createdAt: -1 }).lean();
+    // no .lean() so plugin decrypts
+    const rows = await Payment.find(query).sort({ createdAt: -1 });
 
     const shaped = rows.map(r => ({
-      ...r,
+      _id: r._id,
+      clientId: r.clientId,
+      freelancerId: r.freelancerId,
+      assignmentId: r.assignmentId,
+      projectId: r.projectId,
+      projectTitle: r.projectTitle || '',
+      freelancerName: r.freelancerName || '',
+      amount: Number(r.amount || 0),                 // decrypted
+      currency: r.currency || 'BHD',                 // decrypted
+      method: r.method || 'Bank Transfer',           // decrypted
+      // return PLAINTEXT IBAN
+      iban: r.iban || '',
+      // keep a masked copy if you want to render safely by default
+      ibanMasked: maskIban(r.iban),
+      status: r.status,
       uiStatus: normalizeStatusForUI(r.status),
       paymentId: r.paymentId || '',
+      date: r.date || r.createdAt,
+      createdAt: r.createdAt,
+      completedAt: r.completedAt || null,
     }));
 
     res.json(shaped);
@@ -301,7 +317,7 @@ router.get('/by-client/:clientId', async (req, res) => {
   }
 });
 
-
+// -------- health --------
 router.get('/_health', (_req, res) => res.json({ ok: true }));
 
 module.exports = router;

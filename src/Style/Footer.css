@@ -15,6 +15,7 @@ background: var(--footer);
   margin-top:0px;
   margin-left:-7%;
   margin-right:-7%;
+ 
 }
          /* default dark */
 .site-footer.is-transparent { background: none; }    /* when we hide the wave */
@@ -56,7 +57,7 @@ background: var(--footer);
 
 /* ---------- Content ---------- */
 .footer-inner{
-  
+ 
   display:grid;
   grid-template-columns: 2.2fr 1fr 1.4fr 1.2fr;
   gap:40px;
@@ -105,8 +106,8 @@ body.has-page-waves .site-footer .footer-wave { display:none; }
 .foot-tagline{ margin:10px 0 14px; color:#adadad; line-height:1.5; font-size:15px;   margin-left:   42px; }
 .foot-copy{ margin-top:-9px; color:#adadad; font-size:14px;   margin-left: 42px;}
 
-.mt12{ margin-top:12px; }
-.foot-address{ font-style:normal; color:#cfe5ec; }
+.mt12{ margin-top:12px;  }
+.foot-address{ font-style:normal; color:#adadad; }
 
 
 .foot-social{ list-style:none; padding:0; margin:0; }
@@ -162,4 +163,94 @@ body.has-page-waves .site-footer .footer-wave { display:none; }
     gap:18px;
   }
   .footer-wave svg{ height:150px; }
+}
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    padding: 36px 8% 54px;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 36px 6% 60px;   /* even padding */
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;      /* ⬅️ center everything */
+    justify-items: center;   /* center grid items */
+  }
+
+  /* Center all footer elements */
+  .foot-col,
+  .foot-title,
+  .foot-title1,
+  .foot-list,
+  .foot-tagline,
+  .foot-copy,
+  .foot-social-icons {
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .foot-list {
+    padding: 0;
+    
+  }
+
+  .foot-title,
+  .foot-title1 {
+    font-size: 15px;
+    margin-top: 10px;
+    margin-bottom: 6px;
+  }
+
+  .foot-list a {
+    font-size: 14px;
+   
+  }
+
+  .foot-tagline {
+    margin-left: 0;
+    font-size: 14px;
+      margin-bottom: 10px;
+  }
+
+   .foot-copy {
+    margin-left: 0;
+    font-size: 14px;
+      margin-bottom: -10px;
+  }
+
+  /* Center and resize logo */
+  .logo-image22 {
+    height: 58px;
+    margin: 0 auto 12px;
+    display: block;
+    margin-bottom: -10px;
+  }
+
+  /* Center and space social icons */
+  .foot-social-icons {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin: 8px auto 0;
+  }
+
+  .icon-link {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .footer-wave svg {
+    height: 120px;
+  }
 }

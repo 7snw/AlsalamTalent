@@ -6,19 +6,28 @@ import { showAlert } from "../utils/toastMessages";
 import LandingPage from "./LandingPage";
 import TermsContent from "../Components/TermsContent";
 
-const API = "http://localhost:5000/api/freelancer";
+/* ---------- API bases (CRA/Webpack safe) ---------- */
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  window.__API_BASE__ || // optional runtime override
+  "http://localhost:5000";
+
+const FREELANCER_API =
+  process.env.REACT_APP_FREELANCER_API ||
+  `${API_BASE}/api/freelancer`;
 
 /* ---------- Options ---------- */
 const expertiseOptions = [
-    "Marketing",
-  "Graphic Design", 
-   "Content Creation",
-   "Product Design",
+  "Marketing",
+  "Graphic Design",
+  "Content Creation",
+  "Product Design",
   "Web Design",
-   "Photography",
-     "Video & Motion",
-  "Reports & Presentations"
+  "Photography",
+  "Video & Motion",
+  "Reports & Presentations",
 ];
+
 const majors = [
   "School of ICT",
   "School of Creative Media",
@@ -45,13 +54,19 @@ const GsTermsModal = ({ open, onClose, onAccept }) => {
   const boxRef = useRef(null);
   const [atEnd, setAtEnd] = useState(false);
   const [checked, setChecked] = useState(false);
-  useEffect(() => { if (!open) { setAtEnd(false); setChecked(false); } }, [open]);
+
+  useEffect(() => {
+    if (!open) { setAtEnd(false); setChecked(false); }
+  }, [open]);
+
   const onScroll = (e) => {
     const el = e.currentTarget;
     const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 8;
     setAtEnd(nearBottom);
   };
+
   if (!open) return null;
+
   return (
     <div className="gs-tc-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="gs-tc-modal" onClick={(e) => e.stopPropagation()}>
@@ -80,7 +95,6 @@ const GsTermsModal = ({ open, onClose, onAccept }) => {
 };
 
 /* --------------------------- OTP Modal --------------------------- */
-/* OtpModal.jsx (or inline) */
 const OtpModal = ({ open, onClose, regId, email }) => {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -89,19 +103,15 @@ const OtpModal = ({ open, onClose, regId, email }) => {
   useEffect(() => { if (!open) setCode(""); }, [open]);
   if (!open) return null;
 
-  const API =
-  import.meta.env.VITE_API_BASE ||
-  process.env.REACT_APP_API_BASE ||
-  "http://localhost:5000";
   const verify = async () => {
     if (!/^\d{6}$/.test(code)) return showAlert("Enter the OTP code.");
     try {
       setLoading(true);
       const res = await axios.post(
-  `${API}/verify-otp`,
-  { regId, code },
-  { withCredentials: true }   // ✅ keep session cookie active
-);
+        `${API_BASE}/verify-otp`,
+        { regId, code },
+        { withCredentials: true }
+      );
       showAlert(res.data?.message || "Verified!");
       window.location.href = "/signin";
     } catch (e) {
@@ -114,7 +124,7 @@ const OtpModal = ({ open, onClose, regId, email }) => {
   const resend = async () => {
     try {
       setResending(true);
-      await axios.post(`${API}/resend-otp`, { regId }); // 👈 use regId
+      await axios.post(`${API_BASE}/resend-otp`, { regId });
       showAlert("OTP resent to your email.");
     } catch (e) {
       showAlert(e.response?.data?.message || "Failed to resend OTP.");
@@ -155,7 +165,6 @@ const OtpModal = ({ open, onClose, regId, email }) => {
   );
 };
 
-
 /* ------------------------------ Page ------------------------------ */
 const GraduateSignUp = () => {
   const [formData, setFormData] = useState({
@@ -168,6 +177,12 @@ const GraduateSignUp = () => {
   const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // CPR verification state
+  const [verifyingCPR, setVerifyingCPR] = useState(false);
+  const [cprVerified, setCprVerified] = useState(false);
+  const [verifyMsg, setVerifyMsg] = useState("");
+
   const [otpModal, setOtpModal] = useState({ open: false, regId: null });
 
   const expertiseRef = useRef(null);
@@ -196,6 +211,10 @@ const GraduateSignUp = () => {
       setFormData((p) => ({ ...p, iban: formatted }));
       return;
     }
+    if (name === "cpr" && cprVerified) {
+      setCprVerified(false);
+      setVerifyMsg("");
+    }
     setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
@@ -214,6 +233,55 @@ const GraduateSignUp = () => {
     setCvFile(f);
   };
 
+  // call backend proxy to verify CPR and auto-fill fields
+  const verifyCPR = async (cpr) => {
+    const endpoint = `${API_BASE}/api/verify-graduate`;// same-origin to backend
+    const r = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpr })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data?.error || "Verification failed");
+    return data; // { CPR, Student_ID, Student_Name, Programme, Graduated, Graduation_Year, ... }
+  };
+
+  const handleCprBlur = async () => {
+    const cpr = String(formData.cpr || "").trim();
+    if (!cpr) return;
+    if (!/^\d{9}$/.test(cpr)) {
+      setCprVerified(false);
+      setVerifyMsg("Invalid CPR format (must be 9 digits).");
+      return showAlert("Invalid CPR format (must be 9 digits).");
+    }
+    try {
+      setVerifyingCPR(true);
+      setVerifyMsg("Verifying CPR…");
+      const data = await verifyCPR(cpr);
+      if (data?.Graduated === "Yes") {
+        setFormData((p) => ({
+          ...p,
+          studentId: data.Student_ID || p.studentId,
+          fullName: data.Student_Name || p.fullName,
+          major: data.Programme || p.major
+        }));
+        setCprVerified(true);
+        setVerifyMsg(`Verified: ${data.Student_Name || "Graduate"} (${data.Programme || "Programme"})`);
+        showAlert("Verified with Bahrain Polytechnic!");
+      } else {
+        setCprVerified(false);
+        setVerifyMsg("This CPR is not registered as a graduate.");
+        showAlert("This CPR is not registered as a graduate.");
+      }
+    } catch (err) {
+      setCprVerified(false);
+      setVerifyMsg(err.message || "Verification failed.");
+      showAlert(err.message || "Verification failed.");
+    } finally {
+      setVerifyingCPR(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -223,13 +291,20 @@ const GraduateSignUp = () => {
     if (!/^[0-9]{8}$/.test(formData.phone)) return showAlert("Phone number must be exactly 8 digits.");
     if (formData.expertise.length === 0) return showAlert("Please select at least one area of expertise.");
     if (!formData.agreeTerms) return showAlert("Please accept the Terms & Conditions to continue.");
-    if (!formData.cpr.trim()) return showAlert("CPR is required."); 
+    if (!formData.cpr.trim()) return showAlert("CPR is required.");
 
     const cleanIban = normalizeIban(formData.iban);
     if (formData.iban && !isValidBHIban(formData.iban)) return showAlert("Please enter a valid Bahrain IBAN.");
 
     try {
       setSubmitting(true);
+
+      // Optional UX: force a CPR check before submit (backend still enforces)
+      if (!cprVerified) {
+        await handleCprBlur();
+        if (!cprVerified) return;
+      }
+
       const fd = new FormData();
       fd.append("studentId", formData.studentId);
       fd.append("fullName", formData.fullName);
@@ -238,18 +313,17 @@ const GraduateSignUp = () => {
       fd.append("major", formData.major);
       fd.append("phone", formData.phone);
       fd.append("iban", cleanIban);
-      fd.append("cpr", formData.cpr); 
+      fd.append("cpr", formData.cpr);
       fd.append("expertise", JSON.stringify(formData.expertise));
       if (cvFile) fd.append("cv", cvFile);
 
-      const res = await axios.post(`${API}/graduate-register`, fd, {
+      const res = await axios.post(`${FREELANCER_API}/graduate-register`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
       if (res.status === 200 || res.status === 201) {
         showAlert("OTP sent to your email.");
         setOtpModal({ open: true, regId: res.data.regId });
-
       }
     } catch (err) {
       showAlert(err.response?.data?.message || "Signup failed.");
@@ -270,13 +344,26 @@ const GraduateSignUp = () => {
           {/* LEFT */}
           <div className="gs-col">
             <div>
-              <label>Student ID</label>
-              <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} />
+              <label>Student ID {cprVerified && "(verified)"}</label>
+              <input
+                type="text"
+                name="studentId"
+                value={formData.studentId}
+                onChange={handleChange}
+                readOnly={cprVerified}
+              />
             </div>
 
             <div>
-              <label>Full Name</label>
-              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
+              <label>Full Name {cprVerified && "(verified)"}</label>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+                readOnly={cprVerified}
+              />
             </div>
 
             <div>
@@ -291,10 +378,30 @@ const GraduateSignUp = () => {
 
             <div>
               <label>CPR</label>
-              <input type="text" name="cpr" value={formData.cpr} onChange={handleChange} required />
+              <div className="gs-cpr-row">
+                <input
+                  type="text"
+                  name="cpr"
+                  value={formData.cpr}
+                  onChange={handleChange}
+                  onBlur={handleCprBlur}
+                  inputMode="numeric"
+                  pattern="\d{9}"
+                  placeholder="9 digits"
+                  required
+                />
+                <button
+                  type="button"
+                  className="gs-cpr-verify"
+                  onClick={handleCprBlur}
+                  disabled={verifyingCPR || !/^\d{9}$/.test(String(formData.cpr || ""))}
+                  aria-busy={verifyingCPR}
+                >
+                  {verifyingCPR ? "Verifying…" : cprVerified ? "Verified" : "Verify"}
+                </button>
+              </div>
+              {verifyMsg && <p className={`gs-cpr-msg ${cprVerified ? "ok" : "err"}`}>{verifyMsg}</p>}
             </div>
-
-           
           </div>
 
           <div className="gs-divider" aria-hidden="true" />
@@ -302,8 +409,15 @@ const GraduateSignUp = () => {
           {/* RIGHT */}
           <div className="gs-col">
             <div>
-              <label>Major</label>
-              <select name="major" value={formData.major} onChange={handleChange} className="gs-select" required>
+              <label>Major {cprVerified && "(verified)"}</label>
+              <select
+                name="major"
+                value={formData.major}
+                onChange={handleChange}
+                className="gs-select"
+                required
+                disabled={cprVerified}
+              >
                 <option value="">Select Major</option>
                 {majors.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
@@ -344,7 +458,6 @@ const GraduateSignUp = () => {
                 name="iban"
                 value={formData.iban}
                 onChange={handleChange}
-                
               />
             </div>
 
@@ -361,7 +474,7 @@ const GraduateSignUp = () => {
               />
             </div>
 
-             <div className="gs-file">
+            <div className="gs-file">
               <label>Upload CV</label>
               <input type="file" accept=".pdf,.doc,.docx" onChange={handleCvChange} />
             </div>
@@ -382,12 +495,17 @@ const GraduateSignUp = () => {
           </span>
         </div>
 
-        <p className="gs-signin">I have an account? <span onClick={() => navigate("/signin")}>Sign In</span></p>
+        <p className="gs-signin">
+          I have an account? <span onClick={() => navigate("/signin")}>Sign In</span>
+        </p>
       </div>
 
-      <GsTermsModal open={showTerms} onClose={() => setShowTerms(false)} onAccept={() => setFormData((p) => ({ ...p, agreeTerms: true }))} />
+      <GsTermsModal
+        open={showTerms}
+        onClose={() => setShowTerms(false)}
+        onAccept={() => setFormData((p) => ({ ...p, agreeTerms: true }))}
+      />
 
-      {/* OTP Modal */}
       <OtpModal
         open={otpModal.open}
         onClose={() => setOtpModal({ open: false, id: null })}

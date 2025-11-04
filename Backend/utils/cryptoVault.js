@@ -1,9 +1,5 @@
-// utils/cryptoVault.js
-const crypto = require('crypto');
 
-// REQUIRED env:
-// DATA_KEY_B64: 32-byte AES key in base64 (e.g. openssl rand -base64 32)
-// LOOKUP_KEY_B64: HMAC-SHA256 key in base64 (for deterministic lookup hashes)
+const crypto = require('crypto');
 
 const DATA_KEY = Buffer.from(process.env.DATA_KEY_B64 || '', 'base64');
 if (DATA_KEY.length !== 32) throw new Error('DATA_KEY_B64 must be 32 bytes (base64).');
@@ -11,7 +7,7 @@ if (DATA_KEY.length !== 32) throw new Error('DATA_KEY_B64 must be 32 bytes (base
 const LOOKUP_KEY = Buffer.from(process.env.LOOKUP_KEY_B64 || '', 'base64');
 if (LOOKUP_KEY.length < 16) throw new Error('LOOKUP_KEY_B64 must be at least 16 bytes (base64).');
 
-// Pack format v1: base64("v1:" + iv(12) + ":" + ciphertext + ":" + tag(16))
+
 const pack = (iv, ciphertext, tag) =>
   Buffer.from(`v1:${iv.toString('base64')}:${ciphertext.toString('base64')}:${tag.toString('base64')}`).toString('base64');
 
@@ -39,11 +35,11 @@ function decryptString(blob = '') {
   return out.toString('utf8');
 }
 
-// Deterministic, non-reversible lookup hash (for unique/search)
+
 function lookupHash(value = '') {
   const h = crypto.createHmac('sha256', LOOKUP_KEY).update(String(value).trim().toLowerCase()).digest('base64url');
-  // Keep short but collision-safe slice
-  return h.slice(0, 43); // ~256 bits -> 43 chars base64url
+
+  return h.slice(0, 43); 
 }
 
 module.exports = { encryptString, decryptString, lookupHash };

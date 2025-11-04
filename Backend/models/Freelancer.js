@@ -1,28 +1,24 @@
-// models/Freelancer.js
 const mongoose = require('mongoose');
 const bcrypt   = require('bcryptjs');
 
-//  field-encryption plugin
 const fieldEncryption = require('../utils/mongooseFieldEncryption');
 
-/* ------------------------------------------------------------------ */
-/* Subdocs                                                            */
-/* ------------------------------------------------------------------ */
+
 
 const portfolioSchema = new mongoose.Schema(
   {
     title: String,
     description: String,
 
-    // NEW: preferred going forward
+  
     skills: { type: [String], default: [] },
 
-    // Legacy (kept so old entries still render)
+
     category: String,
 
     imageUrls: [String],
 
-    // collaborators stored inline for fast render
+
     collaborators: [
       {
         _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Freelancer' },
@@ -31,7 +27,7 @@ const portfolioSchema = new mongoose.Schema(
       },
     ],
 
-    // ownership / mirroring
+ 
     createdBy:   { type: mongoose.Schema.Types.ObjectId, ref: 'Freelancer' },
     sourceOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'Freelancer' },
     createdAt:   { type: Date, default: Date.now },
@@ -51,38 +47,34 @@ const projectSchema = new mongoose.Schema(
   { _id: true, _subdoc: true }
 );
 
-/* ------------------------------------------------------------------ */
-/* Main schema                                                        */
-/* ------------------------------------------------------------------ */
 
 const freelancerSchema = new mongoose.Schema(
   {
     userType: String,
 
-    // Keep studentId plain (operational ID)
     studentId: { type: String, trim: true, index: true, unique: true, sparse: true },
 
-    // These will be ENCRYPTED at rest; keep non-unique on plaintext columns
+   
     fullName: { type: String, trim: true },
 
-    // added: major (kept plain)
+  
     major: { type: String, trim: true },
 
-    // IMPORTANT: do NOT put `lowercase: true` on encrypted fields
-    email:    { type: String, trim: true },          // encrypted; unique via emailHash
-    phone:    { type: String, trim: true },          // encrypted; searchable via phoneHash
-    cpr:      { type: String, trim: true },          // encrypted; searchable via cprHash
-    dateOfBirth: { type: Date },                     // encrypted as ISO string
-    iban:     { type: String, default: '' },         // encrypted; keep last4 separately
-    ibanLast4:{ type: String, index: true, sparse: true },   // helper for ops (not sensitive)
+  
+    email:    { type: String, trim: true },          
+    phone:    { type: String, trim: true },   
+    cpr:      { type: String, trim: true },         
+    dateOfBirth: { type: Date },                  
+    iban:     { type: String, default: '' },         
+    ibanLast4:{ type: String, index: true, sparse: true },  
     cvUrl:    { type: String, default: '' },
 
-    // Shadow lookup hashes (deterministic, non-reversible)
+  
     emailHash: { type: String, index: true, unique: true, sparse: true },
     phoneHash: { type: String, index: true, sparse: true },
     cprHash:   { type: String, index: true, sparse: true },
 
-    // Auth / flags
+
     password:        String,
     emailVerified:   { type: Boolean, default: false },
     emailOtpHash:    { type: String, select: false },
@@ -92,17 +84,17 @@ const freelancerSchema = new mongoose.Schema(
     isActive:   { type: Boolean, default: true },
     rating:     { type: Number, default: 0 },
 
-    // Profile
+
     expertise:       [String],
     bio:             String,
     skills:          [String],
     profileImageUrl: { type: String },
 
-    // Collections
+
     portfolio: [portfolioSchema],
     projects:  [projectSchema],
 
-    // Relations
+  
     savedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
     applications: [{
       projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
@@ -111,34 +103,32 @@ const freelancerSchema = new mongoose.Schema(
 
     role: { type: String, default: 'freelancer' },
 
-    // OTP for sign-up (kept)
+ 
     otpHash:    { type: String, select: false, default: null },
     otpExpires: { type: Date,   select: false, default: null },
 
-    // --- Security Policy Fields (Al Salam Bank InfoSec) ---
-    lastPasswordChange: { type: Date, default: Date.now },      // 4.4 expiry
+   
+    lastPasswordChange: { type: Date, default: Date.now }, 
     passwordHistory: [{ type: String }],  
     
     resetOtp: { type: String, select: false },
 resetOtpExpiry: { type: Date },
-// 4.6 reuse check (keep last 13)
+
   },
+
+  
   { timestamps: true, strict: true }
 );
 
-/* ------------------------------------------------------------------ */
-/* Normalizers & password hashing                                     */
-/* ------------------------------------------------------------------ */
 freelancerSchema.pre('save', async function (next) {
   try {
-    // --- Password hashing ---
+ 
     if (this.isModified('password') && this.password) {
       const newPassword = String(this.password).trim();
       const newHash = await bcrypt.hash(newPassword, 10);
 
-      // Load password history (on current doc)
       if (Array.isArray(this.passwordHistory)) {
-        // Prevent duplicates if same hash somehow re-hashed
+    
         if (!this.passwordHistory.includes(newHash)) {
           this.passwordHistory.unshift(newHash);
         }
@@ -146,17 +136,15 @@ freelancerSchema.pre('save', async function (next) {
         this.passwordHistory = [newHash];
       }
 
-      // Limit to last 13
+  
       this.passwordHistory = this.passwordHistory.slice(0, 13);
 
-      // Update last change timestamp
       this.lastPasswordChange = Date.now();
 
-      // Replace plaintext with bcrypt hash
       this.password = newHash;
     }
 
-    // --- Normalizations ---
+
     if (this.isModified('iban') && typeof this.iban === 'string') {
       const clean = this.iban.replace(/\s+/g, '').toUpperCase();
       this.iban = clean;
@@ -175,15 +163,13 @@ freelancerSchema.pre('save', async function (next) {
       this.cpr = String(this.cpr).replace(/\s+/g, '').trim();
     }
 
+    
+
     next();
   } catch (err) {
     next(err);
   }
 });
-
-/* ------------------------------------------------------------------ */
-/* Field-level encryption + deterministic lookup hashes               */
-/* ------------------------------------------------------------------ */
 
 freelancerSchema.plugin(fieldEncryption, {
   fields: ['cpr', 'fullName', 'dateOfBirth', 'phone', 'email', 'iban'],
@@ -195,9 +181,7 @@ freelancerSchema.plugin(fieldEncryption, {
   dateAsISO: ['dateOfBirth'],
 });
 
-/* ------------------------------------------------------------------ */
-/* Hide secrets in JSON                                               */
-/* ------------------------------------------------------------------ */
+
 
 const transform = (_doc, ret) => {
   delete ret.password;
@@ -205,7 +189,7 @@ const transform = (_doc, ret) => {
   delete ret.otpExpires;
   delete ret.emailOtpHash;
   delete ret.emailOtpExpiresAt;
-  // hashes are internal-only
+
   delete ret.emailHash;
   delete ret.phoneHash;
   delete ret.cprHash;
@@ -214,7 +198,7 @@ const transform = (_doc, ret) => {
 freelancerSchema.set('toObject', { transform, virtuals: true });
 freelancerSchema.set('toJSON',   { transform, virtuals: true });
 
-/* ------------------------------------------------------------------ */
+
 
 const FreelancerModel = mongoose.model('Freelancer', freelancerSchema);
 module.exports = FreelancerModel;

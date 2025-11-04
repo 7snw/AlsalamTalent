@@ -1,11 +1,10 @@
-// routes/freelancer.js (or wherever your router lives)
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const router = express.Router();
 const Portfolio = require('../models/Portfolio');
 
-// Multer config
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
@@ -14,22 +13,21 @@ const storage = multer.diskStorage({
   }
 });
 
-// accept multiple images via field "images"
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  limits: { fileSize: 2 * 1024 * 1024 }, 
   fileFilter: (req, file, cb) => {
     const ok = ['image/jpeg', 'image/png', 'image/jpg'].includes(file.mimetype);
     cb(ok ? null : new Error('Only JPEG/PNG/JPG files are allowed.'), ok);
   }
 }).array('images', 12);
 
-// Helpers
+
 const toArray = (v) => (Array.isArray(v) ? v : (v ? [v] : []));
 const parseSkills = (raw) => {
   if (!raw) return [];
   try {
-    // accepts JSON string (["UI/UX","Branding"]) or comma/semicolon text
+
     const parsed = JSON.parse(raw);
     return toArray(parsed).map(s => String(s).trim()).filter(Boolean);
   } catch {
@@ -54,7 +52,7 @@ router.post('/portfolio/:id', (req, res) => {
 
       const skillsArr = parseSkills(skills).length
         ? parseSkills(skills)
-        : parseSkills(projectType); // graceful fallback from old field
+        : parseSkills(projectType); 
 
       const collabIds = (() => {
         if (!collaborators) return [];
@@ -66,7 +64,7 @@ router.post('/portfolio/:id', (req, res) => {
         title,
         description,
         skills: skillsArr,
-        // keep legacy category if you still want to fill it from the first skill
+     
         category: projectType || (skillsArr[0] || undefined),
         imageUrls,
         collaborators: collabIds,

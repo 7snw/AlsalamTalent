@@ -10,7 +10,6 @@ const { accountVerified } = require('../utils/emailTemplates');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://ctrlz.bh';   
 
 
-// Verify student or graduate dynamically
 router.post('/verify', async (req, res) => {
   const { freelancerId } = req.body;
 
@@ -23,7 +22,7 @@ router.post('/verify', async (req, res) => {
 
     const html = accountVerified({
       name: freelancer.fullName,
-      userType: freelancer.userType, // 'Student' | 'Graduate'
+      userType: freelancer.userType,
       dashboardLink: `${FRONTEND_URL}/freelancer-dashboard`,
     });
 
@@ -51,13 +50,13 @@ router.post('/verify', async (req, res) => {
 
 
 
-// Get admin profile by ID
+
 router.get('/:id', async (req, res) => {
   try {
     const admin = await Admin.findById(req.params.id);
     if (!admin) return res.status(404).json({ message: 'Admin not found' });
 
-    // Normalize field for frontend
+  
     const formatted = {
       ...admin.toObject(),
       company: admin.companyName || ''
@@ -69,7 +68,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update admin profile
+
 router.put('/:id', async (req, res) => {
   try {
     const updates = {
@@ -105,7 +104,7 @@ router.put('/changepassword/:id', async (req, res) => {
   }
 });
 
-// CLIENT LIST ROUTE
+
 router.get('/clients', async (req, res) => {
   try {
     const clients = await Client.find();

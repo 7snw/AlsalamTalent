@@ -1,10 +1,8 @@
-// models/Resource.js
+
 const mongoose = require('mongoose');
 
 const SECTION_ENUM = ['platform', 'resources', 'bank']; 
-// platform = Platform Tutorial (optional future use)
-// resources = Freelancers Resources
-// bank = AlSalam Bank Guidelines
+
 
 const resourceSchema = new mongoose.Schema(
   {
@@ -13,16 +11,15 @@ const resourceSchema = new mongoose.Schema(
 
     description: { type: String, default: '' },
 
-    // Optional link (YouTube, PDF on CDN, Notion, etc.)
+   
     externalUrl: { type: String, default: '' },
 
-    // Optional display ordering (lower first)
     order: { type: Number, default: 0, index: true },
 
-    // Optional thumbnail/cover
+  
     imageUrl: { type: String, default: '' },
 
-    // Optional attachments (kept consistent with Projects)
+ 
     files: [{ name: String, url: String }],
     docs: [{ name: String, url: String }],
   },

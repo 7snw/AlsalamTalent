@@ -2,11 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createNoise3D } from "simplex-noise";
 
-/**
- * Canvas-based animated wavy background.
- * - Big blurred waves (configurable)
- * - Optional thin accent lines drawn crisp on top (e.g. orange + light blue)
- */
+
 const WavyBackground = ({
   // fat waves
   colors = ["#0EA5E9", "#38BDF8", "#7EC8D6", "#F15C2E"],

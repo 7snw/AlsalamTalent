@@ -1,4 +1,3 @@
-// routes/messages.js
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
@@ -8,7 +7,6 @@ const Admin = require('../models/Admin');
 const Client = require('../models/Client');
 const Freelancer = require('../models/Freelancer');
 
-// Utility to get user from any collection (no .lean() so encrypted fields decrypt)
 async function getUserDetails(userId) {
   return (
     (await Admin.findById(userId)) ||
@@ -18,8 +16,7 @@ async function getUserDetails(userId) {
 }
 
 /* -------------------- Create / send a message -------------------- */
-/* If you already send via socket, use the same pattern there:
-   save -> refetch OR rely on post('save') -> emit decrypted doc */
+
 router.post('/', async (req, res) => {
   try {
     const payload = {
@@ -33,17 +30,12 @@ router.post('/', async (req, res) => {
       timestamp: new Date()
     };
 
-    // Save (content & attachment URLs get encrypted by hooks)
+    
   const saved = await Message.create(payload);
-const fresh = await Message.findById(saved._id); // or rely on post('save') and use `saved`
+const fresh = await Message.findById(saved._id); 
 io.to(payload.roomId).emit('new-message', fresh);
 
 
-    // Option A (not strictly necessary now that we have post('save')):
-    // const doc = await Message.findById(saved._id); // triggers hydrate->decrypt
-    // return res.json(doc);
-
-    // Option B (works because post('save') decrypted the in-memory doc):
     res.json(saved);
   } catch (err) {
     console.error('Error creating message:', err);
@@ -55,7 +47,7 @@ io.to(payload.roomId).emit('new-message', fresh);
 router.get('/:roomId', async (req, res) => {
   try {
     const messages = await Message.find({ roomId: req.params.roomId }).sort({ timestamp: 1 });
-    res.json(messages); // decrypted because we did not use .lean()
+    res.json(messages); 
   } catch (err) {
     console.error('Error fetching messages:', err);
     res.status(500).send('Error fetching messages');
@@ -89,15 +81,15 @@ router.get('/latest/:userId', async (req, res) => {
       { $replaceRoot: { newRoot: '$doc' } }
     ]);
 
-    // Re-hydrate each message so plugin + post hooks decrypt content/attachments
+
     const ids = messages.map(m => m._id);
     const hydrated = await Message.find({ _id: { $in: ids } });
 
-    // Preserve original order from aggregation:
+
     const byId = new Map(hydrated.map(d => [String(d._id), d]));
     const ordered = messages.map(m => byId.get(String(m._id))).filter(Boolean);
 
-    // Populate minimal sender/receiver profile fields
+
     const populated = await Promise.all(
       ordered.map(async (msg) => {
         const sender = await getUserDetails(msg.senderId);
@@ -119,7 +111,7 @@ router.get('/latest/:userId', async (req, res) => {
   }
 });
 
-/* -------------------- Delete all messages in a room -------------------- */
+
 router.delete('/room/:roomId', async (req, res) => {
   try {
     await Message.deleteMany({ roomId: req.params.roomId });

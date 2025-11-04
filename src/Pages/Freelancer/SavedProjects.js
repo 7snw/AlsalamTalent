@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaBookmark } from "react-icons/fa";
 import axios from "axios";
-import WavyBackground from "../../Components/WavyBackground";  
+
 import Navbar from "../../Components/Navbar";
 import Footer from "../../Components/Footer";
 import { NavConfig2 } from "../../Data/NavbarConfigs";
@@ -22,7 +22,7 @@ const SavedProjects = () => {
   // Current user
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
-  const [showModal] = useState(false);
+
   // State
   const [savedProjects, setSavedProjects] = useState([]);
   const [search, setSearch] = useState("");
@@ -104,23 +104,7 @@ const SavedProjects = () => {
     <div className="sp-page">
       <Navbar links={NavConfig2} />
 
-      <WavyBackground
-      colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
-      waveOpacity={0.85}
-      waveWidth={450}
-      blur={0}
-      speed="fast"
-      accentColors={["#f1633a", "#9FD8FF"]}
-      accentWidth={3}
-      accentOpacity={0.5}
-      accentVertical={-220}
-      accentSpacing={12}
-           
-  containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
-
-  paused={showModal}
-  speedOverride={showModal ? 0 : undefined}
-      />
+    
    
 
       <div className="sp-container">

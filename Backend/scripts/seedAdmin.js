@@ -7,10 +7,10 @@ const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
   .then(async () => {
-    // Delete if already exists
+  
     await Admin.deleteOne({ email: 'admin@alsalam.com' });
 
-    // Create new with fresh hash
+  
     const hashedPassword = await bcrypt.hash('12345678', 10);
     const newAdmin = await Admin.create({
       fullName: 'Default Admin',

@@ -11,7 +11,7 @@ import FlexibilityIcon from "../Assets/flexibility.png";
 import CreativityIcon from "../Assets/creativity.png";
 import TrustIcon from "../Assets/trust.png";
 
-/* ===== Motion variants (reusable) ===== */
+
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },

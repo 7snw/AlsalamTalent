@@ -1,4 +1,3 @@
-// Backend/utils/jwt.js
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { AUTH } = require('../config/auth');

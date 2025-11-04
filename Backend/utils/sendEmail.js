@@ -1,9 +1,7 @@
 const nodemailer = require("nodemailer");
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-/* ============================================================
-   🔧 SMTP Transport Builder (Fallback Only)
-   ============================================================ */
+
 function buildTransport() {
   if (process.env.SMTP_HOST) {
     const port = Number(process.env.SMTP_PORT || 587);
@@ -14,7 +12,7 @@ function buildTransport() {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port,
-      secure, // false for 587, true for 465
+      secure, 
       requireTLS: port === 587,
       auth: {
         user: (process.env.SMTP_USER || process.env.EMAIL_USER || "").trim(),
@@ -23,13 +21,10 @@ function buildTransport() {
     });
   }
 
-  // fallback to JSON transport (console only)
+
   return nodemailer.createTransport({ jsonTransport: true });
 }
 
-/* ============================================================
-    Brevo API Client (Primary)
-   ============================================================ */
 let brevoApi = null;
 const USE_BREVO_API =
   (process.env.EMAIL_PROVIDER || "").toLowerCase() === "brevo_api" &&
@@ -43,9 +38,6 @@ if (USE_BREVO_API) {
   console.log("[mail] Using Brevo API. From:", (process.env.FROM_EMAIL || "").trim());
 }
 
-/* ============================================================
-   📬 Helper: Normalize Recipients / Attachments
-   ============================================================ */
 const normalizeRecipients = (v) => {
   if (!v) return [];
   const arr = Array.isArray(v) ? v : String(v).split(",");
@@ -83,12 +75,7 @@ const mapAttachments = (attachments = []) => {
     .filter(Boolean);
 };
 
-/* ============================================================
-   Main Function
-   ============================================================ */
-/**
- * sendEmail({ to, subject, text, html, cc, bcc, replyTo, attachments })
- */
+
 async function sendEmail({ to, subject, text, html, cc, bcc, replyTo, attachments }) {
   if (!to) return;
 
@@ -96,9 +83,7 @@ async function sendEmail({ to, subject, text, html, cc, bcc, replyTo, attachment
     (process.env.FROM_EMAIL || process.env.EMAIL_USER || "control@ctrlz.bh").trim();
   const fromName = (process.env.FROM_NAME || "ctrlZ").trim();
 
-  /* ------------------------------------------------------------
-     Try Brevo API (Primary)
-     ------------------------------------------------------------ */
+
   if (brevoApi) {
     const payload = new SibApiV3Sdk.SendSmtpEmail();
     payload.sender = { email: fromEmail, name: fromName };
@@ -113,7 +98,7 @@ async function sendEmail({ to, subject, text, html, cc, bcc, replyTo, attachment
     const mappedAttachments = mapAttachments(attachments);
     if (mappedAttachments.length) payload.attachment = mappedAttachments;
 
-    // 🔹 Send asynchronously, non-blocking
+  
     (async () => {
       console.time("brevo_send_time");
       try {
@@ -153,13 +138,11 @@ async function sendEmail({ to, subject, text, html, cc, bcc, replyTo, attachment
       }
     })();
 
-    // Return immediately (non-blocking)
+ 
     return { provider: "brevo", status: "queued" };
   }
 
-  /* ------------------------------------------------------------
-     If Brevo API not enabled → use SMTP directly
-     ------------------------------------------------------------ */
+
   try {
     const transporter = buildTransport();
     await transporter.sendMail({

@@ -1,4 +1,3 @@
-// routes/projects.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -14,11 +13,9 @@ const sendEmail = require('../utils/sendEmail');
 const { newProjectAvailable } = require('../utils/emailTemplates');     
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://ctrlz.bh'; 
 
-/* Ensure /uploads exists */
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
-/* Multer storage */
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, 'uploads/'),
   filename: (_req, file, cb) => {
@@ -28,7 +25,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-/* -------------------- Helpers -------------------- */
+
 const sanitizeSkills = (raw) => {
   if (!raw) return [];
   let arr = [];
@@ -63,15 +60,11 @@ const normList = (arr = []) =>
     .map((s) => String(s || '').trim().toLowerCase())
     .filter(Boolean);
 
-/** Build a unique token set from a project:
- * - skills, requiredSkills, skillTags, tags
- * - categories (array) and category (string)
- * Fallback to category if no skills are present.
- */
+
 const tokensFromProject = (p = {}) => {
   const bag = new Set();
 
-  // skills-like fields
+
   for (const t of normList([
     ...(p.skills || []),
     ...(p.requiredSkills || []),
@@ -79,13 +72,12 @@ const tokensFromProject = (p = {}) => {
     ...(p.tags || []),
   ])) bag.add(t);
 
-  // categories (array)
   for (const t of normList(p.categories || [])) bag.add(t);
 
-  // single category
+
   for (const t of normList([p.category])) bag.add(t);
 
-  // if nothing at all, leave empty set
+
   return bag;
 };
 
@@ -100,7 +92,6 @@ const typeFilterFromReq = (req) => {
   return t === 'project' || t === 'campaign' ? { projectType: t } : {};
 };
 
-/* -------------------- MATCH ROUTES -------------------- */
 
 router.post('/match', async (req, res) => {
   try {
@@ -140,10 +131,7 @@ router.post('/match', async (req, res) => {
   }
 });
 
-/** GET /api/projects/match/:freelancerId
- * Convenience endpoint that uses both expertise + profile skills.
- * Optional query: ?type=project|campaign & ?limit=#
- */
+
 router.get('/match/:freelancerId', async (req, res) => {
   try {
     const f = await Freelancer.findById(req.params.freelancerId);
@@ -172,8 +160,7 @@ router.get('/match/:freelancerId', async (req, res) => {
   }
 });
 
-/* -------------------- READ ROUTES -------------------- */
-/* GET all (optional filter by projectType, audience) */
+
 router.get('/all', async (req, res) => {
   try {
     const typeRaw  = String(req.query.type || req.query.projectType || '').toLowerCase();
@@ -181,12 +168,10 @@ router.get('/all', async (req, res) => {
 
     const filter = {};
 
-    // Optional: filter by project type
     if (typeRaw === 'project' || typeRaw === 'campaign') {
       filter.projectType = typeRaw;
     }
 
-    //  Hide completed projects for freelancers only
     if (audience === 'freelancer') {
       filter.status = { $ne: 'Completed' };
     }
@@ -205,7 +190,7 @@ router.get('/all', async (req, res) => {
 });
 
 
-/* GET by client (place BEFORE '/:id' to avoid shadowing) */
+
 router.get('/client/:authorId', async (req, res) => {
   try {
     const projects = await Project.find({ authorId: req.params.authorId }).populate(
@@ -229,7 +214,7 @@ router.get('/client/:authorId', async (req, res) => {
   }
 });
 
-/* GET one */
+
 router.get('/:id', async (req, res) => {
   try {
     const project = await Project.findById(req.params.id).populate('authorId', 'fullName');
@@ -245,9 +230,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-/* -------------------- WRITE ROUTES -------------------- */
 
-/* POST upload new project */
 router.post(
   '/upload',
   upload.fields([
@@ -288,7 +271,7 @@ router.post(
         status,
         projectType: normalizedType,
         deadlines: { initial, half, final },
-        duration: { from: initial, to: half }, // legacy
+        duration: { from: initial, to: half }, 
         imageUrl: projectImage,
         files: projectFiles,
         skills: sanitizeSkills(skills),
@@ -298,7 +281,7 @@ router.post(
 
       await logAction({ userId: authorId, action: 'Added New Project', projectId: newProject._id });
 
-      // Notify admins + freelancers (in-app + branded email)
+   
       const [freelancers, admins] = await Promise.all([
         Freelancer.find().select('fullName email role'),
         Admin.find().select('fullName email role'),
@@ -324,8 +307,8 @@ router.post(
             message: `A new ${normalizedType} titled "${newProject.title}" has been posted.`,
             type: 'available',
             meta: { projectId: newProject._id, projectType: normalizedType },
-            alsoEmail: true,    // ← send an email as well
-            html,               // ← branded HTML body
+            alsoEmail: true,   
+            html,             
           });
         })
       );
@@ -339,7 +322,7 @@ router.post(
 );
 
 
-/* PUT update project */
+
 router.put(
   '/:id',
   upload.fields([
@@ -353,7 +336,7 @@ router.put(
       if (!currentProject)
         return res.status(404).json({ message: 'Project not found' });
 
-      // Deadlines may be updated individually
+
       const initial = req.body.initialDeadline
         ? new Date(req.body.initialDeadline)
         : currentProject.deadlines?.initial;
@@ -364,7 +347,7 @@ router.put(
         ? new Date(req.body.finalDeadline)
         : currentProject.deadlines?.final;
 
-      // type update (validated)
+  
       let newType = currentProject.projectType;
       if (typeof req.body.projectType === 'string') {
         const t = req.body.projectType.toLowerCase();
@@ -379,7 +362,7 @@ router.put(
         status: req.body.status ?? currentProject.status,
         projectType: newType,
 
-        // keep both structures
+   
         deadlines: { initial, half, final },
         duration: { from: initial, to: half },
 
@@ -388,14 +371,14 @@ router.put(
           : currentProject.skills,
       };
 
-      // Image
+    
       if (req.files['projectImage']) {
         updates.imageUrl = `${baseUrl}/${req.files['projectImage'][0].path}`;
       } else {
         updates.imageUrl = currentProject.imageUrl;
       }
 
-      // Files (keep existing + add new)
+   
       const kept = (() => {
         const raw = req.body.existingFiles;
         if (!raw) return currentProject.files || [];

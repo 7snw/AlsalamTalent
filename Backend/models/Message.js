@@ -1,7 +1,5 @@
-// models/Message.js
 const mongoose = require('mongoose');
 
-// same plugin you’re using elsewhere (freelancers/projects)
 const fieldEncryption = require('../utils/mongooseFieldEncryption');
 const { encryptString, decryptString } = require('../utils/cryptoVault');
 
@@ -12,25 +10,25 @@ const messageSchema = new mongoose.Schema(
     senderRole:    { type: String, enum: ['Freelancer', 'Client', 'Admin'], required: true },
     receiverRole:  { type: String, enum: ['Freelancer', 'Client', 'Admin'], required: true },
 
-    // encrypted at rest
+  
     content:       { type: String, required: true },
 
     roomId:        { type: String, required: true },
 
-    // We’ll encrypt attachment URLs, not names
+ 
     attachments:   [{ name: String, url: String }],
 
     timestamp:     { type: Date, default: Date.now }
   },
-  { timestamps: false } // timestamp field already present as `timestamp`
+  { timestamps: false } 
 );
 
-// ---- Field encryption for the message body ----
+
 messageSchema.plugin(fieldEncryption, {
-  fields: ['content'], // plugin handles encrypt on write, decrypt on hydrate
+  fields: ['content'], 
 });
 
-// ---- Helpers to encrypt/decrypt attachment URLs (array of subdocs) ----
+
 const safeDec = (b64) => { try { return decryptString(b64); } catch { return b64; } };
 const encArr  = (arr) => Array.isArray(arr)
   ? arr.map(x => (x && x.url ? { ...x, url: encryptString(x.url) } : x))
@@ -40,7 +38,7 @@ const decArr  = (arr) => Array.isArray(arr)
   ? arr.map(x => (x && x.url ? { ...x, url: safeDec(x.url) } : x))
   : arr;
 
-// Encrypt attachment URLs on writes/updates
+
 messageSchema.pre(['save', 'findOneAndUpdate', 'updateOne', 'updateMany'], function (next) {
   const u = this.getUpdate ? this.getUpdate() : this;
 
@@ -51,7 +49,6 @@ messageSchema.pre(['save', 'findOneAndUpdate', 'updateOne', 'updateMany'], funct
   next();
 });
 
-// Decrypt attachment URLs after reads
 function decDoc(doc) {
   if (!doc) return;
   doc.attachments = decArr(doc.attachments);
@@ -60,8 +57,7 @@ messageSchema.post('init', decDoc);
 messageSchema.post('find', (docs) => docs.forEach(decDoc));
 messageSchema.post('findOne', decDoc);
 
-// Important: also decrypt the in-memory doc right after save,
-// so the API/socket can return plaintext immediately without a refetch.
+
 messageSchema.post('save', function (doc, next) {
   try {
     decDoc(doc);

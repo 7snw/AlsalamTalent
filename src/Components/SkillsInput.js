@@ -47,7 +47,7 @@ export default function SkillsInput({
       e.preventDefault();
       addOne();
     } else if (e.key === "Backspace" && !draft) {
-      // remove last tag on backspace when input empty
+    
       if (value.length) removeAt(value.length - 1);
     }
   };

@@ -6,21 +6,44 @@ const bcrypt = require('bcryptjs');
 const Admin = require('../models/Admin');
 const Client = require('../models/Client');
 const FreelancerModel = require('../models/Freelancer');
-const { lookupHash } = require('../utils/cryptoVault'); // 🔐 deterministic hash for lookups
+const { lookupHash } = require('../utils/cryptoVault'); 
 const sendEmail = require('../utils/sendEmail');
 const { verificationCode } = require('../utils/emailTemplates');
 const EmailVerification = require('../models/EmailVerification');
 
 
-// -------- helpers ----------
-const normalizeEmail = (v = '') => String(v).trim().toLowerCase();
+
+const normalizeEmail = (v='') => String(v).trim().toLowerCase();
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const emailCIQuery = (email) => ({ email: new RegExp(`^${escapeRegex(email)}$`, 'i') });
 
-// ---- Old in-memory store (kept only for /send-verification-code route) ----
+// put near the top of the file
+function getDisplayName(doc) {
+  if (!doc) return 'there';
+  try {
+    // If the mongoose-field-encryption plugin is on this model,
+    // this will populate decrypted fields on the doc instance.
+    if (typeof doc.decryptFieldsSync === 'function') doc.decryptFieldsSync();
+  } catch {}
+  const name = String(doc.fullName || doc.name || '').trim();
+  return name || 'there';
+}
+
+async function findAccountByEmail(cleanEmail) {
+  const [freelancer, client] = await Promise.all([
+    FreelancerModel.findOne({ emailHash: lookupHash(cleanEmail) })
+      .select('+resetOtp +resetOtpExpiry +password +passwordHistory +lastPasswordChange'),
+    Client.findOne({ emailHash: lookupHash(cleanEmail) })
+      .select('+pwResetOtpHash +pwResetExpiresAt +password')
+  ]);
+
+  if (freelancer) return { role: 'freelancer', user: freelancer };
+  if (client)     return { role: 'client',     user: client };
+  return null;
+}
 let emailVerifications = {};
 
-// Send verification code (generic, not login)
+
 router.post('/send-verification-code', async (req, res) => {
   const { email, name } = req.body;
   const cleanEmail = normalizeEmail(email);
@@ -45,7 +68,7 @@ router.post('/send-verification-code', async (req, res) => {
   }
 });
 
-// GET /test-mail
+
 router.get('/test-mail', async (_req, res) => {
   try {
     const html = verificationCode({ name: 'Test User', code: '123456' });
@@ -62,7 +85,7 @@ router.get('/test-mail', async (_req, res) => {
   }
 });
 
-// Verify submitted code (generic verification)
+
 router.post('/verify-code', (req, res) => {
   const cleanEmail = normalizeEmail(req.body.email || '');
   const code = String(req.body.code || '').trim();
@@ -80,7 +103,6 @@ router.post('/verify-code', (req, res) => {
 });
 
 
-// ----------------------------- LOGIN -----------------------------
 router.post('/login', async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email || '');
@@ -90,62 +112,62 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    let user = null;
-    let role = null;
+    // Fetch possible matches from all roles
+    const [admin, client, freelancer] = await Promise.all([
+      Admin.findOne(emailCIQuery(email)).select('+password'),
+      Client.findOne({ emailHash: lookupHash(email) }).select('+password'),
+      FreelancerModel.findOne({ emailHash: lookupHash(email) }).select('+password'),
+    ]);
 
-    // Admin
-    user = await Admin.findOne(emailCIQuery(email));
-    if (user) role = 'admin';
+    // Build candidates list in your desired priority order
+    const candidates = [
+      admin && { role: 'admin', user: admin },
+      client && { role: 'client', user: client },
+      freelancer && { role: 'freelancer', user: freelancer },
+    ].filter(Boolean);
 
-    // Client
-    if (!user) {
-      user = await Client.findOne({ emailHash: lookupHash(email) }).select('+password');
-      if (user) role = 'client';
+    if (candidates.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    // Freelancer
-    if (!user) {
-      user = await FreelancerModel.findOne({ emailHash: lookupHash(email) }).select('+password');
-      if (user) role = 'freelancer';
+    // Try password against each candidate before failing
+    let authed = null;
+    for (const c of candidates) {
+      const ok = await bcrypt.compare(password, c.user.password || '');
+      if (ok) { authed = c; break; }
     }
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!authed) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
 
-    const ok = await bcrypt.compare(password, user.password || '');
-    if (!ok) return res.status(400).json({ message: 'Invalid password' });
-
-    if (role === 'freelancer') {
-      if (user.isActive === false) return res.status(403).json({ message: 'Account is deactivated' });
-      if (user.userType === 'Graduate' && !user.isVerified)
+    // Extra role-specific checks
+    if (authed.role === 'freelancer') {
+      if (authed.user.isActive === false) return res.status(403).json({ message: 'Account is deactivated' });
+      if (authed.user.userType === 'Graduate' && !authed.user.isVerified)
         return res.status(403).json({ message: 'Account pending admin verification' });
     }
 
-    // ---- MFA: Send OTP after successful password validation ----
+    // MFA – unchanged
     const otp = crypto.randomInt(100000, 999999).toString();
-
-    // Save OTP in MongoDB
     await EmailVerification.findOneAndUpdate(
       { email },
       {
         code: otp,
         expiresAt: new Date(Date.now() + 10 * 60 * 1000),
-        userId: user._id,
-        role
+        userId: authed.user._id,
+        role: authed.role
       },
       { upsert: true }
     );
 
-    // Send OTP via email
-    const html = verificationCode({ name: user.fullName || 'there', code: otp });
+    const html = verificationCode({ name: authed.user.fullName || 'there', code: otp });
     await sendEmail({
       to: email,
       subject: 'Your ctrlZ login verification code',
       html,
       text: `Your ctrlZ login verification code is: ${otp}. It expires in 10 minutes.`,
     });
-
-  
-
 
     return res.json({ step: 'otp_required', message: 'OTP sent to your email.' });
   } catch (err) {
@@ -155,7 +177,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-// ----------------------------- VERIFY LOGIN OTP -----------------------------
+// VERIFY LOGIN OTP 
 router.post('/verify-login-otp', async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email || '');
@@ -173,7 +195,7 @@ router.post('/verify-login-otp', async (req, res) => {
     if (record.code !== code)
       return res.status(400).json({ message: 'Incorrect OTP.' });
 
-    // OTP verified — fetch user and delete OTP record
+  
     const role = record.role;
     let user = null;
 
@@ -183,7 +205,7 @@ router.post('/verify-login-otp', async (req, res) => {
 
     await EmailVerification.deleteOne({ email });
 
-    //  Activate and persist session after OTP success
+  
     if (req.session) {
       req.session.userId = user._id;
       req.session.role = role;
@@ -198,7 +220,7 @@ router.post('/verify-login-otp', async (req, res) => {
 
     }
 
-    // ✅ Respond with user info
+  
     res.json({
       _id: user._id,
       id: user._id,
@@ -217,7 +239,7 @@ router.post('/verify-login-otp', async (req, res) => {
 
 
 
-// ----------------------------- LOGOUT -----------------------------
+//  LOGOUT
 router.post('/logout', async (req, res) => {
   try {
     if (req.session?.userId) {
@@ -242,7 +264,7 @@ router.post('/logout', async (req, res) => {
 });
 
 
-// ----------------------------- ALL USERS -----------------------------
+// ALL USERS 
 router.get('/all', async (_req, res) => {
   try {
     const admins = await Admin.find({}, '_id fullName email profileImageUrl').lean();
@@ -265,7 +287,7 @@ router.get('/all', async (_req, res) => {
 });
 
 
-// ----------------------------- GET SINGLE USER -----------------------------
+// GET SINGLE USER 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -290,71 +312,102 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-/* ---------------------- FORGOT PASSWORD (RESET FLOW) ---------------------- */
-
-
-
-// Step 1: Send reset code
+// AUTH: Forgot password (unified for client + freelancer)
 router.post('/forgot-password', async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = normalizeEmail(req.body.email || '');
     if (!email) return res.status(400).json({ message: 'Email is required.' });
 
-    const cleanEmail = email.trim().toLowerCase();
-    const freelancer = await Freelancer.findOne({ emailHash: lookupHash(cleanEmail) });
-    if (!freelancer) return res.status(404).json({ message: 'No account found with this email.' });
+    // Try client, then freelancer
+    const [client, freelancer] = await Promise.all([
+      Client.findOne({ emailHash: lookupHash(email) }),
+      FreelancerModel.findOne({ emailHash: lookupHash(email) })
+    ]);
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Always behave the same even if not found (anti-enumeration)
+    if (!client && !freelancer) {
+      return res.json({ message: 'A code was sent.' });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
     const otpHash = await bcrypt.hash(otp, 10);
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min expiry
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    freelancer.resetOtp = otpHash;
-    freelancer.resetOtpExpiry = expiresAt;
-    await freelancer.save();
+    if (client) {
+      client.pwResetOtpHash = otpHash;
+      client.pwResetExpiresAt = expiresAt;
+      await client.save();
+    } else if (freelancer) {
+      freelancer.resetOtp = otpHash;
+      freelancer.resetOtpExpiry = expiresAt;
+      await freelancer.save();
+    }
 
-    const html = `
-      <p>Use this code to reset your password:</p>
-      <h2 style="letter-spacing:6px;">${otp}</h2>
-      <p>This code expires in 10 minutes.</p>
-    `;
+    const html = verificationCode({code: otp });
     await sendEmail({
-      to: cleanEmail,
-      subject: 'ctrlZ Password Reset Code',
+      to: email,
+      subject: 'Your ctrlZ password reset code',
       html,
-      text: `Your ctrlZ password reset code is ${otp} (expires in 10 minutes).`,
+      text: `Your password reset code is ${otp}. It expires in 10 minutes.`
     });
 
-    return res.json({ message: 'Reset code sent to your email.' });
+    return res.json({ message: 'A code was sent.' });
   } catch (err) {
-    console.error('Forgot password error:', err);
-    res.status(500).json({ message: 'Failed to send reset code.' });
+    console.error('Auth forgot-password error:', err);
+    return res.status(500).json({ message: 'Failed to start reset.' });
   }
 });
 
 
 
-// Step 2: Verify OTP and change password
+// AUTH: Reset password (unified, OTP + new password) – NO old password
 router.post('/reset-password', async (req, res) => {
   try {
-    const { email, code, oldPassword, newPassword } = req.body;
-    if (!email || !code || !oldPassword || !newPassword)
-      return res.status(400).json({ message: 'All fields are required.' });
+    const email = normalizeEmail(req.body.email || '');
+    const code  = String(req.body.code || '').trim();
+    const newPassword = String(req.body.newPassword || '').trim();
 
-    const cleanEmail = email.trim().toLowerCase();
-    const freelancer = await Freelancer.findOne({ emailHash: lookupHash(cleanEmail) });
-    if (!freelancer) return res.status(404).json({ message: 'Account not found.' });
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ message: 'Email, code, and newPassword are required.' });
+    }
 
-    if (!freelancer.resetOtp || new Date() > new Date(freelancer.resetOtpExpiry))
-      return res.status(400).json({ message: 'Reset code expired or invalid.' });
+    // Try client first (since we just added client support), then freelancer
+    let user = await Client.findOne({ emailHash: lookupHash(email) }).select('+pwResetOtpHash +pwResetExpiresAt +password');
+    let role = 'client';
 
-    const ok = await bcrypt.compare(code, freelancer.resetOtp);
-    if (!ok) return res.status(400).json({ message: 'Invalid reset code.' });
+    if (!user) {
+      user = await FreelancerModel.findOne({ emailHash: lookupHash(email) }).select('+resetOtp +resetOtpExpiry +password +passwordHistory +lastPasswordChange');
+      role = 'freelancer';
+    }
+    if (!user) return res.status(400).json({ message: 'Invalid or expired code.' });
 
-    // --- Validate old password ---
-    const oldOk = await bcrypt.compare(oldPassword.trim(), freelancer.password);
-    if (!oldOk) return res.status(400).json({ message: 'Old password is incorrect.' });
+    // Pull the correct OTP fields by role
+    let otpHash, otpExpiresAt;
+    if (role === 'client') {
+      otpHash = user.pwResetOtpHash;
+      otpExpiresAt = user.pwResetExpiresAt;
+    } else {
+      otpHash = user.resetOtp;
+      otpExpiresAt = user.resetOtpExpiry;
+    }
+    if (!otpHash || !otpExpiresAt) return res.status(400).json({ message: 'Invalid or expired code.' });
+    if (Date.now() > new Date(otpExpiresAt).getTime()) {
+      // clear & fail
+      if (role === 'client') {
+        user.pwResetOtpHash = undefined;
+        user.pwResetExpiresAt = undefined;
+      } else {
+        user.resetOtp = undefined;
+        user.resetOtpExpiry = undefined;
+      }
+      await user.save();
+      return res.status(400).json({ message: 'Invalid or expired code.' });
+    }
 
-    // --- Enforce password policy ---
+    const ok = await bcrypt.compare(code, otpHash);
+    if (!ok) return res.status(400).json({ message: 'Invalid or expired code.' });
+
+    // Password policy (same across roles)
     const isStrongPassword = (pwd) => {
       if (!pwd || pwd.length < 12) return false;
       const hasUpper = /[A-Z]/.test(pwd);
@@ -366,32 +419,41 @@ router.post('/reset-password', async (req, res) => {
       const isWeak = weakList.some((w) => pwd.toLowerCase() === w.toLowerCase());
       return hasUpper && hasLower && hasNumber && hasSpecial && !hasSpace && !isWeak;
     };
-    if (!isStrongPassword(newPassword))
+    if (!isStrongPassword(newPassword)) {
       return res.status(400).json({ message: 'Password does not meet policy requirements.' });
-
-    // --- Prevent reuse of last 13 passwords ---
-    for (const oldHash of freelancer.passwordHistory || []) {
-      if (await bcrypt.compare(newPassword.trim(), oldHash))
-        return res.status(400).json({ message: 'Cannot reuse any of your last 13 passwords.' });
     }
 
-    // --- Update password ---
-    freelancer.password = newPassword.trim();
-    freelancer.lastPasswordChange = Date.now();
-    freelancer.passwordHistory = [
-      ...(freelancer.passwordHistory || []),
-      freelancer.password,
-    ].slice(-13);
-    freelancer.resetOtp = undefined;
-    freelancer.resetOtpExpiry = undefined;
-    await freelancer.save();
+    // Optional history check for freelancers (you already track this on freelancer)
+    if (role === 'freelancer' && Array.isArray(user.passwordHistory)) {
+      for (const oldHash of user.passwordHistory) {
+        if (await bcrypt.compare(newPassword, oldHash)) {
+          return res.status(400).json({ message: 'Cannot reuse any of your last 13 passwords.' });
+        }
+      }
+      user.lastPasswordChange = Date.now();
+      user.passwordHistory = [...(user.passwordHistory || []), user.password].slice(-13);
+    }
 
-    res.json({ message: 'Password reset successfully. You can now log in.' });
+    // Set new password (your schema pre-save will hash)
+    user.password = newPassword;
+
+    // Clear OTP fields
+    if (role === 'client') {
+      user.pwResetOtpHash = undefined;
+      user.pwResetExpiresAt = undefined;
+    } else {
+      user.resetOtp = undefined;
+      user.resetOtpExpiry = undefined;
+    }
+
+    await user.save();
+    return res.json({ message: 'Password reset successfully. You can now log in.' });
   } catch (err) {
-    console.error('Reset password error:', err);
-    res.status(500).json({ message: 'Failed to reset password.' });
+    console.error('Auth reset-password error:', err);
+    return res.status(500).json({ message: 'Failed to reset password.' });
   }
 });
+
 
 
 

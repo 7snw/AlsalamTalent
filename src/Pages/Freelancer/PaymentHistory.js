@@ -8,7 +8,7 @@ import "../../Style/Navbar.css";
 import "../../Style/PageContents.css";
 import CtrlzLogo from "../../Assets/ctrlz-logo.png";
 
-const TABS = ["All", "Pending", "Completed"];
+
 
 const formatBHD = (n) =>
   Number(n || 0).toLocaleString("en-BH", { maximumFractionDigits: 0 });
@@ -19,7 +19,7 @@ const PaymentHistory = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState("All");
+  const [tab] = useState("All");
   const [summary, setSummary] = useState({
     currency: "BHD",
     totalEarnings: 0,
@@ -84,20 +84,7 @@ const PaymentHistory = () => {
           </div>
         </section>
 
-        {/* Tabs */}
-        <div className="ph-tabs">
-          <div className="ph-tabs-group">
-            {TABS.map((t) => (
-              <button
-                key={t}
-                className={`ph-tab ${t === tab ? "is-active" : ""}`}
-                onClick={() => setTab(t)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
+   
 
         {/* Table */}
         <section className="ph-table-card">
@@ -119,7 +106,7 @@ const PaymentHistory = () => {
                     <th>Project</th>
                     <th>Date</th>
                     <th>Amount</th>
-                    <th>Status</th>
+                 
                     <th>Payment ID</th>
                     <th />
                   </tr>
@@ -138,24 +125,10 @@ const PaymentHistory = () => {
                       <td>
                         {summary.currency} {formatBHD(t.amount)}
                       </td>
-                      <td>
-                        <span
-                          className={`ph-badge ${
-                            t.status === "Completed"
-                              ? "ph-badge--completed"
-                              : t.status === "Pending"
-                              ? "ph-badge--pending"
-                              : ""
-                          }`}
-                        >
-                          {t.status}
-                        </span>
-                      </td>
+                     
                       <td>{t.paymentId || "—"}</td>
                       <td>
-                        <button className="ph-row-more" aria-label="More">
-                          ⋮
-                        </button>
+                       
                       </td>
                     </tr>
                   ))}

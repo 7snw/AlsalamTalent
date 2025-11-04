@@ -96,6 +96,7 @@ const PostProject = () => {
       });
       showAlert("Project successfully posted!");
       navigate("/browseprojects");
+  
     } catch (err) {
       console.error("Project upload failed:", err?.response?.data || err);
       showAlert("Failed to post project.");
@@ -181,7 +182,10 @@ const PostProject = () => {
             <div className="pp-field">
               <label>Skills*</label>
               <SkillsInput value={skills} onChange={setSkills} />
-           
+           <small style={{ opacity: 0.6, fontSize:"12px", marginTop: "-20px", marginBottom: "6px",display: "block" }}>
+  Press <strong>Enter</strong> or <strong>,</strong> to add. Backspace removes the last tag.
+</small>
+
 
 
               <label>Reward*</label>

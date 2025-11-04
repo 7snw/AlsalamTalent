@@ -75,7 +75,7 @@ const UsersList = () => {
                     navigate(`/edituser/${user._id}`);
                   }}
                 >
-                  Edit
+                  View
                 </button>
               </div>
             </div>

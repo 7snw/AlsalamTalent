@@ -1,12 +1,6 @@
-// utils/logAction.js
 const AuditLog = require('../models/AuditLog');
 const Project  = require('../models/Project');
 
-/**
- * Use either:
- *   await logAction(req, { action:'Edited Project', projectId })
- *   await logAction({ userId, action:'Edited Project', projectId })
- */
 async function logAction(reqOrOpts, maybeOpts) {
   try {
     const looksLikeReq =
@@ -24,7 +18,7 @@ async function logAction(reqOrOpts, maybeOpts) {
       projectId = null,
     } = opts;
 
-    //  Resolve userId from many places (now includes authorId)
+  
     const userId =
       explicitUserId ||
       req?.userId ||
@@ -35,7 +29,6 @@ async function logAction(reqOrOpts, maybeOpts) {
       req?.body?.authorId ||
       req?.query?.userId;
 
-    // infer projectId if omitted
     if (!projectId) {
       projectId =
         req?.params?.projectId ||
@@ -53,7 +46,7 @@ async function logAction(reqOrOpts, maybeOpts) {
       return;
     }
 
-    // build details; append project title if not already present
+ 
     let finalDetails = String(details || '');
     const mentionsProject = /\bproject\s*:/i.test(finalDetails);
 

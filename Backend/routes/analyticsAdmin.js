@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     const totalFreelancers = await Freelancer.countDocuments();
     const totalProjects = await Project.countDocuments();
 
-    // Get real monthly project count/progress (this example uses dummy values)
+
     const projectsProgress = [
       { month: 'Jan', progress: 20 },
       { month: 'Feb', progress: 40 },

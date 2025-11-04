@@ -412,19 +412,38 @@ if (!formData.agreeTerms) {
               )}
             </div>
 
-            <div>
-              <label>AlSalam Bank IBAN</label>
-              <input
-                type="text"
-                name="iban"
-                value={formData.iban}
-                onChange={handleChange}
-                required
-                aria-required="true"
-                placeholder="BH67 BMAG 0000 1299 1234 56"
-                title="BH + 2 digits + 4 letters + 14 digits"
-              />
-            </div>
+          <div>
+  <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+    AlSalam Bank IBAN
+    <a
+      href="https://apps.apple.com/app/id1497453679"
+      target="_blank"
+      rel="noreferrer"
+      style={{
+        color: "#F1633A",
+        fontSize: "13px",
+        marginTop: "-3px",
+        textDecoration: "underline",
+        fontWeight: 500,
+        
+      }}
+    >
+      Open Account
+    </a>
+  </label>
+
+  <input
+    type="text"
+    name="iban"
+    value={formData.iban}
+    onChange={handleChange}
+    required
+    aria-required="true"
+    placeholder="BH67 BMAG 0000 1299 1234 56"
+    title="BH + 2 digits + 4 letters + 14 digits"
+  />
+</div>
+
 
             <div>
               <label>Contact Number</label>

@@ -1,11 +1,10 @@
-// additions only marked with // 🔐 OTP ADDITION and // 🔐 FORGOT PASSWORD ADDITION
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Style/Login.css";
 import axios from "axios";
 import { showAlert } from "../utils/toastMessages";
 import LandingPage from "./LandingPage";
-import SignInArt from "../Assets/LoginPhoto.png";
+import SignInArt from "../Assets/A.png";
 
 const API_BASE =
   (typeof process !== "undefined" &&
@@ -22,15 +21,14 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showPw] = useState(false);
 
-  // 🔐 OTP ADDITION
+  // OTP after login
   const [otpStep, setOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState("");
 
-  // 🔐 FORGOT PASSWORD ADDITION
+  // Forgot/reset
   const [forgotStep, setForgotStep] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetOtp, setResetOtp] = useState("");
-  const [oldPw, setOldPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -43,7 +41,6 @@ export default function LoginPage() {
       showAlert("Please enter your email and password.");
       return;
     }
-
     setSubmitting(true);
     try {
       const { data } = await axios.post(`${API_BASE}/api/users/login`, {
@@ -56,7 +53,6 @@ export default function LoginPage() {
         setOtpStep(true);
         return;
       }
-
       processLoginSuccess(data);
     } catch (err) {
       const msg =
@@ -68,7 +64,6 @@ export default function LoginPage() {
     }
   };
 
-  // 🔐 OTP ADDITION
   const handleVerifyOtp = async () => {
     if (!/^\d{6}$/.test(otpCode)) return showAlert("Enter a valid 6-digit OTP.");
     try {
@@ -76,22 +71,22 @@ export default function LoginPage() {
         email,
         code: otpCode,
       });
-    
       processLoginSuccess(data);
     } catch (err) {
       showAlert(err?.response?.data?.message || "OTP verification failed.");
     }
   };
 
-  // 🔐 FORGOT PASSWORD ADDITION
+  // ---------- Forgot / Reset uses unified /api/users/* ----------
   const handleSendResetCode = async () => {
-    if (!resetEmail) return showAlert("Enter your registered email.");
+    const clean = normalizeEmail(resetEmail);
+    if (!clean) return showAlert("Enter your registered email.");
     setSending(true);
     try {
-      const res = await axios.post(`${API_BASE}/api/freelancer/forgot-password`, {
-        email: resetEmail,
+      const res = await axios.post(`${API_BASE}/api/users/forgot-password`, {
+        email: clean,
       });
-      showAlert(res.data.message);
+      showAlert(res.data.message); // generic message
     } catch (err) {
       showAlert(err?.response?.data?.message || "Failed to send reset code.");
     } finally {
@@ -100,22 +95,22 @@ export default function LoginPage() {
   };
 
   const handleResetPassword = async () => {
-    if (!resetEmail || !resetOtp || !oldPw || !newPw) {
+    const clean = normalizeEmail(resetEmail);
+    if (!clean || !resetOtp || !newPw) {
       return showAlert("Please fill all fields.");
     }
     setSending(true);
     try {
-      const res = await axios.post(`${API_BASE}/api/freelancer/reset-password`, {
-        email: resetEmail,
-        code: resetOtp,
-        oldPassword: oldPw,
-        newPassword: newPw,
+      const res = await axios.post(`${API_BASE}/api/users/reset-password`, {
+        email: clean,
+        code: resetOtp.trim(),
+        newPassword: newPw.trim(), // NO oldPassword
       });
       showAlert(res.data.message);
+      // clean up UI
       setForgotStep(false);
       setResetEmail("");
       setResetOtp("");
-      setOldPw("");
       setNewPw("");
     } catch (err) {
       showAlert(err?.response?.data?.message || "Failed to reset password.");
@@ -157,7 +152,7 @@ export default function LoginPage() {
       <div className="login-bg-live" aria-hidden="true">
         <LandingPage />
       </div>
-      <div className="login-dim" aria-hidden="true"  />
+      <div className="login-dim" aria-hidden="true" />
 
       <div className="login-modal" onClick={(e) => e.stopPropagation()}>
         <div className="login-left">
@@ -167,12 +162,12 @@ export default function LoginPage() {
               <h2 className="reset-title">
                 Reset Your Password
                 <button
-  className="code-close"
-  aria-label="Close"
-  onClick={() => navigate("/landingPage")}
->
-  ×
-</button>
+                  className="code-close"
+                  aria-label="Close"
+                  onClick={() => navigate("/landingPage")}
+                >
+                  ×
+                </button>
               </h2>
 
               <label className="reset-label">Email</label>
@@ -198,14 +193,6 @@ export default function LoginPage() {
                 maxLength={6}
                 value={resetOtp}
                 onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, ""))}
-              />
-
-              <label className="reset-label">Old Password</label>
-              <input
-                className="reset-input reset-oldpw"
-                type="password"
-                value={oldPw}
-                onChange={(e) => setOldPw(e.target.value)}
               />
 
               <label className="reset-label">New Password</label>
@@ -236,14 +223,13 @@ export default function LoginPage() {
             <div className="login-section">
               <h2 className="login-title">
                 Sign in to your Account
-
                 <button
-  className="signin-close"
-  aria-label="Close"
-  onClick={() => navigate("/landingPage")}
->
-  ×
-</button>
+                  className="signin-close1"
+                  aria-label="Close"
+                  onClick={() => navigate("/landingPage")}
+                >
+                  ×
+                </button>
               </h2>
 
               <form onSubmit={handleSubmit} className="login-form">
@@ -293,12 +279,12 @@ export default function LoginPage() {
               <h2 className="otp-title1">
                 <span className="accent">Verify</span> your OTP
                 <button
-  className="otpp-close"
-  aria-label="Close"
-  onClick={() => navigate("/landingPage")}
->
-  ×
-</button>
+                  className="otpp-close"
+                  aria-label="Close"
+                  onClick={() => navigate("/landingPage")}
+                >
+                  ×
+                </button>
               </h2>
               <p className="otp-subtext1">Enter the 6-digit code sent to {email}</p>
               <input

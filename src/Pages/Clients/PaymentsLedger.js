@@ -14,7 +14,7 @@ export default function PaymentsLedger() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [q, setQ] = useState("");          // 🔎 search text
-  const [busyRow, setBusyRow] = useState(null);
+ 
 
   const client = useMemo(() => {
     try { return JSON.parse(localStorage.getItem("user")); }
@@ -98,24 +98,7 @@ export default function PaymentsLedger() {
     doc.save("freelancer-payments.pdf");
   };
 
-  const canComplete = (r) => {
-    const s = String(r.status || "").toLowerCase();
-    return s === "pending" || s === "processing";
-  };
-
-  const markCompleted = async (id) => {
-    try {
-      setBusyRow(id);
-      const { data } = await axios.put(`${API_BASE}/api/payments/${id}/complete`);
-      setRows((prev) => prev.map((r) => (r._id === id ? { ...r, ...data, uiStatus: "Completed" } : r)));
-    } catch (e) {
-      console.error(e);
-      alert("Failed to mark as completed.");
-    } finally {
-      setBusyRow(null);
-    }
-  };
-
+ 
   return (
     <div className="ledger-page">
       <Navbar links={NavConfig3} />
@@ -171,9 +154,9 @@ export default function PaymentsLedger() {
                   <th>Freelancer</th>
                   <th>IBAN</th>
                   <th className="col-amount">Amount</th>
-                  <th>Status</th>
+               
                   <th>Payment ID</th>
-                  <th className="col-actions">Actions</th>
+                 
                 </tr>
               </thead>
               <tbody>
@@ -184,32 +167,9 @@ export default function PaymentsLedger() {
                     <td>{r.freelancerName}</td>
                     <td className="mono">{fmtIBAN(r.iban)}</td>
                     <td className="col-amount">{r.amount} {r.currency || "BHD"}</td>
-                    <td>
-                      <span className={
-                        "ledger-badge " +
-                        ((r.uiStatus || r.status) === "Completed"
-                          ? "ledger-badge--completed"
-                          : (r.uiStatus || r.status) === "Pending"
-                          ? "ledger-badge--pending"
-                          : "ledger-badge--other")
-                      }>
-                        {r.uiStatus || r.status}
-                      </span>
-                    </td>
+                   
                     <td className="mono">{r.paymentId || "—"}</td>
-                    <td className="col-actions">
-                      {canComplete(r) ? (
-                        <button
-                          className="mark-btn"
-                          disabled={busyRow === r._id}
-                          onClick={() => markCompleted(r._id)}
-                        >
-                          {busyRow === r._id ? "Saving…" : "Mark as completed"}
-                        </button>
-                      ) : (
-                        <button className="mark-btn" disabled>Completed</button>
-                      )}
-                    </td>
+                   
                   </tr>
                 ))}
               </tbody>

@@ -9,7 +9,7 @@ import Footer from "../../Components/Footer";
 import { NavConfig2 } from "../../Data/NavbarConfigs";
 
 import SearchIcon from "../../Assets/search.png";
-import WavyBackground from "../../Components/WavyBackground"; 
+
 
 import "../../Style/Freelancer/MyApplications.css";
 import "../../Style/Navbar.css";
@@ -22,7 +22,7 @@ const MyApplications = () => {
   const [applications, setApplications] = useState([]);
   const [search, setSearch] = useState("");
     const [filters, setFilters] = useState({ status: [] });;
-  const [showModal] = useState(false);
+
   // Current user
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
@@ -86,23 +86,6 @@ const MyApplications = () => {
       <Navbar links={NavConfig2} />
 
       
-             <WavyBackground
-            colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
-            waveOpacity={0.85}
-            waveWidth={450}
-            blur={0}
-            speed="fast"
-            accentColors={["#f1633a", "#9FD8FF"]}
-            accentWidth={3}
-            accentOpacity={0.5}
-            accentVertical={-220}
-            accentSpacing={12}
-        
-  containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
-
-  paused={showModal}
-  speedOverride={showModal ? 0 : undefined}
-          />
          
       <div className="ma-container">
         {/* LEFT FILTER */}

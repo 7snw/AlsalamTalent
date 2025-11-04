@@ -8,7 +8,7 @@ import Footer from "../../Components/Footer";
 import { NavConfig3 } from "../../Data/NavbarConfigs";
 
 import SearchIcon from "../../Assets/search.png";
-import WavyBackground from "../../Components/WavyBackground";
+
 /* Reuse freelancer AllProjects visual system */
 import "../../Style/Clients/BrowseProjects.css";
 
@@ -25,7 +25,7 @@ const BrowseProjects = () => {
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
-  const [showModal] = useState(false);
+
   const [projects, setProjects] = useState([]);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ type: [], budget: [] });
@@ -100,22 +100,7 @@ const BrowseProjects = () => {
   return (
     <div className="ap-page">
       <Navbar links={NavConfig3} />
-        <WavyBackground
-      colors={["#111c2f", "#111c2f", "#111c2f", "#111c2f"]}
-      waveOpacity={0.85}
-      waveWidth={450}
-      blur={0}
-      speed="fast"
-      accentColors={["#f1633a", "#9FD8FF"]}
-      accentWidth={3}
-      accentOpacity={0.5}
-      accentVertical={-220}
-      accentSpacing={12}
-  containerClassName={`fh-bg ${showModal ? "is-paused" : ""}`}
-
-  paused={showModal}
-  speedOverride={showModal ? 0 : undefined}
-    />
+     
 
 
       <div className="ap-container">
