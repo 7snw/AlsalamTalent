@@ -145,3 +145,28 @@
     flex-direction: column;
   }
 }
+
+
+.chart-legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 4px;
+  font-size: 14px;
+  color: #1B223C;
+  text-align: left;
+}
+
+.chart-legend-list li + li {
+  margin-top: 4px;
+}
+
+.chart-legend-list .category-name {
+  font-weight: 600;
+}
+
+.helper-text {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #1B223C;
+  text-align: left;
+}

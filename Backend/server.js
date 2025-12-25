@@ -69,6 +69,10 @@ app.use('/api/clients', clientsRouter);
 const freelancerRouter = require('./routes/freelancers');
 app.use('/api/freelancers', freelancerRouter);
 
+const qnaRoutes = require("./routes/qna.routes");  
+
+
+
 // File upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -116,6 +120,9 @@ app.use('/api/freelancer', require('./routes/freelancers'));
 
 const verifyGraduate = require('./routes/verifyGraduate');
 app.use('/api/verify-graduate', verifyGraduate);
+
+app.use("/api/qna", qnaRoutes);
+
 
 // File upload 
 app.post('/api/upload-image', uploadImage.single('image'), (req, res) => {

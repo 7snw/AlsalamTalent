@@ -48,8 +48,9 @@ const Navbar = ({ links = [] }) => {
       if (role && userId) {
         try {
           let apiUrl = "";
-          if (role === "freelancer")
+          if (role === "freelancer") {
             apiUrl = `http://localhost:5000/api/freelancer/profile/${userId}`;
+          }
           if (apiUrl) {
             const { data } = await axios.get(apiUrl);
             if (data?.profileImageUrl) setProfileImage(data.profileImageUrl);
@@ -60,6 +61,7 @@ const Navbar = ({ links = [] }) => {
         }
       }
     };
+
     const fetchNotifications = async () => {
       if (!userId || !role) return;
       try {
@@ -71,6 +73,7 @@ const Navbar = ({ links = [] }) => {
         console.warn("🔔 Failed to load notifications");
       }
     };
+
     fetchProfileImage();
     fetchNotifications();
   }, [role, userId]);
@@ -112,6 +115,7 @@ const Navbar = ({ links = [] }) => {
 
   return (
     <nav className="navbar" ref={navbarRef}>
+      {/* LEFT: logo + burger + links */}
       <div className="nav-left">
         <div
           className="logo-title"
@@ -138,6 +142,7 @@ const Navbar = ({ links = [] }) => {
               Array.isArray(link.dropdown) && link.dropdown.length > 0;
             const parentActive =
               hasDropdown && isAnyChildActive(link.dropdown);
+
             return (
               <li
                 key={index}
@@ -205,79 +210,104 @@ const Navbar = ({ links = [] }) => {
         </ul>
       </div>
 
-      {/* Right-side icons */}
-      {showIcons && (
-        <div className="nav-icons">
-          <img
-            src={ChatIcon}
-            alt="Chat"
-            className="nav-icon"
-            onClick={() => navigate("/messages")}
-          />
-          <img
-            src={hasNotifications ? BellIconNew : BellIcon}
-            alt="Notifications"
-            className="nav-icon"
-            onClick={() => {
-              if (role === "freelancer") navigate("/freelancer-notifications");
-              else if (role === "client") navigate("/client-notifications");
-              else if (role === "admin") navigate("/admin-notifications");
-              else showAlert("Unknown role. Cannot open notifications.");
-            }}
-          />
-          <div className="user-dropdown-wrapper" onClick={(e) => e.stopPropagation()}>
+      {/* RIGHT: icons + sign in */}
+      <div className="nav-right">
+        {showIcons && (
+          <div className="nav-icons">
             <img
-              src={profileImage || DefaultUserIcon}
-              alt="User"
-              className="nav-icon profile-icon-navbar"
+              src={ChatIcon}
+              alt="Chat"
+              className="nav-icon"
+              onClick={() => navigate("/messages")}
             />
-            <div className="user-dropdown">
-              <div className="dropdown-item" onClick={() => navigate(profilePath)}>
-                Profile
-              </div>
-              {editProfilePath && (
+            <img
+              src={hasNotifications ? BellIconNew : BellIcon}
+              alt="Notifications"
+              className="nav-icon"
+              onClick={() => {
+                if (role === "freelancer")
+                  navigate("/freelancer-notifications");
+                else if (role === "client")
+                  navigate("/client-notifications");
+                else if (role === "admin")
+                  navigate("/admin-notifications");
+                else showAlert("Unknown role. Cannot open notifications.");
+              }}
+            />
+            <div
+              className="user-dropdown-wrapper"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={profileImage || DefaultUserIcon}
+                alt="User"
+                className="nav-icon profile-icon-navbar"
+              />
+              <div className="user-dropdown">
                 <div
                   className="dropdown-item"
-                  onClick={() => navigate(editProfilePath)}
+                  onClick={() => navigate(profilePath)}
                 >
-                  Edit Profile
+                  Profile
                 </div>
-              )}
-              {role === "freelancer" && (
-                <>
-                
-                  <div className="dropdown-item" onClick={() => navigate("/payment")}>
-                    Payment History
+                {editProfilePath && (
+                  <div
+                    className="dropdown-item"
+                    onClick={() => navigate(editProfilePath)}
+                  >
+                    Edit Profile
                   </div>
+                )}
+                {role === "freelancer" && (
+                  <>
+                    <div
+                      className="dropdown-item"
+                      onClick={() => navigate("/payment")}
+                    >
+                      Payment History
+                    </div>
 
-                   <div className="dropdown-item" onClick={() => navigate("/booking")}>
-                Book a Space
+                    <div
+                      className="dropdown-item"
+                      onClick={() => navigate("/booking")}
+                    >
+                      Book a Space
+                    </div>
+                  </>
+                )}
+                {addProfilePath && (
+                  <div
+                    className="dropdown-item"
+                    onClick={() => navigate(addProfilePath)}
+                  >
+                    Add a new account
                   </div>
-                </>
-              )}
-              {addProfilePath && (
-                <div className="dropdown-item" onClick={() => navigate(addProfilePath)}>
-                  Add a new account
+                )}
+                {auditProfilePath && (
+                  <div
+                    className="dropdown-item"
+                    onClick={() => navigate(auditProfilePath)}
+                  >
+                    Audit Logs
+                  </div>
+                )}
+                <div className="dropdown-item" onClick={handleSignOut}>
+                  Sign Out
                 </div>
-              )}
-              {auditProfilePath && (
-                <div className="dropdown-item" onClick={() => navigate(auditProfilePath)}>
-                  Audit Logs
-                </div>
-              )}
-              <div className="dropdown-item" onClick={handleSignOut}>
-                Sign Out
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showSignIn && (
-        <button className="sign-in-btn2" onClick={() => navigate("/signin")}>
-          Sign In
-        </button>
-      )}
+        {showSignIn && (
+          <button
+            className="sign-in-btn2"
+            onClick={() => navigate("/signin")}
+          >
+            Sign In
+          </button>
+        )}
+      </div>
     </nav>
   );
 };

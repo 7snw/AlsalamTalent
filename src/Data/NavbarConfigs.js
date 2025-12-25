@@ -24,7 +24,9 @@ export const NavConfig2 = Object.assign([
   },
   { label: 'Freelancers', path: '/freelancers' },
     { label: 'Library', path: '/library' },
-  { label: 'About us', path: '/aboutus' }
+  { label: 'About us', path: '/aboutus' },
+  { label: 'Q&A', path: '/ask-answer' },
+  
 ], {
   showIcons: true,
   hideSignIn: true
@@ -42,13 +44,16 @@ export const NavConfig3 = Object.assign([
       { label: 'Post Resources', path: '/resources' },
       { label: 'Assigned Projects', path: '/AssignedProject' },
       { label: 'Project Applications', path: '/project-applications' },
-      { label: 'Payments', path: '/payments' }
+      { label: 'Payments', path: '/payments' },
+
 
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
     { label: 'Bookings', path: '/bookingsTable' },
-    { label: 'Library', path: '/library' }
+    { label: 'Library', path: '/library' },
+     { label: 'Analytics', path: '/analyticsclient' },
+       { label: 'Q&A', path: '/ask-answer' },
 ], { 
   showIcons: true,
   hideSignIn: true 

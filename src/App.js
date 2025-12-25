@@ -13,7 +13,8 @@ import LoginPage from "./Pages/LoginPage";
 import VerifyReset from "./Pages/VerifyReset";
 import AboutUs from "./Pages/AboutUs";
 import TermsPage from "./Pages/TermsPage";
-
+import AskAnswerPage from "./Pages/AskAnswerPage";   // ⬅️ new
+import "./Style/qna.css";       
 // Shared Pages
 import Messages from "./Pages/Messages";
 import FreelancerProfile from "./Pages/FreelancerProfile";
@@ -110,13 +111,14 @@ const App = () => {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/library" element={<Library />} />
           <Route path="/terms" element={<TermsPage />} />
-
+  <Route path="/ask-answer" element={<AskAnswerPage />} />
           {/* Shared Protected */}
           <Route element={<RoleProtectedLayout allowedRoles={["Freelancer", "Client", "Admin"]} />}>
             <Route path="/messages" element={<Messages />} />
             <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
             <Route path="/freelancers" element={<FreelancersList />} />
             <Route path="/project-details/:id" element={<ProjectDetails />} />
+
           </Route>
 
           {/* Freelancer */}
