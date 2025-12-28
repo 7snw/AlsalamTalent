@@ -61,7 +61,7 @@ const SubmittedProjects = () => {
           <div className="search-wrapper4">
             <input
               type="text"
-              placeholder="What are you looking for?"
+              placeholder="Search project by title…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

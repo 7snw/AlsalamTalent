@@ -1,58 +1,87 @@
-/* src/Style/Admin/AuditLogs.css */
-
 .auditlogs-page {
-    font-family: 'TT Hoves', sans-serif;
-    background-color: #E6E7E8;
-    min-height: 100vh;
-    padding: 0 6%;
-    padding-top: 120px; 
+   font-family:var(--font-sans);
+  background: #e6f1f5;
+  min-height: 100vh;
+  padding-top: 120px;
+}
 
-  }
-  
-  .auditlogs-container {
-    max-width: 1400px;
-    padding-top: 0px;
-    margin-left: 91px;
-    margin-right: 91px;
-    margin-bottom: 100px;
+.auditlogs-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 6% 80px;
+}
 
-  }
-  
-  .auditlogs-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 25px;
-    margin-top: 0px;
-    color: #1B223C;
-  }
-  
-  .logs-table-wrapper {
-    background: rgb(255, 255, 255);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    overflow-x: auto;
-  }
-  
-  .logs-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .logs-table th,
-  .logs-table td {
-    text-align: left;
-    padding: 12px 16px;
-    font-size: 14px;
-    color: #1B223C;
-  }
-  
-  .logs-table th {
-    background-color: #f0f0f0;
-    font-weight: 600;
-  }
-  
-  .logs-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
+.audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.audit-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1B223C;
+  margin: 0;
+}
+
+.segmented {
+  display: flex;
+  gap: 6px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.seg-option {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1B223C;
+}
+.seg-option.active {
+  background: #f1633a;
+  color: #fff;
+}
+
+.audit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audit-item {
+  background: #fff;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.audit-content p {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: #1B223C;
+}
+
+.audit-subject {
+  font-weight: 600;
+}
+
+.audit-time {
+  font-size: 12px;
+  color: #777;
+}
+
+.no-logs {
+  padding: 28px 18px;
+  text-align: center;
+  color: #354463;
+  opacity: .9;
+}

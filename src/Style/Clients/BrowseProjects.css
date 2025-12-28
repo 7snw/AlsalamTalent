@@ -1,26 +1,265 @@
-/* src/Style/Clients/BrowseProjects.css */
+/* ================================================
+   Client Browse — visual parity with Freelancer AllProjects
+   File: src/Style/Clients/BrowseProjects.css
+   ================================================ */
 
-.browse-projects-page {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #E6E7E8;
-  margin-left: 91px;
-  margin-right: 91px;
-  padding-top: 120px; 
-
+/* PAGE SHELL */
+.browse-projects-page{
+  position: relative;
+    font-family:var(--font-sans);
+  background:#e6f1f5;
+  padding-top:120px;                 /* fixed navbar clearance */
+  overflow-x:hidden;
 }
 
-.browse-container {
-  display: flex;
-  gap: 40px;
-  padding: 0 6%;
-  margin-bottom: 1000px;
-
+/* Full-bleed hero wave image (behind content) */
+.browse-projects-page::before{
+  content:"";
+  position:absolute;
+  top:0; left:0; right:0;
+  height:clamp(420px, 44vw, 640px);
+  margin-left:-8%;
+  margin-right:-8%;
+  margin-top:90px;                   /* drop below navbar */
+  background:
+    url("../../Assets/fhero-waves.png") left bottom/cover no-repeat;
+  z-index:0;
+  pointer-events:none;
 }
 
-.browse-left-panel {
-  width: 260px;
+/* Bottom decorative sweeps (navy + orange + cyan) */
+.browse-projects-page::after{
+  content:"";
+  position:absolute;
+  left:-8%; right:-8%;
+  bottom:-34px;
+  height:360px;
+  pointer-events:none;
+  z-index:0;
+  background:
+    radial-gradient(160% 190% at 105% 90%, #0b1730 58%, transparent 59%),
+    radial-gradient(140% 160% at 88% 98%, transparent 73.8%, rgba(241,99,58,.9) 74.1%, rgba(241,99,58,.9) 75.1%, transparent 75.4%),
+    radial-gradient(140% 160% at 102% 86%, transparent 73.6%, rgba(150,218,235,.96) 73.9%, rgba(150,218,235,.96) 74.8%, transparent 75.1%);
 }
 
-.browse-right-panel {
-  flex: 1;
+/* LAYOUT */
+.browse-container{
+  position:relative;
+  z-index:1;                        /* above waves */
+  display:flex;
+  gap:28px;
+  padding:0 7%;
+  min-height:70vh;
+  padding-bottom:100px;
+}
+
+.browse-left-panel{ width:280px; flex:0 0 280px; }
+.browse-right-panel{ flex:1; min-width:0; }
+
+/* TITLE */
+.page-title{
+  font-size:30px;
+  font-weight:700;
+  color:#111c2f;
+  line-height:1.2;
+  margin:0 0 10px;
+}
+.page-title .accent{ color:#f1633a; }   /* optional span if used */
+
+/* FILTER SECTION (dark panel like freelancer) */
+.filter-section{
+margin-top: 115px;
+  background: #0b1730;
+  color:#ffffff;
+  border-radius:18px;
+  padding:18px 16px 14px;
+  box-shadow:0 10px 24px rgba(1,12,28,.28);
+}
+
+.filter-section h3{
+  margin:0 0 2px;
+  font-weight:700;
+}
+
+.hint{
+  margin:0 0 10px;
+  opacity:.85;
+  font-size:13px;
+  line-height:1.4;
+  color:#eaf7fb;
+}
+
+.filter-group{
+  margin:14px 0;
+}
+
+.filter-group h4{
+  margin:0 0 8px;
+  color:#6fa7b8;
+  font-weight:600;
+}
+
+.filter-group label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:8px 0;
+  font-size:14px;
+  color:#ffffff;
+  cursor:pointer;
+}
+
+.filter-group input[type="checkbox"]{
+  width:16px; height:16px;
+  accent-color:#f1633a;           /* orange accent */
+}
+
+/* SEARCH (rounded pill like freelancer) */
+.ap-search{
+  position:relative;
+  max-width:940px;
+  margin:8px 0 18px;
+}
+
+.ap-search input{
+  width:100%;
+  background:#fff;
+  border:none; outline:none;
+  border-radius:26px;
+  padding:13px 46px 13px 16px;
+  font-size:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+
+.ap-search img{
+  position:absolute;
+  right:0px; top:50%;
+  transform:translateY(-50%);
+  width:18px; height:18px;
+  opacity:.8;
+    margin-right: -35px;
+}
+
+/* GRID & CARDS (match freelancer) */
+.projects-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+  gap:22px;
+}
+
+.project-card{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  display:flex;
+  flex-direction:column;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+
+.project-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 10px 22px rgba(0,0,0,.14);
+}
+
+.project-card img{
+  width:100%;
+  height:170px;
+  object-fit:cover;
+  display:block;
+}
+
+/* Meta text (title + price) */
+.project-card h4{
+  font-size:14px;
+  font-weight:600;
+  color:#13203a;
+  line-height:1.2;
+  margin:12px 14px 6px;
+}
+.project-card p{
+  font-size:14px;
+  font-weight:700;
+  color:#0f1b2d;
+  opacity:.9;
+  margin:0 14px 14px;
+}
+
+/* OPTIONAL: small tags row (if you add it) */
+.project-card .tags{
+  display:flex; flex-wrap:wrap; gap:8px;
+  padding:0 14px 14px;
+}
+.project-card .tag{
+  display:inline-flex; align-items:center;
+  background:#ffffff;
+  color:#0f1b2d;
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:12px;
+  line-height:1;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+  border:1px solid rgba(15,27,45,.06);
+}
+
+/* RESPONSIVE */
+@media (max-width:980px){
+  .browse-container{ padding:0 5%; }
+  .browse-left-panel{ display:none; }   /* hide sidebar on mobile (like freelancer) */
+}
+
+/* ===== Skills marquee overlay on the card thumbnail ===== */
+.ap-thumb {
+  position: relative; /* needed for absolute overlay */
+}
+
+.ap-tags-marquee{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  overflow:hidden;
+  pointer-events:none; /* keep card clickable */
+}
+
+.ap-track{
+  display:flex;
+  width:max-content;
+  animation: ap-marquee var(--ap-speed, 22s) linear infinite;
+}
+
+.ap-strip{
+  display:flex;
+  gap:10px;
+  padding-right:20px; /* spacing between duplicated strips */
+}
+
+/* If you already have .ap-tag, keep it.
+   These rules ensure good pill styling on photos. */
+.ap-tag{
+   display:inline-flex;
+  align-items:center;
+  background: rgba(255, 255, 255, 0.507);
+
+  color:#0f1b2d;
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+  border:1px solid rgba(15,27,45,.06);
+  backdrop-filter:saturate(120%) blur(1px);
+}
+
+/* Smooth infinite move: track contains two identical strips */
+@keyframes ap-marquee{
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Optional: slow down slightly when hovering the card */
+.ap-card:hover .ap-track{
+  animation-duration: calc(var(--ap-speed, 22s) * 1.25);
 }

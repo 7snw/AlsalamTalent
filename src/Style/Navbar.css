@@ -1,7 +1,6 @@
 /* === Layout === */
 .navbar {
   position: fixed;
-  font-family: 'TT Hoves', sans-serif;
   top: 0;
   left: 0;
   right: 0;
@@ -9,66 +8,91 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 4%;
-  background-color: #E6E7E8;
+  padding: 20px 7.5%;
+  background-color: #e6f1f5;
+  font-family: var(--font-sans);
   pointer-events: auto;
-
 }
-
 
 .logo-image {
-  margin-left:70px;
-  margin-right: -10px;
-   margin-top:1px;
-  height: 35px;
-  width:95px;
+  height: 40px;
+  width: 96px;
+  margin-left: 10px;
 }
 
-
-
-.nav-links {
-  display: flex;
-  list-style: none;
-  gap: 40px;
-  font-size: 16px;
-  color: #1B223C;
-  margin-right: 30px;
-  padding: 0;
-}
-
-.nav-links li {
-  position: relative;
-  cursor: pointer;
-}
-
-.nav-links li:hover {
-  color: #f1633a;
-}
-
+/* === Groups === */
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 90px;
+  gap: 18px;
 }
 
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 25px;
+  gap: 20px;
 }
 
-.nav-icons {
-  background-color: transparent;
+/* === Links === */
+.nav-links {
   display: flex;
-  gap: 20px;
+  list-style: none;
+  gap: 40px;
+  font-size: 16px;
+  color: #1b223c;
+  margin: 0 30px 0 20px;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #f1633a;
+}
+
+/* Active link underline */
+.nav-link.active,
+.nav-item.active > .nav-link,
+.nav-link[aria-current="page"] {
+  color: #f1633a;
+}
+
+.nav-link.active::after,
+.nav-item.active > .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: #f1633a;
+}
+
+/* === Icons === */
+.nav-icons {
+  display: flex;
+  gap: 15px;
   align-items: center;
-   margin-right: 70px;
 }
 
 .nav-icon {
-  background-color: transparent;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   cursor: pointer;
   transition: transform 0.2s ease;
   border-radius: 20px;
@@ -78,18 +102,26 @@
   transform: scale(1.1);
 }
 
+/* === Sign In Button === */
 .sign-in-btn2 {
-  background-color: #1B223C;
+  background-color: #f1633a;
   color: #fff;
-  padding: 10px 22px;
-  border: none;
-  border-radius: 18px;
+  border: 1px solid #ff3700f7;
+  padding: 8px 20px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  margin-top: 0;
   cursor: pointer;
-  margin-right: 70px;
+  transition: background 0.25s ease;
 }
 
-/* === Dropdown Menu === */
-.nav-links li .dropdown {
+.sign-in-btn2:hover {
+  background-color: #f1623a99;
+}
+
+/* === Main dropdown === */
+.nav-item.has-dropdown .dropdown {
   display: none;
   position: absolute;
   top: 100%;
@@ -100,24 +132,36 @@
   width: 170px;
   border-radius: 6px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 10;
 }
 
-.nav-links li:hover .dropdown,
-.nav-links li .dropdown:hover {
+.nav-item.open .dropdown,
+.nav-item .dropdown:hover {
   display: block;
 }
 
 .dropdown li {
   list-style: none;
-  padding: 8px 14px;
-  color: #fafafa;
 }
 
-.dropdown li:hover {
-  background-color: #2a3152;
-  color: #f1633a;
+.dropdown-item {
+  display: block;
   cursor: pointer;
+  padding: 8px 14px;
+  color: #fafafa;
+  font-size: 12px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #2a3152;
+  color: #78aebd;
+}
+
+.dropdown-item.active {
+  color: #f1633a;
+  background-color: #2a3152;
 }
 
 /* === User Dropdown === */
@@ -126,7 +170,6 @@
 }
 
 .user-dropdown {
-  margin-top: 1px;
   display: none;
   position: absolute;
   top: 96%;
@@ -145,16 +188,123 @@
   display: block;
 }
 
-.user-dropdown .dropdown-item {
-  padding: 10px 16px;
-  font-size: 14px;
-  color: #fafafa;
-  white-space: nowrap;
-  transition: background-color 0.3s;
+/* ===============================
+   ✅ MOBILE NAV (SLIDE DOWN LEFT)
+   =============================== */
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  margin-right: 5px;
 }
 
-.user-dropdown .dropdown-item:hover {
-  background-color: #2a3152;
-  color: #f1633a;
-  cursor: pointer;
+.menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 2.5px;
+  background: #1b223c;
+  margin: 4px 0;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Animate hamburger → X */
+.menu-toggle.active span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* === Responsive behavior === */
+@media (max-width: 992px) {
+  .navbar {
+    justify-content: space-between;
+    padding: 16px 6%;
+  }
+
+  .nav-left {
+    gap: 10px;
+  }
+
+  .menu-toggle {
+    display: flex;
+    order: -1; /* burger on left of logo */
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 60px; /* just under navbar */
+    left: 0;
+    width: 75%;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #e6f1f5;
+    gap: 20px;
+    padding: 20px 7%;
+    transform: translateY(-120%);
+    opacity: 0;
+    cursor: pointer;
+    pointer-events: none;
+    transition: all 0.4s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    z-index: 900; /* below navbar (1000) */
+  }
+
+  .nav-links.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-link {
+    font-size: 15px;
+  }
+
+  .nav-right {
+    margin-left: auto;
+    gap: 12px;
+  }
+
+  /* ✅ keep icons visible on mobile */
+  .nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sign-in-btn2 {
+    position: static;
+    margin-top: 0;
+    padding: 6px 14px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 14px 5%;
+  }
+
+  .logo-image {
+    width: 80px;
+    height: auto;
+    margin-left: -8px;
+  }
+
+  .nav-links {
+    top: 55px;
+  }
 }

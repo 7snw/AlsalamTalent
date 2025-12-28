@@ -47,8 +47,8 @@ const AdminProjectDetails = () => {
             <p>{project.brief}</p>
 
             {/* Budget */}
-            <h4>Budget/Price:</h4>
-            <p>{project.budget} BHD</p>
+            <h4>Reward:</h4>
+            <p>BHD {project.budget} </p>
 
             {/* Duration Dates */}
             <h4>Duration:</h4>

@@ -1,170 +1,139 @@
-.project-applications-page {
-  font-family: 'TT Hoves', sans-serif;
-  background-color: #E6E7E8;
-  min-height: 100vh;
-  padding: 0 6%;
-  box-sizing: border-box;
-  padding-top: 120px; 
+/* Mirrors freelancer MyApplications.css (ma-*) */
+
+.ma-page{
+  position:relative;
+  background:#e6f1f5;
+  padding-top:120px;
+    font-family:var(--font-sans);
+  overflow-x:hidden;
 }
 
-.project-applications-container {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 0 6%;
-    display: flex;
-    gap: 40px;
-    margin-bottom: 1000px;
+.empty-title5 { width:100%; text-align:center; opacity:.85; margin-left:-10px; color: #f1633a }
+
+.ma-hero-bg{
+  position:absolute;
+  top:0; left:0; right:0;
+  height:clamp(420px, 44vw, 640px);
+  margin-left:-8%;
+  margin-right:-8%;
+  margin-top:90px;
+  background-color:#e6f1f5;
+  background-repeat:no-repeat;
+  background-position:left bottom;
+  background-size:cover;
+  z-index:0;
+  pointer-events:none;
 }
 
-.project-applications-layout {
-  display: flex;
-  gap: 40px;
-  flex-wrap: wrap;
+.ma-container{
+  position:relative;
+  z-index:1;
+  display:flex;
+  gap:28px;
+  padding:0 7%;
+  min-height:70vh;
+  padding-bottom:100px;
 }
 
-.applications-left-panel {
-  width: 265px;
+.ma-filter{ width:280px; flex:0 0 280px; }
+.ma-content{ flex:1; min-width:0; }
+
+/* Title */
+.ma-title{
+  font-size:30px;
+  font-weight:700;
+  color:#f1633a;
+  margin:0 0 10px;
+   margin-top:10px; 
+}
+.ma-title-accent{ color:#f1633a; }
+
+/* Filter card */
+.ma-filter-box{
+ margin-top:25px;
+  color:#0f1b2d;
+  border-radius:18px;
+  padding:18px 16px 14px;
+}
+.ma-filter-heading{ margin:0 0 2px; }
+.ma-filter-hint{ margin:0 0 10px; opacity:.85; font-size:13px; }
+.ma-filter-group{ margin:14px 0; }
+.ma-filter-label{ margin:0 0 8px; color:#0f1b2d; }
+.ma-check{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:14px; }
+.ma-check input{ width:16px; height:16px; accent-color:#f1633a; }
+
+/* Search */
+.ma-search{
+  position:relative;
+  max-width:940px;
+  margin:8px 0 18px;
+}
+.ma-search input{
+  width:100%;
+  background:#fff;
+  border:none; outline:none;
+  border-radius:26px;
+  padding:13px 46px 13px 16px;
+  font-size:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.ma-search img{
+  position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  width:18px; height:18px; opacity:.8;
 }
 
-.applications-right-panel {
-  flex: 1;
+/* List & Card */
+.ma-list{ display:flex; flex-direction:column; gap:20px; width:100%; }
+
+.ma-card{
+  background:#ffffff;
+  border-radius:20px;
+  padding:16px 20px;
+  display:flex; align-items:center; gap:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.07);
+  cursor:default;
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.ma-card:hover{ box-shadow:0 8px 20px rgba(0,0,0,0.10); transform:translateY(-2px); }
+
+.ma-thumb{ width:80px; height:80px; border-radius:15px; object-fit:cover; }
+
+.ma-info h4{ font-size:16px; margin:0; color:#1B223C; }
+.ma-info p{ font-size:13px; color:#000; margin:4px 0 0 0; }
+
+.ma-actions{ margin-left:auto; display:flex; gap:12px; }
+
+/* Status pills to match freelancer */
+.ma-actions .Pending{
+  padding:8px 18px; font-size:14px; border-radius:20px;
+  background-color:#6fa7b8; color:#1B223C; font-weight:500; border:none; cursor:default;
+}
+.ma-actions .Approved{
+  padding:8px 18px; font-size:13px; border-radius:20px;
+  background-color:#f1633a; color:#fff; font-weight:530; border:none; cursor:default;
+}
+.ma-actions .Canceled{
+  padding:8px 18px; font-size:14px; border-radius:20px;
+  background-color:#1B223C; color:#fff; font-weight:500; border:none; cursor:default;
 }
 
-
-.applications-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%; 
+/* Assign/Cancel buttons (for Under Review) styled to fit) */
+.ma-actions .assign,
+.ma-actions .cancel{
+  padding:8px 18px; font-size:14px; border-radius:18px; border:none; cursor:pointer;
 }
+.ma-actions .assign{ background:#1B223C; color:#fff; }
+.ma-actions .assign:hover{ background:#161b2f; }
+.ma-actions .cancel{ background:#f1633a; color:#fff; }
+.ma-actions .cancel:hover{ background:#e4562c; }
 
-
-.application-card {
-  background-color: #ffffff;
-  border-radius: 20px;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+.ma-freelancer-link{
+  text-decoration:underline; color:#1B223C; font-weight:500; cursor:pointer;
 }
+.ma-freelancer-link:hover{ color:#f1633a; }
 
-.application-card:hover{
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-  transition: all 0.2s ease;
-
+/* Responsive */
+@media (max-width: 980px){
+  .ma-container{ padding:0 5%; }
+  .ma-filter{ display:none; }
 }
-.application-card img {
-  width: 80px;
-  height: 80px;
-  border-radius: 15px;
-  object-fit: cover;
-}
-
-.application-info h4 {
-  font-size: 16px;
-  margin-top: -5px;
-  margin-bottom: 10px;
-  color: #1B223C;
-  
-}
-
-.application-info p {
-  font-size: 13px;
-  color: #555;
-  margin: 4px 0;
-}
-
-.freelancer-name {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  color: #1B223C;
-  gap: 6px;
-}
-.application-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 12px;
-}
-
-.application-actions button {
-  padding: 8px 18px;
-  font-size: 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  border: none;
-}
-
-.application-actions .assign {
-  background-color: #1B223C;
-  color: white;
-}
-
-.application-actions .cancel {
-  background-color: #f1633a;
-  color: #ffffff;
-}
-
-.application-actions .cancel:hover {
-  background-color: #ee592bce;
-  color: white;
-}
-
-.application-actions .assign:hover {
-  background-color: #1b223ce9;
-  color: white;
-}
-@media (max-width: 768px) {
-  .project-applications-layout {
-    flex-direction: column;
-  }
-
-  .search-wrapper {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .applications-list {
-    align-items: center;
-  }
-}
-
-.freelancer-link {
-  text-decoration: underline;
-  color: #1B223C;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.freelancer-link:hover {
-  color: #f1633a;
-}
-
-.status-label {
-  font-weight: 500;
-  font-size: 14px;
-  padding: 8px 18px;
-  border-radius: 20px;
-  display: inline-block;
-  text-align: center;
-  min-width: 110px;
-  text-transform: capitalize;
-}
-
-/* Match "Assign" style */
-.status-label.assigned {
-  background-color: #1B223C;
-  color: #ffffff;
-  padding: 10px 5px;
-
-}
-
-/* Match "Cancel" style */
-.status-label.cancelled {
-  background-color: #f1633a;
-  color: #ffffff;
-    padding: 10px 5px;
-}
-

@@ -1,0 +1,242 @@
+/* Page */
+.library-page{
+  --ink:#0f1b2d;
+  --navy:#0b1730;
+  --sky:#e6f1f5;
+  --accent:#f1633a;
+
+  background:var(--sky);
+  min-height:100vh;
+   font-family:var(--font-sans);
+}
+
+/* Title area */
+.lib-hero-inner{
+  position:relative;
+  z-index:1;
+  padding:0 6%;
+  text-align:center;
+}
+
+.lib-title{
+  font-size:35px;
+  color:var(--ink);
+  margin:40px 0 10px;
+  font-weight:700;
+  margin-top:20px ;
+   margin-bottom:30px ;
+}
+.lib-title span{ color:var(--accent); }
+
+
+/* Slider (kept) */
+.library-slider {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 40px;
+}
+
+
+.library-slider img {
+  margin-top: 90px;
+    margin-bottom: -30px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* ========= Link-style bar (like your left screenshot) ========= */
+.lib-linkbar{
+  display:flex; align-items:center; justify-content:center; gap:18px; margin:8px 0 16px; }
+
+.lib-link{
+
+ display:inline-flex; margin-top:5px;margin-bottom:40px;  align-items:center; gap:8px; padding:0; background:none; border:none; cursor:pointer; font-weight:600; color:#0b1730; opacity:.65; transition:opacity .15s ease, transform .15s ease;
+}
+.lib-link:hover{  opacity:1; transform: translateY(-1px); }
+.lib-link.is-active{opacity:1; }  
+
+.lib-link-ico{
+ width:19px; height:19px; display:block; object-fit:contain; 
+}
+
+.lib-sep{
+  user-select:none;
+  opacity:.35;
+  line-height:1;
+  font-size:22px;           /* the little dot between items */
+}
+
+/* ------------- Sections ------------- */
+.library-container{
+  padding: 0 6% 70px;
+  margin-bottom: 90px;
+}
+.lib-section{ margin-top:14px; }
+.lib-h2{
+  font-size:28px;
+  color:var(--ink);
+  margin:4px 0 2px;
+  text-align:center;
+}
+.lib-sub2{
+  text-align:center;
+  color:#56607a;
+  margin:0 0 18px;
+}
+
+/* ------------- Cards & Grids ------------- */
+.library-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap:22px;
+}
+
+.library-card{
+  background:#fff;
+  border-radius:16px;
+  border: 0.5px solid #939393ca;
+  padding:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.library-card:hover{
+  transform: translateY(-3px);
+  box-shadow:0 10px 24px rgba(0,0,0,.12);
+}
+.tutorial-img{
+  width:120px; height:90px; object-fit:cover; border-radius:12px; margin-top:8px;
+}
+.card-content h3{
+  font-size:16px; margin:8px 0 6px; color:#0b1730;
+}
+.card-content p{ font-size:14px; color:#2f3548; margin:0 0 6px; }
+.card-content a{
+  font-size:14px; color:#3897b1; text-decoration:underline;
+}
+.card-content a:hover{ color:#004999; }
+
+/* Platform & Bank grids (more compact cards) */
+.lib-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap:18px;
+}
+.lib-grid--platform{ margin-top:10px; }
+.lib-grid--bank{ margin-top:10px; }
+
+.lib-card{
+  background:#fff;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  display:flex;
+    border: 0.5px solid #939393ca;
+  gap:12px;
+  text-decoration:none;
+  color:inherit;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.lib-card:hover{ transform: translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.12); }
+
+.lib-card-ico{ font-size: 20px;
+  width:44px; height:44px; border-radius:12px;
+  background:#687181; display:flex; align-items:center; justify-content:center;
+  font-weight:700; color:#2b3a54;
+  flex:0 0 44px;
+}
+.lib-card-body h3{ margin:2px 0 4px; font-size:16px; color:var(--ink); }
+.lib-card-body p{ margin:0 0 6px; color:#56607a; font-size:14px; }
+.lib-card-link{   font-size:14px; color:#3897b1; text-decoration:underline;}
+
+
+/* Responsive */
+@media (max-width: 720px){
+  .lib-title{ font-size:32px; }
+  .library-slider{ height:260px; }
+}
+@media (max-width: 520px){
+  .lib-linkbar{ flex-wrap:wrap; gap:12px; }
+  .library-grid{ grid-template-columns: 1fr; }
+  .lib-grid{ grid-template-columns: 1fr; }
+}
+
+
+/* ===== Platform Steps Carousel ===== */
+.steps-wrap {
+  max-width: 800px;
+  margin: 0 auto 24px;
+}
+
+.step-card {
+  background: #fff;
+
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+.step-media {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #f3f6f8;
+}
+
+.step-media img {
+  display: block;
+  width: 99.6%;
+  height: auto;
+ 
+   border: 0.5px solid #939393;
+
+  object-fit: cover;
+}
+
+.step-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #6fa7b8;
+  color: #0f1b2d;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.12);
+}
+
+.step-meta {
+  padding: 16px 18px 18px;
+}
+.step-meta h3 {
+  margin: 0 0 6px;
+  color: #0f1b2d;
+  font-size: 18px;
+}
+.step-meta p {
+  margin: 0;
+  color: #56607a;
+  font-size: 14px;
+}
+
+
+/* position arrows outside the image a bit */
+.steps-wrap .slick-prev, .steps-wrap .slick-next {
+  width: 42px; height: 42px; z-index: 2;
+}
+.steps-wrap .slick-prev:before, .steps-wrap .slick-next:before {
+  font-size: 42px; color: #2b3a54;
+  text-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.steps-wrap .slick-prev { left: -48px; }
+.steps-wrap .slick-next { right: -48px; }
+
+@media (max-width: 900px) {
+  .steps-wrap .slick-prev { left: 8px; }
+  .steps-wrap .slick-next { right: 8px; }
+}
+

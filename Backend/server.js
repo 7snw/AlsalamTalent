@@ -1,4 +1,4 @@
-const express = require('express'); 
+const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
 const path = require('path');
@@ -7,8 +7,38 @@ const bcrypt = require('bcryptjs');
 const Admin = require('./models/Admin');
 require('dotenv').config();
 const morgan = require('morgan');
+const expressRequestId = require('express-request-id');
+const addRequestId = expressRequestId(); 
 
-// Import routes
+
+const app = express();
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const { v4: uuidv4 } = require("uuid");
+const logAction = require("./utils/logAction"); 
+
+app.use(addRequestId);
+
+
+app.use(express.json());
+app.use(cors({
+  origin: ["https://ctrlz.bh", "https://www.ctrlz.bh", "http://localhost:3000"],
+  credentials: true,
+}));
+
+
+morgan.token('reqid', (req) => req.id);
+const httpLogFormatDev = ':method :url :status :res[content-length] - :response-time ms (:reqid)'; // NEW
+const httpLogFormatProd = ':remote-addr :method :url :status :res[content-length] - :response-time ms :reqid'; // NEW
+app.use(
+  morgan(process.env.NODE_ENV === 'development' ? httpLogFormatDev : httpLogFormatProd)
+); 
+
+app.use('/uploads', express.static('uploads'));
+// app.js or server.js
+
+
+//  routes
 const userRoutes = require('./routes/users');
 const freelancerRoutes = require('./routes/freelancers');
 const clientRoutes = require('./routes/clients');
@@ -24,17 +54,26 @@ const polytechRoutes = require('./routes/polytech');
 const messageUploadsRoute = require('./routes/messageUploads');
 const notificationRoutes = require('./routes/notifications');
 
+const resourceRoutes = require('./routes/resourceRoutes');
+app.use('/api/resources', resourceRoutes);
+
+const paymentsRouter = require('./routes/payments');
+app.use('/api/payments', paymentsRouter);
+
+const bookingsRoute = require('./routes/bookings');
+app.use('/api/bookings', bookingsRoute);
+
+const clientsRouter = require('./routes/clients');
+app.use('/api/clients', clientsRouter);
+
+const freelancerRouter = require('./routes/freelancers');
+app.use('/api/freelancers', freelancerRouter);
+
+const qnaRoutes = require("./routes/qna.routes");  
 
 
-// Express app
-const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use('/uploads', express.static('uploads'));
-
-// File upload setup
+// File upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
@@ -54,10 +93,9 @@ const anyFileFilter = (req, file, cb) => cb(null, true);
 const uploadImage = multer({ storage, fileFilter: imageFileFilter });
 const uploadAnyFile = multer({ storage, fileFilter: anyFileFilter });
 
-// Static file serving
+// Static file 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/messages', express.static('uploads/messages'));
-
 
 // API Routes
 app.use('/api/polytech', polytechRoutes);
@@ -74,26 +112,37 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/upload-message-files', messageUploadsRoute);
 app.use('/api/notifications', notificationRoutes);
-app.use(morgan('dev'));
+
+app.use('/api/ocr', require('./routes/ocr'));
+app.use('/api/freelancer', require('./routes/freelancers'));
 
 
-// File upload endpoints
+
+const verifyGraduate = require('./routes/verifyGraduate');
+app.use('/api/verify-graduate', verifyGraduate);
+
+app.use("/api/qna", qnaRoutes);
+
+
+// File upload 
 app.post('/api/upload-image', uploadImage.single('image'), (req, res) => {
   if (!req.file) return res.status(400).send('No image uploaded');
   const imageUrl = `/uploads/${req.file.filename}`;
-  res.json({ imageUrl });
+  res.json({ imageUrl, reqId: req.id }); // NEW: echo reqId if you want
 });
 
 app.post('/api/upload-file', uploadAnyFile.single('file'), (req, res) => {
   if (!req.file) return res.status(400).send('No file uploaded');
   const fileUrl = `/uploads/${req.file.filename}`;
-  res.json({ fileUrl });
+  res.json({ fileUrl, reqId: req.id }); // NEW: echo reqId if you want
 });
 
 // Health check
 app.get('/', (req, res) => {
+  res.set('X-Request-Id', req.id); 
   res.send('API is running...');
 });
+
 
 // Socket.IO Setup
 const http = require('http');
@@ -109,33 +158,29 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  socket.on('joinRoom', (roomId) => {
-    socket.join(roomId);
-  });
+  socket.on('joinRoom', (roomId) => socket.join(roomId));
 
-  socket.on('sendMessage', async (msgData) => {
-    try {
-      const newMessage = new Message({
-        senderId: msgData.senderId,
-        receiverId: msgData.receiverId,
-        senderRole: msgData.senderRole,
-        receiverRole: msgData.receiverRole,
-        content: msgData.content,
-        roomId: msgData.roomId,
-        attachments: msgData.attachments || []
-      });
+  socket.on('sendMessage', async (msg) => {
+    const saved = await Message.create({
+      senderId: msg.senderId,
+      receiverId: msg.receiverId,
+      senderRole: msg.senderRole,
+      receiverRole: msg.receiverRole,
+      content: msg.content,
+      roomId: msg.roomId,
+      attachments: msg.attachments || [],
+      timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+    });
 
-      await newMessage.save();
-      io.to(msgData.roomId).emit('receiveMessage', newMessage);
-    } catch (err) {
-      console.error('Error saving message:', err.message);
-    }
+   
+    const fresh = await Message.findById(saved._id); 
+    io.to(msg.roomId).emit('receiveMessage', fresh);
   });
 
   socket.on('disconnect', () => {});
 });
 
-// Connect to DB and hash default admin password if needed
+
 connectDB().then(async () => {
   try {
     const admin = await Admin.findOne({ email: 'admin@alsalam.com' });
@@ -149,9 +194,12 @@ connectDB().then(async () => {
   }
 
   const PORT = process.env.PORT || 5000;
-  server.listen(PORT, () => console.log(`Server with Socket.IO running on port ${PORT}`));
+  server.listen(PORT, "0.0.0.0", () => {
+  console.log(` Server running at http://172.20.10.3:${PORT}`);
 });
-// Add this to your server (temporarily)
+});
+
+
 app.get('/fix-admin-password', async (req, res) => {
   const admin = await Admin.findOne({ email: 'admin@alsalam.com' });
   if (admin) {
@@ -161,3 +209,4 @@ app.get('/fix-admin-password', async (req, res) => {
   }
   res.send('Admin not found');
 });
+

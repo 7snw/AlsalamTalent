@@ -1,159 +1,166 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import '../../Style/Clients/AssignedProject.css'
-import '../../Style/PageContents.css'
-import Navbar from '../../Components/Navbar'
-import { NavConfig3 } from '../../Data/NavbarConfigs'
-import SearchIcon from '../../Assets/search.png'
-import Footer from '../../Components/Footer'
-import axios from 'axios'
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+
+import Navbar from "../../Components/Navbar";
+import Footer from "../../Components/Footer";
+import { NavConfig3 } from "../../Data/NavbarConfigs";
+
+import SearchIcon from "../../Assets/search.png";
+
+
+import "../../Style/Clients/AssignedProject.css";   
 
 const AssignedProject = () => {
-  // Search bar input value
-  const [search, setSearch] = useState('')
+  const navigate = useNavigate();
+ 
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({ type: [] }); // status filters
+  const [assignments, setAssignments] = useState([]);
 
-  // Filter state for selected statuses
-  const [filters, setFilters] = useState({ status: [] })
-
-  // List of assignments fetched from the backend
-  const [assignments, setAssignments] = useState([])
-
-  const navigate = useNavigate()
-
-  // Get logged-in client from localStorage
-  const user = JSON.parse(localStorage.getItem('user'))
-  const clientId = user?._id
-
-  // Fetch assignments for the logged-in client on page load
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/assignments/by-author/${clientId}`)
-        setAssignments(res.data)
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const clientId = storedUser?._id;
+        if (!clientId) return;
+
+        const { data } = await axios.get(
+          `http://localhost:5000/api/assignments/by-author/${clientId}`
+        );
+        setAssignments(data || []);
       } catch (error) {
-        console.error('Error fetching assignments:', error)
+        console.error("Error fetching assignments:", error);
       }
-    }
+    };
+    fetchAssignments();
+  }, []);
 
-    fetchAssignments()
-  }, [clientId])
-
-  // Filter assignments based on search input and selected statuses
-  const filteredAssignments = assignments.filter((assignment) => {
-    const title = assignment.projectId?.title?.toLowerCase() || ''
-    const matchesSearch = title.includes(search.toLowerCase())
-    const matchesStatus =
-      filters.status.length === 0 || filters.status.includes(assignment.status)
-    return matchesSearch && matchesStatus
-  })
-
-  // Toggle filter values on checkbox click
-  const handleCheckbox = (category, value) => {
+  const handleCheckbox = (value) => {
     setFilters((prev) => {
-      const updated = prev[category].includes(value)
-        ? prev[category].filter((v) => v !== value)
-        : [...prev[category], value]
-      return { ...prev, [category]: updated }
-    })
-  }
+      const next = prev.type.includes(value)
+        ? prev.type.filter((v) => v !== value)
+        : [...prev.type, value];
+      return { ...prev, type: next };
+    });
+  };
 
-  // Navigate to correct page based on assignment status
-  const handleProjectClick = (assignment) => {
-    if (assignment.status === 'Submitted') {
-      navigate(`/submitted-project/${assignment._id}`)
-    } else {
-      navigate(`/assigned-project/${assignment._id}`)
-    }
-  }
+  const filtered = assignments.filter((a) => {
+    const title = (a.projectId?.title || "").toLowerCase();
+    const matchesSearch = title.includes(search.toLowerCase());
+    const matchesType =
+      filters.type.length === 0 || filters.type.includes(a.status);
+    return matchesSearch && matchesType;
+  });
+
+  // Always open the single review/details page
+  const openAssignment = (assignmentId) =>
+    navigate(`/submitted-project/${assignmentId}`);
 
   return (
-    <div className="assigned-projects-page">
-      {/* Client navbar */}
+    <div className="as-page">
       <Navbar links={NavConfig3} />
 
-      <div className="assigned-projects-container">
-        {/* Left panel with filters */}
-        <aside className="assigned-left-panel">
-          <h1 className="page-title">Assigned Projects</h1>
-          <div className="filter-section">
-            <h3>Filter</h3>
-            <p className="hint">Filter your assigned projects by their status.</p>
-            <div className="filter-group">
-              <h4>Status</h4>
-              {/* Status filter checkboxes */}
-              {['Assigned', 'Submitted', 'Completed', 'Re-submit', 'Declined'].map((status) => (
-                <label key={status}>
+
+      <div className="as-container">
+        {/* LEFT FILTER */}
+        <aside className="as-filter">
+          <h1 className="as-title">
+            <span className="as-title-accent">Assigned</span> Projects
+          </h1>
+
+          <div className="as-filter-box">
+            <h3 className="as-filter-heading">Filter</h3>
+            <p className="as-filter-hint">
+              Filter your projects according to <br />
+              their progress.
+            </p>
+
+            <div className="as-filter-group">
+              <h4 className="as-filter-label">Status</h4>
+              {[
+                "Assigned",
+                "Submitted",
+                "Re-submitted",
+                "Requested Revision",
+                "Completed",
+                "Declined",
+              ].map((type) => (
+                <label key={type} className="as-check">
                   <input
                     type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={() => handleCheckbox('status', status)}
+                    checked={filters.type.includes(type)}
+                    onChange={() => handleCheckbox(type)}
                   />
-                  {status}
+                  <span>{type}</span>
                 </label>
               ))}
             </div>
           </div>
         </aside>
 
-        {/* Right panel with search and project cards */}
-        <div className="assigned-right-panel">
-          {/* Search input */}
-          <div className="search-wrapper">
+        {/* RIGHT CONTENT */}
+        <main className="as-content">
+          <div className="as-search">
             <input
               type="text"
-              placeholder="What are you looking for?"
+              placeholder="Search project by title…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <img src={SearchIcon} alt="search" className="search-icon" />
+            <img src={SearchIcon} alt="Search" />
           </div>
 
-          {/* Grid showing assignment cards */}
-          <div className="projects-grid">
+          <div className="as-grid">
+                {filtered.length === 0 ? (
+    <h3 className="empty-title6">No projects assigned yet.</h3>
+  ) : (
             <AnimatePresence>
-              {filteredAssignments.map((assignment) => (
+              {filtered.map((a, i) => (
                 <motion.div
-                  className="project-card"
-                  key={assignment._id}
+                  key={a._id || i}
+                  className="as-card"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{
-                    y: -4,
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-                    transition: { duration: 0.2 },
-                  }}
-                  onClick={() => handleProjectClick(assignment)}
-                  style={{ cursor: 'pointer' }}
+                  transition={{ duration: 0.3, delay: i * 0.03 }}
+                  whileHover={{ y: -4, boxShadow: "0 10px 22px rgba(0,0,0,.14)" }}
+                  onClick={() => openAssignment(a._id)}
                 >
-                  {/* Show project image or fallback text */}
-                  {assignment.projectId?.imageUrl ? (
-                    <img src={assignment.projectId.imageUrl} alt={assignment.projectId.title} />
-                  ) : (
-                    <p>No image available</p>
-                  )}
+                  <div className="as-thumb">
+                    <img
+                      src={
+                        a.projectId?.imageUrl ||
+                        a.projectId?.image ||
+                        a.projectId?.coverImage
+                      }
+                      alt={a.projectId?.title || "Project"}
+                      loading="lazy"
+                    />
+                  </div>
 
-                  {/* Project title */}
-                  <h4>{assignment.projectId?.title || 'Untitled'}</h4>
-
-                  {/* Assigned freelancer name */}
-                  <p>{assignment.freelancerId?.fullName || 'Freelancer not found'}</p>
-
-                  {/* Project status text */}
-                  <span className="progress-text2">{assignment.status}</span>
+                  <div className="as-meta">
+                    <h4 className="as-name">{a.projectId?.title}</h4>
+                    <span
+                      className={`as-status ${String(a.status || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {a.status}
+                    </span>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
+  )}
           </div>
-        </div>
+        </main>
       </div>
 
-      {/* Page footer */}
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default AssignedProject
+export default AssignedProject;

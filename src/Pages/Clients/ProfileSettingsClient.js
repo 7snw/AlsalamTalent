@@ -16,8 +16,7 @@ const ProfileSettingsClient = () => {
     email: '',
     occupation: '',
     phone: '',
-    companyName: '',
-    dateOfBirth: ''
+    companyName: ''
   })
 
   // Password fields
@@ -39,8 +38,7 @@ const ProfileSettingsClient = () => {
           email: data.email || '',
           occupation: data.occupation || '',
           phone: data.phone || '',
-          companyName: data.companyName || '',
-          dateOfBirth: data.dateOfBirth ? data.dateOfBirth.slice(0, 10) : ''
+          companyName: data.companyName || ''
         })
       } catch (err) {
         console.error('Error fetching client profile:', err)
@@ -113,8 +111,7 @@ const ProfileSettingsClient = () => {
               <input type="text" value={formData.phone} onChange={(e) => handleChange('phone', e.target.value)} />
               <h4>Company Name</h4>
               <input type="text" value={formData.companyName} onChange={(e) => handleChange('companyName', e.target.value)} />
-              <h4>Date of Birth</h4>
-              <input type="date" value={formData.dateOfBirth} onChange={(e) => handleChange('dateOfBirth', e.target.value)} />
+            
               <button className="client-save-btn" onClick={handleSave}>Save</button>
             </div>
           )}

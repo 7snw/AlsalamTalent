@@ -17,65 +17,75 @@ const EditUserProfile = () => {
   const [formData, setFormData] = useState(null); // Stores the form fields
   const [loading, setLoading] = useState(true); // Loading state
 
-  // Fetch user details when component mounts
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/client/${userId}`);
-        const userData = response.data;
+ 
 
-        // Format dateOfBirth to fit <input type="date">
-        if (userData.dateOfBirth) {
-          userData.dateOfBirth = new Date(userData.dateOfBirth).toISOString().split('T')[0];
-        }
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  let v = value;
+  if (name === 'email') v = value.trim().toLowerCase();
+  if (name === 'phone') v = value.replace(/\s+/g, '').trim();
+  setFormData(prev => ({ ...prev, [name]: v }));
+};
 
-        userData.role = 'client'; // Ensure the role stays fixed as 'client'
-        setFormData(userData); // Set form data state
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      } finally {
-        setLoading(false); // Stop loading once done
-      }
+
+// src/Pages/Admin/EditUserProfile.js
+// (Only key changes shown: stricter payload + DOB handling)
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const admin = JSON.parse(localStorage.getItem("user"));
+
+    // Build a *whitelist* payload so we don't send internal props accidentally
+    const payload = {
+      fullName:     formData.fullName || '',
+      email:        formData.email || '',
+      occupation:   formData.occupation || '',
+      phone:        formData.phone || '',
+      companyName:  formData.companyName || '',
+      dateOfBirth:  formData.dateOfBirth || '', // keep as 'YYYY-MM-DD'
+      authorId:     admin?._id
     };
 
-    fetchUser(); // Call fetch function
-  }, [userId]);
+    await axios.put(`http://localhost:5000/api/client/${userId}`, payload);
 
-  // Handle input changes
-  const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value // Update changed field
-    }));
-  };
+    showAlert('User updated successfully!');
+    navigate('/clientlist');
+  } catch (error) {
+    console.error('Error updating user:', error?.response?.data || error);
+    showAlert(error?.response?.data?.message || 'Failed to update user.');
+  }
+};
 
-  // Submit updated user info
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-
+// When loading the user, don't reformat DOB if it's already YYYY-MM-DD:
+useEffect(() => {
+  const fetchUser = async () => {
     try {
-      const admin = JSON.parse(localStorage.getItem("user")); // Get current admin info
+      const { data } = await axios.get(`http://localhost:5000/api/client/${userId}`);
 
-      const payload = {
-        ...formData,
-        authorId: admin?._id // Add author ID for logging purposes
-      };
+      const userData = { ...data };
+      if (userData.dateOfBirth) {
+        // If backend returns a full ISO, normalize to YYYY-MM-DD for <input type="date">
+        const s = String(userData.dateOfBirth);
+        userData.dateOfBirth =
+          /^\d{4}-\d{2}-\d{2}$/.test(s)
+            ? s
+            : new Date(s).toISOString().slice(0, 10);
+      }
 
-      // Send updated data to backend
-      await axios.put(`http://localhost:5000/api/client/${userId}`, payload);
-
-      showAlert('User updated successfully!'); // Success message
-      navigate('/clientlist'); // Redirect to client list
-    } catch (error) {
-      console.error('Error updating user:', error);
-      showAlert('Failed to update user.'); // Error message
+      userData.role = 'client';
+      setFormData(userData);
+    } catch (err) {
+      console.error('Error fetching user:', err);
+    } finally {
+      setLoading(false);
     }
   };
+  fetchUser();
+}, [userId]);
 
-  // Cancel and return to client list
-  const handleCancel = () => {
-    navigate('/clientlist');
-  };
+
 
   // Show loading indicator until data is ready
   if (loading || !formData) return <p>Loading...</p>;
@@ -86,7 +96,7 @@ const EditUserProfile = () => {
 
       <div className="settings-container">
         <div className="settings-content">
-          <h2>Edit user profile</h2>
+          <h2> User profile</h2>
 
           {/* Profile edit form */}
           <form className="settings-section" onSubmit={handleSubmit}>
@@ -97,6 +107,7 @@ const EditUserProfile = () => {
               value={formData.fullName}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Email</h4>
@@ -106,6 +117,7 @@ const EditUserProfile = () => {
               value={formData.email}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Occupation</h4>
@@ -115,6 +127,7 @@ const EditUserProfile = () => {
               value={formData.occupation}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Phone Number</h4>
@@ -124,6 +137,7 @@ const EditUserProfile = () => {
               value={formData.phone}
               onChange={handleChange}
               required
+              readOnly 
             />
 
             <h4>Company Name</h4>
@@ -133,25 +147,15 @@ const EditUserProfile = () => {
               value={formData.companyName}
               onChange={handleChange}
               required
+              readOnly 
             />
 
-            <h4>Date of Birth</h4>
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleChange}
-              required
-            />
+          
 
             {/* Hidden input to enforce role as client */}
             <input type="hidden" name="role" value="client" />
 
-            {/* Save and Cancel buttons */}
-            <div className="edit-buttons">
-              <button type="submit" className="settings-save-btn">Save</button>
-              <button type="button" className="settings-cancel-btn" onClick={handleCancel}>Cancel</button>
-            </div>
+           
           </form>
         </div>
       </div>

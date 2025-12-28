@@ -1,89 +1,106 @@
-// src/Pages/Clients/ProjectApplications.js
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import '../../Style/Clients/ProjectApplications.css';
-import '../../Style/PageContents.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig3 } from '../../Data/NavbarConfigs';
-import SearchIcon from '../../Assets/search.png';
-import Footer from '../../Components/Footer';
-import axios from 'axios';
-import ConfirmationModal from '../../Components/ConfirmationModal';
+import Navbar from "../../Components/Navbar";
+import Footer from "../../Components/Footer";
+import { NavConfig3 } from "../../Data/NavbarConfigs";
+
+import SearchIcon from "../../Assets/search.png";
+
+
+import ConfirmationModal from "../../Components/ConfirmationModal";
+import "../../Style/Clients/ProjectApplications.css"; // now mirrors freelancer .ma-* look
 
 const ProjectApplications = () => {
-  // Search input
-  const [search, setSearch] = useState('');
-  // All applications
-  const [applications, setApplications] = useState([]);
-  // Active status filters
-  const [filters, setFilters] = useState({ status: [] });
-  // For approval/rejection confirmation
-  const [confirmData, setConfirmData] = useState(null);
-
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
-  const clientId = user?._id;
 
-  // Fetch applications by client
+  // UI state
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({ status: [] });
+  const [applications, setApplications] = useState([]);
+  const [confirmData, setConfirmData] = useState(null);
+  
+  // Current client
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const clientId = storedUser?._id;
+
+  // Fetch applications for this client
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/applications/by-author/${clientId}`);
-        setApplications(response.data);
+        if (!clientId) return;
+        const { data } = await axios.get(
+          `http://localhost:5000/api/applications/by-author/${clientId}`
+        );
+        setApplications(data || []);
       } catch (error) {
-        console.error('Error fetching applications:', error);
+        console.error("Error fetching applications:", error);
       }
     };
-
-    if (clientId) fetchApplications();
+    fetchApplications();
   }, [clientId]);
 
-  // Toggle checkbox filter
+  // Toggle checkbox
   const toggleFilter = (category, value) => {
     setFilters((prev) => {
-      const newValues = prev[category].includes(value)
-        ? prev[category].filter((v) => v !== value)
-        : [...prev[category], value];
-      return { ...prev, [category]: newValues };
+      const list = prev[category] || [];
+      const next = list.includes(value)
+        ? list.filter((v) => v !== value)
+        : [...list, value];
+      return { ...prev, [category]: next };
     });
   };
 
-  // Approve or reject application + notify
+  // Map status to pill class (match freelancer look)
+  const pillClass = (status = "") => {
+    switch (status.toLowerCase()) {
+      case "assigned":
+        return "Approved";
+      case "cancelled":
+        return "Canceled";
+      default:
+        return "Pending"; // Under Review or unknown
+    }
+  };
+
+  // Approve / Cancel with notification
   const handleAction = async (projectId, freelancerId, action) => {
     try {
-      await axios.post(`http://localhost:5000/api/applications/${projectId}/${action}`, {
-        freelancerId, clientId
-      });
-
-      const app = applications.find(
-        (a) => a.project?.id === projectId && a.freelancer?.id === freelancerId
+      await axios.post(
+        `http://localhost:5000/api/applications/${projectId}/${action}`,
+        { freelancerId, clientId }
       );
 
-      if (app && app.freelancer?.email && app.project?.title) {
-        const notification = {
+      const found = applications.find(
+        (a) =>
+          (a.project?.id || a.projectId?._id) === projectId &&
+          (a.freelancer?.id || a.freelancerId?._id) === freelancerId
+      );
+
+      if (found?.freelancer?.email && found?.project?.title) {
+        await axios.post("http://localhost:5000/api/notifications", {
           userId: freelancerId,
           userType: "freelancer",
-          email: app.freelancer.email,
+          email: found.freelancer.email,
           type: "info",
-          subject: action === "approve" ? "You've been assigned!" : "Application Cancelled",
-          message: action === "approve"
-            ? `You have been assigned to the project "${app.project.title}".`
-            : `Your application to "${app.project.title}" has been declined.`
-        };
-
-        await axios.post("http://localhost:5000/api/notifications", notification);
+          subject:
+            action === "approve" ? "You've been assigned!" : "Application Cancelled",
+          message:
+            action === "approve"
+              ? `You have been assigned to the project "${found.project.title}".`
+              : `Your application to "${found.project.title}" has been declined.`,
+        });
       }
 
       setApplications((prev) =>
-        prev.map((app) => {
-          const pid = app.project?.id || app.projectId?._id;
-          const fid = app.freelancer?.id || app.freelancerId?._id;
-          if (pid === projectId && fid === freelancerId) {
-            return { ...app, status: action === "approve" ? "Assigned" : "Cancelled" };
-          }
-          return app;
+        prev.map((a) => {
+          const pid = a.project?.id || a.projectId?._id;
+          const fid = a.freelancer?.id || a.freelancerId?._id;
+          return pid === projectId && fid === freelancerId
+            ? { ...a, status: action === "approve" ? "Assigned" : "Cancelled" }
+            : a;
         })
       );
     } catch (error) {
@@ -91,98 +108,118 @@ const ProjectApplications = () => {
     }
   };
 
-  // Filtered results
-  const filteredApps = applications.filter((app) => {
-    const appStatus = app.status || 'Under Review';
-    const matchesSearch = app.project?.title?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = filters.status.length === 0 || filters.status.includes(appStatus);
+  // Filtered list
+  const filtered = applications.filter((a) => {
+    const stat = a.status || "Under Review";
+    const title = (a.project?.title || "").toLowerCase();
+    const matchesSearch = title.includes(search.toLowerCase());
+    const matchesStatus =
+      filters.status.length === 0 || filters.status.includes(stat);
     return matchesSearch && matchesStatus;
   });
 
   return (
-    <div className="project-applications-page">
+    <div className="ma-page">
       <Navbar links={NavConfig3} />
-      <div className="project-applications-container">
-        {/* Left filter panel */}
-        <aside className="applications-left-panel">
-          <h1 className="page-title">Project Applications</h1>
-          <div className="filter-section">
-            <h3>Filter</h3>
-            <p className="hint">Filter your projects by status.</p>
-            <div className="filter-group">
-              <h4>Status</h4>
-              {['Under Review', 'Assigned', 'Cancelled'].map((status) => (
-                <label key={status}>
+
+   
+
+      <div className="ma-container">
+        {/* LEFT FILTER (status) */}
+        <aside className="ma-filter">
+          <h1 className="ma-title">
+            <span className="ma-title-accent"></span> Applications
+          </h1>
+
+          <div className="ma-filter-box">
+            <h3 className="ma-filter-heading">Filter</h3>
+            <p className="ma-filter-hint">Filter your applications by status.</p>
+
+            <div className="ma-filter-group">
+              <h4 className="ma-filter-label">Status</h4>
+              {["Under Review", "Assigned", "Cancelled"].map((s) => (
+                <label key={s} className="ma-check">
                   <input
                     type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={() => toggleFilter('status', status)}
+                    checked={filters.status.includes(s)}
+                    onChange={() => toggleFilter("status", s)}
                   />
-                  {status}
+                  <span>{s}</span>
                 </label>
               ))}
             </div>
           </div>
         </aside>
 
-        {/* Right panel */}
-        <main className="applications-right-panel">
-          {/* Search input */}
-          <div className="search-wrapper">
+        {/* RIGHT CONTENT */}
+        <main className="ma-content">
+          <div className="ma-search">
             <input
               type="text"
-              placeholder="Search by project title"
+              placeholder="Search by project title…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <img src={SearchIcon} alt="search" className="search-icon" />
+            <img src={SearchIcon} alt="Search" />
           </div>
 
-          {/* Application list */}
-          <div className="applications-list">
+          <div className="ma-list">
+                {filtered.length === 0 ? (
+    <h3 className="empty-title5">No project applications yet.</h3>
+  ) : (
             <AnimatePresence>
-              {filteredApps.map((app, index) => (
+              {filtered.map((app, index) => (
                 <motion.div
-                  className="application-card"
-                  key={app._id}
+                  key={app._id || index}
+                  className="ma-card"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  whileHover={{
-                    y: -4,
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-                    transition: { duration: 0.2 },
-                  }}
+
+                  
                 >
-                  {/* Project image */}
-                  <img src={app.project?.imageUrl} alt={app.project?.title} />
-                  <div className="application-info">
+                  
+                  <img
+                    className="ma-thumb"
+                    src={
+                      app.project?.imageUrl ||
+                      app.project?.coverImage ||
+                      app.project?.image ||
+                      ""
+                    }
+                    alt={app.project?.title || "Project"}
+                    loading="lazy"
+                  />
+
+                  <div className="ma-info">
                     <h4>{app.project?.title}</h4>
                     <p>
                       Freelancer:{" "}
                       <span
-                        className="freelancer-link"
-                        onClick={() => navigate(`/freelancerprofile/${app.freelancer.id}`)}
+                        className="ma-freelancer-link"
+                        onClick={() =>
+                          navigate(`/freelancerprofile/${app.freelancer?.id}`)
+                        }
                       >
-                        {app.freelancer?.name}
+                        {app.freelancer?.name || app.freelancerId?.fullName || "—"}
                       </span>
                     </p>
-                    <p>Status: {app.status || "Under Review"}</p>
                   </div>
 
-                  {/* Buttons or status display */}
-                  <div className="application-actions">
-                    {app.status === "Under Review" || !app.status ? (
+                  <div className="ma-actions">
+                    {/* Under Review -> show buttons; else pill */}
+                    {(!app.status || app.status === "Under Review") ? (
                       <>
                         <button
                           className="assign"
                           onClick={() =>
                             setConfirmData({
-                              projectId: app.project.id,
-                              freelancerId: app.freelancer.id,
-                              action: 'approve',
-                              message: "Are you sure you want to assign this freelancer?",
+                              projectId: app.project?.id,
+                              freelancerId: app.freelancer?.id,
+                              action: "approve",
+                              message:
+                                "Are you sure you want to assign this freelancer?",
                             })
                           }
                         >
@@ -192,10 +229,11 @@ const ProjectApplications = () => {
                           className="cancel"
                           onClick={() =>
                             setConfirmData({
-                              projectId: app.project.id,
-                              freelancerId: app.freelancer.id,
-                              action: 'reject',
-                              message: "Are you sure you want to cancel this application?",
+                              projectId: app.project?.id,
+                              freelancerId: app.freelancer?.id,
+                              action: "reject",
+                              message:
+                                "Are you sure you want to cancel this application?",
                             })
                           }
                         >
@@ -203,29 +241,35 @@ const ProjectApplications = () => {
                         </button>
                       </>
                     ) : (
-                      <p className={`status-label ${app.status.toLowerCase()}`}>
+                      <button className={pillClass(app.status)}>
                         {app.status}
-                      </p>
+                      </button>
                     )}
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
+  )}
           </div>
-
-          {/* Confirmation modal */}
-          {confirmData && (
-            <ConfirmationModal
-              message={confirmData.message}
-              onConfirm={async () => {
-                await handleAction(confirmData.projectId, confirmData.freelancerId, confirmData.action);
-                setConfirmData(null);
-              }}
-              onCancel={() => setConfirmData(null)}
-            />
-          )}
         </main>
       </div>
+
+      {/* Confirm modal */}
+      {confirmData && (
+        <ConfirmationModal
+          message={confirmData.message}
+          onConfirm={async () => {
+            await handleAction(
+              confirmData.projectId,
+              confirmData.freelancerId,
+              confirmData.action
+            );
+            setConfirmData(null);
+          }}
+          onCancel={() => setConfirmData(null)}
+        />
+      )}
+
       <Footer />
     </div>
   );

@@ -1,255 +1,313 @@
-import React, { useState, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import "../../Style/Clients/PostProject.css"
-import "../../Style/PageContents.css"
-import Navbar from "../../Components/Navbar"
-import { NavConfig3 } from "../../Data/NavbarConfigs"
-import Footer from "../../Components/Footer"
-import axios from "axios"
-import { FiPaperclip } from "react-icons/fi"
-import { showAlert } from '../../utils/toastMessages'
+// src/Pages/Clients/PostProject.jsx
+import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../../Style/Clients/PostProject.css";
+import "../../Style/PageContents.css";
+import Navbar from "../../Components/Navbar";
+import { NavConfig3 } from "../../Data/NavbarConfigs";
+import Footer from "../../Components/Footer";
+import axios from "axios";
+import { FiPaperclip } from "react-icons/fi";
+import { showAlert } from "../../utils/toastMessages";
+import SkillsInput from "../../Components/SkillsInput";
+
+const CATEGORY_OPTIONS = [
+  "Marketing",
+  "Graphic Design",
+  "Content Creation",
+  "Product Design",
+  "Web Design",
+  "Photography",
+  "Video & Motion",
+  "Reports & Presentations"
+];
+
+const TYPE_OPTIONS = [
+  { value: "project", label: "Project" },
+  { value: "campaign", label: "Campaign" },
+];
 
 const PostProject = () => {
-  // Form input states
-  const [projectTitle, setProjectTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [budget, setBudget] = useState("")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [category, setCategory] = useState("")
-  const [projectFiles, setProjectFiles] = useState([]) // Multiple files
-  const [projectImage, setProjectImage] = useState(null) // Single image
+  const [projectTitle, setProjectTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [projectType, setProjectType] = useState("project");
+  const [skills, setSkills] = useState([]);
+  const [budget, setBudget] = useState("");
 
-  // Refs for file inputs
-  const projectFileInput = useRef()
-  const projectImageInput = useRef()
+  const [initialDeadline, setInitialDeadline] = useState("");
+  const [halfDeadline, setHalfDeadline] = useState("");
+  const [finalDeadline, setFinalDeadline] = useState("");
 
-  const navigate = useNavigate()
+  const [projectFiles, setProjectFiles] = useState([]);
+  const [projectImage, setProjectImage] = useState(null);
+  const filesInputRef = useRef(null);
+  const imageInputRef = useRef(null);
 
-  // Handle adding files to the file list
-  const handleProjectFilesChange = (e) => {
-    const files = Array.from(e.target.files)
-    setProjectFiles((prev) => [...prev, ...files])
-    e.target.value = ""
-  }
+  const navigate = useNavigate();
 
-  // Handle setting a preview image
-  const handleProjectImageChange = (e) => {
-    setProjectImage(e.target.files[0])
-    e.target.value = ""
-  }
+  const handleFilesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setProjectFiles((prev) => [...prev, ...files]);
+    e.target.value = "";
+  };
 
-  // Handle form submission
+  const handleImageChange = (e) => {
+    setProjectImage((e.target.files && e.target.files[0]) || null);
+    e.target.value = "";
+  };
+
+  const removeFileAt = (i) =>
+    setProjectFiles((prev) => prev.filter((_, idx) => idx !== i));
+
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    // Get logged-in user ID
-    const storedUser = JSON.parse(localStorage.getItem("user"))
-    const authorId = storedUser?._id
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const authorId = storedUser?._id;
+    if (!authorId) return showAlert("You must be logged in to post a project.");
 
-    if (!authorId) {
-      showAlert("You must be logged in to post a project.")
-      return
-    }
+    if (!category) return showAlert("Please select a project category.");
+    if (skills.length === 0) return showAlert("Please add at least one skill.");
+    if (!initialDeadline || !halfDeadline || !finalDeadline)
+      return showAlert("Please set all three deadlines.");
 
-    // Prepare data to send
-    const formData = new FormData()
-    formData.append("title", projectTitle)
-    formData.append("brief", description)
-    formData.append("budget", budget)
-    formData.append("category", category)
-    formData.append("authorId", authorId)
-    formData.append("status", "Open")
-    formData.append("durationFrom", startDate)
-    formData.append("durationTo", endDate)
+    const formData = new FormData();
+    formData.append("title", projectTitle);
+    formData.append("brief", description);
+    formData.append("category", category);
+    formData.append("projectType", projectType);
+    formData.append("authorId", authorId);
+    formData.append("status", "Open");
 
-    if (projectImage) {
-      formData.append("projectImage", projectImage)
-    }
+    formData.append("initialDeadline", initialDeadline);
+    formData.append("halfDeadline", halfDeadline);
+    formData.append("finalDeadline", finalDeadline);
 
-    // Append each uploaded file
-    projectFiles.forEach((file) => {
-      formData.append("projectFile", file)
-    })
+    formData.append("budget", String(budget || 0));
+    formData.append("skills", JSON.stringify(skills));
+
+    if (projectImage) formData.append("projectImage", projectImage);
+    projectFiles.forEach((f) => formData.append("projectFile", f));
 
     try {
-      // Send POST request to backend
       await axios.post("http://localhost:5000/api/projects/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-      })
-    } catch (uploadError) {
-      console.error(
-        "Project upload failed:",
-        uploadError.response?.data || uploadError.message
-      )
-      showAlert("Failed to post project.")
-      return
+      });
+      showAlert("Project successfully posted!");
+      navigate("/browseprojects");
+  
+    } catch (err) {
+      console.error("Project upload failed:", err?.response?.data || err);
+      showAlert("Failed to post project.");
     }
-
-    showAlert("Project successfully posted!")
-    navigate("/browseprojects")
-  }
+  };
 
   return (
     <div className="post-project-page">
-      {/* Navigation bar for clients */}
       <Navbar links={NavConfig3} />
+      <div className="pp-container">
+        <h1 className="pp-title">
+          <span className="pp-accent">Post a Project</span>
+        </h1>
 
-      <div className="post-project-container">
-        <h2>Post Project</h2>
-
-        {/* Main form */}
-        <form className="post-project-form" onSubmit={handleSubmit}>
-          {/* Project title input */}
-          <label>Project Title*</label>
-          <input
-            type="text"
-            value={projectTitle}
-            onChange={(e) => setProjectTitle(e.target.value)}
-            required
-          />
-
-          {/* Description input */}
-          <label>About this project/Description*</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          ></textarea>
-
-          {/* Budget input */}
-          <label>Budget*</label>
-          <input
-            type="number"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            required
-          />
-
-          {/* Category selection */}
-          <label>Project Category*</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
-            <option value="">Select category</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Graphic Design">Graphic Design</option>
-            <option value="Illustration">Illustration</option>
-            <option value="Illustration">Content Creation</option>
-            <option value="Product Design">Product Design</option>
-            <option value="Web Design">Web Design</option>
-          </select>
-
-          {/* Project status (disabled input + hidden input) */}
-          <label>Project Status</label>
-          <input
-            type="text"
-            value="Open"
-            disabled
-            className="disabled-status-input"
-          />
-          <input type="hidden" name="status" value="Open" />
-
-          {/* Project duration fields */}
-          <label>Timeframe/Duration*</label>
-          <div className="post-project-date-range">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-            />
-            <span className="post-project-to-separator">-</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* File upload section */}
-          <div className="post-project-upload-group">
-            <label>Project Files*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => projectFileInput.current.click()}
-            >
-              Attach Files
-              <FiPaperclip />
-            </button>
-            <input
-              type="file"
-              ref={projectFileInput}
-              onChange={handleProjectFilesChange}
-              multiple
-              hidden
-            />
-
-            {/* List of attached file names */}
-            <div className="post-project-filename-list">
-              {projectFiles.map((file, idx) => (
-                <div key={idx} className="post-project-filename-item">
-                  {file.name}
-                  <button
-                    type="button"
-                    className="post-project-remove-btn"
-                    onClick={() =>
-                      setProjectFiles((prev) => prev.filter((_, i) => i !== idx))
-                    }
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+        <form className="pp-form" onSubmit={handleSubmit}>
+          <div className="pp-grid">
+            {/* Title */}
+            <div className="pp-field">
+              <label>Project Title*</label>
+              <input
+                type="text"
+                value={projectTitle}
+                onChange={(e) => setProjectTitle(e.target.value)}
+                required
+              />
             </div>
-          </div>
 
-          {/* Project image upload section */}
-          <div className="post-project-upload-group">
-            <label>Project Image*</label>
-            <button
-              type="button"
-              className="post-project-button post-project-submit-btn"
-              onClick={() => projectImageInput.current.click()}
-            >
-              Attach Image
-              <FiPaperclip />
-            </button>
-            <input
-              type="file"
-              accept="image/*"
-              ref={projectImageInput}
-              onChange={handleProjectImageChange}
-              hidden
-            />
+            {/* Category */}
+            <div className="pp-field">
+              <label>Project Category*</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+              >
+                <option value="">Select category</option>
+                {CATEGORY_OPTIONS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            {/* Show selected image file */}
-            {projectImage && (
-              <div className="post-project-filename-item post-project-image-preview">
-                {projectImage.name}
+            {/* Brief */}
+            <div className="pp-field1">
+              <label>Project Brief*</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Type + Initial deadline */}
+            <div className="pp-field">
+              <label>Project Type*</label>
+              <select
+                value={projectType}
+                onChange={(e) => setProjectType(e.target.value)}
+                required
+              >
+                {TYPE_OPTIONS.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+              <br />
+              <br />
+              <label>Initial Concept Deadline*</label>
+              <input
+                type="date"
+                value={initialDeadline}
+                onChange={(e) => setInitialDeadline(e.target.value)}
+                required
+              />
+
+              <br></br>
+            </div>
+
+            {/* Skills + Reward + Image (left col) */}
+            <div className="pp-field">
+              <label>Skills*</label>
+              <SkillsInput value={skills} onChange={setSkills} />
+           <small style={{ opacity: 0.6, fontSize:"12px", marginTop: "-20px", marginBottom: "6px",display: "block" }}>
+  Press <strong>Enter</strong> or <strong>,</strong> to add. Backspace removes the last tag.
+</small>
+
+
+
+              <label>Reward*</label>
+              <input
+                min={1}
+                step={1}
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                required
+              />
+
+              <br />
+              <br />
+              <div className="pp-field">
+                <label>Project Images:</label>
                 <button
                   type="button"
-                  className="post-project-remove-btn"
-                  onClick={() => setProjectImage(null)}
+                  className="pp-attach"
+                  onClick={() =>
+                    imageInputRef.current && imageInputRef.current.click()
+                  }
                 >
-                  ×
+                  Attach Image <FiPaperclip className="pp-clip" />
                 </button>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleImageChange}
+                />
+                {projectImage && (
+                  <div className="pp-fileitem pp-imageitem">
+                    <span title={projectImage.name}>{projectImage.name}</span>
+                    <button
+                      type="button"
+                      className="pp-remove"
+                      onClick={() => setProjectImage(null)}
+                      aria-label="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+
+            {/* Right column: other deadlines + files */}
+            <div className="pp-field">
+              <label>50% of the work Deadline*</label>
+              <input
+                type="date"
+                value={halfDeadline}
+                onChange={(e) => setHalfDeadline(e.target.value)}
+                required
+              />
+              <br />
+              <br />
+              <label>Final Submission Deadline*</label>
+              <input
+                type="date"
+                value={finalDeadline}
+                onChange={(e) => setFinalDeadline(e.target.value)}
+                required
+              />
+              <br />
+              <br />
+              <div className="pp-field">
+                <label>Project Files:</label>
+                <button
+                  type="button"
+                  className="pp-attach"
+                  onClick={() =>
+                    filesInputRef.current && filesInputRef.current.click()
+                  }
+                >
+                  Attach Files <FiPaperclip className="pp-clip" />
+                </button>
+                <input
+                  ref={filesInputRef}
+                  type="file"
+                  multiple
+                  hidden
+                  onChange={handleFilesChange}
+                />
+                {projectFiles.length > 0 && (
+                  <div className="pp-filelist">
+                    {projectFiles.map((f, i) => (
+                      <div key={`${f.name}-${i}`} className="pp-fileitem">
+                        <span title={f.name}>{f.name}</span>
+                        <button
+                          type="button"
+                          className="pp-remove"
+                          onClick={() => removeFileAt(i)}
+                          aria-label="Remove file"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="pp-field" />
           </div>
 
-          {/* Submit and cancel buttons */}
-          <div className="post-project-actions">
-            <button type="submit" className="post-project-button post">
+
+          <div className="pp-actions">
+            <button type="submit" className="pp-btn pp-primary"   onClick={() => {
+    // call save function
+    navigate("/client-home"); // then navigate
+  }}
+>
+
+    
               Post
             </button>
             <button
               type="button"
-              className="post-project-button cancel"
+              className="pp-btn pp-secondary"
               onClick={() => navigate(-1)}
             >
               Cancel
@@ -258,10 +316,9 @@ const PostProject = () => {
         </form>
       </div>
 
-      {/* Footer component */}
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default PostProject
+export default PostProject;

@@ -1,53 +1,63 @@
-// src/Pages/StudentGraduate.js
-
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../Style/StudentGraduate.css'; // Styles for this page
-import Graduate from '../Assets/Graduate.png'; 
-import Student from '../Assets/Student.png';
-import Footer from '../Components/Footer';
-import Navbar from '../Components/Navbar';
-import { NavConfig1 } from '../Data/NavbarConfigs';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "../Style/StudentGraduate.css";
+import Footer from "../Components/Footer";
+import Navbar from "../Components/Navbar";
+import { NavConfig1 } from "../Data/NavbarConfigs";
+import { FaFileAlt, FaGraduationCap } from "react-icons/fa";
+import WavesBG from "../Assets/hero-waves1.png";
 
 const StudentGraduate = () => {
-  const navigate = useNavigate(); // Hook to navigate between pages
-
-  // Optional: For NavBar sign in button (if applicable)
-  const handleSignIn = () => {
-    navigate('/freelancer-home');
-  };
+  const navigate = useNavigate();
+  const handleSignIn = () => navigate("/freelancer-home");
 
   return (
-    <div className="container">
-      {/* Top navigation bar for guests */}
+    <div className="sg-container">
       <Navbar links={NavConfig1} onSignIn={handleSignIn} />
 
-      <main className="main">
-        <h1>Are you a Student or a Graduate?</h1>
+      {/* HERO WITH WAVES */}
+      <section className="sg-hero" style={{ backgroundImage: `url(${WavesBG})` }}>
+        <h1 className="sg-title">
+          Are you a Student or a Graduate?
+        </h1>
 
-        {/* Card layout for selection */}
-        <div className="cards">
-          {/* Card for Student Sign Up */}
-          <div className="student-card" onClick={() => navigate('/signup')}>
-            <img src={Student} alt="Student" />
-            <h4>I’m a Student</h4>
-            <p>
-              Join as a current student and explore live projects to grow your portfolio.
-            </p>       
-          </div>
+        <div className="sg-cards">
+          {/* Student tile */}
+          <button
+            className="sg-card sg-card--student"
+            onClick={() => navigate("/signup")}
+            aria-label="Sign up as a student"
+          >
+            <div className="sg-icon-wrap is-accent">
+              <FaFileAlt className="sg-icon" />
+            </div>
+            <div className="sg-card-body">
+              <h3 className="sg-card-title">Student</h3>
+              <p className="sg-card-text">
+                Gain experience, build your portfolio, and work on live projects.
+              </p>
+            </div>
+          </button>
 
-          {/* Card for Graduate Sign Up */}
-          <div className="graduate-card" onClick={() => navigate('/graduatesignup')}>
-            <img src={Graduate} alt="Graduate" />
-            <h4>I’m a Graduate</h4>
-            <p>
-              Sign up as a graduate and collaborate on real-world freelance work.
-            </p>
-          </div>
+          {/* Graduate tile */}
+          <button
+            className="sg-card sg-card--grad"
+            onClick={() => navigate("/graduatesignup")}
+            aria-label="Sign up as a graduate"
+          >
+            <div className="sg-icon-wrap is-teal">
+              <FaGraduationCap className="sg-icon" />
+            </div>
+            <div className="sg-card-body">
+              <h3 className="sg-card-title">Graduate</h3>
+              <p className="sg-card-text">
+                Collaborate on real freelance work and grow your career.
+              </p>
+            </div>
+          </button>
         </div>
-      </main>
+      </section>
 
-      {/* Bottom footer */}
       <Footer />
     </div>
   );

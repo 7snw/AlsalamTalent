@@ -1,144 +1,128 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import RoleProtectedLayout from "./Components/RoleProtectedLayout";
-
 import { ToastContainer } from "react-toastify";
-
 import "react-toastify/dist/ReactToastify.css";
-
+import { useEffect } from "react";
+import { useSessionWatcher } from "./hooks/useSessionWatcher";
 
 import LandingPage from "./Pages/LandingPage";
-
 import StudentGraduate from "./Pages/StudentOrGraduate";
-
 import SignUpPage from "./Pages/SignUpPage";
-
 import GraduateSignUp from "./Pages/GraduateSignUp";
-
 import LoginPage from "./Pages/LoginPage";
-
+import VerifyReset from "./Pages/VerifyReset";
 import AboutUs from "./Pages/AboutUs";
-
+import TermsPage from "./Pages/TermsPage";
+import AskAnswerPage from "./Pages/AskAnswerPage";   // ⬅️ new
+import "./Style/qna.css";       
 // Shared Pages
-
 import Messages from "./Pages/Messages";
-
 import FreelancerProfile from "./Pages/FreelancerProfile";
-
 import FreelancersList from "./Pages/FreelancersList";
 
-
 // Freelancer Pages
-
 import FreelancerHome from "./Pages/Freelancer/FreelancerHome";
-
 import AllProjects from "./Pages/Freelancer/AllProjects";
-
 import AssignedProjects from "./Pages/Freelancer/AssignedProjects";
-
+import BookingSpace from "./Pages/Freelancer/BookingSpace";
 import SavedProjects from "./Pages/Freelancer/SavedProjects";
-
 import MyApplications from "./Pages/Freelancer/MyApplications";
-
 import MyProfile from "./Pages/Freelancer/MyProfile";
-
 import ProfileSettings from "./Pages/Freelancer/ProfileSettings";
-
 import MyProjectsDetails from "./Pages/Freelancer/MyProjectsDetails";
-
 import FreelancerNotifications from "./Pages/Freelancer/FreelancerNotifications";
+import TermsContent from "./Components/TermsContent";
+import PaymentHistory from "./Pages/Freelancer/PaymentHistory";
 
 // Client Pages
-
+import PaymentsLedger from "./Pages/Clients/PaymentsLedger";
+import BookingsTable from "./Pages/Clients/BookingsTable";
 import ClientHome from "./Pages/Clients/ClientHome";
-
 import PostProject from "./Pages/Clients/PostProject";
-
 import AssignedProject from "./Pages/Clients/AssignedProject";
-
 import SubmittedProjects from "./Pages/Clients/SubmittedProjects";
-
 import SubmittedProjectDetailsPage from "./Pages/Clients/SubmittedProjectDetailsPage";
-
 import ProjectApplications from "./Pages/Clients/ProjectApplications";
-
 import AnalyticsClient from "./Pages/Clients/AnalyticsClients";
-
 import BrowseProjects from "./Pages/Clients/BrowseProjects";
-
 import ProjectProgress from "./Pages/Clients/ProjectProgress";
-
 import ProfileSettingsClient from "./Pages/Clients/ProfileSettingsClient";
-
 import ClientNotifications from "./Pages/Clients/ClientNotifications";
-
-import EditProject from "./Pages/EditProject";
-
-import ProjectDetails from "./Pages/ProjectDetails";
+import PostResource from "./Pages/Clients/PostResource";
 
 // Admin Pages
-
 import AdminAllProjects from "./Pages/Admin/AdminAllProjects";
-
 import Clientlist from "./Pages/Admin/UsersList";
-
 import AddUsers from "./Pages/Admin/AddUsers";
-
 import AnalyticsAdmin from "./Pages/Admin/AnalyticsAdmin";
-
 import AdminProfileSettings from "./Pages/Admin/AdminProfileSettings";
-
 import AdminProjectDetails from "./Pages/Admin/AdminProjectDetails";
-
 import EditUserProfile from "./Pages/Admin/EditUserProfile";
-
 import AuditLogs from "./Pages/Admin/AuditLogs";
-
-import VerificationsList from "./Pages/Admin/VerificationsList";
-
+import FreelancersDetails from "./Pages/Admin/FreelancersDetails";
 import AdminNotifications from "./Pages/Admin/AdminNotifications";
 
-//Mock
-import PaymentHistoryM from "./Components/PaymentHistoryMock"
+import EditProject from "./Pages/EditProject";
+import ProjectDetails from "./Pages/ProjectDetails";
+import Library from "./Pages/Library";
+
+
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 const App = () => {
+
+  useSessionWatcher();
+
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
   return (
     <Router>
       <>
+        {/* Toasts (auto close after 3s) */}
         <ToastContainer position="top-right" autoClose={3000} />
+
+        {/* scroll-to-top on every route change */}
+        <ScrollToTop />
+
         <Routes>
           {/* Public */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/studentgraduate" element={<StudentGraduate />} />
           <Route path="/signin" element={<LoginPage />} />
+          <Route path="/verifyReset" element={<VerifyReset />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/graduatesignup" element={<GraduateSignUp />} />
           <Route path="/aboutus" element={<AboutUs />} />
-                      <Route path="/PaymentHistory" element={<PaymentHistoryM/>}/>
-
-
+          <Route path="/library" element={<Library />} />
+          <Route path="/terms" element={<TermsPage />} />
+  <Route path="/ask-answer" element={<AskAnswerPage />} />
           {/* Shared Protected */}
-          <Route
-            element={
-              <RoleProtectedLayout
-                allowedRoles={["Freelancer", "Client", "Admin"]}
-              />
-            }
-          >
+          <Route element={<RoleProtectedLayout allowedRoles={["Freelancer", "Client", "Admin"]} />}>
             <Route path="/messages" element={<Messages />} />
-            <Route
-              path="/freelancerprofile/:id"
-              element={<FreelancerProfile />}
-            />
+            <Route path="/freelancerprofile/:id" element={<FreelancerProfile />} />
             <Route path="/freelancers" element={<FreelancersList />} />
             <Route path="/project-details/:id" element={<ProjectDetails />} />
+
           </Route>
 
           {/* Freelancer */}
-          <Route
-            element={<RoleProtectedLayout allowedRoles={["Freelancer"]} />}
-          >
+          <Route element={<RoleProtectedLayout allowedRoles={["Freelancer"]} />}>
             <Route path="/freelancer-home" element={<FreelancerHome />} />
             <Route path="/allprojects" element={<AllProjects />} />
             <Route path="/Assignedprojects" element={<AssignedProjects />} />
@@ -147,10 +131,10 @@ const App = () => {
             <Route path="/myprofile" element={<MyProfile />} />
             <Route path="/profilesettings" element={<ProfileSettings />} />
             <Route path="/my-project/:id" element={<MyProjectsDetails />} />
-            <Route
-              path="/freelancer-notifications"
-              element={<FreelancerNotifications />}
-            />
+            <Route path="/terms" element={<TermsContent />} />
+            <Route path="/booking" element={<BookingSpace />} />
+            <Route path="/payment" element={<PaymentHistory />} />
+            <Route path="/freelancer-notifications" element={<FreelancerNotifications />} />
           </Route>
 
           {/* Client */}
@@ -161,24 +145,15 @@ const App = () => {
             <Route path="/assignedProject" element={<AssignedProject />} />
             <Route path="/submittedprojects" element={<SubmittedProjects />} />
             <Route path="/assigned-project/:id" element={<ProjectProgress />} />
-            <Route
-              path="/submitted-project/:id"
-              element={<SubmittedProjectDetailsPage />}
-            />
-            <Route
-              path="/project-applications"
-              element={<ProjectApplications />}
-            />
+            <Route path="/payments" element={<PaymentsLedger />} />
+            <Route path="/bookingsTable" element={<BookingsTable />} />
+            <Route path="/submitted-project/:id" element={<SubmittedProjectDetailsPage />} />
+            <Route path="/project-applications" element={<ProjectApplications />} />
             <Route path="/analyticsclient" element={<AnalyticsClient />} />
             <Route path="/edit-project/:id" element={<EditProject />} />
-            <Route
-              path="/profilesettingsclint"
-              element={<ProfileSettingsClient />}
-            />
-            <Route
-              path="/client-notifications"
-              element={<ClientNotifications />}
-            />
+            <Route path="/profilesettingsclint" element={<ProfileSettingsClient />} />
+            <Route path="/client-notifications" element={<ClientNotifications />} />
+            <Route path="/resources" element={<PostResource />} />
           </Route>
 
           {/* Admin */}
@@ -188,17 +163,11 @@ const App = () => {
             <Route path="/analyticsadmin" element={<AnalyticsAdmin />} />
             <Route path="/adminallprojects" element={<AdminAllProjects />} />
             <Route path="/details" element={<AdminProjectDetails />} />
-            <Route
-              path="/adminprofilesettings"
-              element={<AdminProfileSettings />}
-            />
+            <Route path="/adminprofilesettings" element={<AdminProfileSettings />} />
             <Route path="/edituser/:userId" element={<EditUserProfile />} />
             <Route path="/auditlogs" element={<AuditLogs />} />
-            <Route path="/verificationslist" element={<VerificationsList />} />
-            <Route
-              path="/admin-notifications"
-              element={<AdminNotifications />}
-            />
+            <Route path="/freelancersDetails" element={<FreelancersDetails />} />
+            <Route path="/admin-notifications" element={<AdminNotifications />} />
           </Route>
         </Routes>
       </>

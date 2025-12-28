@@ -1,6 +1,6 @@
 .project-details-page {
-    font-family: 'TT Hoves', sans-serif;
-    background-color: #E6E7E8;
+     font-family:var(--font-sans);
+    background-color: #e6f1f5;
     min-height: 100vh;
     padding: 0 6%;
     padding-top: 120px; 
@@ -47,7 +47,7 @@
     background-color: #1B223C;
     color: white;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 20px;
     border: none;
     cursor: pointer;
   }

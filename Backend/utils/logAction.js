@@ -1,25 +1,78 @@
-// utils/logAction.js
 const AuditLog = require('../models/AuditLog');
-const Project = require('../models/Project');
+const Project  = require('../models/Project');
 
-const logAction = async ({ userId, action, details = '', projectId = null }) => {
+async function logAction(reqOrOpts, maybeOpts) {
   try {
-    let finalDetails = details;
+    const looksLikeReq =
+      reqOrOpts &&
+      typeof reqOrOpts === 'object' &&
+      ('headers' in reqOrOpts || 'method' in reqOrOpts);
 
-    if (projectId && !details.includes('project:')) {
-      const project = await Project.findById(projectId).select('title');
-      const projectTitle = project ? project.title : `ID: ${projectId}`;
-      finalDetails += ` | Project: ${projectTitle}`;
+    const req  = looksLikeReq ? reqOrOpts : undefined;
+    const opts = looksLikeReq ? (maybeOpts || {}) : (reqOrOpts || {});
+
+    let {
+      userId: explicitUserId,
+      action,
+      details = '',
+      projectId = null,
+    } = opts;
+
+  
+    const userId =
+      explicitUserId ||
+      req?.userId ||
+      req?.user?._id ||
+      req?.params?.userId ||
+      req?.params?.authorId ||
+      req?.body?.userId ||
+      req?.body?.authorId ||
+      req?.query?.userId;
+
+    if (!projectId) {
+      projectId =
+        req?.params?.projectId ||
+        req?.params?.id ||
+        req?.body?.projectId ||
+        null;
     }
+
+    if (!action) {
+      console.warn('logAction: missing "action" — skipping write');
+      return;
+    }
+    if (!userId) {
+      console.warn('logAction: missing "userId" — skipping write for action:', action);
+      return;
+    }
+
+ 
+    let finalDetails = String(details || '');
+    const mentionsProject = /\bproject\s*:/i.test(finalDetails);
+
+    if (projectId && !mentionsProject) {
+      try {
+        const project = await Project.findById(projectId).select('title').lean();
+        const label = project?.title ? project.title : `ID: ${projectId}`;
+        finalDetails = finalDetails ? `${finalDetails} | Project: ${label}` : `Project: ${label}`;
+      } catch {
+        finalDetails = finalDetails ? `${finalDetails} | Project: ID: ${projectId}` : `Project: ID: ${projectId}`;
+      }
+    }
+
+    const ip = req?.ip || req?.headers?.['x-forwarded-for'];
+    const ua = req?.headers?.['user-agent'];
 
     await AuditLog.create({
       userId,
       action,
-      details: finalDetails
+      details: finalDetails,
+      ip,
+      ua,
     });
   } catch (err) {
     console.error('Failed to log audit entry:', err);
   }
-};
+}
 
 module.exports = logAction;

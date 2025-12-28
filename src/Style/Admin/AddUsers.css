@@ -1,6 +1,6 @@
 .add-user-page {
-    background-color: #E6E7E8;
-   font-family: 'TT Hoves', sans-serif;
+    background-color: #e6f1f5;
+     font-family:var(--font-sans);
     min-height: 100vh;
     padding: 0 91px;
     padding-bottom: 0px;
@@ -12,12 +12,13 @@
     gap: 50px;
     margin-left: 330px;
    max-width: 1000px;
-   margin-bottom: 100px;
+   margin-bottom: -180px;
 
  
   }
   
   .Adduser h2{
+   
     margin-left: 212px;
   }
   
@@ -58,7 +59,7 @@
   }
   
   .add-user-form {
-    background-color: #f7f7f7;
+    background-color: #ffffff;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
@@ -68,7 +69,7 @@
   }
   
   .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 1px;
    
   }
   
@@ -86,22 +87,23 @@
     padding: 8px 12px;      /* smaller padding inside inputs */
     border-radius: 6px;
     border: 1px solid #ccc;
-    background-color: #efefef;
+    background-color: #eef4f7;
     font-size: 13px;
     margin-bottom: 8px;
-    background-color: #efefef;
+  
   }
   
   .add-btn {
     background-color: #1b223c;
     color: white;
     border: none;
-    padding: 10px 30px;
-    border-radius: 18px;
+    padding: 8px 25px;
+   border-radius: 20px;
     font-size: 14px;
     cursor: pointer;
     float: left;
     margin-top: 10px;
+  
   }
 
   .option-form-group input,
@@ -111,10 +113,10 @@
     padding: 8px 12px;      /* smaller padding inside inputs */
     border-radius: 6px;
     border: 1px solid #ccc;
-    background-color: #efefef;
+ 
     font-size: 13px;
     margin-bottom: 8px;
-    background-color: #efefef;
+    background-color: #eef4f7;
 
   }
   

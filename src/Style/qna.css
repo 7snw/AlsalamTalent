@@ -1,0 +1,538 @@
+/* PAGE WRAPPER (similar to sp-page) */
+.qa-page {
+  position: relative;
+  background: #e6f1f5;        /* light content area */
+  padding-top: 35px;       /* clear fixed navbar */
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Layout container (similar to sp-container) */
+.qa-container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 28px;
+  padding: 0 7%;
+  min-height: 70vh;
+  padding-bottom: 100px;
+}
+
+/* Left column (similar to sp-filter) */
+.qa-filter {
+  width: 280px;
+  flex: 0 0 280px;
+}
+
+/* Right column (similar to sp-content) */
+.qa-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* TITLE */
+.qa-title {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #071530;
+  margin: 0 0 10px;
+  margin-top: 90px;
+  margin-left: 15px;
+}
+
+.qa-title-accent {
+  color: #f1633a;
+}
+
+/* FILTER CARD */
+.qa-filter-box {
+  margin-top: 0;
+  color: #0f1b2d;
+  border-radius: 18px;
+  padding: 18px 16px 14px;
+}
+
+.qa-filter-heading {
+  margin: 0 0 2px;
+}
+
+.qa-filter-hint {
+  margin: 0 0 10px;
+  opacity: 0.85;
+  font-size: 13px;
+}
+
+.qa-filter-group {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* category chip buttons */
+.qa-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(7, 21, 48, 0.16);
+  background: #ffffff;
+  color: #071530;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.qa-filter-chip-active {
+  background: #071530;
+  color: #ffffff;
+  border-color: #071530;
+}
+
+.qa-filter-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(7, 21, 48, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+/* TOP ROW: search + status + ask button */
+.qa-top-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 86px;
+}
+
+/* search (similar to sp-search) */
+.qa-search {
+  position: relative;
+  max-width: 900px;
+}
+
+.qa-search input {
+  width: 100%;
+  background: #ffffff;
+  border: none;
+  outline: none;
+  border-radius: 26px;
+  padding: 13px 46px 13px 16px;
+  font-size: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.qa-search img {
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  opacity: 0.8;
+ 
+}
+
+/* top right actions (status toggle + ask button) */
+.qa-top-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* status toggle (adapted from previous qna-css) */
+.qa-status-toggle {
+  display: flex;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(7, 21, 48, 0.08);
+  gap: 4px;
+}
+
+.qa-status-pill {
+  border-radius: 999px;
+  border: none;
+  padding: 4px 16px;
+  font-size: 11px;
+  cursor: pointer;
+  background: transparent;
+  color: #071530;
+}
+
+.qa-status-pill-active {
+  background: #071530;
+  color: #ffffff;
+}
+
+/* ask button on top row */
+.qa-button-ask {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #f1633a;
+  color: #ffffff;
+  cursor: pointer;
+  margin-right: 30px;
+}
+
+/* LIST + CARDS */
+.qa-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qa-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: stretch;
+  width: 93%;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.qa-card-main {
+  flex: 1;
+}
+
+.qa-card-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-width: 180px;
+}
+
+.qa-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #071530;
+  margin: 0 0 4px;
+}
+
+.qa-card-details {
+  font-size: 12px;
+  color: #7c7c7c;
+  margin: 0;
+}
+
+/* tags */
+.qa-tags {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.qa-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #cbe4ee;
+  color: #071530;
+}
+
+/* answer / status */
+.qa-button-answer {
+  border-radius: 999px;
+  border: none;
+  padding: 6px 22px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #071530;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.qa-status-badge {
+  border-radius: 999px;
+  padding: 6px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.qa-status-badge-answered {
+  background: #f5fffa;
+  border-color: #6ec6a6;
+  color: #6ec6a6;
+}
+
+.qa-status-badge-open {
+  background: #ffffff;
+  border-color: #071530;
+  color: #071530;
+}
+
+/* user info */
+.qa-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+
+.qa-user-text {
+  text-align: right;
+}
+
+.qa-user-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #071530;
+}
+
+.qa-user-role {
+  font-size: 10px;
+  color: #9f9f9f;
+  text-transform: capitalize;
+}
+
+.qa-empty-title {
+  width: 100%;
+  text-align: center;
+  opacity: 0.85;
+  color: #f1633a;
+}
+
+/* MODALS: keep existing qna modal classes from your previous CSS
+   (qna-modal-backdrop, qna-modal, qna-modal-header, etc.).
+   They already work with AskQuestionModal / AnswerQuestionModal.
+*/
+
+/* Responsive */
+@media (max-width: 980px) {
+  .qa-container {
+    padding: 0 5%;
+    flex-direction: column;
+  }
+
+  .qa-filter {
+    width: 100%;
+  }
+
+  .qa-title {
+    margin-top: 30px;
+  }
+
+  .qa-top-row {
+    margin-top: 24px;
+  }
+}
+/* ---------- Q&A MODAL OVERLAY (covers navbar) ---------- */
+.qna-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);  /* dim entire screen, incl. navbar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;                    /* higher than navbar z-index */
+}
+
+/* Modal card */
+.qna-modal {
+  background: #ffffff;
+  border-radius: 24px;
+  max-width: 680px;
+  width: 100%;
+  padding: 24px 32px 24px;
+  box-shadow: 0 16px 40px rgba(7, 21, 48, 0.2);
+}
+
+/* Header */
+.qna-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.qna-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #071530;
+}
+
+.qna-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  color: #999999;
+  cursor: pointer;
+}
+
+.qna-modal-close:hover {
+  color: #071530;
+}
+
+.qna-modal-subtitle {
+  font-size: 11px;
+  color: #777777;
+  margin-bottom: 16px;
+}
+
+/* Error bar */
+.qna-modal-error {
+  font-size: 11px;
+  color: #b00020;
+  background: #ffe5e8;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Form layout */
+.qna-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qna-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qna-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.qna-form-row .half {
+  flex: 1;
+}
+
+/* Labels & fields */
+.qna-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #071530;
+}
+
+.qna-input,
+.qna-textarea,
+.qna-input select {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 8px 10px;
+  font-size: 13px;
+  resize: none;
+  font-family: inherit;
+}
+
+.qna-textarea {
+  min-height: 120px;
+}
+
+.qna-input:focus,
+.qna-textarea:focus,
+.qna-input select:focus {
+  outline: 2px solid #f1633a;
+  border-color: #f1633a;
+}
+
+/* Bottom actions (buttons) */
+.qna-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* Secondary button (Cancel) */
+.qna-button-secondary {
+  border-radius: 999px;
+  border: 1px solid #071530;
+  background: #ffffff;
+  color: #071530;
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.qna-button-secondary:hover {
+  background: #071530;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(7, 21, 48, 0.2);
+}
+
+/* Primary button (Post Question / Submit Answer) */
+.qna-button-primary {
+  border-radius: 999px;
+  border: none;
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #f1633a;   /* ctrlZ orange */
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.qna-button-primary:hover {
+  background: #e25429;
+  box-shadow: 0 4px 12px rgba(241, 99, 58, 0.4);
+}
+
+.qna-button-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(241, 99, 58, 0.35);
+}
+
+.qna-button-primary:disabled,
+.qna-button-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Question preview in Answer modal */
+.qna-question-preview {
+  border-radius: 8px;
+  border: 1px dashed #d3d3d3;
+  background: #fafafa;
+  padding: 10px 12px;
+  margin: 8px 0 14px 0;
+}
+
+.qna-question-preview-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #071530;
+  margin-bottom: 4px;
+}
+
+.qna-question-preview-text {
+  font-size: 11px;
+  color: #777777;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .qna-modal {
+    max-width: 95%;
+    padding: 20px 18px;
+  }
+
+  .qna-modal-actions {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}

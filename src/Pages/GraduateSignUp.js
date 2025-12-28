@@ -1,226 +1,444 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../Style/GraduateSignUp.css';
-import { FaArrowLeft } from 'react-icons/fa';
-import axios from 'axios';
-import { showAlert } from '../utils/toastMessages';
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../Style/GraduateSignUp.css";
+import axios from "axios";
+import { showAlert } from "../utils/toastMessages";
+import LandingPage from "./LandingPage";
+import TermsContent from "../Components/TermsContent";
 
-// List of expertise options for dropdown
+/* ---------- API bases (CRA/Webpack safe) ---------- */
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  window.__API_BASE__ || // optional runtime override
+  "http://localhost:5000";
+
+const FREELANCER_API =
+  process.env.REACT_APP_FREELANCER_API ||
+  `${API_BASE}/api/freelancer`;
+
+/* ---------- Options ---------- */
 const expertiseOptions = [
   "Marketing",
-  "Graphic Designer",
-  "Illustrator",
-  "Web Developer",
-  "UX/UI Designer",
-  "Content Creator"
+  "Graphic Design",
+  "Content Creation",
+  "Product Design",
+  "Web Design",
+  "Photography",
+  "Video & Motion",
+  "Reports & Presentations",
 ];
 
-const GraduateSignUp = () => {
-  // Form data state
-  const [formData, setFormData] = useState({
-    studentId: '',
-    fullName: '',
-    email: '',
-    password: '',
-    major: '',
-    phone: '',
-    cpr: null,
-    expertise: []
-  });
+const majors = [
+  "School of ICT",
+  "School of Creative Media",
+  "School of Business",
+  "School of Logistics",
+  "School of Engineering",
+  "School of Foundation",
+];
 
-  const [cprFileName, setCprFileName] = useState('');
-  const [isPolyStudent, setIsPolyStudent] = useState(null);
-  const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
-  const [showMajorDropdown, setShowMajorDropdown] = useState(false);
-  const navigate = useNavigate();
+/* ---------- Helpers (IBAN + CV) ---------- */
+const normalizeIban = (s = "") => s.replace(/\s+/g, "").toUpperCase();
+const isValidBHIban = (s = "") => /^BH\d{2}[A-Z]{4}\d{14}$/.test(normalizeIban(s));
+const formatIban = (s = "") => normalizeIban(s).replace(/(.{4})/g, "$1 ").trim();
 
-  // Handle input field changes (text, file, dropdown)
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+const CV_MAX_BYTES = 10 * 1024 * 1024;
+const CV_ALLOWED = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
-    // Validate student ID format and range
-    if (name === 'studentId') {
-      if (value === '') {
-        setIsPolyStudent(null);
-      } else {
-        const year = parseInt(value.substring(0, 4), 10);
-        const validFormat = /^\d{9}$/.test(value);
-        setIsPolyStudent(validFormat && year >= 2008 && year <= new Date().getFullYear());
-      }
-    }
+/* ===== Terms modal (reuses TermsContent) ===== */
+const GsTermsModal = ({ open, onClose, onAccept }) => {
+  const boxRef = useRef(null);
+  const [atEnd, setAtEnd] = useState(false);
+  const [checked, setChecked] = useState(false);
 
-    // Display file name after selection
-    if (name === 'cpr' && files.length) {
-      setCprFileName(files[0].name);
-    }
+  useEffect(() => {
+    if (!open) { setAtEnd(false); setChecked(false); }
+  }, [open]);
 
-    // Update form data state
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'cpr' ? files[0] : value
-    }));
+  const onScroll = (e) => {
+    const el = e.currentTarget;
+    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 8;
+    setAtEnd(nearBottom);
   };
 
-  // Toggle selection for multiple expertise options
-  const handleExpertiseChange = (value) => {
-    setFormData(prev => {
-      const isSelected = prev.expertise.includes(value);
-      const updated = isSelected
-        ? prev.expertise.filter(item => item !== value)
-        : [...prev.expertise, value];
-      return { ...prev, expertise: updated };
-    });
-  };
+  if (!open) return null;
 
-  // Submit form and send data to backend
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  return (
+    <div className="gs-tc-overlay" role="dialog" aria-modal="true" onClick={onClose}>
+      <div className="gs-tc-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="gs-tc-head">
+          <h3>Terms &amp; Conditions</h3>
+          <button className="gs-tc-x" aria-label="Close" onClick={onClose}>×</button>
+        </div>
+        <div className="gs-tc-body" onScroll={onScroll} ref={boxRef}>
+          <TermsContent hideTitle />
+          <div style={{ height: 16 }} />
+        </div>
+        <div className={`gs-tc-consent ${atEnd ? "show" : ""}`}>
+          <label className="gs-tc-check">
+            <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} />
+            <span>I read, I understand, and I agree to the Terms &amp; Conditions</span>
+          </label>
+        </div>
+        <div className="gs-tc-actions">
+          <button className="gs-tc-accept" disabled={!checked} onClick={() => { onAccept(); onClose(); }}>
+            Accept
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-    // Check student ID validity again before submission
-    const year = parseInt(formData.studentId.substring(0, 4), 10);
-    if (year < 2008 || year > new Date().getFullYear()) {
-      showAlert('Invalid Student ID');
-      return;
-    }
+/* --------------------------- OTP Modal --------------------------- */
+const OtpModal = ({ open, onClose, regId, email }) => {
+  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
 
-    // Prepare form data for multipart upload
-    const form = new FormData();
-    form.append('userType', 'Graduate');
-    form.append('studentId', formData.studentId);
-    form.append('fullName', formData.fullName);
-    form.append('email', formData.email);
-    form.append('password', formData.password);
-    form.append('major', formData.major);
-    form.append('phone', formData.phone);
-    form.append('expertise', JSON.stringify(formData.expertise));
-    form.append('cpr', formData.cpr);
+  useEffect(() => { if (!open) setCode(""); }, [open]);
+  if (!open) return null;
 
+  const verify = async () => {
+    if (!/^\d{6}$/.test(code)) return showAlert("Enter the OTP code.");
     try {
-      // Submit to backend
-      const response = await axios.post(
-        'http://localhost:5000/api/freelancer/graduate-register',
-        form,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        }
+      setLoading(true);
+      const res = await axios.post(
+        `${API_BASE}/verify-otp`,
+        { regId, code },
+        { withCredentials: true }
       );
+      showAlert(res.data?.message || "Verified!");
+      window.location.href = "/signin";
+    } catch (e) {
+      showAlert(e.response?.data?.message || "Verification failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      if (response.status === 200 || response.status === 201) {
-        showAlert('Account Created! Waiting for admin verification.');
-
-        // Send admin notification after registration
-        try {
-          await axios.post("http://localhost:5000/api/notifications/send", {
-            userType: "admin",
-            subject: "New Graduate Freelancer Signup",
-            message: `${formData.fullName} has registered as a graduate freelancer and is awaiting approval.`,
-            type: "info"
-          });
-        } catch (notifyErr) {
-          console.warn("Admin notification failed:", notifyErr.message);
-        }
-
-        navigate('/signin');
-      }
-    } catch (error) {
-      console.error('Graduate signup failed:', error.response?.data || error.message);
-      showAlert(error.response?.data?.message || 'Signup failed.');
+  const resend = async () => {
+    try {
+      setResending(true);
+      await axios.post(`${API_BASE}/resend-otp`, { regId });
+      showAlert("OTP resent to your email.");
+    } catch (e) {
+      showAlert(e.response?.data?.message || "Failed to resend OTP.");
+    } finally {
+      setResending(false);
     }
   };
 
   return (
-    <div className="graduate-body">
-      <div className="graduate-container">
-        {/* Back button */}
-        <button className="back-btn" onClick={() => navigate('/studentgraduate')}>
-          <FaArrowLeft />
-        </button>
+    <div className="otp-overlay" role="dialog" aria-modal="true" onClick={onClose}>
+      <div className="otp-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="otp-head">
+          <h3>Email Verification</h3>
+          <button className="otp-x" aria-label="Close" onClick={onClose}>×</button>
+        </div>
+        <div className="otp-body">
+          <p>We sent a 6-digit code to <strong>{email}</strong>. Enter it below to activate your account.</p>
+          <input
+            className="otp-input"
+            type="text"
+            inputMode="numeric"
+            maxLength={6}
+            placeholder="______"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+          />
+          <div className="otp-actions">
+            <button onClick={verify} disabled={loading} className="otp-primary">
+              {loading ? "Verifying…" : "Verify"}
+            </button>
+            <button onClick={resend} disabled={resending} className="otp-secondary">
+              {resending ? "Resending…" : "Resend code"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        {/* Signup Form */}
-        <h2>Create your Account</h2>
-        <form onSubmit={handleSubmit} className="graduate-form">
-          {/* Left Column Fields */}
-          <div className="graduate-left-fields">
+/* ------------------------------ Page ------------------------------ */
+const GraduateSignUp = () => {
+  const [formData, setFormData] = useState({
+    studentId: "", fullName: "", email: "", password: "",
+    major: "", phone: "", iban: "", expertise: [], agreeTerms: false,
+    cpr: ""
+  });
+  const [cvFile, setCvFile] = useState(null);
+
+  const [showExpertiseDropdown, setShowExpertiseDropdown] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // CPR verification state
+  const [verifyingCPR, setVerifyingCPR] = useState(false);
+  const [cprVerified, setCprVerified] = useState(false);
+  const [verifyMsg, setVerifyMsg] = useState("");
+
+  const [otpModal, setOtpModal] = useState({ open: false, regId: null });
+
+  const expertiseRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onDown = (e) => {
+      if (showExpertiseDropdown && expertiseRef.current && !expertiseRef.current.contains(e.target)) {
+        setShowExpertiseDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [showExpertiseDropdown]);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") navigate("/landingpage"); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [navigate]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (name === "iban") {
+      const formatted = formatIban(value);
+      setFormData((p) => ({ ...p, iban: formatted }));
+      return;
+    }
+    if (name === "cpr" && cprVerified) {
+      setCprVerified(false);
+      setVerifyMsg("");
+    }
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+  };
+
+  const handleExpertiseChange = (value) => {
+    setFormData((prev) => {
+      const has = prev.expertise.includes(value);
+      return { ...prev, expertise: has ? prev.expertise.filter((v) => v !== value) : [...prev.expertise, value] };
+    });
+  };
+
+  const handleCvChange = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return setCvFile(null);
+    if (!CV_ALLOWED.includes(f.type)) { showAlert("Please upload a PDF, DOC, or DOCX file."); e.target.value = ""; return; }
+    if (f.size > CV_MAX_BYTES) { showAlert("CV must be 10MB or less."); e.target.value = ""; return; }
+    setCvFile(f);
+  };
+
+  // call backend proxy to verify CPR and auto-fill fields
+  const verifyCPR = async (cpr) => {
+    const endpoint = `${API_BASE}/api/verify-graduate`;// same-origin to backend
+    const r = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpr })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data?.error || "Verification failed");
+    return data; // { CPR, Student_ID, Student_Name, Programme, Graduated, Graduation_Year, ... }
+  };
+
+  const handleCprBlur = async () => {
+    const cpr = String(formData.cpr || "").trim();
+    if (!cpr) return;
+    if (!/^\d{9}$/.test(cpr)) {
+      setCprVerified(false);
+      setVerifyMsg("Invalid CPR format (must be 9 digits).");
+      return showAlert("Invalid CPR format (must be 9 digits).");
+    }
+    try {
+      setVerifyingCPR(true);
+      setVerifyMsg("Verifying CPR…");
+      const data = await verifyCPR(cpr);
+      if (data?.Graduated === "Yes") {
+        setFormData((p) => ({
+          ...p,
+          studentId: data.Student_ID || p.studentId,
+          fullName: data.Student_Name || p.fullName,
+          major: data.Programme || p.major
+        }));
+        setCprVerified(true);
+        setVerifyMsg(`Verified: ${data.Student_Name || "Graduate"} (${data.Programme || "Programme"})`);
+        showAlert("Verified with Bahrain Polytechnic!");
+      } else {
+        setCprVerified(false);
+        setVerifyMsg("This CPR is not registered as a graduate.");
+        showAlert("This CPR is not registered as a graduate.");
+      }
+    } catch (err) {
+      setCprVerified(false);
+      setVerifyMsg(err.message || "Verification failed.");
+      showAlert(err.message || "Verification failed.");
+    } finally {
+      setVerifyingCPR(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.fullName.trim()) return showAlert("Full Name is required.");
+    if (formData.password.length < 8) return showAlert("Password must be at least 8 characters long.");
+    if (!formData.major) return showAlert("Please select your Major.");
+    if (!/^[0-9]{8}$/.test(formData.phone)) return showAlert("Phone number must be exactly 8 digits.");
+    if (formData.expertise.length === 0) return showAlert("Please select at least one area of expertise.");
+    if (!formData.agreeTerms) return showAlert("Please accept the Terms & Conditions to continue.");
+    if (!formData.cpr.trim()) return showAlert("CPR is required.");
+
+    const cleanIban = normalizeIban(formData.iban);
+    if (formData.iban && !isValidBHIban(formData.iban)) return showAlert("Please enter a valid Bahrain IBAN.");
+
+    try {
+      setSubmitting(true);
+
+      // Optional UX: force a CPR check before submit (backend still enforces)
+      if (!cprVerified) {
+        await handleCprBlur();
+        if (!cprVerified) return;
+      }
+
+      const fd = new FormData();
+      fd.append("studentId", formData.studentId);
+      fd.append("fullName", formData.fullName);
+      fd.append("email", formData.email);
+      fd.append("password", formData.password);
+      fd.append("major", formData.major);
+      fd.append("phone", formData.phone);
+      fd.append("iban", cleanIban);
+      fd.append("cpr", formData.cpr);
+      fd.append("expertise", JSON.stringify(formData.expertise));
+      if (cvFile) fd.append("cv", cvFile);
+
+      const res = await axios.post(`${FREELANCER_API}/graduate-register`, fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      if (res.status === 200 || res.status === 201) {
+        showAlert("OTP sent to your email.");
+        setOtpModal({ open: true, regId: res.data.regId });
+      }
+    } catch (err) {
+      showAlert(err.response?.data?.message || "Signup failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="gs-body">
+      <div className="gs-bg-live" aria-hidden="true"><LandingPage /></div>
+      <div className="gs-dim" aria-hidden="true" onClick={() => navigate("/landingpage")} />
+
+      <div className="gs-container" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+        <h2 className="gs-title">Create your Account</h2>
+
+        <form onSubmit={handleSubmit} className="gs-form">
+          {/* LEFT */}
+          <div className="gs-col">
             <div>
-              <label>Student ID</label>
-              <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} required />
-              {isPolyStudent === false && (
-                <p style={{ color: 'red', marginTop: '4px' }}></p>
-              )}
+              <label>Student ID {cprVerified && "(verified)"}</label>
+              <input
+                type="text"
+                name="studentId"
+                value={formData.studentId}
+                onChange={handleChange}
+                readOnly={cprVerified}
+              />
             </div>
+
             <div>
-              <label>Full Name</label>
-              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
+              <label>Full Name {cprVerified && "(verified)"}</label>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+                readOnly={cprVerified}
+              />
             </div>
+
             <div>
               <label>Email</label>
               <input type="email" name="email" value={formData.email} onChange={handleChange} required />
             </div>
+
             <div>
               <label>Password</label>
               <input type="password" name="password" value={formData.password} onChange={handleChange} minLength="8" required />
             </div>
+
+            <div>
+              <label>CPR</label>
+              <div className="gs-cpr-row">
+                <input
+                  type="text"
+                  name="cpr"
+                  value={formData.cpr}
+                  onChange={handleChange}
+                  onBlur={handleCprBlur}
+                  inputMode="numeric"
+                  pattern="\d{9}"
+                  placeholder="9 digits"
+                  required
+                />
+                <button
+                  type="button"
+                  className="gs-cpr-verify"
+                  onClick={handleCprBlur}
+                  disabled={verifyingCPR || !/^\d{9}$/.test(String(formData.cpr || ""))}
+                  aria-busy={verifyingCPR}
+                >
+                  {verifyingCPR ? "Verifying…" : cprVerified ? "Verified" : "Verify"}
+                </button>
+              </div>
+              {verifyMsg && <p className={`gs-cpr-msg ${cprVerified ? "ok" : "err"}`}>{verifyMsg}</p>}
+            </div>
           </div>
 
-          {/* Divider */}
-          <div className="graduate-divider"></div>
+          <div className="gs-divider" aria-hidden="true" />
 
-          {/* Right Column Fields */}
-          <div className="graduate-right-fields">
-            {/* Major Dropdown */}
-            <div className="major-field">
-              <p>Major</p>
-              <div className="major-display" onClick={() => setShowMajorDropdown(!showMajorDropdown)}>
-                {formData.major || "Select Major"}
-              </div>
-              {showMajorDropdown && (
-                <div className="major-dropdown-list">
-                  {[
-                    "School of ICT",
-                    "School of Creative Media",
-                    "School of Business",
-                    "School of Logistics & Maritime Studies",
-                    "School of Engineering",
-                    "School of Foundation",
-                  ].map((option, index) => (
-                    <div
-                      key={index}
-                      className="major-option"
-                      onClick={() => {
-                        setFormData((prev) => ({ ...prev, major: option }));
-                        setShowMajorDropdown(false);
-                      }}
-                    >
-                      {option}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Phone Number */}
+          {/* RIGHT */}
+          <div className="gs-col">
             <div>
-              <label>Contact Number</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
+              <label>Major {cprVerified && "(verified)"}</label>
+              <select
+                name="major"
+                value={formData.major}
                 onChange={handleChange}
-                pattern="\d{8}"
+                className="gs-select"
                 required
-              />
+                disabled={cprVerified}
+              >
+                <option value="">Select Major</option>
+                {majors.map((m) => <option key={m} value={m}>{m}</option>)}
+              </select>
             </div>
 
-            {/* Expertise Multi-select Dropdown */}
-            <div className="expertiseer0">
+            <div className="gs-expertise" ref={expertiseRef}>
               <p>Expertise</p>
-              <div className="expertise-display0" onClick={() => setShowExpertiseDropdown(!showExpertiseDropdown)}>
-                {formData.expertise?.length ? formData.expertise.join(', ') : 'Select Expertise'}
+              <div
+                className="gs-expertise-trigger"
+                onClick={() => setShowExpertiseDropdown((s) => !s)}
+                role="button"
+                aria-expanded={showExpertiseDropdown}
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setShowExpertiseDropdown((s) => !s)}
+              >
+                {formData.expertise.length ? formData.expertise.join(", ") : "Select Expertise"}
               </div>
               {showExpertiseDropdown && (
-                <div className="expertise-dropdown-list0">
-                  {expertiseOptions.map((option, index) => (
-                    <label key={index} className="expertise-checkbox-item0">
+                <div className="gs-expertise-list">
+                  {expertiseOptions.map((option) => (
+                    <label key={option} className="gs-expertise-item">
                       <input
                         type="checkbox"
                         checked={formData.expertise.includes(option)}
@@ -229,32 +447,71 @@ const GraduateSignUp = () => {
                       <span>{option}</span>
                     </label>
                   ))}
-                  {/* Done / Clear buttons */}
-                  <div className="expertise-dropdown-actions0">
-                    <button className="close-expertise-dropdown0" type="button" onClick={() => setShowExpertiseDropdown(false)}>Done</button>
-                    <button className="clear-expertise-dropdown0" type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: [] }))}>Clear</button>
-                  </div>
                 </div>
               )}
             </div>
 
-            {/* CPR Upload */}
-            <div className="graduate-file-upload-wrapper">
-              <label htmlFor="cpr-upload">Upload CPR</label>
-              <input id="cpr-upload" type="file" name="cpr" accept="image/*" onChange={handleChange} required />
-              {cprFileName && <p style={{ fontSize: '12px', color: '#555' }}></p>}
+            <div>
+              <label>IBAN Number</label>
+              <input
+                type="text"
+                name="iban"
+                value={formData.iban}
+                onChange={handleChange}
+              />
             </div>
 
-            {/* Submit button */}
-            <button type="submit" className="graduate-create-btn">Create</button>
+            <div>
+              <label>Contact Number</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                pattern="[0-9]{8}"
+                inputMode="numeric"
+                required
+              />
+            </div>
+
+            <div className="gs-file">
+              <label>Upload CV</label>
+              <input type="file" accept=".pdf,.doc,.docx" onChange={handleCvChange} />
+            </div>
+
+            <button type="submit" className="gs-create" disabled={submitting || !formData.agreeTerms}>
+              {submitting ? "Creating…" : "Create"}
+            </button>
           </div>
         </form>
 
-        {/* Sign-in redirect */}
-        <p className="graduate-signin-link">
-          I have an account? <span onClick={() => navigate('/signin')}>Sign In</span>
+        <div className="gs-terms center">
+          <input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleChange} />
+          <span>
+            I read, I understand, and I agree to the{" "}
+            <button type="button" className="gs-terms-link" onClick={() => setShowTerms(true)}>
+              Terms &amp; Conditions
+            </button>
+          </span>
+        </div>
+
+        <p className="gs-signin">
+          I have an account? <span onClick={() => navigate("/signin")}>Sign In</span>
         </p>
       </div>
+
+      <GsTermsModal
+        open={showTerms}
+        onClose={() => setShowTerms(false)}
+        onAccept={() => setFormData((p) => ({ ...p, agreeTerms: true }))}
+      />
+
+      <OtpModal
+        open={otpModal.open}
+        onClose={() => setOtpModal({ open: false, id: null })}
+        regId={otpModal.regId}
+        email={formData.email}
+      />
     </div>
   );
 };

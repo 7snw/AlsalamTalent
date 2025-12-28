@@ -30,8 +30,16 @@ const applicationSchema = new mongoose.Schema({
   },
   reviewedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Admin' // or 'Client', depending who reviews
+    ref: 'Admin'
+  },
+  paymentInfo: {
+    subject: String,
+    iban: String,
+    accountNumber: String,
+    description: String,
+    amount: String,
   }
+  
 }, { timestamps: true });
 
 module.exports = mongoose.model('Application', applicationSchema);

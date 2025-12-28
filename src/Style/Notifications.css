@@ -1,6 +1,6 @@
 .notifications-page {
-    background-color: #e6e7e8;
-  font-family: 'TT Hoves', sans-serif;
+    background-color: #e6f1f5;
+   font-family:var(--font-sans);
     min-height: 100vh;
     margin-left:30px;
     margin-right: 30px;
@@ -11,16 +11,16 @@
   .notifications-container {
     width: 80%;
     margin: auto;
-    margin-bottom: 1000px;
+      margin-bottom: 500px;
 
     
   }
   
   .notifications-container h2 {
-    font-size: 26px;
+    font-size: 29px;
     color: #1b223c;
-    margin-bottom: 20px;
-    margin-top: 3px;
+    margin-bottom: -10px;
+    margin-top: 10px;
   }
   
   .notification-list {
@@ -40,7 +40,7 @@
   
   .bell-icon1 {
     font-size: 20px;
-    color: #1b223c;
+    color: #f1633a;
     margin-top: 1px;
     height: 27px;
     width: 27px;
@@ -52,3 +52,83 @@
     color: #1b223c;
   }
   
+  .notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+
+.notif-icon-wrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notif-icon {
+  width: 35px;
+  height: 35px;
+}
+
+.notification-content p {
+  margin: 4px 0;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #808ea5;
+}
+
+/* Header layout */
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Segmented control (like your image) */
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid #0d1a33;        /* dark outline */
+  border-radius: 999px;                /* pill */
+  overflow: hidden;
+  height: 30px;    
+                  /* tall like screenshot */
+}
+
+.seg-option {
+  appearance: none;
+  background: #ffffff;
+  color: #0d1a33;
+  border: none;
+  padding: 0 20px;
+  height: 100%;
+  font-size: 13px;                     /* big text like screenshot */
+  line-height: 1;
+  cursor: pointer;
+}
+
+.seg-option + .seg-option {
+  border-left: 1px solid rgba(13,26,51,0.2); /* divider line */
+}
+
+.seg-option.active {
+  background: #0d1a33;  /* deep navy for active */
+  color: #ffffff;
+}

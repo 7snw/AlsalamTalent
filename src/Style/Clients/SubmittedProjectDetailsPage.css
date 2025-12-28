@@ -1,6 +1,6 @@
 .submitted-details-page {
-  font-family: 'TT Hoves', sans-serif;
-  background-color: #E6E7E8;
+  font-family:var(--font-sans);
+  background-color: #e6f1f5;
   min-height: 100vh;
   margin-left: 91px;
   margin-right: 91px;
@@ -110,7 +110,7 @@ textarea {
   resize: none;
   margin-top: 10px;
   font-size: 14px;
-  font-family: inherit;
+  font-family:var(--font-sans);
   background-color: #f3f3f3;
 }
 
@@ -123,9 +123,9 @@ textarea {
 }
 
 .actions button {
-  padding: 12px 25px;
-  font-size: 16px;
-  border-radius: 18px;
+  padding: 8px 18px;;
+  font-size: 13px;
+ border-radius: 20px;
   cursor: pointer;
   border: none;
   transition: 0.3s ease;
@@ -182,26 +182,40 @@ textarea {
   margin-top: 10px;
   margin-bottom: 20px;
 }
+.submitted-by-row {
+  margin: 4px 0 14px;
+  color: #1b223c;
+  font-size: 16px;
+}
+.submitted-by-label {
+  opacity: 0.9;
 
-.attached-file-item3 {
-  background-color: rgba(243, 243, 243, 0.957);
-  border-radius: 10px;
-  padding: 10px 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #1B223C;
+}
+.submitted-by-name {
+  color:#f1633a;
+  font-weight: 500;
 }
 
-.download-file-btn3 {
-  border: none;
-  color: #1B223C;
-  font-size: 18px;
-  cursor: pointer;
-  margin-left: 10px;
-  border-radius: 18px;
+.attached-file-item3 {
+ background-color: #f4f4f4;
+    border-radius: 10px;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #1B223C;
+}
+
+.download-file-btn90 {
+   background: none;
+    border: none;
+    color: #1B223C;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 10px;
+   border-radius: 20px;
 }
 
 .download-file-btn3:hover {
@@ -250,7 +264,7 @@ textarea {
 .alsalam-pay-btn {
   padding: 10px 18px;
   border: none;
-  border-radius: 6px;
+ border-radius: 20px;
   cursor: pointer;
   font-weight: bold;
   color: #fff;
@@ -308,7 +322,7 @@ textarea {
 .cancel-btn4 {
   padding: 10px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 20px;
   font-weight: bold;
   cursor: pointer;
   gap:3px;
@@ -323,3 +337,157 @@ textarea {
   background-color: #ccc;
   color: #333;
 }
+
+/* wrapper already present: .submitted-details-page, .details-container */
+
+/* Stages list */
+.client-stages {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+/* Stage card */
+.client-stage-card {
+  background: #fff;
+  border: 1.5px solid #1B223C;
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.stage-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.stage-card-title {
+  font-weight: 800;
+  color: #1B223C;
+  font-size: 18px;
+}
+
+.stage-card-status {
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #1B223C;
+  min-width: 110px;
+  text-align: center;
+}
+.stage-card-status.pending,
+.stage-card-status.submitted { background: #fff7e6; }
+.stage-card-status.reviewed   { background: #e8f6ef; }
+.stage-card-status.completed  { background: #e8f6ef; }
+.stage-card-status.declined   { background: #fdecec; }
+.stage-card-status.not_submitted { background: #f1f3f5; }
+
+/* reuse existing .attached-files-list3 / .attached-file-item3 / .download-file-btn90 */
+
+/* Stars only used in final card */
+.stars span {
+  font-size: 28px;
+  color: #ccc;
+  margin-right: 5px;
+  cursor: pointer;
+}
+.stars .filled { color: #f1633a; }
+
+/* Feedback textarea already styled by your page-wide textarea rule */
+/* ===== PaymentInfoModal (scoped) ===== */
+.pi-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pi-dialog {
+  width: min(92vw, 640px);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 28px 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(27, 34, 60, 0.14);
+}
+
+.pi-title {
+  margin: 0 0 12px 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: 22px;
+  color: #1B223C;
+}
+
+.pi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.pi-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pi-label {
+  font-weight: 700;
+  color: #1B223C;
+  font-size: 14px;
+}
+
+.pi-value {
+  color: #2b2f48;
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.pi-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pi-accept {
+  background: #A7CDD6;           /* soft teal like the mock */
+  color: #0b1a2a;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+.pi-accept:hover {   background: #7fabb5; }
+
+.pi-close {
+  background: transparent;
+  color: #4b5563;
+  border: 1px solid #D0D5DD;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+@media (max-width: 480px) {
+  .pi-dialog { padding: 20px; }
+  .pi-actions { flex-direction: column; }
+  .pi-accept, .pi-close { width: 100%; }
+}
+
+/* Buttons row already styled via .actions / .approve / .revise / .decline */
+
+
+

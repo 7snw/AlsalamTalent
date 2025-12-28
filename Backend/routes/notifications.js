@@ -1,141 +1,104 @@
-const express = require("express");
-const mongoose = require("mongoose");
+const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
-const Notification = require("../models/Notification");
-const Admin = require("../models/Admin");
-const Client = require("../models/Client");
-const Freelancer = require("../models/Freelancer");
-const sendNotification = require("../utils/sendNotification");
+const Notification = require('../models/Notification');
+const Admin = require('../models/Admin');
+const Client = require('../models/Client');
+const Freelancer = require('../models/Freelancer');
+const { sendNotification } = require('../utils/sendNotification');
 
-// Utility to get user details
 async function getUserDetails(userId, role) {
-  switch (role.toLowerCase()) {
-    case "admin":
-      return await Admin.findById(userId);
-    case "client":
-      return await Client.findById(userId);
-    case "freelancer":
-      return await Freelancer.findById(userId);
-    default:
-      return null;
-  }
+  const r = String(role || '').toLowerCase();
+  if (r === 'admin') return Admin.findById(userId);
+  if (r === 'client') return Client.findById(userId);
+  if (r === 'freelancer') return Freelancer.findById(userId);
+  return null;
 }
 
-//  GET Notifications for user
-router.get("/:userId/:userType", async (req, res) => {
-  const { userId, userType } = req.params;
 
-  console.log("📩 [GET /notifications] Params:", { userId, userType });
-
+router.get("/:userId/:role", async (req, res) => {
   try {
+    const { userId, role } = req.params;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid user ID format" });
+      return res.json([]);
     }
+    const items = await Notification
+      .find({ userId, userType: String(role || "").toLowerCase() })
+      .sort({ createdAt: -1 })
+      .limit(200);
 
-    const query = {
-      userId: new mongoose.Types.ObjectId(userId),
-      userType: userType.toLowerCase(),
-    };
-
-    const notifications = await Notification.find(query).sort({ createdAt: -1 });
-    const user = await getUserDetails(userId, userType);
-
-    const enriched = notifications.map((n) => ({
-      _id: n._id,
-      userId: n.userId,
-      userType: n.userType,
-      email: n.email,
-      subject: n.subject,
-      message: n.message,
-      type: n.type,
-      isRead: n.isRead,
-      createdAt: n.createdAt,
-      fullName: user?.fullName || "Unknown",
-    }));
-
-    return res.status(200).json(enriched);
+    return res.json(items);
   } catch (err) {
-    console.error("❌ Backend error in /notifications:", err);
-    res.status(500).json({ message: "Internal server error", error: err.message });
+    console.error("GET /api/notifications/:userId/:role error:", err);
+    return res.status(500).json([]);
   }
 });
 
-// POST direct notification (admin only)
-router.post("/send", async (req, res) => {
+
+router.patch("/:id/read", async (req, res) => {
   try {
-    let { userId, userType, subject, message, type } = req.body;
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ ok: false });
+    await Notification.findByIdAndUpdate(id, { isRead: true });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("PATCH /api/notifications/:id/read error:", err);
+    return res.status(500).json({ ok: false });
+  }
+});
 
-    //  Enforce admin-only notifications via this route
-    if (userType.toLowerCase() !== "admin") {
-      return res.status(400).json({ message: "This endpoint is restricted to admin notifications only." });
-    }
+router.patch("/read-all/:userId/:role", async (req, res) => {
+  try {
+    const { userId, role } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).json({ ok: false });
+    await Notification.updateMany(
+      { userId, userType: String(role || "").toLowerCase() },
+      { $set: { isRead: true } }
+    );
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("PATCH /api/notifications/read-all error:", err);
+    return res.status(500).json({ ok: false });
+  }
+});
 
-    if (!userId) {
-      const admin = await Admin.findOne();
-      if (!admin) return res.status(404).json({ message: "No admin found" });
-      userId = admin._id;
-    } else {
-      const admin = await Admin.findById(userId);
-      if (!admin) return res.status(404).json({ message: "Provided userId is not an admin." });
-    }
 
-    await sendNotification({
-      userId,
-      userType: "admin",
-      subject,
-      message,
-      type: type || "info",
+router.post('/', async (req, res) => {
+  try {
+    const note = await Notification.create({
+      ...req.body,
+      userType: String(req.body.userType || '').toLowerCase(),
     });
-
-    res.status(200).json({ message: "Notification sent to admin." });
+    res.status(201).json(note);
   } catch (err) {
-    console.error("❌ Error in /send:", err.message);
-    res.status(500).json({ error: "Failed to send admin notification" });
+    console.error('POST /notifications error:', err);
+    res.status(500).json({ error: 'Failed to create notification' });
   }
 });
 
-//  POST broadcast to freelancers only
-router.post("/broadcast", async (req, res) => {
-  const { role, subject, message, type } = req.body;
-
-  if (!role || !subject || !message) {
-    return res.status(400).json({ message: "Missing required fields" });
+router.post('/broadcast', async (req, res) => {
+  const { role, subject, message, type = 'info' } = req.body;
+  if (String(role || '').toLowerCase() !== 'freelancer') {
+    return res.status(400).json({ message: 'Broadcast is supported only for freelancers.' });
   }
-
-  // Restrict broadcast to freelancers only
-  if (role.toLowerCase() !== "freelancer") {
-    return res.status(400).json({ message: "Broadcast is supported only for freelancers." });
-  }
-
   try {
-    const freelancers = await Freelancer.find({}, "_id");
-
-    for (const freelancer of freelancers) {
-      await sendNotification({
-        userId: freelancer._id,
-        userType: "freelancer",
-        subject,
-        message,
-        type: type || "info",
-      });
-    }
-
-    res.status(200).json({ message: "Broadcast sent to freelancers." });
-  } catch (error) {
-    console.error("❌ Broadcast error:", error);
-    res.status(500).json({ message: "Failed to broadcast notification." });
-  }
-});
-
-//  POST create raw notification (no role filter)
-router.post("/", async (req, res) => {
-  try {
-    const notification = new Notification(req.body);
-    await notification.save();
-    res.status(201).json(notification);
-  } catch (err) {
-    console.error("❌ Failed to save notification:", err.message);
-    res.status(500).json({ error: "Failed to create notification" });
+    const freelancers = await Freelancer.find({}, '_id email');
+    await Promise.all(
+      freelancers.map(f =>
+        sendNotification({
+          userId: f._id,
+          userType: 'freelancer',
+          subject,
+          message,
+          type,
+          email: f.email,
+        })
+      )
+    );
+    res.json({ message: 'Broadcast sent to freelancers.' });
+  } catch (e) {
+    console.error('Broadcast error:', e);
+    res.status(500).json({ message: 'Failed to broadcast notification.' });
   }
 });
 

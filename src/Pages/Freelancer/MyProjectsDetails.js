@@ -1,222 +1,447 @@
 // src/Pages/Freelancer/MyProjectsDetails.js
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import "../../Style/Freelancer/MyProjectsDetails.css";
+import Navbar from "../../Components/Navbar";
+import { NavConfig2 } from "../../Data/NavbarConfigs";
+import Footer from "../../Components/Footer";
+import axios from "axios";
+import { FiDownload } from "react-icons/fi";
+import { AiOutlineClose } from "react-icons/ai";
+// import ChatBox from "../../Components/ChatBox";
+import { showAlert } from "../../utils/toastMessages";
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import '../../Style/Freelancer/MyProjectsDetails.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig2 } from '../../Data/NavbarConfigs';
-import Footer from '../../Components/Footer';
-import uploadIcon from '../../Assets/Upload.png';
-import axios from 'axios';
-import { FiDownload, FiMessageCircle } from 'react-icons/fi';
-import { AiOutlineClose } from 'react-icons/ai';
-import ChatBox from '../../Components/ChatBox';
-import { showAlert } from '../../utils/toastMessages';
+import PlaneIcon from "../../Assets/plane.png";
+import HourglassIcon from "../../Assets/hourglass.png";
+import ClockIcon from "../../Assets/clock.png";
 
-const MyProjectsDetails = () => {
-  const { id } = useParams(); // assignmentId from URL
-  const navigate = useNavigate();
+/* ---------- config ---------- */
+// Webpack/CRA-safe: do not use import.meta here
+const RAW_API_BASE =
+  (process.env.REACT_APP_API_BASE ||
+    process.env.VITE_API_BASE ||
+    "http://localhost:5000").trim();
+const API_BASE = RAW_API_BASE.replace(/\/$/, ""); // remove trailing slash if present
 
-  // Local states
+const STAGES = [
+  { key: "initial", title: "Initial Concept", icon: PlaneIcon, order: 0 },
+  { key: "half", title: "50% of the work", icon: HourglassIcon, order: 1 },
+  { key: "final", title: "Final Submission", icon: ClockIcon, order: 2 },
+];
+
+const emptyStage = () => ({
+  status: "not_submitted",
+  docs: [],
+  feedback: "",
+  rating: 0,
+});
+
+/* ---------- file helpers ---------- */
+const toAbsUrl = (f) => {
+  const raw = typeof f === "string" ? f : f.url || f.path || "";
+  if (!raw) return "#";
+  if (raw.startsWith("http")) return raw;
+  // support both `/uploads/..` and `uploads/..`
+  return `${API_BASE}${raw.startsWith("/") ? "" : "/"}${raw}`;
+};
+
+const toNiceName = (f) => {
+  if (typeof f === "string") {
+    const parts = f.split("/");
+    return decodeURIComponent(parts[parts.length - 1] || "File");
+  }
+  return f.name || f.originalname || toNiceName(f.url || f.path || "File");
+};
+
+export default function MyProjectsDetails() {
+  const { id } = useParams(); // assignmentId
   const [assignment, setAssignment] = useState(null);
-  const [selectedFiles, setSelectedFiles] = useState([]); // new files to submit
-  const [showChat, setShowChat] = useState(false); // toggle chat box
+  const [selected, setSelected] = useState({ initial: [], half: [], final: [] });
+  const [activeStage, setActiveStage] = useState("initial");
+  // const [showChat, setShowChat] = useState(false);
 
-  // Fetch assignment data on mount
+  const bubbleRef = useRef(null);
+  const stageRefs = useRef({});
+
+  const fetchAssignment = async () => {
+    const { data } = await axios.get(`${API_BASE}/api/assignments/${id}`);
+    const stages = { ...(data.stages || {}) };
+    // ensure all 3 stages exist
+    STAGES.forEach(({ key }) => {
+      if (!stages?.[key]) stages[key] = emptyStage();
+    });
+
+    const proj = data.projectId || {};
+    const files = Array.isArray(proj.files) ? proj.files : [];
+    const normFiles = files.map((f) => ({ name: toNiceName(f), url: toAbsUrl(f) }));
+
+    setAssignment({
+      ...data,
+      stages,
+      projectId: { ...proj, files: normFiles },
+    });
+
+    // open last stage that has feedback, else initial
+    const lastWithFeedback =
+      STAGES.slice()
+        .reverse()
+        .find((s) => (stages[s.key]?.feedback || "").trim().length > 0)?.key || "initial";
+    setActiveStage(lastWithFeedback);
+  };
+
   useEffect(() => {
-    const fetchAssignment = async () => {
+    (async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/assignments/${id}`);
-        setAssignment(res.data);
-      } catch (error) {
-        console.error('Error fetching assignment:', error);
+        await fetchAssignment();
+      } catch (e) {
+        console.error(e);
+        showAlert("Failed to load assignment.");
       }
-    };
-    fetchAssignment();
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // Add new files to state
-  const handleFileChange = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-  };
+  const project = assignment?.projectId;
+  const stages = useMemo(() => assignment?.stages ?? {}, [assignment]);
 
-  // Remove unsubmitted file from list
-  const handleRemoveFile = (indexToRemove) => {
-    setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
-  };
+  /* ---------- submission gates ---------- */
+  const canSubmit = useMemo(() => {
+    if (!assignment) return { initial: false, half: false, final: false };
+    const s0 = stages.initial?.status;
+    const s1 = stages.half?.status;
 
-  // Remove previously submitted file from backend
-  const handleRemoveSubmittedFile = async (fileIndex) => {
-    try {
-      const updatedDocs = [...assignment.docs];
-      updatedDocs.splice(fileIndex, 1);
+    const topDeclined = assignment.status === "Declined";
+    const requestedRevision = assignment.status === "Requested Revision";
+    const terminal = Boolean(assignment.terminal); // server may set this on hard reject
 
-      await axios.put(`http://localhost:5000/api/assignments/${id}/update-docs`, {
-        docs: updatedDocs,
-      });
+    // If terminal/closed or top-level Declined, nothing can be submitted.
+    if (terminal || topDeclined) return { initial: false, half: false, final: false };
 
-      setAssignment((prev) => ({
-        ...prev,
-        docs: updatedDocs,
-      }));
-    } catch (error) {
-      console.error('Failed to remove file:', error);
-      showAlert('Could not remove the file.');
+    return {
+      // Initial: only allow when not_submitted OR (declined but in Requested Revision window)
+      initial:
+        (s0 === "not_submitted" || (requestedRevision && s0 === "declined")) &&
+        selected.initial.length > 0,
+
+      // Half: requires initial reviewed/completed, then same pattern as above
+      half:
+        ["reviewed", "completed"].includes(s0) &&
+        (stages.half?.status === "not_submitted" ||
+          (requestedRevision && stages.half?.status === "declined")) &&
+        selected.half.length > 0,
+
+      // Final: requires half reviewed/completed, then same pattern
+      final:
+        ["reviewed", "completed"].includes(s1) &&
+        (stages.final?.status === "not_submitted" ||
+          (requestedRevision && stages.final?.status === "declined")) &&
+        selected.final.length > 0,
+    };
+  }, [assignment, selected, stages]);
+
+   const statusLabel = (st, topLevelStatus) => {
+   // If the stage itself is in "declined" but the assignment is in
+   // "Requested Revision", show the correct label to the freelancer.
+    if (st === "declined" && topLevelStatus === "Requested Revision") {
+      return "Requested Revision";
+    }
+    switch (st) {
+       case "not_submitted":
+         return "";
+       case "submitted":
+       case "pending":
+         return "Pending";
+       case "reviewed":
+         return "Reviewed";
+       case "declined":
+         return "Declined";
+       case "completed":
+         return "Completed";
+       default:
+         return st || "";
     }
   };
 
-  // Submit project with attached files
-  const handleSubmitProject = async () => {
-    const formData = new FormData();
-    selectedFiles.forEach((file) => formData.append('docs', file));
+  const onFileChange = (stageKey, e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setSelected((prev) => ({ ...prev, [stageKey]: [...prev[stageKey], ...files] }));
+    e.target.value = "";
+  };
 
+  const removeSelected = (stageKey, index) => {
+    setSelected((prev) => ({
+      ...prev,
+      [stageKey]: prev[stageKey].filter((_, i) => i !== index),
+    }));
+  };
+
+  const submitStage = async (stageKey) => {
     try {
-      await axios.post(`http://localhost:5000/api/assignments/${id}/update-docs`, formData);
-      await axios.put(`http://localhost:5000/api/assignments/${id}/update-status`, {
-        status: 'Submitted',
-      });
-      showAlert('Project submitted successfully.');
-      setSelectedFiles([]);
-      navigate('/Assignedprojects');
-    } catch (error) {
-      console.error('Submission failed:', error);
-      showAlert('Submission failed');
+      const fd = new FormData();
+      (selected[stageKey] || []).forEach((f) => fd.append("docs", f));
+
+      // 1) upload files
+      await axios.post(`${API_BASE}/api/assignments/${id}/stages/${stageKey}/upload`, fd);
+
+      // 2) submit stage for review
+      await axios.put(`${API_BASE}/api/assignments/${id}/stages/${stageKey}/submit`);
+
+      await fetchAssignment(); // refresh everything
+      setSelected((prev) => ({ ...prev, [stageKey]: [] }));
+      setActiveStage(stageKey);
+      showAlert("Submitted. Waiting for client's review.");
+    } catch (e) {
+      console.error(e);
+      const msg = e?.response?.data?.message || "Submission failed.";
+      showAlert(msg);
     }
   };
 
-  if (!assignment) return <p>Loading...</p>;
+  /* ---------- feedback bubble pointer ---------- */
+  useEffect(() => {
+    const updatePointer = () => {
+      const bubble = bubbleRef.current;
+      const wrap = stageRefs.current[activeStage];
+      if (!bubble || !wrap) return;
+      const target = wrap.querySelector(".stage-card") || wrap;
+      const tRect = target.getBoundingClientRect();
+      const bRect = bubble.getBoundingClientRect();
+      let y = tRect.top + tRect.height / 2 - bRect.top;
+      const pad = 22;
+      y = Math.max(pad, Math.min(y, bRect.height - pad));
+      bubble.style.setProperty("--bubble-anchor", `${Math.round(y)}px`);
+    };
+    updatePointer();
+    window.addEventListener("resize", updatePointer);
+    window.addEventListener("scroll", updatePointer, { passive: true });
+    return () => {
+      window.removeEventListener("resize", updatePointer);
+      window.removeEventListener("scroll", updatePointer);
+    };
+  }, [activeStage, assignment]);
 
-  const { projectId, status, feedback, docs, rating } = assignment;
-  const clientId = projectId?.authorId;
-  const freelancerId = assignment?.freelancerId?._id || assignment?.freelancerId;
+  if (!assignment)
+    return (
+      <div className="project-progress-page">
+        <Navbar links={NavConfig2} />
+        <div className="progress-container">Loading…</div>
+      </div>
+    );
+
+  const showRating =
+    (stages.final?.status === "completed" || stages.final?.status === "reviewed") &&
+    Number(stages.final?.rating) > 0;
+
+  const prereqBlocked = (stageKey) => {
+    if (stageKey === "initial") return false;
+    if (stageKey === "half") return !["reviewed", "completed"].includes(stages.initial?.status);
+    if (stageKey === "final") return !["reviewed", "completed"].includes(stages.half?.status);
+    return false;
+  };
+
+  const globalClosed = Boolean(assignment.terminal);
+  const topDeclined = assignment.status === "Declined";
+  const requestedRevision = assignment.status === "Requested Revision";
 
   return (
     <div className="project-progress-page">
       <Navbar links={NavConfig2} />
       <div className="progress-container">
-        <h2>{projectId?.title || 'Project Details'}</h2>
+        <h1 className="work-title">{project?.title || project?.type || ""}</h1>
 
-        {/* Feedback section (if project is Declined, Completed or needs Re-submit) */}
-        {(status === 'Declined' || status === 'Re-submit' || status === 'Completed') && (
-          <div className="feedback-box">
-            <h3>Client Feedback:</h3>
-            <p>{feedback || 'No feedback provided.'}</p>
-            <div className="starss">
-              <strong>Rating:</strong>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span key={star} className={rating >= star ? 'filled' : ''}>★</span>
-              ))}
-            </div>
-          </div>
-        )}
+       
 
-        {/* Project content section */}
-        <div className="top-section">
-          <div className="left-section">
-            <h4>Project Files (from Client)</h4>
-            {projectId?.files?.length > 0 ? (
-              <ul className="attached-files-list9">
-                {projectId.files.map((file, idx) => (
-                  <li key={idx} className="attached-file-item9">
-                    {file.name}
-                    <button
-                      type="button"
-                      className="download-file-btn9"
-                      onClick={() => window.open(file.url, '_blank')}
-                    >
-                      <FiDownload size={18} />
-                    </button>
-                  </li>
+        {/* ===== PROJECT DETAILS ===== */}
+        <div className="details">
+          <div className="d-left">
+            <h2>Project Details</h2>
+
+            <h4>Project Brief:</h4>
+            <p>{project?.brief || "No brief provided."}</p>
+
+            <h4>Reward:</h4>
+            <p>{project?.budget ? `BHD ${project.budget}` : "—"}</p>
+
+            {/* Project Files under Reward */}
+            <h4 style={{ marginTop: 16 }}>Project Files:</h4>
+            {Array.isArray(project?.files) && project.files.length > 0 ? (
+              <div className="pd-file-list" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {project.files.map((f, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="pd-file-pill"
+                    onClick={() => window.open(f.url, "_blank")}
+                    title="Download file"
+                  >
+                    <span className="pd-file-name">{f.name}</span>
+                    <span className="pd-file-dl">
+                      <FiDownload />
+                    </span>
+                  </button>
                 ))}
-              </ul>
+              </div>
             ) : (
-              <p>No files uploaded by client.</p>
+              <p className="muted">No files were attached to this project.</p>
             )}
+          </div>
 
-            {/* Previously submitted docs */}
-            <h4>Your Submissions:</h4>
-            {docs?.length > 0 ? (
-              <ul className="attached-files-list9">
-                {docs.map((file, idx) => (
-                  <li key={idx} className="attached-file-item9">
-                    {file.name}
-                    <div className="file-actions">
+          <div className="d-right">
+            {project?.imageUrl ? (
+              <img src={project.imageUrl} alt={project.title || "Project"} />
+            ) : (
+              <div className="no-image">No image</div>
+            )}
+          </div>
+        </div>
+
+        {/* ===== SUBMISSION / TIMELINE ===== */}
+        <div className="progress-grid">
+          <div className="timeline-col">
+            <p className="subhead">Submit your project:</p>
+
+            {STAGES.map((stage, idx) => {
+              const data = stages[stage.key] || emptyStage();
+              const blockedByPrereq = prereqBlocked(stage.key);
+
+              // Disable attaching/submitting if prereqs block, terminal/closed, or top-level Declined.
+              // If stage is declined but the overall status is "Requested Revision", allow re-submit.
+              const stageDeclinedBlock =
+                data.status === "declined" && !requestedRevision;
+
+              const disabled =
+                blockedByPrereq || globalClosed || topDeclined || stageDeclinedBlock;
+
+              return (
+                <div
+                  key={stage.key}
+                  className="stage-wrap"
+                  ref={(el) => (stageRefs.current[stage.key] = el)}
+                >
+                  <div
+                    className={`rail-dot ${idx === 0 ? "first" : ""} ${
+                      idx === STAGES.length - 1 ? "last" : ""
+                    }`}
+                  />
+
+                  <div
+                    className={`stage-card ${activeStage === stage.key ? "active" : ""}`}
+                    onClick={() => setActiveStage(stage.key)}
+                  >
+                    <div className="stage-left">
+                      <div className="stage-icon">
+                        <img src={stage.icon} alt="" />
+                      </div>
+                      <div className="stage-text">
+                        <div className="stage-title">{stage.title}</div>
+
+                        {Array.isArray(data.docs) && data.docs.length > 0 ? (
+                          <div className="file-links">
+                            {data.docs.map((f, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                className="file-link"
+                                onClick={() => window.open(toAbsUrl(f.url || f), "_blank")}
+                              >
+                                {f.name || `Submission ${i + 1}`}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="muted">You haven’t submitted any files yet.</div>
+                        )}
+                      </div>
+                    </div>
+
+                   <div className={`stage-status ${data.status}`}>
+   {statusLabel(data.status, assignment.status)}
+ </div>
+                  </div>
+
+                  <div className="uploader">
+                    <div className="upload-row">
+                      <label className={`upload-btn ${disabled ? "disabled" : ""}`}>
+                        Attach files
+                        <input
+                          type="file"
+                          multiple
+                          disabled={disabled}
+                          onChange={(e) => onFileChange(stage.key, e)}
+                        />
+                      </label>
+
                       <button
-                        type="button"
-                        className="download-file-btn9"
-                        onClick={() => window.location.href = file.url}
+                        className="primary-submit"
+                        disabled={disabled || !canSubmit[stage.key]}
+                        onClick={() => submitStage(stage.key)}
                       >
-                        <FiDownload size={18} />
-                      </button>
-                      <button
-                        type="button"
-                        className="file-remove-btn"
-                        onClick={() => handleRemoveSubmittedFile(idx)}
-                      >
-                        <AiOutlineClose size={18} />
+                        Submit
                       </button>
                     </div>
-                  </li>
+
+                    {selected[stage.key]?.length > 0 && (
+                      <ul className="chosen-list">
+                        {selected[stage.key].map((f, i) => (
+                          <li key={i}>
+                            {f.name}
+                            <button
+                              type="button"
+                              className="remove-mini"
+                              onClick={() => removeSelected(stage.key, i)}
+                              aria-label="Remove file"
+                            >
+                              <AiOutlineClose size={16} />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {blockedByPrereq && (
+                      <div className="muted tiny">
+                       
+                      </div>
+                    )}
+                    {globalClosed && (
+                      <div className="muted tiny">
+                        This assignment is closed by the client. Uploads are disabled.
+                      </div>
+                    )}
+                    {topDeclined && !globalClosed && (
+                      <div className="muted tiny">
+                        Your submission was declined by the client. Further uploads are disabled.
+                      </div>
+                    )}
+                    {data.status === "declined" && requestedRevision && (
+                      <div className="muted tiny">
+                        Revisions requested. Please attach your updated files and resubmit.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {showRating && (
+              <div className="rating-block">
+                <span>Rating:</span>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span
+                    key={n}
+                    className={n <= Number(stages.final.rating) ? "star filled" : "star"}
+                  >
+                    ★
+                  </span>
                 ))}
-              </ul>
-            ) : (
-              <p>You haven’t submitted any files yet.</p>
+              </div>
             )}
 
-            {/* Upload new docs */}
-            <div className="upload-section">
-              <h4>Project Files:</h4>
-              <button
-                type="button"
-                className="submit-file-btn9"
-                onClick={() => document.getElementById('fileInputCustom').click()}
-              >
-                {selectedFiles.length
-                  ? `${selectedFiles.length} Files Selected`
-                  : 'Attach Files'}
-                <img src={uploadIcon} alt="upload" className="submit-upload-icon" />
-              </button>
-              <input
-                id="fileInputCustom"
-                type="file"
-                multiple
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-              />
-
-              {/* Show selected files */}
-              {selectedFiles.length > 0 && (
-                <ul className="attached-files-list9">
-                  {selectedFiles.map((file, index) => (
-                    <li key={index} className="attached-file-item9">
-                      {file.name}
-                      <button
-                        type="button"
-                        className="remove-file-btn9"
-                        onClick={() => handleRemoveFile(index)}
-                      >
-                        <AiOutlineClose size={18} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Submit button */}
-            <div className="submit-section">
-              <h3>Ready to {status === 'Declined' || status === 'Re-submit' ? 'resubmit' : 'submit'}?</h3>
-              <button className="submit-btn" onClick={handleSubmitProject}>
-                {status === 'Declined' || status === 'Re-submit' ? 'Re-submit Project' : 'Submit Project'}
-              </button>
-            </div>
-
-            {/* Open chat */}
-            <button onClick={() => setShowChat(true)} className="open-chat-btn">
+            {/* ChatBox (optional)
+            <button className="open-chat-btn" onClick={() => setShowChat(true)}>
               <FiMessageCircle />
             </button>
-
             {showChat && (
               <ChatBox
                 userId={freelancerId}
@@ -225,40 +450,20 @@ const MyProjectsDetails = () => {
                 assignmentId={assignment._id}
                 closeChat={() => setShowChat(false)}
               />
-            )}
-          </div>
-        </div>
-
-        <hr />
-
-        {/* Bottom project details */}
-        <div className="details-section">
-          <div className="details-left">
-            <h2>Project Details</h2>
-            <h3>{projectId?.title}</h3>
-
-            <h4>Project Brief:</h4>
-            <p>{projectId?.brief || 'No brief provided.'}</p>
-
-            <h4>Budget/Price:</h4>
-            <p>{projectId?.budget} BHD</p>
-
-            <h4>Status:</h4>
-            <p>{status}</p>
+            )} */}
           </div>
 
-          <div className="details-right">
-            {projectId?.imageUrl ? (
-              <img src={projectId.imageUrl} alt={projectId.title} className="project-image" />
-            ) : (
-              <p>No image available</p>
-            )}
+          <div className="feedback-col">
+            <p className="subhead">Client Comments:</p>
+            <div className="bubblee" ref={bubbleRef}>
+              <div className="bubblee-body">
+                {(stages?.[activeStage]?.feedback || "No comments yet.").trim()}
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <Footer />
     </div>
   );
-};
-
-export default MyProjectsDetails;
+}

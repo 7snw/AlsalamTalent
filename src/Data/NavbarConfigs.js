@@ -1,4 +1,4 @@
-// src/Data/NavbarConfigs.js
+
 
 //General
 export const NavConfig1 = [
@@ -12,7 +12,7 @@ export const NavConfig2 = Object.assign([
   { label: 'Home', path: '/freelancer-home' },
   {
     label: 'Projects', 
-    //path: '/all-projects',
+  
     dropdown: [
       { label: 'Browse Projects', path: '/allprojects' },
        { label: 'Assigned Projects', path: '/Assignedprojects' }, 
@@ -23,7 +23,10 @@ export const NavConfig2 = Object.assign([
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'About us', path: '/aboutus' }
+    { label: 'Library', path: '/library' },
+  { label: 'About us', path: '/aboutus' },
+  { label: 'Q&A', path: '/ask-answer' },
+  
 ], {
   showIcons: true,
   hideSignIn: true
@@ -37,13 +40,20 @@ export const NavConfig3 = Object.assign([
     label: 'Projects',
     dropdown: [
       { label: 'Browse Projects', path: '/browseprojects' },
-      { label: 'Post Project Brief', path: '/PostProject' },
+      { label: 'Post Projects', path: '/PostProject' },
+      { label: 'Post Resources', path: '/resources' },
       { label: 'Assigned Projects', path: '/AssignedProject' },
-      { label: 'Project Applications', path: '/project-applications' }
+      { label: 'Project Applications', path: '/project-applications' },
+      { label: 'Payments', path: '/payments' },
+
+
     ]
   },
   { label: 'Freelancers', path: '/freelancers' },
-  { label: 'Analytics', path: '/AnalyticsClient' }
+    { label: 'Bookings', path: '/bookingsTable' },
+    { label: 'Library', path: '/library' },
+     { label: 'Analytics', path: '/analyticsclient' },
+       { label: 'Q&A', path: '/ask-answer' },
 ], { 
   showIcons: true,
   hideSignIn: true 
@@ -53,9 +63,12 @@ export const NavConfig3 = Object.assign([
 export const NavConfig4 = Object.assign([
   { label: 'Home', path: '/analyticsadmin' },
   { label: 'Projects', path: '/adminallprojects' },
-  { label: 'Freelancers', path: '/freelancers' },
-  { label: 'Clients', path: '/clientlist' },
-   { label: 'Verifications', path: '/verificationslist' }
+ { label: 'Freelancers',
+     dropdown: [
+      { label: 'Freelncers List', path: '/freelancers' },
+       { label: 'Freelancers Details', path: '/freelancersDetails' }
+    ] },
+  { label: 'Clients', path: '/clientlist' }
 ], {
   showIcons: true,
   hideSignIn: true

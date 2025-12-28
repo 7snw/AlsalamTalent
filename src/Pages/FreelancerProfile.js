@@ -1,3 +1,4 @@
+// src/Pages/FreelancerProfile.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../Style/FreelancerProfile.css';
@@ -5,24 +6,39 @@ import Navbar from '../Components/Navbar';
 import '../Style/Navbar.css';
 import { NavConfig2, NavConfig3, NavConfig4 } from "../Data/NavbarConfigs";
 import ViewPortfolioPopup from '../Pages/Freelancer/ViewPortfolioPopup';
-import userIcon from '../Assets/ProfileIcon.png';
+import userIcon from "../Assets/ProfileImage.png";
 import Footer from '../Components/Footer';
 import axios from 'axios';
 
+/* --- stars identical to the list page --- */
+const renderStars = (rating) => {
+  const safeRating = Number.isFinite(rating) ? rating : 0;
+  const full = Math.min(Math.max(Math.floor(safeRating), 0), 5);
+  const empty = 5 - full;
+
+  return (
+    <>
+      {Array.from({ length: full }, (_, i) => (
+        <span key={`full-${i}`} className="star-full">★</span>
+      ))}
+      {Array.from({ length: empty }, (_, i) => (
+        <span key={`empty-${i}`} className="star-empty">☆</span>
+      ))}
+    </>
+  );
+};
+
+
 const FreelancerProfile = () => {
-  // Get freelancer ID from URL
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // State variables for freelancer data, tabs, popup, etc.
   const [freelancer, setFreelancer] = useState(null);
   const [activeTab, setActiveTab] = useState('about');
   const [viewPopup, setViewPopup] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [portfolio, setPortfolio] = useState([]);
-  const [navbarConfig, setNavbarConfig] = useState(NavConfig2); // default navbar for freelancer
+  const [navbarConfig, setNavbarConfig] = useState(NavConfig2);
 
-  // Set navbar links based on logged-in role
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const role = storedUser?.role;
@@ -33,13 +49,11 @@ const FreelancerProfile = () => {
       case 'client':
         setNavbarConfig(NavConfig3);
         break;
-      case 'freelancer':
       default:
         setNavbarConfig(NavConfig2);
     }
   }, []);
 
-  // Fetch freelancer profile and portfolio data
   useEffect(() => {
     const fetchFreelancer = async () => {
       try {
@@ -49,41 +63,15 @@ const FreelancerProfile = () => {
         console.error('Error fetching freelancer profile:', error);
       }
     };
-
-    const fetchPortfolio = async () => {
-      try {
-        const { data } = await axios.get(`http://localhost:5000/api/freelancer/portfolio/${id}`);
-        setPortfolio(data);
-      } catch (error) {
-        console.error('Error fetching portfolio:', error);
-      }
-    };
-
     fetchFreelancer();
-    fetchPortfolio();
   }, [id]);
-
-  // Prevent background scroll when viewing popup
-  useEffect(() => {
-    if (viewPopup) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [viewPopup]);
 
   if (!freelancer) return <div>Loading...</div>;
 
   return (
     <div className="freelancer-profile">
-      {/* Navbar */}
       <Navbar links={navbarConfig} />
       <div className="profile-container">
-        {/* Header section */}
         <div className="profile-header">
           <div className="left-profile">
             <img
@@ -93,10 +81,17 @@ const FreelancerProfile = () => {
             />
             <div className="profile-info">
               <h2>{freelancer.fullName}</h2>
+
+              {/* NEW: rating just like list page */}
+              <div className="profile-stars">
+                {renderStars(Math.round(freelancer?.rating ?? 0))}
+                {!!freelancer?.rating && (
+                  <span className="stars-num">({Number(freelancer.rating).toFixed(2)})</span>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Contact button navigates to Messages */}
           <button
             className="contact-btn"
             onClick={(e) => {
@@ -107,6 +102,7 @@ const FreelancerProfile = () => {
                     _id: freelancer._id,
                     fullName: freelancer.fullName,
                     role: "freelancer",
+                    profileImageUrl: freelancer.profileImageUrl,
                   },
                 },
               });
@@ -116,7 +112,6 @@ const FreelancerProfile = () => {
           </button>
         </div>
 
-        {/* Tab toggle buttons */}
         <div className="tab-buttons">
           <button
             className={activeTab === 'about' ? 'active' : ''}
@@ -133,32 +128,42 @@ const FreelancerProfile = () => {
         </div>
         <hr />
 
-        {/* About tab content */}
         {activeTab === 'about' ? (
           <div className="about-section">
-            <div className="basic-info">
-              <p><strong>Name: </strong> {freelancer.fullName}</p>
-              <p><strong>ID: </strong>{freelancer.studentId}</p>
-              <p><strong>Major: </strong> {freelancer.major}</p>
-              <p><strong>Freelancer Type: </strong> {freelancer.userType}</p>
-            </div>
-
-            <div className="bio-info">
-              <h4>Biography</h4>
-              <p>{freelancer.bio || 'No biography provided yet.'}</p>
-            </div>
-
-            <div className="skills-info">
-              <h4>Skills</h4>
-              <p>{freelancer.skills?.join(', ') || 'No skills added yet.'}</p>
+            <div className="about-content">
+              <div className="basic-info-box">
+                <p><strong>Name:</strong> {freelancer.fullName}</p>
+                <p><strong>ID:</strong> {freelancer.studentId}</p>
+                <p><strong>Major:</strong> {freelancer.major}</p>
+                <p><strong>Freelancer Type:</strong> {freelancer.userType}</p>
+              </div>
+              <div className="about-text">
+                <div className="bio-info">
+                  <h4>Biography</h4>
+                  <p>{freelancer.bio || 'No biography provided yet.'}</p>
+                </div>
+                <div className="skills-info">
+                  <h4>Skills</h4>
+                  {freelancer.skills && freelancer.skills.length > 0 ? (
+                    <div className="skills-list">
+                      {freelancer.skills.map((skill, index) => (
+                        <span key={index} className="skill-pill">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>No skills added yet.</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         ) : (
-          // Portfolio tab content
           <div className="portfolio-section9">
             <div className="portfolio-grid99">
-              {portfolio.length > 0 ? (
-                portfolio.map((proj, i) => (
+              {freelancer.portfolio && freelancer.portfolio.length > 0 ? (
+                freelancer.portfolio.map((proj, i) => (
                   <div
                     key={i}
                     className="project-card"
@@ -167,9 +172,12 @@ const FreelancerProfile = () => {
                       setViewPopup(true);
                     }}
                   >
-                    <img src={proj.imageUrl} alt={proj.title} />
+                    {proj.imageUrls && proj.imageUrls.length > 0 ? (
+                      <img src={proj.imageUrls[0]} alt={proj.title} />
+                    ) : (
+                      <div className="no-image-placeholder">No Image</div>
+                    )}
                     <h4>{proj.title}</h4>
-                    <p>{proj.category}</p>
                   </div>
                 ))
               ) : (
@@ -180,15 +188,13 @@ const FreelancerProfile = () => {
         )}
       </div>
 
-      {/* Portfolio modal popup */}
-      {viewPopup && (
+      {viewPopup && selectedProject && (
         <ViewPortfolioPopup
           project={selectedProject}
           onClose={() => setViewPopup(false)}
         />
       )}
 
-      {/* Footer */}
       <Footer />
     </div>
   );

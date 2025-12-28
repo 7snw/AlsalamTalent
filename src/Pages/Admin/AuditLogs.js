@@ -1,75 +1,86 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import "../../Style/Admin/AuditLogs.css";
 import Navbar from "../../Components/Navbar";
 import { NavConfig4 } from "../../Data/NavbarConfigs";
 import Footer from "../../Components/Footer";
 import axios from "axios";
-import { showAlert } from '../../utils/toastMessages';
+import { showAlert } from "../../utils/toastMessages";
 
-// Admin AuditLogs component: Displays audit trail of user actions
 const AuditLogs = () => {
-  const [logs, setLogs] = useState([]);       // Stores audit log entries
-  const [loading, setLoading] = useState(true); // Indicates loading state
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("latest");
 
-  // Fetch audit logs from backend when component mounts
   useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/auditlogs");
-        setLogs(response.data); // Save logs to state
-      } catch (err) {
-        console.error("Error fetching audit logs:", err); // Log fetch error
-        showAlert("Failed to load audit logs."); // Display alert to user
-      } finally {
-        setLoading(false); // Stop loading in all cases
-      }
-    };
-
-    fetchLogs(); // Trigger log fetch
+    axios
+      .get("http://localhost:5000/api/auditlogs")
+      .then((res) => setLogs(res.data || []))
+      .catch((err) => {
+        console.error("Error fetching audit logs:", err);
+        showAlert("Failed to load audit logs.");
+      })
+      .finally(() => setLoading(false));
   }, []);
+
+  const displayed = useMemo(() => {
+    const arr = [...logs];
+    if (tab === "latest") {
+      arr.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    } else {
+      arr.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    }
+    return arr;
+  }, [logs, tab]);
+
+  if (loading) return null;
 
   return (
     <div className="auditlogs-page">
-      <Navbar links={NavConfig4} /> {/* Admin navbar */}
+      <Navbar links={NavConfig4} />
 
       <div className="auditlogs-container">
-        <h2 className="auditlogs-title">Audit Logs</h2>
-
-        {/* Conditional rendering for loading, no logs, or logs table */}
-        {loading ? (
-          <p>Loading logs...</p> // Show while fetching logs
-        ) : logs.length === 0 ? (
-          <p>No logs available.</p> // Show if no logs returned
-        ) : (
-          // Display audit logs in table format
-          <div className="logs-table-wrapper">
-            <table className="logs-table">
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Action</th>
-                  <th>Details</th>
-                  <th>Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log._id}>
-                    <td>{log.userName}</td> {/* User who triggered action */}
-                    <td>{log.role}</td>       {/* Role of user */}
-                    <td>{log.action}</td>     {/* Action performed */}
-                    <td>{log.details}</td>    {/* Description/details */}
-                    <td>{new Date(log.timestamp).toLocaleString()}</td> {/* Timestamp formatted */}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="audit-header">
+          <h2>Audit Logs</h2>
+          <div className="segmented">
+            <button
+              className={`seg-option ${tab === "latest" ? "active" : ""}`}
+              onClick={() => setTab("latest")}
+            >
+              Latest
+            </button>
+            <button
+              className={`seg-option ${tab === "earliest" ? "active" : ""}`}
+              onClick={() => setTab("earliest")}
+            >
+              Earliest
+            </button>
           </div>
+        </div>
+
+        {displayed.length === 0 ? (
+          <p className="no-logs">No logs available.</p>
+        ) : (
+          <ul className="audit-list">
+            {displayed.map((log) => (
+              <li key={log._id} className="audit-item">
+                <div className="audit-content">
+                  <p className="audit-subject">
+                    <strong>{log.userName || "Unknown User"}</strong> ({log.role || "—"})
+                  </p>
+                  <p>{log.action}: {log.details}</p>
+                  <small className="audit-time">
+                    {log.timestamp
+                      ? new Date(log.timestamp).toLocaleString()
+                      : "—"}
+                  </small>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
-      <Footer /> {/* Footer */}
+      <Footer />
     </div>
   );
 };

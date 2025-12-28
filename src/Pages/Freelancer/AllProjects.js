@@ -1,187 +1,225 @@
-// React and external library imports
-import { FaBookmark, FaRegBookmark } from 'react-icons/fa'; // Icons for bookmark status
-import { motion, AnimatePresence } from 'framer-motion'; // Animation library
-import { useNavigate } from 'react-router-dom'; // Navigation
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FaBookmark, FaRegBookmark } from "react-icons/fa";
+import axios from "axios";
 
-// Style and component imports
-import '../../Style/Freelancer/AllProjects.css';
-import '../../Style/Navbar.css';
-import '../../Style/PageContents.css';
-import Navbar from '../../Components/Navbar';
-import { NavConfig2 } from '../../Data/NavbarConfigs';
-import SearchIcon from '../../Assets/search.png';
-import Footer from '../../Components/Footer';
-import axios from 'axios';
+import Navbar from "../../Components/Navbar";
+import Footer from "../../Components/Footer";
+import { NavConfig2 } from "../../Data/NavbarConfigs";
 
-// Functional component definition
+import SearchIcon from "../../Assets/search.png";
+
+import "../../Style/Freelancer/AllProjects.css";
+import "../../Style/Navbar.css";
+import "../../Style/PageContents.css";
+
+const skillsOf = (proj) => {
+  let raw = proj?.skills ?? proj?.requiredSkills ?? [];
+  if (typeof raw === "string") raw = raw.split(",");
+  return (Array.isArray(raw) ? raw : [])
+    .map((s) => String(s || "").trim())
+    .filter(Boolean)
+    .slice(0, 10);
+};
+
 const AllProjects = () => {
   const navigate = useNavigate();
-
-  // Get user ID from localStorage
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?._id;
-
-  // State variables
   const [allProjects, setAllProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ type: [], budget: [] });
 
-  // Fetch projects and saved projects on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // IMPORTANT: ask backend to hide Completed for freelancers
         const [projectsRes, savedRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/projects/all'),
-          axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`)
+          axios.get("http://localhost:5000/api/projects/all?audience=freelancer"),
+          userId
+            ? axios.get(`http://localhost:5000/api/freelancer/${userId}/saved-projects`)
+            : Promise.resolve({ data: [] }),
         ]);
-        setAllProjects(projectsRes.data); // All projects
-        setSavedProjects(savedRes.data.map(p => p._id)); // Extract only saved project IDs
-      } catch (error) {
-        console.error('Error fetching data:', error);
+
+        // Extra safety: also drop Completed in the client (in case of legacy data)
+        const clean = (projectsRes.data || []).filter(
+          (p) => String(p.status || "").toLowerCase() !== "completed"
+        );
+
+        setAllProjects(clean);
+        setSavedProjects((savedRes.data || []).map((p) => p._id));
+      } catch (err) {
+        console.error("Error fetching data:", err);
       }
     };
-
-    if (userId) fetchData();
+    fetchData();
   }, [userId]);
 
-  // Update filter selections
   const handleCheckbox = (category, value) => {
     setFilters((prev) => {
-      const updated = { ...prev };
-      const alreadySelected = updated[category]?.includes(value);
-
-      updated[category] = alreadySelected
-        ? updated[category].filter((v) => v !== value)
-        : [...(updated[category] || []), value];
-
-      return { ...updated };
+      const list = prev[category] || [];
+      const next = list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+      return { ...prev, [category]: next };
     });
   };
 
-  // Check if a project is saved
-  const isProjectSaved = (projectId) => savedProjects.includes(projectId);
+  const isProjectSaved = (id) => savedProjects.includes(id);
 
-  // Save or unsave a project
   const handleBookmarkClick = async (e, projectId) => {
-    e.stopPropagation(); // Prevent navigation
+    e.stopPropagation();
     try {
+      if (!userId) return;
       await axios.put(`http://localhost:5000/api/freelancer/${userId}/save-project`, { projectId });
-
-      // Update saved projects state
-      setSavedProjects((prev) => {
-        return prev.includes(projectId)
-          ? prev.filter((id) => id !== projectId)
-          : [...prev, projectId];
-      });
-    } catch (error) {
-      console.error('Error updating saved projects:', error);
+      setSavedProjects((prev) =>
+        prev.includes(projectId) ? prev.filter((id) => id !== projectId) : [...prev, projectId]
+      );
+    } catch (err) {
+      console.error("Error updating saved projects:", err);
     }
   };
 
-  // Filter logic based on search input and filters
-  const filteredProjects = allProjects.filter((proj) => {
-    const matchesSearch = proj.title?.toLowerCase().includes(search.toLowerCase());
-    const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
-    const matchesBudget =
-      filters.budget.length === 0 ||
-      filters.budget.some((range) => {
-        const [min, max] = range.replace('BHD', '').split('-').map(v => parseFloat(v.trim()));
-        const rawBudget = proj.budget;
-        if (!rawBudget) return false;
-        const projectBudget = typeof rawBudget === 'number'
-          ? rawBudget
-          : parseFloat(rawBudget.replace('BHD', '').trim());
-        return projectBudget >= min && projectBudget <= max;
-      });
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
 
-    return matchesSearch && matchesType && matchesBudget;
-  });
+  const filteredProjects = useMemo(() => {
+    const q = debouncedSearch.trim().toLowerCase();
+    return allProjects.filter((proj) => {
+      // (Double safety) never show Completed
+      if (String(proj.status || "").toLowerCase() === "completed") return false;
 
-  // JSX return structure
+      const title = (proj.title || "").toLowerCase();
+      const projSkills = skillsOf(proj).map((s) => s.toLowerCase());
+
+      const matchesSearch = !q || title.includes(q) || projSkills.some((s) => s.includes(q));
+      const matchesType = filters.type.length === 0 || filters.type.includes(proj.category);
+      const matchesBudget =
+        filters.budget.length === 0 ||
+        filters.budget.some((range) => {
+          const [min, max] = range
+            .replace("BHD", "")
+            .split("-")
+            .map((v) => parseFloat(v.trim()));
+          const val =
+            typeof proj.budget === "number"
+              ? proj.budget
+              : parseFloat(String(proj.budget).replace("BHD", "").trim());
+          return val >= min && val <= max;
+        });
+
+      return matchesSearch && matchesType && matchesBudget;
+    });
+  }, [allProjects, debouncedSearch, filters]);
+
   return (
-    <div className="browse-projects-page">
+    <div className="ap-page">
       <Navbar links={NavConfig2} />
-      <div className="browse-container">
-        {/* LEFT SIDEBAR - Filter Section */}
-        <aside className="browse-left-panel">
-          <h1 className="page-title">All Projects</h1>
-          <div className="filter-section">
-            <h3>Filter</h3>
-            <div className="filter-group">
-              <p className="hint">Filter the projects according to their type and budget range.</p>
-              <h4>Type</h4>
-              {/* Project Type Filter */}
-              {['Marketing', 'Graphic Design', 'Web Design', 'Illustration', 'Content Creation', 'Product Design'].map((type) => (
-                <label key={type}>
+
+     
+
+      <div className="ap-container">
+        <aside className="ap-filter">
+          <h1 className="ap-title">
+            <span className="ap-title-accent">All</span> Projects
+          </h1>
+          <div className="ap-filter-box">
+            <h3 className="ap-filter-heading">Filter</h3>
+            <p className="ap-filter-hint">
+              Filter the projects according to
+              <br /> their type and reward range.
+            </p>
+
+            <div className="ap-filter-group">
+              <h4 className="ap-filter-label">Type</h4>
+              {[
+                 "Marketing",
+  "Graphic Design",
+  "Content Creation",
+  "Product Design",
+  "Web Design",
+  "Photography",
+  "Video & Motion",
+  "Reports & Presentations"
+              ].map((t) => (
+                <label key={t} className="ap-check">
                   <input
                     type="checkbox"
-                    checked={filters.type.includes(type)}
-                    onChange={() => handleCheckbox('type', type)}
-                  />{' '}
-                  {type}
+                    checked={filters.type.includes(t)}
+                    onChange={() => handleCheckbox("type", t)}
+                  />
+                  <span>{t}</span>
                 </label>
               ))}
             </div>
 
-            {/* Budget Filter */}
-            <div className="filter-group">
-              <h4>Budget</h4>
-              {['10 - 40 BHD', '50 - 70 BHD', '80 - 100 BHD'].map((range) => (
-                <label key={range}>
+            <div className="ap-filter-group">
+              <h4 className="ap-filter-label">Reward</h4>
+             {["BHD 10 - 40 ", "BHD 50 - 70 ", "BHD 80 - 100 "].map((r) => (
+                <label key={r} className="ap-check">
                   <input
                     type="checkbox"
-                    checked={filters.budget.includes(range)}
-                    onChange={() => handleCheckbox('budget', range)}
-                  />{' '}
-                  {range}
+                    checked={filters.budget.includes(r)}
+                    onChange={() => handleCheckbox("budget", r)}
+                  />
+                  <span>{r}</span>
                 </label>
               ))}
             </div>
           </div>
         </aside>
 
-        {/* RIGHT SIDE - Search and Projects Grid */}
-        <main className="browse-right-panel">
-          <div className="search-wrapper">
+        <main className="ap-content">
+          <div className="ap-search">
             <input
               type="text"
-              placeholder="What are you looking for?"
+              placeholder="Search project by title…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <img src={SearchIcon} alt="search" className="search-icon" />
+            <img src={SearchIcon} alt="Search" />
           </div>
 
-          {/* PROJECT CARDS */}
-          <div className="projects-grid">
-            <AnimatePresence>
-              {filteredProjects.map((proj, index) => (
+          <div className="ap-grid">
+            {filteredProjects.map((proj, i) => {
+            
+              
+              return (
                 <motion.div
                   key={proj._id}
-                  className="project-card"
+                  className="ap-card"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 30 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  whileHover={{
-                    y: -4,
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-                    transition: { duration: 0.2 },
-                  }}
+                  transition={{ duration: 0.3, delay: i * 0.02 }}
+                  whileHover={{ y: -4, boxShadow: "0 10px 22px rgba(0,0,0,.14)" }}
                   onClick={() => navigate(`/project-details/${proj._id}`)}
                 >
-                  <img src={proj.imageUrl || proj.image || proj.coverImage} alt={proj.title} />
-                  <h4>{proj.title}</h4>
-                  <p>{proj.budget} BHD</p>
-                  {/* Bookmark Icon */}
-                  <span className="bookmark" onClick={(e) => handleBookmarkClick(e, proj._id)}>
-                    {isProjectSaved(proj._id) ? <FaBookmark /> : <FaRegBookmark />}
-                  </span>
+                  <div className="ap-thumb">
+                    <img
+                      src={proj.imageUrl || proj.image || proj.coverImage}
+                      alt={proj.title}
+                      loading="lazy"
+                    />
+                    <button
+                      className="ap-save"
+                      aria-label="Save project"
+                      onClick={(e) => handleBookmarkClick(e, proj._id)}
+                    >
+                      {isProjectSaved(proj._id) ? <FaBookmark /> : <FaRegBookmark />}
+                    </button>
+
+                  </div>
+
+                  <div className="ap-meta">
+                    <h4 className="ap-name">{proj.title}</h4>
+                    <div className="ap-price">BHD {proj.budget} </div>
+                  </div>
                 </motion.div>
-              ))}
-            </AnimatePresence>
+              );
+            })}
           </div>
         </main>
       </div>
